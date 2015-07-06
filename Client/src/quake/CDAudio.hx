@@ -14,7 +14,7 @@ class CDAudio {
     static var known = [];
 
     static function Play(track:Int, looping:Bool):Void {
-        if (!CDAudio.initialized || !CDAudio.enabled)
+        if (!initialized || !enabled)
             return;
         track -= 2;
         if (CDAudio.playTrack == track) {
@@ -25,7 +25,7 @@ class CDAudio {
             }
             return;
         }
-        if ((track < 0) || (track >= CDAudio.known.length)) {
+        if (track < 0 || track >= CDAudio.known.length) {
             (untyped Con).DPrint('CDAudio.Play: Bad track number ' + (track + 2) + '.\n');
             return;
         }
@@ -37,8 +37,8 @@ class CDAudio {
         CDAudio.cd.play();
     }
 
-    static function Stop() {
-        if (!CDAudio.initialized || !CDAudio.enabled)
+    static function Stop():Void {
+        if (!initialized || !enabled)
             return;
         if (CDAudio.cd != null)
             CDAudio.cd.pause();
@@ -46,30 +46,30 @@ class CDAudio {
         CDAudio.cd = null;
     }
 
-    static function Pause() {
-        if (!CDAudio.initialized || !CDAudio.enabled)
+    static function Pause():Void {
+        if (!initialized || !enabled)
             return;
         if (CDAudio.cd != null)
             CDAudio.cd.pause();
     }
 
-    static function Resume() {
-        if (!CDAudio.initialized || !CDAudio.enabled)
+    static function Resume():Void {
+        if (!initialized || !enabled)
             return;
         if (CDAudio.cd != null)
             CDAudio.cd.play();
     }
 
-    static function CD_f() {
-        if (!CDAudio.initialized || (Cmd.argv.length <= 1))
+    static function CD_f():Void {
+        if (!initialized || (Cmd.argv.length <= 1))
             return;
         var command = Cmd.argv[1].toLowerCase();
         switch (command) {
             case 'on':
-                CDAudio.enabled = true;
+                enabled = true;
             case 'off':
                 CDAudio.Stop();
-                CDAudio.enabled = false;
+                enabled = false;
             case 'play':
                 CDAudio.Play(Q.atoi(Cmd.argv[2]), false);
             case 'loop':
@@ -90,8 +90,8 @@ class CDAudio {
             }
     }
 
-    static function Update() {
-        if (!CDAudio.initialized || !CDAudio.enabled)
+    static function Update():Void {
+        if (!initialized || !enabled)
             return;
         if ((untyped S).bgmvolume.value == CDAudio.cdvolume)
             return;
@@ -104,7 +104,7 @@ class CDAudio {
             CDAudio.cd.volume = CDAudio.cdvolume;
     }
 
-    static function Init() {
+    static function Init():Void {
         Cmd.AddCommand('cd', CDAudio.CD_f);
         if ((untyped COM).CheckParm('-nocdaudio') != null)
             return;
@@ -115,7 +115,7 @@ class CDAudio {
             while (j >= 0) {
                 xhr.open('HEAD', (untyped COM).searchpaths[j].filename + track, false);
                 xhr.send();
-                if ((xhr.status >= 200) && (xhr.status <= 299)) {
+                if (xhr.status >= 200 && xhr.status <= 299) {
                     CDAudio.known[i - 1] = (untyped COM).searchpaths[j].filename + track;
                     break;
                 }
@@ -126,7 +126,7 @@ class CDAudio {
         }
         if (CDAudio.known.length == 0)
             return;
-        CDAudio.initialized = CDAudio.enabled = true;
+        initialized = enabled = true;
         CDAudio.Update();
         (untyped Con).Print('CD Audio Initialized\n');
     }

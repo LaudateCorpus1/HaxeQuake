@@ -38,7 +38,7 @@ class Cvar {
         return null;
     }
 
-    static function Set(name:String, value:String):Void {
+    public static function Set(name:String, value:String):Void {
         for (v in vars)
         {
             if (v.name != name)

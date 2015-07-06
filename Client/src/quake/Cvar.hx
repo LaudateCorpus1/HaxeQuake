@@ -53,7 +53,7 @@ class Cvar {
         (untyped Con).Print('Cvar.Set: variable ' + name + ' not found\n');
     }
 
-    static inline function SetValue(name:String, value:Float):Void {
+    public static inline function SetValue(name:String, value:Float):Void {
         Cvar.Set(name, value.toFixed(6));
     }
 

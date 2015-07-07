@@ -308,7 +308,7 @@ class SCR {
 			SCR.CalcRefdef();
 
 		SCR.SetUpToDrawConsole();
-		(untyped V).RenderView();
+		V.RenderView();
 		GL.Set2D();
 		if ((untyped R).dowarp)
 			(untyped R).WarpScreen();
@@ -327,9 +327,9 @@ class SCR {
 			SCR.DrawCenterString();
 		else
 		{
-			if ((untyped V).crosshair.value != 0) {
-				(untyped Draw).Character((untyped R).refdef.vrect.x + ((untyped R).refdef.vrect.width >> 1) + (untyped V).crossx.value,
-					(untyped R).refdef.vrect.y + ((untyped R).refdef.vrect.height >> 1) + (untyped V).crossy.value, 43);
+			if (V.crosshair.value != 0) {
+				(untyped Draw).Character((untyped R).refdef.vrect.x + ((untyped R).refdef.vrect.width >> 1) + V.crossx.value,
+					(untyped R).refdef.vrect.y + ((untyped R).refdef.vrect.height >> 1) + V.crossy.value, 43);
 			}
 			SCR.DrawNet();
 			SCR.DrawTurtle();

@@ -66,7 +66,7 @@ class IN {
             angles[1] -= (untyped CL).m_yaw.value * mouse_x;
 
         if (mlook != 0)
-            (untyped V).StopPitchDrift();
+            V.StopPitchDrift();
 
         if ((mlook != 0) && (strafe == 0))
         {

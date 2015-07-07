@@ -170,7 +170,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     }
 
-    static function Normalize(v:Vec):Float {
+    public static function Normalize(v:Vec):Float {
         var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
         if (length == 0.0) {
             v[0] = v[1] = v[2] = 0.0;

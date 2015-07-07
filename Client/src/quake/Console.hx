@@ -23,7 +23,7 @@ class Console {
     static var forcedup:Bool;
 
     static function ToggleConsole_f():Void {
-        (untyped SCR).EndLoadingPlaque();
+        SCR.EndLoadingPlaque();
         if ((untyped Key).dest.value == (untyped Key).dest.console) {
             if ((untyped CL).cls.state != (untyped CL).active.connected) {
                 (untyped M).Menu_Main_f();

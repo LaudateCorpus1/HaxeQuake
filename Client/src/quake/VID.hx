@@ -29,7 +29,7 @@ class VID {
 
     static function Init() {
         document.getElementById('progress').style.display = 'none';
-        (untyped GL).Init();
+        GL.Init();
         SetPalette();
     }
 }

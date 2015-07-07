@@ -114,7 +114,7 @@ class GL {
 	}
 
 	static function Set2D():Void {
-		gl.viewport(0, 0, Std.int(VID.width * (untyped SCR).devicePixelRatio), Std.int(VID.height * (untyped SCR).devicePixelRatio));
+		gl.viewport(0, 0, Std.int(VID.width * SCR.devicePixelRatio), Std.int(VID.height * SCR.devicePixelRatio));
 		UnbindProgram();
 		for (program in programs) {
 			if (program.uOrtho == null)

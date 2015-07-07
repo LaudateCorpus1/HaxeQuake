@@ -35,7 +35,7 @@ class Sys {
         (untyped Host).Shutdown();
         document.body.style.cursor = 'auto';
         VID.mainwindow.style.display = 'none';
-        if ((untyped COM).registered.value != 0)
+        if (COM.registered.value != 0)
             document.getElementById('end2').style.display = 'inline';
         else
             document.getElementById('end1').style.display = 'inline';
@@ -102,7 +102,7 @@ class Sys {
                 if (text.length != 0)
                     argv[argv.length] = text;
             }
-            (untyped COM).InitArgv(argv);
+            COM.InitArgv(argv);
 
             var elem = document.documentElement;
             VID.width = (elem.clientWidth <= 320) ? 320 : elem.clientWidth;

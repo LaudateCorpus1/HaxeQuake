@@ -168,7 +168,7 @@ class GL {
 		var trans32 = new Uint32Array(trans);
 		var i = scaled_width * scaled_height - 1;
 		while (i >= 0) {
-			trans32[i] = (untyped COM).LittleLong(VID.d_8to24table[data[i]] + 0xff000000);
+			trans32[i] = COM.LittleLong(VID.d_8to24table[data[i]] + 0xff000000);
 			if (data[i] >= 224)
 				trans32[i] &= 0xffffff;
 			i--;
@@ -259,7 +259,7 @@ class GL {
 		var i = scaled_width * scaled_height - 1;
 		while (i >= 0) {
 			if (data[i] != 255)
-				trans32[i] = (untyped COM).LittleLong(VID.d_8to24table[data[i]] + 0xff000000);
+				trans32[i] = COM.LittleLong(VID.d_8to24table[data[i]] + 0xff000000);
 			i--;
 		}
 		gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, scaled_width, scaled_height, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, new Uint8Array(trans));

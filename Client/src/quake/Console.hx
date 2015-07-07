@@ -60,9 +60,9 @@ class Console {
     }
 
     static function Init():Void {
-        debuglog = ((untyped COM).CheckParm('-condebug') != null);
+        debuglog = (COM.CheckParm('-condebug') != null);
         if (debuglog)
-            (untyped COM).WriteTextFile('qconsole.log', '');
+            COM.WriteTextFile('qconsole.log', '');
         Print('Console initialized.\n');
 
         notifytime = Cvar.RegisterVariable('con_notifytime', '3');
@@ -74,12 +74,12 @@ class Console {
 
     static function Print(msg:String):Void {
         if (debuglog) {
-            var data:String = (untyped COM).LoadTextFile('qconsole.log');
+            var data:String = COM.LoadTextFile('qconsole.log');
             if (data != null) {
                 data += msg;
                 if (data.length >= 32768)
                     data = data.substring(data.length - 16384);
-                (untyped COM).WriteTextFile('qconsole.log', data);
+                COM.WriteTextFile('qconsole.log', data);
             }
         }
 

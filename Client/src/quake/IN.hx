@@ -16,7 +16,7 @@ class IN {
 
     static function StartupMouse():Void {
         m_filter = Cvar.RegisterVariable('m_filter', '1');
-        if ((untyped COM).CheckParm('-nomouse') != null)
+        if (COM.CheckParm('-nomouse') != null)
             return;
         VID.mainwindow.onclick = onclick;
         document.onmousemove = onmousemove;

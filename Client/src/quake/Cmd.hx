@@ -92,7 +92,7 @@ class Cmd {
             Console.Print('exec <filename> : execute a script file\n');
             return;
         }
-        var f = (untyped COM).LoadTextFile(Cmd.argv[1]);
+        var f = COM.LoadTextFile(Cmd.argv[1]);
         if (f == null) {
             Console.Print('couldn\'t exec ' + Cmd.argv[1] + '\n');
             return;
@@ -151,7 +151,7 @@ class Cmd {
                 Cmd.args = text.substring(i);
             if ((text.charCodeAt(i) == 10) || (i >= text.length))
                 return;
-            text = (untyped COM).Parse(text);
+            text = COM.Parse(text);
             if (text == null)
                 return;
             argv.push(untyped COM.token);

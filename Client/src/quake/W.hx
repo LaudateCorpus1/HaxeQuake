@@ -10,7 +10,7 @@ class W {
     static var lumps = new Map<String, ArrayBuffer>();
 
     static function LoadWadFile(filename:String) {
-        var base = (untyped COM).LoadFile(filename);
+        var base = COM.LoadFile(filename);
         if (base == null)
             Sys.Error('W.LoadWadFile: couldn\'t load ' + filename);
         var view = new DataView(base);

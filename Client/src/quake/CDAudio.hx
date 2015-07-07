@@ -106,17 +106,17 @@ class CDAudio {
 
     static function Init():Void {
         Cmd.AddCommand('cd', CDAudio.CD_f);
-        if ((untyped COM).CheckParm('-nocdaudio') != null)
+        if (COM.CheckParm('-nocdaudio') != null)
             return;
         var xhr = new XMLHttpRequest();
         for (i in 1...100) {
             var track = '/media/quake' + (i <= 9 ? '0' : '') + i + '.ogg';
-            var j = (untyped COM).searchpaths.length - 1;
+            var j = COM.searchpaths.length - 1;
             while (j >= 0) {
-                xhr.open('HEAD', (untyped COM).searchpaths[j].filename + track, false);
+                xhr.open('HEAD', COM.searchpaths[j].filename + track, false);
                 xhr.send();
                 if (xhr.status >= 200 && xhr.status <= 299) {
-                    CDAudio.known[i - 1] = (untyped COM).searchpaths[j].filename + track;
+                    CDAudio.known[i - 1] = COM.searchpaths[j].filename + track;
                     break;
                 }
                 j--;

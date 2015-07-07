@@ -118,7 +118,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         return sides;
     }
 
-    static function AngleVectors(angles:Vec, ?forward:Vec, ?right:Vec, ?up:Vec):Void {
+    public static function AngleVectors(angles:Vec, ?forward:Vec, ?right:Vec, ?up:Vec):Void {
         var angle;
         
         angle = angles[0] * Math.PI / 180.0;

@@ -2,8 +2,9 @@ package quake;
 
 import js.html.ArrayBuffer;
 import js.html.Uint8Array;
+import quake.NET.INETSocket;
 
-private extern class LoopNETSocket extends quake.NET.NETSocket<LoopNETSocket> {
+private class LoopNETSocket extends quake.NET.NETSocket<LoopNETSocket> {
     var receiveMessage:Uint8Array;
     var receiveMessageLength:Int;
     var canSend:Bool;
@@ -15,59 +16,61 @@ class NET_Loop {
 	static var localconnectpending = false;
 	static var client:LoopNETSocket;
 	static var server:LoopNETSocket;
+	static var initialized = false;
 
 	static function Init():Bool {
 		return true;
 	}
 
-	static function Connect(host:String):LoopNETSocket {
+	static function Connect(host:String):INETSocket {
 		if (host != 'local')
 			return null;
 
-		NET_Loop.localconnectpending = true;
+		localconnectpending = true;
 
-		if (NET_Loop.client == null) {
-			NET_Loop.client = (untyped NET).NewQSocket();
-			NET_Loop.client.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
-			NET_Loop.client.address = 'localhost';
+		if (client == null) {
+			client = NET.NewQSocket();
+			client.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
+			client.address = 'localhost';
 		}
-		NET_Loop.client.receiveMessageLength = 0;
-		NET_Loop.client.canSend = true;
+		client.receiveMessageLength = 0;
+		client.canSend = true;
 
-		if (NET_Loop.server == null) {
-			NET_Loop.server = (untyped NET).NewQSocket();
-			NET_Loop.server.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
-			NET_Loop.server.address = 'LOCAL';
+		if (server == null) {
+			server = NET.NewQSocket();
+			server.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
+			server.address = 'LOCAL';
 		}
-		NET_Loop.server.receiveMessageLength = 0;
-		NET_Loop.server.canSend = true;
+		server.receiveMessageLength = 0;
+		server.canSend = true;
 
-		NET_Loop.client.driverdata = NET_Loop.server;
-		NET_Loop.server.driverdata = NET_Loop.client;
+		client.driverdata = server;
+		server.driverdata = client;
 
-		return NET_Loop.client;
+		return client;
 	}
 
-	static function CheckNewConnections():LoopNETSocket {
-		if (NET_Loop.localconnectpending != true)
+	static function CheckNewConnections():INETSocket {
+		if (localconnectpending != true)
 			return null;
-		NET_Loop.localconnectpending = false;
-		NET_Loop.server.receiveMessageLength = 0;
-		NET_Loop.server.canSend = true;
-		NET_Loop.client.receiveMessageLength = 0;
-		NET_Loop.client.canSend = true;
-		return NET_Loop.server;
+		localconnectpending = false;
+		server.receiveMessageLength = 0;
+		server.canSend = true;
+		client.receiveMessageLength = 0;
+		client.canSend = true;
+		return server;
 	}
 
-	static function GetMessage(sock:LoopNETSocket):Int {
+	static function GetMessage(sock:INETSocket):Int {
+		var sock:LoopNETSocket = cast sock;
 		if (sock.receiveMessageLength == 0)
 			return 0;
 		var ret = sock.receiveMessage[0];
 		var length = sock.receiveMessage[1] + (sock.receiveMessage[2] << 8);
-		if (length > (untyped NET).message.data.byteLength)
-			Sys.Error('NET_Loop.GetMessage: overflow');
-		(untyped NET).message.cursize = length;
-		(new Uint8Array((untyped NET).message.data)).set(sock.receiveMessage.subarray(3, length + 3));
+		if (length > NET.message.data.byteLength)
+			Sys.Error('GetMessage: overflow');
+		NET.message.cursize = length;
+		(new Uint8Array(NET.message.data)).set(sock.receiveMessage.subarray(3, length + 3));
 		sock.receiveMessageLength -= length;
 		if (sock.receiveMessageLength >= 4) {
 			for (i in 0...sock.receiveMessageLength)
@@ -79,13 +82,14 @@ class NET_Loop {
 		return ret;
 	}
 
-	static function SendMessage(sock:LoopNETSocket, data:MSG):Int {
+	static function SendMessage(sock:INETSocket, data:MSG):Int {
+		var sock:LoopNETSocket = cast sock;
 		if (sock.driverdata == null)
 			return -1;
 		var bufferLength = sock.driverdata.receiveMessageLength;
 		sock.driverdata.receiveMessageLength += data.cursize + 3;
 		if (sock.driverdata.receiveMessageLength > 8192)
-			Sys.Error('NET_Loop.SendMessage: overflow');
+			Sys.Error('SendMessage: overflow');
 		var buffer = sock.driverdata.receiveMessage;
 		buffer[bufferLength] = 1;
 		buffer[bufferLength + 1] = data.cursize & 0xff;
@@ -95,13 +99,14 @@ class NET_Loop {
 		return 1;
 	}
 
-	static function SendUnreliableMessage(sock:LoopNETSocket, data:MSG):Int {
+	static function SendUnreliableMessage(sock:INETSocket, data:MSG):Int {
+		var sock:LoopNETSocket = cast sock;
 		if (sock.driverdata == null)
 			return -1;
 		var bufferLength = sock.driverdata.receiveMessageLength;
 		sock.driverdata.receiveMessageLength += data.cursize + 3;
 		if (sock.driverdata.receiveMessageLength > 8192)
-			Sys.Error('NET_Loop.SendMessage: overflow');
+			Sys.Error('SendMessage: overflow');
 		var buffer = sock.driverdata.receiveMessage;
 		buffer[bufferLength] = 2;
 		buffer[bufferLength + 1] = data.cursize & 0xff;
@@ -110,20 +115,24 @@ class NET_Loop {
 		return 1;
 	}
 
-	static function CanSendMessage(sock:LoopNETSocket):Bool {
+	static function CanSendMessage(sock:INETSocket):Bool {
+		var sock:LoopNETSocket = cast sock;
 		if (sock.driverdata != null)
 			return sock.canSend;
 		return false;
 	}
 
-	static function Close(sock:LoopNETSocket):Void {
+	static function Close(sock:INETSocket):Void {
+		var sock:LoopNETSocket = cast sock;
 		if (sock.driverdata != null)
 			sock.driverdata.driverdata = null;
 		sock.receiveMessageLength = 0;
 		sock.canSend = false;
-		if (sock == NET_Loop.client)
-			NET_Loop.client = null;
+		if (sock == client)
+			client = null;
 		else
-			NET_Loop.server = null;
+			server = null;
 	}	
+
+	static function CheckForResend():Int throw "Not implemented";
 }

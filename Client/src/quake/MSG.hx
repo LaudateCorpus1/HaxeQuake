@@ -13,6 +13,11 @@ class MSG {
 	var allowoverflow = false;
 	var overflowed = false;
 
+	function new(capacity:Int) {
+		data = new ArrayBuffer(capacity);
+		cursize = 0;
+	}
+
 	static var badread:Bool;
 	static var readcount:Int;
 
@@ -56,51 +61,51 @@ class MSG {
 	}
 
 	static function ReadChar():Int {
-		if (readcount >= (untyped NET).message.cursize) {
+		if (readcount >= NET.message.cursize) {
 			badread = true;
 			return -1;
 		}
-		var c = (new Int8Array((untyped NET).message.data, readcount, 1))[0];
+		var c = (new Int8Array(NET.message.data, readcount, 1))[0];
 		++readcount;
 		return c;
 	}
 
 	static function ReadByte():Int {
-		if (readcount >= (untyped NET).message.cursize) {
+		if (readcount >= NET.message.cursize) {
 			badread = true;
 			return -1;
 		}
-		var c = (new Uint8Array((untyped NET).message.data, readcount, 1))[0];
+		var c = (new Uint8Array(NET.message.data, readcount, 1))[0];
 		++readcount;
 		return c;
 	}
 
 	static function ReadShort():Int {
-		if ((readcount + 2) > (untyped NET).message.cursize) {
+		if ((readcount + 2) > NET.message.cursize) {
 			badread = true;
 			return -1;
 		}
-		var c = (new DataView((untyped NET).message.data)).getInt16(readcount, true);
+		var c = (new DataView(NET.message.data)).getInt16(readcount, true);
 		readcount += 2;
 		return c;
 	}
 
 	static function ReadLong():Int {
-		if ((readcount + 4) > (untyped NET).message.cursize) {
+		if ((readcount + 4) > NET.message.cursize) {
 			badread = true;
 			return -1;
 		}
-		var c = (new DataView((untyped NET).message.data)).getInt32(readcount, true);
+		var c = (new DataView(NET.message.data)).getInt32(readcount, true);
 		readcount += 4;
 		return c;
 	}
 
 	static function ReadFloat():Float {
-		if ((readcount + 4) > (untyped NET).message.cursize) {
+		if ((readcount + 4) > NET.message.cursize) {
 			badread = true;
 			return -1;
 		}
-		var f = (new DataView((untyped NET).message.data)).getFloat32(readcount, true);
+		var f = (new DataView(NET.message.data)).getFloat32(readcount, true);
 		readcount += 4;
 		return f;
 	}

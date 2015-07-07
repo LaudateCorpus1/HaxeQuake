@@ -5,12 +5,13 @@ import js.Browser.window;
 import js.html.ArrayBuffer;
 import js.html.BinaryType;
 import js.html.Uint8Array;
+import quake.NET.INETSocket;
 
 private class WebSocket extends js.html.WebSocket {
 	public var data_socket:WEBSNETSocket;
 }
 
-private extern class WEBSNETSocket extends quake.NET.NETSocket<WebSocket> {
+private class WEBSNETSocket extends quake.NET.NETSocket<WebSocket> {
     var receiveMessage:Array<Uint8Array>;
 }
 
@@ -18,15 +19,16 @@ private extern class WEBSNETSocket extends quake.NET.NETSocket<WebSocket> {
 @:publicFields
 class NET_WEBS {
 	static var available = false;
+	static var initialized = false;
 
 	static function Init():Bool {
 		if ((cast window).WebSocket == null || document.location.protocol == 'https:')
 			return false;
-		NET_WEBS.available = true;
+		available = true;
 		return true;
 	}
 
-	static function Connect(host:String):Int {
+	static function Connect(host:String):INETSocket {
 		if (host.length <= 5)
 			return null;
 		if (host.charCodeAt(5) == 47)
@@ -34,7 +36,7 @@ class NET_WEBS {
 		if (host.substring(0, 5) != 'ws://')
 			return null;
 		host = 'ws://' + host.split('/')[2];
-		var sock:WEBSNETSocket = (untyped NET).NewQSocket();
+		var sock:WEBSNETSocket = NET.NewQSocket();
 		sock.disconnected = true;
 		sock.receiveMessage = [];
 		sock.address = host;
@@ -44,16 +46,18 @@ class NET_WEBS {
 			return null;
 		sock.driverdata.data_socket = sock;
 		sock.driverdata.binaryType = BinaryType.ARRAYBUFFER;
-		sock.driverdata.onerror = NET_WEBS.OnError.bind(sock);
-		sock.driverdata.onmessage = NET_WEBS.OnMessage.bind(sock);
-		(untyped NET).newsocket = sock;
-		return 0;
+		sock.driverdata.onerror = OnError.bind(sock);
+		sock.driverdata.onmessage = OnMessage.bind(sock);
+		NET.newsocket = sock;
+		return cast 0;
 	}
 
-	static function CheckNewConnections() {
+	static function CheckNewConnections():INETSocket {
+		return null;
 	}
 
-	static function GetMessage(sock:WEBSNETSocket):Int {
+	static function GetMessage(sock:INETSocket):Int {
+		var sock:WEBSNETSocket = cast sock;
 		if (sock.driverdata == null)
 			return -1;
 		if (sock.driverdata.readyState != 1)
@@ -61,12 +65,13 @@ class NET_WEBS {
 		if (sock.receiveMessage.length == 0)
 			return 0;
 		var message = sock.receiveMessage.shift();
-		(untyped NET).message.cursize = message.length - 1;
-		(new Uint8Array((untyped NET).message.data)).set(message.subarray(1));
+		NET.message.cursize = message.length - 1;
+		(new Uint8Array(NET.message.data)).set(message.subarray(1));
 		return message[0];
 	}
 
-	static function SendMessage(sock:WEBSNETSocket, data:MSG):Int {
+	static function SendMessage(sock:INETSocket, data:MSG):Int {
+		var sock:WEBSNETSocket = cast sock;
 		if (sock.driverdata == null)
 			return -1;
 		if (sock.driverdata.readyState != 1)
@@ -78,7 +83,8 @@ class NET_WEBS {
 		return 1;
 	}
 
-	static function SendUnreliableMessage(sock:WEBSNETSocket, data:MSG):Int {
+	static function SendUnreliableMessage(sock:INETSocket, data:MSG):Int {
+		var sock:WEBSNETSocket = cast sock;
 		if (sock.driverdata == null)
 			return -1;
 		if (sock.driverdata.readyState != 1)
@@ -90,7 +96,8 @@ class NET_WEBS {
 		return 1;
 	}
 
-	static function CanSendMessage(sock:WEBSNETSocket):Bool {
+	static function CanSendMessage(sock:INETSocket):Bool {
+		var sock:WEBSNETSocket = cast sock;
 		if (sock.driverdata == null)
 			return false;
 		if (sock.driverdata.readyState == 1)
@@ -98,21 +105,23 @@ class NET_WEBS {
 		return false;
 	}
 
-	static function Close(sock:WEBSNETSocket):Void {
+	static function Close(sock:INETSocket):Void {
+		var sock:WEBSNETSocket = cast sock;
 		if (sock.driverdata != null)
 			sock.driverdata.close(1000);
 	}
 
 	static function CheckForResend():Int {
-		if ((untyped NET).newsocket.driverdata.readyState == 1)
+		var sock:WEBSNETSocket = cast NET.newsocket;
+		if (sock.driverdata.readyState == 1)
 			return 1;
-		if ((untyped NET).newsocket.driverdata.readyState != 0)
+		if (sock.driverdata.readyState != 0)
 			return -1;
 		return null;
 	}
 
 	static function OnError(sock:WEBSNETSocket):Void {
-		(untyped NET).Close(sock);
+		NET.Close(sock);
 	}
 
 	static function OnMessage(sock:WEBSNETSocket, message:MSG):Void {

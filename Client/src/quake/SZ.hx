@@ -14,7 +14,7 @@ class SZ {
 			if (length > buf.data.byteLength)
 				Sys.Error('SZ.GetSpace: ' + length + ' is > full buffer size');
 			buf.overflowed = true;
-			(untyped Con).Print('SZ.GetSpace: overflow\n');
+			Console.Print('SZ.GetSpace: overflow\n');
 			buf.cursize = 0;
 		}
 		var cursize = buf.cursize;

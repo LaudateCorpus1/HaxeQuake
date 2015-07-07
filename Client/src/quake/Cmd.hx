@@ -89,29 +89,29 @@ class Cmd {
 
     static function Exec_f() {
         if (Cmd.argv.length != 2) {
-            (untyped Con).Print('exec <filename> : execute a script file\n');
+            Console.Print('exec <filename> : execute a script file\n');
             return;
         }
         var f = (untyped COM).LoadTextFile(Cmd.argv[1]);
         if (f == null) {
-            (untyped Con).Print('couldn\'t exec ' + Cmd.argv[1] + '\n');
+            Console.Print('couldn\'t exec ' + Cmd.argv[1] + '\n');
             return;
         }
-        (untyped Con).Print('execing ' + Cmd.argv[1] + '\n');
+        Console.Print('execing ' + Cmd.argv[1] + '\n');
         Cmd.text = f + Cmd.text;
     }
 
     static function Echo_f() {
         for (i in 1...Cmd.argv.length)
-            (untyped Con).Print(Cmd.argv[i] + ' ');
-        (untyped Con).Print('\n');
+            Console.Print(Cmd.argv[i] + ' ');
+        Console.Print('\n');
     }
 
     static function Alias_f() {
         if (Cmd.argv.length <= 1) {
-            (untyped Con).Print('Current alias commands:\n');
+            Console.Print('Current alias commands:\n');
             for (a in alias)
-                (untyped Con).Print(a.name + ' : ' + a.value + '\n');
+                Console.Print(a.name + ' : ' + a.value + '\n');
         }
         var s = Cmd.argv[1], value = '';
         var i = 0;
@@ -161,13 +161,13 @@ class Cmd {
     static function AddCommand(name:String, command:Void->Void):Void {
         for (v in Cvar.vars) {
             if (v.name == name) {
-                (untyped Con).Print('Cmd.AddCommand: ' + name + ' already defined as a var\n');
+                Console.Print('Cmd.AddCommand: ' + name + ' already defined as a var\n');
                 return;
             }
         }
         for (f in functions) {
             if (f.name == name) {
-                (untyped Con).Print('Cmd.AddCommand: ' + name + ' already defined\n');
+                Console.Print('Cmd.AddCommand: ' + name + ' already defined\n');
                 return;
             }
         }
@@ -203,12 +203,12 @@ class Cmd {
             }
         }
         if (!Cvar.Command())
-            (untyped Con).Print('Unknown command "' + name + '"\n');
+            Console.Print('Unknown command "' + name + '"\n');
     }
 
     static function ForwardToServer() {
         if ((untyped CL).cls.state != (untyped CL).active.connected) {
-            (untyped Con).Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
+            Console.Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
             return;
         }
         if ((untyped CL).cls.demoplayback == true)

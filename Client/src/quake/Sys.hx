@@ -55,12 +55,12 @@ class Sys {
         if (untyped Host.initialized)
             untyped Host.Shutdown();
         document.body.style.cursor = 'auto';
-        var i = (untyped Con).text.length - 25;
+        var i = Console.text.length - 25;
         if (i < 0)
             i = 0;
         if (window.console != null) {
-            while (i < (untyped Con).text.length)
-                window.console.log((untyped Con).text[i++].text);
+            while (i < Console.text.length)
+                window.console.log(Console.text[i++].text);
         }
         window.alert(text);
         throw new Error(text);

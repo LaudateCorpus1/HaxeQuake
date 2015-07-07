@@ -50,7 +50,7 @@ class Cvar {
                 (untyped Host).BroadcastPrint('"' + v.name + '" changed to "' + v.string + '"\n');
             return;
         }
-        (untyped Con).Print('Cvar.Set: variable ' + name + ' not found\n');
+        Console.Print('Cvar.Set: variable ' + name + ' not found\n');
     }
 
     public static inline function SetValue(name:String, value:Float):Void {
@@ -60,7 +60,7 @@ class Cvar {
     public static function RegisterVariable(name:String, value:String, archive = false, server = false):Cvar {
         for (v in vars) {
             if (v.name == name) {
-                (untyped Con).Print('Can\'t register variable ' + name + ', already defined\n');
+                Console.Print('Can\'t register variable ' + name + ', already defined\n');
                 return null;
             }
         }
@@ -74,7 +74,7 @@ class Cvar {
         if (v == null)
             return false;
         if (Cmd.argv.length <= 1) {
-            (untyped Con).Print('"' + v.name + '" is "' + v.string + '"\n');
+            Console.Print('"' + v.name + '" is "' + v.string + '"\n');
             return true;
         }
         Cvar.Set(v.name, Cmd.argv[1]);

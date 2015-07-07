@@ -26,7 +26,7 @@ class CDAudio {
             return;
         }
         if (track < 0 || track >= CDAudio.known.length) {
-            (untyped Con).DPrint('CDAudio.Play: Bad track number ' + (track + 2) + '.\n');
+            Console.DPrint('CDAudio.Play: Bad track number ' + (track + 2) + '.\n');
             return;
         }
         CDAudio.Stop();
@@ -81,12 +81,12 @@ class CDAudio {
             case 'resume':
                 CDAudio.Resume();
             case 'info':
-                (untyped Con).Print(CDAudio.known.length + ' tracks\n');
+                Console.Print(CDAudio.known.length + ' tracks\n');
                 if (CDAudio.cd != null) {
                     if (!CDAudio.cd.paused)
-                        (untyped Con).Print('Currently ' + (CDAudio.cd.loop ? 'looping' : 'playing') + ' track ' + (CDAudio.playTrack + 2) + '\n');
+                        Console.Print('Currently ' + (CDAudio.cd.loop ? 'looping' : 'playing') + ' track ' + (CDAudio.playTrack + 2) + '\n');
                 }
-                (untyped Con).Print('Volume is ' + CDAudio.cdvolume + '\n');
+                Console.Print('Volume is ' + CDAudio.cdvolume + '\n');
             }
     }
 
@@ -128,6 +128,6 @@ class CDAudio {
             return;
         initialized = enabled = true;
         CDAudio.Update();
-        (untyped Con).Print('CD Audio Initialized\n');
+        Console.Print('CD Audio Initialized\n');
     }
 }

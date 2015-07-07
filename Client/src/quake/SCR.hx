@@ -3,6 +3,7 @@ package quake;
 import js.Browser.document;
 import js.Browser.window;
 import js.html.webgl.RenderingContext;
+import quake.Draw.DrawPic;
 import quake.GL.gl;
 
 @:expose("SCR")
@@ -32,7 +33,7 @@ class SCR {
 
 	static var net:Dynamic;
 	static var turtle:Dynamic;
-	static var pause:{width:Int, height:Int};
+	static var pause:DrawPic;
 
 	static function CenterPrint(str:String):Void {
 		SCR.centerstring = [];
@@ -70,7 +71,7 @@ class SCR {
 			for (str in SCR.centerstring) {
 				var x = (VID.width - (str.length << 3)) >> 1;
 				for (j in 0...str.length) {
-					(untyped Draw).Character(x, y, str.charCodeAt(j));
+					Draw.Character(x, y, str.charCodeAt(j));
 					if ((remaining--) == 0)
 						return;
 					x += 8;
@@ -81,7 +82,7 @@ class SCR {
 		}
 
 		for (s in SCR.centerstring) {
-			(untyped Draw).String((VID.width - (s.length << 3)) >> 1, y, s);
+			Draw.String((VID.width - (s.length << 3)) >> 1, y, s);
 			y += 8;
 		}
 	}
@@ -189,9 +190,9 @@ class SCR {
 		Cmd.AddCommand('screenshot', SCR.ScreenShot_f);
 		Cmd.AddCommand('sizeup', SCR.SizeUp_f);
 		Cmd.AddCommand('sizedown', SCR.SizeDown_f);
-		SCR.net = (untyped Draw).PicFromWad('NET');
-		SCR.turtle = (untyped Draw).PicFromWad('TURTLE');
-		SCR.pause = (untyped Draw).CachePic('pause');
+		SCR.net = Draw.PicFromWad('NET');
+		SCR.turtle = Draw.PicFromWad('TURTLE');
+		SCR.pause = Draw.CachePic('pause');
 	}
 
 	static function DrawTurtle() {
@@ -202,17 +203,17 @@ class SCR {
 			return;
 		}
 		if (++SCR.count >= 3)
-			(untyped Draw).Pic((untyped R).refdef.vrect.x, (untyped R).refdef.vrect.y, SCR.turtle);
+			Draw.Pic((untyped R).refdef.vrect.x, (untyped R).refdef.vrect.y, SCR.turtle);
 	}
 
 	static function DrawNet() {
 		if ((((untyped Host).realtime - (untyped CL).state.last_received_message) >= 0.3) && ((untyped CL).cls.demoplayback != true))
-			(untyped Draw).Pic((untyped R).refdef.vrect.x, (untyped R).refdef.vrect.y, SCR.net);
+			Draw.Pic((untyped R).refdef.vrect.x, (untyped R).refdef.vrect.y, SCR.net);
 	}
 
 	static function DrawPause() {
 		if ((SCR.showpause.value != 0) && ((untyped CL).state.paused))
-			(untyped Draw).Pic((VID.width - SCR.pause.width) >> 1, (VID.height - 48 - SCR.pause.height) >> 1, SCR.pause);
+			Draw.Pic((VID.width - SCR.pause.width) >> 1, (VID.height - 48 - SCR.pause.height) >> 1, SCR.pause);
 	}
 
 	static function SetUpToDrawConsole() {
@@ -328,8 +329,8 @@ class SCR {
 		else
 		{
 			if (V.crosshair.value != 0) {
-				(untyped Draw).Character((untyped R).refdef.vrect.x + ((untyped R).refdef.vrect.width >> 1) + V.crossx.value,
-					(untyped R).refdef.vrect.y + ((untyped R).refdef.vrect.height >> 1) + V.crossy.value, 43);
+				Draw.Character(Std.int((untyped R).refdef.vrect.x + ((untyped R).refdef.vrect.width >> 1) + V.crossx.value),
+					Std.int((untyped R).refdef.vrect.y + ((untyped R).refdef.vrect.height >> 1) + V.crossy.value), 43);
 			}
 			SCR.DrawNet();
 			SCR.DrawTurtle();

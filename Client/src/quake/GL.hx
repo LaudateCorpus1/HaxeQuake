@@ -227,7 +227,7 @@ class GL {
 		return glt;
 	}
 
-	static function LoadPicTexture(pic):Texture {
+	static function LoadPicTexture(pic:quake.Draw.DrawPic):Texture {
 		var data = pic.data, scaled_width = pic.width, scaled_height = pic.height;
 		if (((pic.width & (pic.width - 1)) != 0) || ((pic.height & (pic.height - 1)) != 0)) {
 			--scaled_width ;

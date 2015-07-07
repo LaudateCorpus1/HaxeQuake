@@ -120,7 +120,7 @@ class Console {
         var width = (VID.width >> 3) - 2;
         if (text.length >= width)
             text = text.substring(1 + text.length - width);
-        (untyped Draw).String(8, vislines - 16, text);
+        Draw.String(8, vislines - 16, text);
     }
 
     static function DrawNotify():Void {
@@ -129,18 +129,18 @@ class Console {
         for (i in (i < 0 ? 0 : i)...text.length) {
             if (((untyped Host).realtime - text[i].time) > notifytime.value)
                 continue;
-            (untyped Draw).String(8, v, text[i].text.substring(0, width));
+            Draw.String(8, v, text[i].text.substring(0, width));
             v += 8;
         }
         if ((untyped Key).dest.value == (untyped Key).dest.message)
-            (untyped Draw).String(8, v, 'say: ' + (untyped Key).chat_buffer + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1)));
+            Draw.String(8, v, 'say: ' + (untyped Key).chat_buffer + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1)));
     }
 
     static function DrawConsole(lines:Int):Void {
         if (lines <= 0)
             return;
         lines = Math.floor(lines * VID.height * 0.005);
-        (untyped Draw).ConsoleBackground(lines);
+        Draw.ConsoleBackground(lines);
         vislines = lines;
         var width = (VID.width >> 3) - 2;
         var y = lines - 16;
@@ -162,7 +162,7 @@ class Console {
                 continue;
             }
             for (j in 0...rows) {
-                (untyped Draw).String(8, y, txt.substr(j * width, width));
+                Draw.String(8, y, txt.substr(j * width, width));
                 y += 8;
             }
         }

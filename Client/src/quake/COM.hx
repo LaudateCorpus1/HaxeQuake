@@ -237,7 +237,7 @@ class COM {
 		filename = filename.toLowerCase();
 		var xhr = new XMLHttpRequest();
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
-		(untyped Draw).BeginDisc();
+		Draw.BeginDisc();
 		var i = searchpaths.length - 1; 
 		while (i >= 0) {
 			var search = searchpaths[i--];
@@ -245,7 +245,7 @@ class COM {
 			var data = localStorage.getItem('Quake.' + netpath);
 			if (data != null) {
 				Sys.Print('FindFile: ' + netpath + '\n');
-				(untyped Draw).EndDisc();
+				Draw.EndDisc();
 				return Q.strmem(data);
 			}
 			var j = search.pack.length - 1;
@@ -255,7 +255,7 @@ class COM {
 					if (file.name != filename)
 						continue;
 					if (file.filelen == 0) {
-						(untyped Draw).EndDisc();
+						Draw.EndDisc();
 						return new ArrayBuffer(0);
 					}
 					xhr.open('GET', search.filename + '/pak' + j + '.pak', false);
@@ -263,7 +263,7 @@ class COM {
 					xhr.send();
 					if ((xhr.status >= 200) && (xhr.status <= 299) && (xhr.responseText.length == file.filelen)) {
 						Sys.Print('PackFile: ' + search.filename + '/pak' + j + '.pak : ' + filename + '\n');
-						(untyped Draw).EndDisc();
+						Draw.EndDisc();
 						return Q.strmem(xhr.responseText);
 					}
 					break;
@@ -274,12 +274,12 @@ class COM {
 			xhr.send();
 			if ((xhr.status >= 200) && (xhr.status <= 299)) {
 				Sys.Print('FindFile: ' + netpath + '\n');
-				(untyped Draw).EndDisc();
+				Draw.EndDisc();
 				return Q.strmem(xhr.responseText);
 			}
 		}
 		Sys.Print('FindFile: can\'t find ' + filename + '\n');
-		(untyped Draw).EndDisc();
+		Draw.EndDisc();
 		return null;
 	}
 

@@ -27,7 +27,7 @@ class W {
         }
     }
 
-    static function GetLumpName(name:String) {
+    public static function GetLumpName(name:String) {
         var lump = lumps[name];
         if (lump == null)
             Sys.Error('W.GetLumpName: ' + name + ' not found');

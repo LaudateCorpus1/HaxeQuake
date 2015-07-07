@@ -28,7 +28,7 @@ class Cvar {
         return null;
     }
 
-    static function CompleteVariable(partial:String):String {
+    public static function CompleteVariable(partial:String):String {
         if (partial.length == 0)
             return null;
         for (v in vars) {

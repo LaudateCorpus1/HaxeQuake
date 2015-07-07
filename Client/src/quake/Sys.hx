@@ -109,25 +109,25 @@ class Sys {
             VID.height = (elem.clientHeight <= 200) ? 200 : elem.clientHeight;
 
             Sys.scantokey = new Map();
-            Sys.scantokey[8] = (untyped Key).k.backspace;
-            Sys.scantokey[9] = (untyped Key).k.tab;
-            Sys.scantokey[13] = (untyped Key).k.enter;
-            Sys.scantokey[16] = (untyped Key).k.shift;
-            Sys.scantokey[17] = (untyped Key).k.ctrl;
-            Sys.scantokey[18] = (untyped Key).k.alt;
-            Sys.scantokey[19] = (untyped Key).k.pause;
-            Sys.scantokey[27] = (untyped Key).k.escape;
-            Sys.scantokey[32] = (untyped Key).k.space;
-            Sys.scantokey[33] = Sys.scantokey[105] = (untyped Key).k.pgup;
-            Sys.scantokey[34] = Sys.scantokey[99] = (untyped Key).k.pgdn;
-            Sys.scantokey[35] = Sys.scantokey[97] = (untyped Key).k.end;
-            Sys.scantokey[36] = Sys.scantokey[103] = (untyped Key).k.home;
-            Sys.scantokey[37] = Sys.scantokey[100] = (untyped Key).k.leftarrow;
-            Sys.scantokey[38] = Sys.scantokey[104] = (untyped Key).k.uparrow;
-            Sys.scantokey[39] = Sys.scantokey[102] = (untyped Key).k.rightarrow;
-            Sys.scantokey[40] = Sys.scantokey[98] = (untyped Key).k.downarrow;
-            Sys.scantokey[45] = Sys.scantokey[96] = (untyped Key).k.ins;
-            Sys.scantokey[46] = Sys.scantokey[110] = (untyped Key).k.del;
+            Sys.scantokey[8] = Key.k.backspace;
+            Sys.scantokey[9] = Key.k.tab;
+            Sys.scantokey[13] = Key.k.enter;
+            Sys.scantokey[16] = Key.k.shift;
+            Sys.scantokey[17] = Key.k.ctrl;
+            Sys.scantokey[18] = Key.k.alt;
+            Sys.scantokey[19] = Key.k.pause;
+            Sys.scantokey[27] = Key.k.escape;
+            Sys.scantokey[32] = Key.k.space;
+            Sys.scantokey[33] = Sys.scantokey[105] = Key.k.pgup;
+            Sys.scantokey[34] = Sys.scantokey[99] = Key.k.pgdn;
+            Sys.scantokey[35] = Sys.scantokey[97] = Key.k.end;
+            Sys.scantokey[36] = Sys.scantokey[103] = Key.k.home;
+            Sys.scantokey[37] = Sys.scantokey[100] = Key.k.leftarrow;
+            Sys.scantokey[38] = Sys.scantokey[104] = Key.k.uparrow;
+            Sys.scantokey[39] = Sys.scantokey[102] = Key.k.rightarrow;
+            Sys.scantokey[40] = Sys.scantokey[98] = Key.k.downarrow;
+            Sys.scantokey[45] = Sys.scantokey[96] = Key.k.ins;
+            Sys.scantokey[46] = Sys.scantokey[110] = Key.k.del;
             for (i in 48...58)
                 Sys.scantokey[i] = i; // 0-9
             Sys.scantokey[59] = Sys.scantokey[186] = 59; // ;
@@ -139,7 +139,7 @@ class Sys {
             Sys.scantokey[109] = Sys.scantokey[173] = Sys.scantokey[189] = 45; // -
             Sys.scantokey[111] = Sys.scantokey[191] = 47; // /
             for (i in 112...124)
-                Sys.scantokey[i] = i - 112 + (untyped Key).k.f1; // f1-f12
+                Sys.scantokey[i] = i - 112 + Key.k.f1; // f1-f12
             Sys.scantokey[188] = 44; // ,
             Sys.scantokey[190] = 46; // .
             Sys.scantokey[192] = 96; // `
@@ -170,8 +170,8 @@ class Sys {
 
     static function onfocus():Void {
         for (i in 0...256) {
-            (untyped Key).Event(i);
-            (untyped Key).down[i] = false;
+            Key.Event(i);
+            Key.down[i] = false;
         }
     }
 
@@ -179,7 +179,7 @@ class Sys {
         var key = scantokey[e.keyCode];
         if (key == null)
             return;
-        (untyped Key).Event(key, true);
+        Key.Event(key, true);
         e.preventDefault();
     }
 
@@ -188,22 +188,22 @@ class Sys {
         var key = scantokey[e.keyCode];
         if (key == null)
             return;
-        (untyped Key).Event(key);
+        Key.Event(key);
         e.preventDefault();
     }
 
     static function onmousedown(e:MouseEvent):Void {
         var key = switch (e.which) {
             case 1:
-                (untyped Key).k.mouse1;
+                Key.k.mouse1;
             case 2:
-                (untyped Key).k.mouse3;
+                Key.k.mouse3;
             case 3:
-                (untyped Key).k.mouse2;
+                Key.k.mouse2;
             default:
                 return;
         };
-        (untyped Key).Event(key, true);
+        Key.Event(key, true);
         e.preventDefault();
     }
 
@@ -211,15 +211,15 @@ class Sys {
     {
         var key = switch (e.which) {
             case 1:
-                (untyped Key).k.mouse1;
+                Key.k.mouse1;
             case 2:
-                (untyped Key).k.mouse3;
+                Key.k.mouse3;
             case 3:
-                (untyped Key).k.mouse2;
+                Key.k.mouse2;
             default:
                 return;
         };
-        (untyped Key).Event(key);
+        Key.Event(key);
         e.preventDefault();
     }
 
@@ -228,9 +228,9 @@ class Sys {
     }
 
     static function onwheel(e:WheelEvent):Void {
-        var key = e.deltaY < 0 ? (untyped Key).k.mwheelup : (untyped Key).k.mwheeldown;
-        (untyped Key).Event(key, true);
-        (untyped Key).Event(key);
+        var key = e.deltaY < 0 ? Key.k.mwheelup : Key.k.mwheeldown;
+        Key.Event(key, true);
+        Key.Event(key);
         e.preventDefault();
     }
 }

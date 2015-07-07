@@ -57,7 +57,7 @@ class SCR {
 
 	static function DrawCenterString():Void {
 		SCR.centertime_off -= (untyped Host).frametime;
-		if ((SCR.centertime_off <= 0.0 && (untyped CL).state.intermission == 0) || (untyped Key).dest.value != (untyped Key).dest.game)
+		if ((SCR.centertime_off <= 0.0 && (untyped CL).state.intermission == 0) || Key.dest.value != Key.dest.game)
 			return;
 
 		var y;
@@ -225,7 +225,7 @@ class SCR {
 		}
 
 		var conlines;
-		if ((untyped Key).dest.value == (untyped Key).dest.console)
+		if (Key.dest.value == Key.dest.console)
 			conlines = 100;
 		else
 			conlines = 0;
@@ -247,7 +247,7 @@ class SCR {
 			Console.DrawConsole(SCR.con_current);
 			return;
 		}
-		if (((untyped Key).dest.value == (untyped Key).dest.game) || ((untyped Key).dest.value == (untyped Key).dest.message))
+		if ((Key.dest.value == Key.dest.game) || (Key.dest.value == Key.dest.message))
 			Console.DrawNotify();
 	}
 
@@ -318,13 +318,13 @@ class SCR {
 
 		if ((untyped CL).cls.state == (untyped CL).active.connecting)
 			SCR.DrawConsole();
-		else if (((untyped CL).state.intermission == 1) && ((untyped Key).dest.value == (untyped Key).dest.game))
+		else if (((untyped CL).state.intermission == 1) && (Key.dest.value == Key.dest.game))
 			(untyped Sbar).IntermissionOverlay();
-		else if (((untyped CL).state.intermission == 2) && ((untyped Key).dest.value == (untyped Key).dest.game)) {
+		else if (((untyped CL).state.intermission == 2) && (Key.dest.value == Key.dest.game)) {
 			(untyped Sbar).FinaleOverlay();
 			SCR.DrawCenterString();
 		}
-		else if (((untyped CL).state.intermission == 3) && ((untyped Key).dest.value == (untyped Key).dest.game))
+		else if (((untyped CL).state.intermission == 3) && (Key.dest.value == Key.dest.game))
 			SCR.DrawCenterString();
 		else
 		{

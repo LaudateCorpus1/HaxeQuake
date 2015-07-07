@@ -24,17 +24,17 @@ class Console {
 
     static function ToggleConsole_f():Void {
         SCR.EndLoadingPlaque();
-        if ((untyped Key).dest.value == (untyped Key).dest.console) {
+        if (Key.dest.value == Key.dest.console) {
             if ((untyped CL).cls.state != (untyped CL).active.connected) {
                 (untyped M).Menu_Main_f();
                 return;
             }
-            (untyped Key).dest.value = (untyped Key).dest.game;
-            (untyped Key).edit_line = '';
-            (untyped Key).history_line = (untyped Key).lines.length;
+            Key.dest.value = Key.dest.game;
+            Key.edit_line = '';
+            Key.history_line = Key.lines.length;
             return;
         }
-        (untyped Key).dest.value = (untyped Key).dest.console;
+        Key.dest.value = Key.dest.console;
     }
 
     static function Clear_f():Void {
@@ -50,13 +50,13 @@ class Console {
     }
 
     static function MessageMode_f():Void {
-        (untyped Key).dest.value = (untyped Key).dest.message;
-        (untyped Key).team_message = false;
+        Key.dest.value = Key.dest.message;
+        Key.team_message = false;
     }
 
     static function MessageMode2_f():Void {
-        (untyped Key).dest.value = (untyped Key).dest.message;
-        (untyped Key).team_message = true;
+        Key.dest.value = Key.dest.message;
+        Key.team_message = true;
     }
 
     static function Init():Void {
@@ -114,9 +114,9 @@ class Console {
     }
 
     static function DrawInput():Void {
-        if (((untyped Key).dest.value != (untyped Key).dest.console) && (forcedup != true))
+        if ((Key.dest.value != Key.dest.console) && (forcedup != true))
             return;
-        var text = ']' + (untyped Key).edit_line + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1));
+        var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1));
         var width = (VID.width >> 3) - 2;
         if (text.length >= width)
             text = text.substring(1 + text.length - width);
@@ -132,8 +132,8 @@ class Console {
             Draw.String(8, v, text[i].text.substring(0, width));
             v += 8;
         }
-        if ((untyped Key).dest.value == (untyped Key).dest.message)
-            Draw.String(8, v, 'say: ' + (untyped Key).chat_buffer + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1)));
+        if (Key.dest.value == Key.dest.message)
+            Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1)));
     }
 
     static function DrawConsole(lines:Int):Void {

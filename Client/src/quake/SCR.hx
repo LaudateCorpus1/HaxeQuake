@@ -99,17 +99,17 @@ class SCR {
 		if ((untyped CL).state.intermission != 0) {
 			full = true;
 			size = 1.0;
-			(untyped Sbar).lines = 0;
+			Sbar.lines = 0;
 		}
 		else
 		{
 			size = SCR.viewsize.value;
 			if (size >= 120.0)
-				(untyped Sbar).lines = 0;
+				Sbar.lines = 0;
 			else if (size >= 110.0)
-				(untyped Sbar).lines = 24;
+				Sbar.lines = 24;
 			else
-				(untyped Sbar).lines = 48;
+				Sbar.lines = 48;
 			if (size >= 100.0) {
 				full = true;
 				size = 100.0;
@@ -124,13 +124,13 @@ class SCR {
 			vrect.width = 96;
 		}
 		vrect.height = Math.floor(VID.height * size);
-		if (vrect.height > (VID.height - (untyped Sbar).lines))
-			vrect.height = VID.height - (untyped Sbar).lines;
+		if (vrect.height > (VID.height - Sbar.lines))
+			vrect.height = VID.height - Sbar.lines;
 		vrect.x = (VID.width - vrect.width) >> 1;
 		if (full)
 			vrect.y = 0;
 		else
-			vrect.y = (VID.height - (untyped Sbar).lines - vrect.height) >> 1;
+			vrect.y = (VID.height - Sbar.lines - vrect.height) >> 1;
 
 		if (SCR.fov.value < 10)
 			Cvar.Set('fov', '10');
@@ -319,9 +319,9 @@ class SCR {
 		if ((untyped CL).cls.state == (untyped CL).active.connecting)
 			SCR.DrawConsole();
 		else if (((untyped CL).state.intermission == 1) && (Key.dest.value == Key.dest.game))
-			(untyped Sbar).IntermissionOverlay();
+			Sbar.IntermissionOverlay();
 		else if (((untyped CL).state.intermission == 2) && (Key.dest.value == Key.dest.game)) {
-			(untyped Sbar).FinaleOverlay();
+			Sbar.FinaleOverlay();
 			SCR.DrawCenterString();
 		}
 		else if (((untyped CL).state.intermission == 3) && (Key.dest.value == Key.dest.game))
@@ -336,7 +336,7 @@ class SCR {
 			SCR.DrawTurtle();
 			SCR.DrawPause();
 			SCR.DrawCenterString();
-			(untyped Sbar).Draw();
+			Sbar.DrawSbar();
 			SCR.DrawConsole();
 			(untyped M).Draw();
 		}

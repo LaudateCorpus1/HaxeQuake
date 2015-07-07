@@ -213,7 +213,7 @@ class Cmd {
         }
         if ((untyped CL).cls.demoplayback == true)
             return;
-        var args = String.fromCharCode(untyped Protocol.clc.stringcmd);
+        var args = String.fromCharCode(Protocol.clc.stringcmd);
         if (Cmd.argv[0].toLowerCase() != 'cmd')
             args += Cmd.argv[0] + ' ';
         if (Cmd.argv.length >= 2)

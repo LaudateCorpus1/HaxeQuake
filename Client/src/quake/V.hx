@@ -202,25 +202,25 @@ class V {
 
 	static function CalcBlend():Void {
 		var cshift = (untyped CL).state.cshifts[(untyped CL).cshift.powerup];
-		if (((untyped CL).state.items & (untyped Def).it.quad) != 0) {
+		if (((untyped CL).state.items & Def.it.quad) != 0) {
 			cshift[0] = 0.0;
 			cshift[1] = 0.0;
 			cshift[2] = 255.0;
 			cshift[3] = 30.0;
 		}
-		else if (((untyped CL).state.items & (untyped Def).it.suit) != 0) {
+		else if (((untyped CL).state.items & Def.it.suit) != 0) {
 			cshift[0] = 0.0;
 			cshift[1] = 255.0;
 			cshift[2] = 0.0;
 			cshift[3] = 20.0;
 		}
-		else if (((untyped CL).state.items & (untyped Def).it.invisibility) != 0) {
+		else if (((untyped CL).state.items & Def.it.invisibility) != 0) {
 			cshift[0] = 100.0;
 			cshift[1] = 100.0;
 			cshift[2] = 100.0;
 			cshift[3] = 100.0;
 		}
-		else if (((untyped CL).state.items & (untyped Def).it.invulnerability) != 0) {
+		else if (((untyped CL).state.items & Def.it.invulnerability) != 0) {
 			cshift[0] = 255.0;
 			cshift[1] = 255.0;
 			cshift[2] = 0.0;
@@ -301,7 +301,7 @@ class V {
 			}
 			V.dmg_time -= (untyped Host).frametime;
 		}
-		if ((untyped CL).state.stats[(untyped Def).stat.health] <= 0)
+		if ((untyped CL).state.stats[Def.stat.health] <= 0)
 			(untyped R).refdef.viewangles[2] = 80.0;
 
 		var ipitch = V.idlescale.value * Math.sin((untyped CL).state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
@@ -345,8 +345,8 @@ class V {
 			case 80:
 				view.origin[2] += 0.5;
 		}
-		view.model = (untyped CL).state.model_precache[(untyped CL).state.stats[(untyped Def).stat.weapon]];
-		view.frame = (untyped CL).state.stats[(untyped Def).stat.weaponframe];
+		view.model = (untyped CL).state.model_precache[(untyped CL).state.stats[Def.stat.weapon]];
+		view.frame = (untyped CL).state.stats[Def.stat.weaponframe];
 
 		(untyped R).refdef.viewangles[0] += (untyped CL).state.punchangle[0];
 		(untyped R).refdef.viewangles[1] += (untyped CL).state.punchangle[1];

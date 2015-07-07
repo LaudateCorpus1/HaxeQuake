@@ -7,7 +7,7 @@ Loop.Init = function()
 
 Loop.Connect = function(host)
 {
-	if (host !== 'local')
+	if (host != 'local')
 		return;
 
 	Loop.localconnectpending = true;
@@ -38,7 +38,7 @@ Loop.Connect = function(host)
 
 Loop.CheckNewConnections = function()
 {
-	if (Loop.localconnectpending !== true)
+	if (Loop.localconnectpending != true)
 		return;
 	Loop.localconnectpending = false;
 	Loop.server.receiveMessageLength = 0;
@@ -50,7 +50,7 @@ Loop.CheckNewConnections = function()
 
 Loop.GetMessage = function(sock)
 {
-	if (sock.receiveMessageLength === 0)
+	if (sock.receiveMessageLength == 0)
 		return 0;
 	var ret = sock.receiveMessage[0];
 	var length = sock.receiveMessage[1] + (sock.receiveMessage[2] << 8);
@@ -66,7 +66,7 @@ Loop.GetMessage = function(sock)
 			sock.receiveMessage[i] = sock.receiveMessage[length + 3 + i];
 	}
 	sock.receiveMessageLength -= 3;
-	if ((sock.driverdata != null) && (ret === 1))
+	if ((sock.driverdata != null) && (ret == 1))
 		sock.driverdata.canSend = true;
 	return ret;
 };
@@ -116,7 +116,7 @@ Loop.Close = function(sock)
 		sock.driverdata.driverdata = null;
 	sock.receiveMessageLength = 0;
 	sock.canSend = false;
-	if (sock === Loop.client)
+	if (sock == Loop.client)
 		Loop.client = null;
 	else
 		Loop.server = null;

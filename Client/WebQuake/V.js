@@ -20,7 +20,7 @@ V.CalcBob = function()
 		|| (V.bobcycle.value >= 1.0)
 		|| (V.bobup.value <= 0.0)
 		|| (V.bobup.value >= 1.0)
-		|| (V.bob.value === 0.0))
+		|| (V.bob.value == 0.0))
 		return 0.0;
 
 	var cycle = (CL.state.time - Math.floor(CL.state.time / V.bobcycle.value) * V.bobcycle.value) / V.bobcycle.value;
@@ -39,9 +39,9 @@ V.CalcBob = function()
 
 V.StartPitchDrift = function()
 {
-	if (CL.state.laststop === CL.state.time)
+	if (CL.state.laststop == CL.state.time)
 		return;
-	if ((CL.state.nodrift === true) || (CL.state.pitchvel === 0.0))
+	if ((CL.state.nodrift) || (CL.state.pitchvel == 0.0))
 	{
 		CL.state.pitchvel = V.centerspeed.value;
 		CL.state.nodrift = false;
@@ -58,14 +58,14 @@ V.StopPitchDrift = function()
 
 V.DriftPitch = function()
 {
-	if ((Host.noclip_anglehack === true) || (CL.state.onground !== true) || (CL.cls.demoplayback === true))
+	if ((Host.noclip_anglehack) || (CL.state.onground != true) || (CL.cls.demoplayback))
 	{
 		CL.state.driftmove = 0.0;
 		CL.state.pitchvel = 0.0;
 		return;
 	}
 
-	if (CL.state.nodrift === true)
+	if (CL.state.nodrift)
 	{
 		if (Math.abs(CL.state.cmd.forwardmove) < CL.forwardspeed.value)
 			CL.state.driftmove = 0.0;
@@ -77,7 +77,7 @@ V.DriftPitch = function()
 	}
 
 	var delta = CL.state.idealpitch - CL.state.viewangles[0];
-	if (delta === 0.0)
+	if (delta == 0.0)
 	{
 		CL.state.pitchvel = 0.0;
 		return;
@@ -137,7 +137,7 @@ V.ParseDamage = function()
 		cshift[0] = 200.0;
 		cshift[1] = cshift[2] = 100.0;
 	}
-	else if (armor !== 0)
+	else if (armor != 0)
 	{
 		cshift[0] = 220.0;
 		cshift[1] = cshift[2] = 50.0;
@@ -194,28 +194,28 @@ V.SetContentsColor = function(contents)
 V.CalcBlend = function()
 {
 	var cshift = CL.state.cshifts[CL.cshift.powerup];
-	if ((CL.state.items & Def.it.quad) !== 0)
+	if ((CL.state.items & Def.it.quad) != 0)
 	{
 		cshift[0] = 0.0;
 		cshift[1] = 0.0;
 		cshift[2] = 255.0;
 		cshift[3] = 30.0;
 	}
-	else if ((CL.state.items & Def.it.suit) !== 0)
+	else if ((CL.state.items & Def.it.suit) != 0)
 	{
 		cshift[0] = 0.0;
 		cshift[1] = 255.0;
 		cshift[2] = 0.0;
 		cshift[3] = 20.0;
 	}
-	else if ((CL.state.items & Def.it.invisibility) !== 0)
+	else if ((CL.state.items & Def.it.invisibility) != 0)
 	{
 		cshift[0] = 100.0;
 		cshift[1] = 100.0;
 		cshift[2] = 100.0;
 		cshift[3] = 100.0;
 	}
-	else if ((CL.state.items & Def.it.invulnerability) !== 0)
+	else if ((CL.state.items & Def.it.invulnerability) != 0)
 	{
 		cshift[0] = 255.0;
 		cshift[1] = 255.0;
@@ -232,7 +232,7 @@ V.CalcBlend = function()
 	if (CL.state.cshifts[CL.cshift.bonus][3] < 0.0)
 		CL.state.cshifts[CL.cshift.bonus][3] = 0.0;
 
-	if (V.cshiftpercent.value === 0)
+	if (V.cshiftpercent.value == 0)
 	{
 		V.blend[0] = V.blend[1] = V.blend[2] = V.blend[3] = 0.0;
 		return;
@@ -243,7 +243,7 @@ V.CalcBlend = function()
 	{
 		cshift = CL.state.cshifts[i];
 		a2 = cshift[3] * V.cshiftpercent.value / 25500.0;
-		if (a2 === 0.0)
+		if (a2 == 0.0)
 			continue;
 		a = a + a2 * (1.0 - a);
 		a2 = a2 / a;
@@ -297,7 +297,7 @@ V.CalcRefdef = function()
 
 	if (V.dmg_time > 0.0)
 	{
-		if (V.kicktime.value !== 0.0)
+		if (V.kicktime.value != 0.0)
 		{
 			R.refdef.viewangles[2] += (V.dmg_time / V.kicktime.value) * V.dmg_roll;
 			R.refdef.viewangles[0] -= (V.dmg_time / V.kicktime.value) * V.dmg_pitch;
@@ -359,7 +359,7 @@ V.CalcRefdef = function()
 	R.refdef.viewangles[1] += CL.state.punchangle[1];
 	R.refdef.viewangles[2] += CL.state.punchangle[2];
 
-	if ((CL.state.onground === true) && ((ent.origin[2] - V.oldz) > 0.0))
+	if ((CL.state.onground) && ((ent.origin[2] - V.oldz) > 0.0))
 	{
 		var steptime = CL.state.time - CL.state.oldtime;
 		if (steptime < 0.0)
@@ -374,13 +374,13 @@ V.CalcRefdef = function()
 	}
 	else
 		V.oldz = ent.origin[2];
-	if (Chase.active.value !== 0)
+	if (Chase.active.value != 0)
 		Chase.Update();
 };
 
 V.RenderView = function()
 {
-	if (Con.forcedup === true)
+	if (Con.forcedup)
 		return;
 	if (CL.state.maxclients >= 2)
 	{
@@ -388,9 +388,9 @@ V.RenderView = function()
 		Cvar.Set('scr_ofsy', '0');
 		Cvar.Set('scr_ofsz', '0');
 	}
-	if (CL.state.intermission !== 0)
+	if (CL.state.intermission != 0)
 		V.CalcIntermissionRefdef();
-	else if (CL.state.paused !== true)
+	else if (CL.state.paused != true)
 		V.CalcRefdef();
 	R.PushDlights();
 	R.RenderView();

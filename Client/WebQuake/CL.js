@@ -17,12 +17,12 @@ CL.active = {
 
 CL.StopPlayback = function()
 {
-	if (CL.cls.demoplayback !== true)
+	if (CL.cls.demoplayback != true)
 		return;
 	CL.cls.demoplayback = false;
 	CL.cls.demofile = null;
 	CL.cls.state = CL.active.disconnected;
-	if (CL.cls.timedemo === true)
+	if (CL.cls.timedemo)
 		CL.FinishTimeDemo();
 };
 
@@ -46,16 +46,16 @@ CL.WriteDemoMessage = function()
 
 CL.GetMessage = function()
 {
-	if (CL.cls.demoplayback === true)
+	if (CL.cls.demoplayback)
 	{
-		if (CL.cls.signon === 4)
+		if (CL.cls.signon == 4)
 		{
-			if (CL.cls.timedemo === true)
+			if (CL.cls.timedemo)
 			{
-				if (Host.framecount === CL.cls.td_lastframe)
+				if (Host.framecount == CL.cls.td_lastframe)
 					return 0;
 				CL.cls.td_lastframe = Host.framecount;
-				if (Host.framecount === (CL.cls.td_startframe + 1))
+				if (Host.framecount == (CL.cls.td_startframe + 1))
 					CL.cls.td_starttime = Host.realtime;
 			}
 			else if (CL.state.time <= CL.state.mtime[0])
@@ -91,15 +91,15 @@ CL.GetMessage = function()
 	for (;;)
 	{
 		r = NET.GetMessage(CL.cls.netcon);
-		if ((r !== 1) && (r !== 2))
+		if ((r != 1) && (r != 2))
 			return r;
-		if ((NET.message.cursize === 1) && ((new Uint8Array(NET.message.data, 0, 1))[0] === Protocol.svc.nop))
+		if ((NET.message.cursize == 1) && ((new Uint8Array(NET.message.data, 0, 1))[0] == Protocol.svc.nop))
 			Con.Print('<-- server to client keepalive\n');
 		else
 			break;
 	}
 
-	if (CL.cls.demorecording === true)
+	if (CL.cls.demorecording)
 		CL.WriteDemoMessage();
 
 	return r;
@@ -107,9 +107,9 @@ CL.GetMessage = function()
 
 CL.Stop_f = function()
 {
-	if (Cmd.client === true)
+	if (Cmd.client)
 		return;
-	if (CL.cls.demorecording !== true)
+	if (CL.cls.demorecording != true)
 	{
 		Con.Print('Not recording a demo.\n');
 		return;
@@ -117,7 +117,7 @@ CL.Stop_f = function()
 	NET.message.cursize = 0;
 	MSG.WriteByte(NET.message, Protocol.svc.disconnect);
 	CL.WriteDemoMessage();
-	if (COM.WriteFile(CL.cls.demoname, new Uint8Array(CL.cls.demofile), CL.cls.demoofs) !== true)
+	if (COM.WriteFile(CL.cls.demoname, new Uint8Array(CL.cls.demofile), CL.cls.demoofs) != true)
 		Con.Print('ERROR: couldn\'t open.\n');
 	CL.cls.demofile = null;
 	CL.cls.demorecording = false;
@@ -132,17 +132,17 @@ CL.Record_f = function()
 		Con.Print('record <demoname> [<map> [cd track]]\n');
 		return;
 	}
-	if (Cmd.argv[1].indexOf('..') !== -1)
+	if (Cmd.argv[1].indexOf('..') != -1)
 	{
 		Con.Print('Relative pathnames are not allowed.\n');
 		return;
 	}
-	if ((c === 2) && (CL.cls.state === CL.active.connected))
+	if ((c == 2) && (CL.cls.state == CL.active.connected))
 	{
 		Con.Print('Can not record - already connected to server\nClient demo recording must be started before connecting\n');
 		return;
 	}
-	if (c === 4)
+	if (c == 4)
 	{
 		CL.cls.forcetrack = Q.atoi(Cmd.argv[3]);
 		Con.Print('Forcing CD track to ' + CL.cls.forcetrack);
@@ -164,9 +164,9 @@ CL.Record_f = function()
 
 CL.PlayDemo_f = function()
 {
-	if (Cmd.client === true)
+	if (Cmd.client)
 		return;
-	if (Cmd.argv.length !== 2)
+	if (Cmd.argv.length != 2)
 	{
 		Con.Print('playdemo <demoname> : plays a demo\n');
 		return;
@@ -192,14 +192,14 @@ CL.PlayDemo_f = function()
 	for (i = 0; i < demofile.length; ++i)
 	{
 		c = demofile[i];
-		if (c === 10)
+		if (c == 10)
 			break;
-		if (c === 45)
+		if (c == 45)
 			neg = true;
 		else
 			CL.cls.forcetrack = CL.cls.forcetrack * 10 + c - 48;
 	}
-	if (neg === true)
+	if (neg)
 		CL.cls.forcetrack = -CL.cls.forcetrack;
 	CL.cls.demoofs = i + 1;
 };
@@ -209,16 +209,16 @@ CL.FinishTimeDemo = function()
 	CL.cls.timedemo = false;
 	var frames = Host.framecount - CL.cls.td_startframe - 1;
 	var time = Host.realtime - CL.cls.td_starttime;
-	if (time === 0.0)
+	if (time == 0.0)
 		time = 1.0;
 	Con.Print(frames + ' frames ' + time.toFixed(1) + ' seconds ' + (frames / time).toFixed(1) + ' fps\n');
 };
 
 CL.TimeDemo_f = function()
 {
-	if (Cmd.client === true)
+	if (Cmd.client)
 		return;
-	if (Cmd.argv.length !== 2)
+	if (Cmd.argv.length != 2)
 	{
 		Con.Print('timedemo <demoname> : gets demo speeds\n');
 		return;
@@ -266,12 +266,12 @@ CL.KeyDown = function()
 	else
 		k = -1;
 
-	if ((k === b.down[0]) || (k === b.down[1]))
+	if ((k == b.down[0]) || (k == b.down[1]))
 		return;
 
-	if (b.down[0] === 0)
+	if (b.down[0] == 0)
 		b.down[0] = k;
-	else if (b.down[1] === 0)
+	else if (b.down[1] == 0)
 		b.down[1] = k;
 	else
 	{
@@ -279,7 +279,7 @@ CL.KeyDown = function()
 		return;
 	}
 
-	if ((b.state & 1) === 0)
+	if ((b.state & 1) == 0)
 		b.state |= 3;
 };
 
@@ -300,23 +300,23 @@ CL.KeyUp = function()
 		return;
 	}
 
-	if (b.down[0] === k)
+	if (b.down[0] == k)
 		b.down[0] = 0;
-	else if (b.down[1] === k)
+	else if (b.down[1] == k)
 		b.down[1] = 0;
 	else
 		return;
-	if ((b.down[0] !== 0) || (b.down[1] !== 0))
+	if ((b.down[0] != 0) || (b.down[1] != 0))
 		return;
 
-	if ((b.state & 1) !== 0)
+	if ((b.state & 1) != 0)
 		b.state = (b.state - 1) | 4;
 };
 
 CL.MLookUp = function()
 {
 	CL.KeyUp();
-	if (((CL.kbuttons[CL.kbutton.mlook].state & 1) === 0) && (CL.lookspring.value !== 0))
+	if (((CL.kbuttons[CL.kbutton.mlook].state & 1) == 0) && (CL.lookspring.value != 0))
 		V.StartPitchDrift();
 };
 
@@ -330,38 +330,38 @@ CL.KeyState = function(key)
 	key = CL.kbuttons[key];
 	var down = key.state & 1;
 	key.state &= 1;
-	if ((key.state & 2) !== 0)
+	if ((key.state & 2) != 0)
 	{
-		if ((key.state & 4) !== 0)
-			return (down !== 0) ? 0.75 : 0.25;
-		return (down !== 0) ? 0.5 : 0.0;
+		if ((key.state & 4) != 0)
+			return (down != 0) ? 0.75 : 0.25;
+		return (down != 0) ? 0.5 : 0.0;
 	}
-	if ((key.state & 4) !== 0)
+	if ((key.state & 4) != 0)
 		return 0.0;
-	return (down !== 0) ? 1.0 : 0.0;
+	return (down != 0) ? 1.0 : 0.0;
 };
 
 CL.AdjustAngles = function()
 {
 	var speed = Host.frametime;
-	if ((CL.kbuttons[CL.kbutton.speed].state & 1) !== 0)
+	if ((CL.kbuttons[CL.kbutton.speed].state & 1) != 0)
 		speed *= CL.anglespeedkey.value;
 
 	var angles = CL.state.viewangles;
 
-	if ((CL.kbuttons[CL.kbutton.strafe].state & 1) === 0)
+	if ((CL.kbuttons[CL.kbutton.strafe].state & 1) == 0)
 	{
 		angles[1] += speed * CL.yawspeed.value * (CL.KeyState(CL.kbutton.left) - CL.KeyState(CL.kbutton.right));
 		angles[1] = Vec.Anglemod(angles[1]);
 	}
-	if ((CL.kbuttons[CL.kbutton.klook].state & 1) !== 0)
+	if ((CL.kbuttons[CL.kbutton.klook].state & 1) != 0)
 	{
 		V.StopPitchDrift();
 		angles[0] += speed * CL.pitchspeed.value * (CL.KeyState(CL.kbutton.back) - CL.KeyState(CL.kbutton.forward));
 	}
 
 	var up = CL.KeyState(CL.kbutton.lookup), down = CL.KeyState(CL.kbutton.lookdown);
-	if ((up !== 0.0) || (down !== 0.0))
+	if ((up != 0.0) || (down != 0.0))
 	{
 		angles[0] += speed * CL.pitchspeed.value * (down - up);
 		V.StopPitchDrift();
@@ -380,7 +380,7 @@ CL.AdjustAngles = function()
 
 CL.BaseMove = function()
 {
-	if (CL.cls.signon !== 4)
+	if (CL.cls.signon != 4)
 		return;
 
 	CL.AdjustAngles();
@@ -388,17 +388,17 @@ CL.BaseMove = function()
 	var cmd = CL.state.cmd;
 
 	cmd.sidemove = CL.sidespeed.value * (CL.KeyState(CL.kbutton.moveright) - CL.KeyState(CL.kbutton.moveleft));
-	if ((CL.kbuttons[CL.kbutton.strafe].state & 1) !== 0)
+	if ((CL.kbuttons[CL.kbutton.strafe].state & 1) != 0)
 		cmd.sidemove += CL.sidespeed.value * (CL.KeyState(CL.kbutton.right) - CL.KeyState(CL.kbutton.left));
 
 	cmd.upmove = CL.upspeed.value * (CL.KeyState(CL.kbutton.moveup) - CL.KeyState(CL.kbutton.movedown));
 
-	if ((CL.kbuttons[CL.kbutton.klook].state & 1) === 0)
+	if ((CL.kbuttons[CL.kbutton.klook].state & 1) == 0)
 		cmd.forwardmove = CL.forwardspeed.value * CL.KeyState(CL.kbutton.forward) - CL.backspeed.value * CL.KeyState(CL.kbutton.back);
 	else
 		cmd.forwardmove = 0.0;
 
-	if ((CL.kbuttons[CL.kbutton.speed].state & 1) !== 0)
+	if ((CL.kbuttons[CL.kbutton.speed].state & 1) != 0)
 	{
 		cmd.forwardmove *= CL.movespeedkey.value;
 		cmd.sidemove *= CL.movespeedkey.value;
@@ -420,20 +420,20 @@ CL.SendMove = function()
 	MSG.WriteShort(buf, CL.state.cmd.sidemove);
 	MSG.WriteShort(buf, CL.state.cmd.upmove);
 	var bits = 0;
-	if ((CL.kbuttons[CL.kbutton.attack].state & 3) !== 0)
+	if ((CL.kbuttons[CL.kbutton.attack].state & 3) != 0)
 		bits += 1;
 	CL.kbuttons[CL.kbutton.attack].state &= 5;
-	if ((CL.kbuttons[CL.kbutton.jump].state & 3) !== 0)
+	if ((CL.kbuttons[CL.kbutton.jump].state & 3) != 0)
 		bits += 2;
 	CL.kbuttons[CL.kbutton.jump].state &= 5;
 	MSG.WriteByte(buf, bits);
 	MSG.WriteByte(buf, CL.impulse);
 	CL.impulse = 0;
-	if (CL.cls.demoplayback === true)
+	if (CL.cls.demoplayback)
 		return;
 	if (++CL.state.movemessages <= 2)
 		return;
-	if (NET.SendUnreliableMessage(CL.cls.netcon, buf) === -1)
+	if (NET.SendUnreliableMessage(CL.cls.netcon, buf) == -1)
 	{
 		Con.Print('CL.SendMove: lost server connection\n');
 		CL.Disconnect();
@@ -476,20 +476,20 @@ CL.visedicts = [];
 
 CL.Rcon_f = function()
 {
-	if (CL.rcon_password.string.length === 0)
+	if (CL.rcon_password.string.length == 0)
 	{
 		Con.Print('You must set \'rcon_password\' before\nissuing an rcon command.\n');
 		return;
 	}
 	var to;
-	if ((CL.cls.state === CL.active.connected) && (CL.cls.netcon != null))
+	if ((CL.cls.state == CL.active.connected) && (CL.cls.netcon != null))
 	{
-		if (NET.drivers[CL.cls.netcon.driver] === WEBS)
+		if (NET.drivers[CL.cls.netcon.driver] == WEBS)
 			to = CL.cls.netcon.address.substring(5);
 	}
 	if (to == null)
 	{
-		if (CL.rcon_address.string.length === 0)
+		if (CL.rcon_address.string.length == 0)
 		{
 			Con.Print('You must either be connected,\nor set the \'rcon_address\' cvar\nto issue rcon commands\n');
 			return;
@@ -524,7 +524,7 @@ CL.Rcon_f = function()
 
 CL.ClearState = function()
 {
-	if (SV.server.active !== true)
+	if (SV.server.active != true)
 	{
 		Con.DPrint('Clearing memory\n');
 		Mod.ClearAll();
@@ -598,11 +598,11 @@ CL.ClearState = function()
 CL.Disconnect = function()
 {
 	S.StopAllSounds();
-	if (CL.cls.demoplayback === true)
+	if (CL.cls.demoplayback)
 		CL.StopPlayback();
-	else if (CL.cls.state === CL.active.connected)
+	else if (CL.cls.state == CL.active.connected)
 	{
-		if (CL.cls.demorecording === true)
+		if (CL.cls.demorecording)
 			CL.Stop_f();
 		Con.DPrint('Sending clc_disconnect\n');
 		CL.cls.message.cursize = 0;
@@ -611,7 +611,7 @@ CL.Disconnect = function()
 		CL.cls.message.cursize = 0;
 		NET.Close(CL.cls.netcon);
 		CL.cls.state = CL.active.disconnected;
-		if (SV.server.active === true)
+		if (SV.server.active)
 			Host.ShutdownServer();
 	}
 	CL.cls.demoplayback = CL.cls.timedemo = false;
@@ -629,7 +629,7 @@ CL.Connect = function(sock)
 
 CL.EstablishConnection = function(host)
 {
-	if (CL.cls.demoplayback === true)
+	if (CL.cls.demoplayback)
 		return;
 	CL.Disconnect();
 	CL.host = host;
@@ -667,12 +667,12 @@ CL.SignonReply = function()
 
 CL.NextDemo = function()
 {
-	if (CL.cls.demonum === -1)
+	if (CL.cls.demonum == -1)
 		return;
 	SCR.BeginLoadingPlaque();
 	if (CL.cls.demonum >= CL.cls.demos.length)
 	{
-		if (CL.cls.demos.length === 0)
+		if (CL.cls.demos.length == 0)
 		{
 			Con.Print('No demos listed with startdemos\n');
 			CL.cls.demonum = -1;
@@ -709,11 +709,11 @@ CL.PrintEntities_f = function()
 CL.AllocDlight = function(key)
 {
 	var i, dl;
-	if (key !== 0)
+	if (key != 0)
 	{
 		for (i = 0; i <= 31; ++i)
 		{
-			if (CL.dlights[i].key === key)
+			if (CL.dlights[i].key == key)
 			{
 				dl = CL.dlights[i];
 				break;
@@ -748,7 +748,7 @@ CL.DecayLights = function()
 	for (i = 0; i <= 31; ++i)
 	{
 		dl = CL.dlights[i];
-		if ((dl.die < CL.state.time) || (dl.radius === 0.0))
+		if ((dl.die < CL.state.time) || (dl.radius == 0.0))
 			continue;
 		dl.radius -= time * dl.decay;
 		if (dl.radius < 0.0)
@@ -759,7 +759,7 @@ CL.DecayLights = function()
 CL.LerpPoint = function()
 {
 	var f = CL.state.mtime[0] - CL.state.mtime[1];
-	if ((f === 0.0) || (CL.nolerp.value !== 0) || (CL.cls.timedemo === true) || (SV.server.active === true))
+	if ((f == 0.0) || (CL.nolerp.value != 0) || (CL.cls.timedemo) || (SV.server.active))
 	{
 		CL.state.time = CL.state.mtime[0];
 		return 1.0;
@@ -796,7 +796,7 @@ CL.RelinkEntities = function()
 	CL.state.velocity[1] = CL.state.mvelocity[1][1] + frac * (CL.state.mvelocity[0][1] - CL.state.mvelocity[1][1]);
 	CL.state.velocity[2] = CL.state.mvelocity[1][2] + frac * (CL.state.mvelocity[0][2] - CL.state.mvelocity[1][2]);
 
-	if (CL.cls.demoplayback === true)
+	if (CL.cls.demoplayback)
 	{
 		for (i = 0; i <= 2; ++i)
 		{
@@ -816,7 +816,7 @@ CL.RelinkEntities = function()
 		ent = CL.entities[i];
 		if (ent.model == null)
 			continue;
-		if (ent.msgtime !== CL.state.mtime[0])
+		if (ent.msgtime != CL.state.mtime[0])
 		{
 			ent.model = null;
 			continue;
@@ -824,7 +824,7 @@ CL.RelinkEntities = function()
 		oldorg[0] = ent.origin[0];
 		oldorg[1] = ent.origin[1];
 		oldorg[2] = ent.origin[2];
-		if (ent.forcelink === true)
+		if (ent.forcelink)
 		{
 			Vec.Copy(ent.msg_origins[0], ent.origin);
 			Vec.Copy(ent.msg_angles[0], ent.angles);
@@ -850,11 +850,11 @@ CL.RelinkEntities = function()
 			}
 		}
 
-		if ((ent.model.flags & Mod.flags.rotate) !== 0)
+		if ((ent.model.flags & Mod.flags.rotate) != 0)
 			ent.angles[1] = bobjrotate;
-		if ((ent.effects & Mod.effects.brightfield) !== 0)
+		if ((ent.effects & Mod.effects.brightfield) != 0)
 			R.EntityParticles(ent);
-		if ((ent.effects & Mod.effects.muzzleflash) !== 0)
+		if ((ent.effects & Mod.effects.muzzleflash) != 0)
 		{
 			dl = CL.AllocDlight(i);
 			var fv = [];
@@ -868,29 +868,29 @@ CL.RelinkEntities = function()
 			dl.minlight = 32.0;
 			dl.die = CL.state.time + 0.1;
 		}
-		if ((ent.effects & Mod.effects.brightlight) !== 0)
+		if ((ent.effects & Mod.effects.brightlight) != 0)
 		{
 			dl = CL.AllocDlight(i);
 			dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
 			dl.radius = 400.0 + Math.random() * 32.0;
 			dl.die = CL.state.time + 0.001;
 		}
-		if ((ent.effects & Mod.effects.dimlight) !== 0)
+		if ((ent.effects & Mod.effects.dimlight) != 0)
 		{
 			dl = CL.AllocDlight(i);
 			dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.die = CL.state.time + 0.001;
 		}
-		if ((ent.model.flags & Mod.flags.gib) !== 0)
+		if ((ent.model.flags & Mod.flags.gib) != 0)
 			R.RocketTrail(oldorg, ent.origin, 2);
-		else if ((ent.model.flags & Mod.flags.zomgib) !== 0)
+		else if ((ent.model.flags & Mod.flags.zomgib) != 0)
 			R.RocketTrail(oldorg, ent.origin, 4);
-		else if ((ent.model.flags & Mod.flags.tracer) !== 0)
+		else if ((ent.model.flags & Mod.flags.tracer) != 0)
 			R.RocketTrail(oldorg, ent.origin, 3);
-		else if ((ent.model.flags & Mod.flags.tracer2) !== 0)
+		else if ((ent.model.flags & Mod.flags.tracer2) != 0)
 			R.RocketTrail(oldorg, ent.origin, 5);
-		else if ((ent.model.flags & Mod.flags.rocket) !== 0)
+		else if ((ent.model.flags & Mod.flags.rocket) != 0)
 		{
 			R.RocketTrail(oldorg, ent.origin, 0);
 			dl = CL.AllocDlight(i)
@@ -898,13 +898,13 @@ CL.RelinkEntities = function()
 			dl.radius = 200.0;
 			dl.die = CL.state.time + 0.01;
 		}
-		else if ((ent.model.flags & Mod.flags.grenade) !== 0)
+		else if ((ent.model.flags & Mod.flags.grenade) != 0)
 			R.RocketTrail(oldorg, ent.origin, 1);
-		else if ((ent.model.flags & Mod.flags.tracer3) !== 0)
+		else if ((ent.model.flags & Mod.flags.tracer3) != 0)
 			R.RocketTrail(oldorg, ent.origin, 6);
 
 		ent.forcelink = false;
-		if ((i !== CL.state.viewentity) || (Chase.active.value !== 0))
+		if ((i != CL.state.viewentity) || (Chase.active.value != 0))
 			CL.visedicts[CL.numvisedicts++] = ent;
 	}
 };
@@ -917,16 +917,16 @@ CL.ReadFromServer = function()
 	for (;;)
 	{
 		ret = CL.GetMessage();
-		if (ret === -1)
+		if (ret == -1)
 			Host.Error('CL.ReadFromServer: lost server connection');
-		if (ret === 0)
+		if (ret == 0)
 			break;
 		CL.state.last_received_message = Host.realtime;
 		CL.ParseServerMessage();
-		if (CL.cls.state !== CL.active.connected)
+		if (CL.cls.state != CL.active.connected)
 			break;
 	}
-	if (CL.shownet.value !== 0)
+	if (CL.shownet.value != 0)
 		Con.Print('\n');
 	CL.RelinkEntities();
 	CL.UpdateTEnts();
@@ -934,32 +934,32 @@ CL.ReadFromServer = function()
 
 CL.SendCmd = function()
 {
-	if (CL.cls.state !== CL.active.connected)
+	if (CL.cls.state != CL.active.connected)
 		return;
 
-	if (CL.cls.signon === 4)
+	if (CL.cls.signon == 4)
 	{
 		CL.BaseMove();
 		IN.Move();
 		CL.SendMove();
 	}
 
-	if (CL.cls.demoplayback === true)
+	if (CL.cls.demoplayback)
 	{
 		CL.cls.message.cursize = 0;
 		return;
 	}
 
-	if (CL.cls.message.cursize === 0)
+	if (CL.cls.message.cursize == 0)
 		return;
 
-	if (NET.CanSendMessage(CL.cls.netcon) !== true)
+	if (NET.CanSendMessage(CL.cls.netcon) != true)
 	{
 		Con.DPrint('CL.SendCmd: can\'t send\n');
 		return;
 	}
 
-	if (NET.SendMessage(CL.cls.netcon, CL.cls.message) === -1)
+	if (NET.SendMessage(CL.cls.netcon, CL.cls.message) == -1)
 		Host.Error('CL.SendCmd: lost server connection');
 
 	CL.cls.message.cursize = 0;
@@ -1078,8 +1078,8 @@ CL.EntityNum = function(num)
 CL.ParseStartSoundPacket = function()
 {
 	var field_mask = MSG.ReadByte();
-	var volume = ((field_mask & 1) !== 0) ? MSG.ReadByte() : 255;
-	var attenuation = ((field_mask & 2) !== 0) ? MSG.ReadByte() * 0.015625 : 1.0;
+	var volume = ((field_mask & 1) != 0) ? MSG.ReadByte() : 255;
+	var attenuation = ((field_mask & 2) != 0) ? MSG.ReadByte() * 0.015625 : 1.0;
 	var channel = MSG.ReadShort();
 	var sound_num = MSG.ReadByte();
 	var ent = channel >> 3;
@@ -1091,7 +1091,7 @@ CL.ParseStartSoundPacket = function()
 CL.lastmsg = 0.0;
 CL.KeepaliveMessage = function()
 {
-	if ((SV.server.active === true) || (CL.cls.demoplayback === true))
+	if ((SV.server.active) || (CL.cls.demoplayback))
 		return;
 	var oldsize = NET.message.cursize;
 	var olddata = new Uint8Array(8192);
@@ -1107,12 +1107,12 @@ CL.KeepaliveMessage = function()
 		case 1:
 			Host.Error('CL.KeepaliveMessage: received a message');
 		case 2:
-			if (MSG.ReadByte() !== Protocol.svc.nop)
+			if (MSG.ReadByte() != Protocol.svc.nop)
 				Host.Error('CL.KeepaliveMessage: datagram wasn\'t a nop');
 		default:
 			Host.Error('CL.KeepaliveMessage: CL.GetMessage failed');
 		}
-		if (ret === 0)
+		if (ret == 0)
 			break;
 	}
 	NET.message.cursize = oldsize;
@@ -1132,7 +1132,7 @@ CL.ParseServerInfo = function()
 	Con.DPrint('Serverinfo packet received.\n');
 	CL.ClearState();
 	var i = MSG.ReadLong();
-	if (i !== Protocol.version)
+	if (i != Protocol.version)
 	{
 		Con.Print('Server returned version ' + i + ', not ' + Protocol.version + '\n');
 		return;
@@ -1163,7 +1163,7 @@ CL.ParseServerInfo = function()
 	for (nummodels = 1; ; ++nummodels)
 	{
 		str = MSG.ReadString();
-		if (str.length === 0)
+		if (str.length == 0)
 			break;
 		model_precache[nummodels] = str;
 	}
@@ -1171,7 +1171,7 @@ CL.ParseServerInfo = function()
 	for (numsounds = 1; ; ++numsounds)
 	{
 		str = MSG.ReadString();
-		if (str.length === 0)
+		if (str.length == 0)
 			break;
 		sound_precache[numsounds] = str;
 	}
@@ -1202,50 +1202,50 @@ CL.ParseServerInfo = function()
 
 CL.ParseUpdate = function(bits)
 {
-	if (CL.cls.signon === 3)
+	if (CL.cls.signon == 3)
 	{
 		CL.cls.signon = 4;
 		CL.SignonReply();
 	}
 
-	if ((bits & Protocol.u.morebits) !== 0)
+	if ((bits & Protocol.u.morebits) != 0)
 		bits += (MSG.ReadByte() << 8);
 
-	var ent = CL.EntityNum(((bits & Protocol.u.longentity) !== 0) ? MSG.ReadShort() : MSG.ReadByte());
+	var ent = CL.EntityNum(((bits & Protocol.u.longentity) != 0) ? MSG.ReadShort() : MSG.ReadByte());
 
-	var forcelink = ent.msgtime !== CL.state.mtime[1];
+	var forcelink = ent.msgtime != CL.state.mtime[1];
 	ent.msgtime = CL.state.mtime[0];
 
-	var model = CL.state.model_precache[((bits & Protocol.u.model) !== 0) ? MSG.ReadByte() : ent.baseline.modelindex];
-	if (model !== ent.model)
+	var model = CL.state.model_precache[((bits & Protocol.u.model) != 0) ? MSG.ReadByte() : ent.baseline.modelindex];
+	if (model != ent.model)
 	{
 		ent.model = model;
 		if (model != null)
-			ent.syncbase = (model.random === true) ? Math.random() : 0.0;
+			ent.syncbase = (model.random) ? Math.random() : 0.0;
 		else
 			forcelink = true;
 	}
 
-	ent.frame = ((bits & Protocol.u.frame) !== 0) ? MSG.ReadByte() : ent.baseline.frame;
-	ent.colormap = ((bits & Protocol.u.colormap) !== 0) ? MSG.ReadByte() : ent.baseline.colormap;
+	ent.frame = ((bits & Protocol.u.frame) != 0) ? MSG.ReadByte() : ent.baseline.frame;
+	ent.colormap = ((bits & Protocol.u.colormap) != 0) ? MSG.ReadByte() : ent.baseline.colormap;
 	if (ent.colormap > CL.state.maxclients)
 		Sys.Error('i >= cl.maxclients');
-	ent.skinnum = ((bits & Protocol.u.skin) !== 0) ? MSG.ReadByte() : ent.baseline.skin;
-	ent.effects = ((bits & Protocol.u.effects) !== 0) ? MSG.ReadByte() : ent.baseline.effects;
+	ent.skinnum = ((bits & Protocol.u.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
+	ent.effects = ((bits & Protocol.u.effects) != 0) ? MSG.ReadByte() : ent.baseline.effects;
 
 	Vec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
 	Vec.Copy(ent.msg_angles[0], ent.msg_angles[1]);
-	ent.msg_origins[0][0] = ((bits & Protocol.u.origin1) !== 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
-	ent.msg_angles[0][0] = ((bits & Protocol.u.angle1) !== 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
-	ent.msg_origins[0][1] = ((bits & Protocol.u.origin2) !== 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
-	ent.msg_angles[0][1] = ((bits & Protocol.u.angle2) !== 0) ? MSG.ReadAngle() : ent.baseline.angles[1];
-	ent.msg_origins[0][2] = ((bits & Protocol.u.origin3) !== 0) ? MSG.ReadCoord() : ent.baseline.origin[2];
-	ent.msg_angles[0][2] = ((bits & Protocol.u.angle3) !== 0) ? MSG.ReadAngle() : ent.baseline.angles[2];
+	ent.msg_origins[0][0] = ((bits & Protocol.u.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
+	ent.msg_angles[0][0] = ((bits & Protocol.u.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
+	ent.msg_origins[0][1] = ((bits & Protocol.u.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
+	ent.msg_angles[0][1] = ((bits & Protocol.u.angle2) != 0) ? MSG.ReadAngle() : ent.baseline.angles[1];
+	ent.msg_origins[0][2] = ((bits & Protocol.u.origin3) != 0) ? MSG.ReadCoord() : ent.baseline.origin[2];
+	ent.msg_angles[0][2] = ((bits & Protocol.u.angle3) != 0) ? MSG.ReadAngle() : ent.baseline.angles[2];
 
-	if ((bits & Protocol.u.nolerp) !== 0)
+	if ((bits & Protocol.u.nolerp) != 0)
 		ent.forcelink = true;
 
-	if (forcelink === true)
+	if (forcelink)
 	{
 		Vec.Copy(ent.msg_origins[0], ent.origin);
 		Vec.Copy(ent.origin, ent.msg_origins[1]);
@@ -1273,17 +1273,17 @@ CL.ParseClientdata = function(bits)
 {
 	var i;
 
-	CL.state.viewheight = ((bits & Protocol.su.viewheight) !== 0) ? MSG.ReadChar() : Protocol.default_viewheight;
-	CL.state.idealpitch = ((bits & Protocol.su.idealpitch) !== 0) ? MSG.ReadChar() : 0.0;
+	CL.state.viewheight = ((bits & Protocol.su.viewheight) != 0) ? MSG.ReadChar() : Protocol.default_viewheight;
+	CL.state.idealpitch = ((bits & Protocol.su.idealpitch) != 0) ? MSG.ReadChar() : 0.0;
 
 	CL.state.mvelocity[1] = [CL.state.mvelocity[0][0], CL.state.mvelocity[0][1], CL.state.mvelocity[0][2]];
 	for (i = 0; i <= 2; ++i)
 	{
-		if ((bits & (Protocol.su.punch1 << i)) !== 0)
+		if ((bits & (Protocol.su.punch1 << i)) != 0)
 			CL.state.punchangle[i] = MSG.ReadChar();
 		else
 			CL.state.punchangle[i] = 0.0;
-		if ((bits & (Protocol.su.velocity1 << i)) !== 0)
+		if ((bits & (Protocol.su.velocity1 << i)) != 0)
 			CL.state.mvelocity[0][i] = MSG.ReadChar() * 16.0;
 		else
 			CL.state.mvelocity[0][i] = 0.0;
@@ -1291,29 +1291,29 @@ CL.ParseClientdata = function(bits)
 
 	i = MSG.ReadLong();
 	var j;
-	if (CL.state.items !== i)
+	if (CL.state.items != i)
 	{
 		for (j = 0; j <= 31; ++j)
 		{
-			if ((((i >>> j) & 1) !== 0) && (((CL.state.items >>> j) & 1) === 0))
+			if ((((i >>> j) & 1) != 0) && (((CL.state.items >>> j) & 1) == 0))
 				CL.state.item_gettime[j] = CL.state.time;
 		}
 		CL.state.items = i;
 	}
 
-	CL.state.onground = (bits & Protocol.su.onground) !== 0;
-	CL.state.inwater = (bits & Protocol.su.inwater) !== 0;
+	CL.state.onground = (bits & Protocol.su.onground) != 0;
+	CL.state.inwater = (bits & Protocol.su.inwater) != 0;
 
-	CL.state.stats[Def.stat.weaponframe] = ((bits & Protocol.su.weaponframe) !== 0) ? MSG.ReadByte() : 0;
-	CL.state.stats[Def.stat.armor] = ((bits & Protocol.su.armor) !== 0) ? MSG.ReadByte() : 0;
-	CL.state.stats[Def.stat.weapon] = ((bits & Protocol.su.weapon) !== 0) ? MSG.ReadByte() : 0;
+	CL.state.stats[Def.stat.weaponframe] = ((bits & Protocol.su.weaponframe) != 0) ? MSG.ReadByte() : 0;
+	CL.state.stats[Def.stat.armor] = ((bits & Protocol.su.armor) != 0) ? MSG.ReadByte() : 0;
+	CL.state.stats[Def.stat.weapon] = ((bits & Protocol.su.weapon) != 0) ? MSG.ReadByte() : 0;
 	CL.state.stats[Def.stat.health] = MSG.ReadShort();
 	CL.state.stats[Def.stat.ammo] = MSG.ReadByte();
 	CL.state.stats[Def.stat.shells] = MSG.ReadByte();
 	CL.state.stats[Def.stat.nails] = MSG.ReadByte();
 	CL.state.stats[Def.stat.rockets] = MSG.ReadByte();
 	CL.state.stats[Def.stat.cells] = MSG.ReadByte();
-	if (COM.standard_quake === true)
+	if (COM.standard_quake)
 		CL.state.stats[Def.stat.activeweapon] = MSG.ReadByte();
 	else
 		CL.state.stats[Def.stat.activeweapon] = 1 << MSG.ReadByte();
@@ -1359,7 +1359,7 @@ CL.ParseStaticSound = function()
 
 CL.Shownet = function(x)
 {
-	if (CL.shownet.value === 2)
+	if (CL.shownet.value == 2)
 	{
 		Con.Print((MSG.readcount <= 99 ? (MSG.readcount <= 9 ? '  ' : ' ') : '')
 			+ (MSG.readcount - 1) + ':' + x + '\n');
@@ -1368,9 +1368,9 @@ CL.Shownet = function(x)
 
 CL.ParseServerMessage = function()
 {
-	if (CL.shownet.value === 1)
+	if (CL.shownet.value == 1)
 		Con.Print(NET.message.cursize + ' ');
-	else if (CL.shownet.value === 2)
+	else if (CL.shownet.value == 2)
 		Con.Print('------------------\n');
 
 	CL.state.onground = false;
@@ -1380,18 +1380,18 @@ CL.ParseServerMessage = function()
 	var cmd, i;
 	for (;;)
 	{
-		if (MSG.badread === true)
+		if (MSG.badread)
 			Host.Error('CL.ParseServerMessage: Bad server message');
 
 		cmd = MSG.ReadByte();
 
-		if (cmd === -1)
+		if (cmd == -1)
 		{
 			CL.Shownet('END OF MESSAGE');
 			return;
 		}
 
-		if ((cmd & 128) !== 0)
+		if ((cmd & 128) != 0)
 		{
 			CL.Shownet('fast update');
 			CL.ParseUpdate(cmd & 127);
@@ -1412,7 +1412,7 @@ CL.ParseServerMessage = function()
 			continue;
 		case Protocol.svc.version:
 			i = MSG.ReadLong();
-			if (i !== Protocol.version)
+			if (i != Protocol.version)
 				Host.Error('CL.ParseServerMessage: Server is protocol ' + i + ' instead of ' + Protocol.version + '\n');
 			continue;
 		case Protocol.svc.disconnect:
@@ -1485,8 +1485,8 @@ CL.ParseServerMessage = function()
 			CL.ParseTEnt();
 			continue;
 		case Protocol.svc.setpause:
-			CL.state.paused = MSG.ReadByte() !== 0;
-			if (CL.state.paused === true)
+			CL.state.paused = MSG.ReadByte() != 0;
+			if (CL.state.paused)
 				CDAudio.Pause();
 			else
 				CDAudio.Resume();
@@ -1516,7 +1516,7 @@ CL.ParseServerMessage = function()
 		case Protocol.svc.cdtrack:
 			CL.state.cdtrack = MSG.ReadByte();
 			MSG.ReadByte();
-			if (((CL.cls.demoplayback === true) || (CL.cls.demorecording === true)) && (CL.cls.forcetrack !== -1))
+			if (((CL.cls.demoplayback) || (CL.cls.demorecording)) && (CL.cls.forcetrack != -1))
 				CDAudio.Play(CL.cls.forcetrack, true);
 			else
 				CDAudio.Play(CL.state.cdtrack, true);
@@ -1570,7 +1570,7 @@ CL.ParseBeam = function(m)
 	for (i = 0; i <= 23; ++i)
 	{
 		b = CL.beams[i];
-		if (b.entity !== ent)
+		if (b.entity != ent)
 			continue;
 		b.model = m;
 		b.endtime = CL.state.time + 0.2;
@@ -1686,12 +1686,12 @@ CL.UpdateTEnts = function()
 		b = CL.beams[i];
 		if ((b.model == null) || (b.endtime < CL.state.time))
 			continue;
-		if (b.entity === CL.state.viewentity)
+		if (b.entity == CL.state.viewentity)
 			Vec.Copy(CL.entities[CL.state.viewentity].origin, b.start);
 		dist[0] = b.end[0] - b.start[0];
 		dist[1] = b.end[1] - b.start[1];
 		dist[2] = b.end[2] - b.start[2];
-		if ((dist[0] === 0.0) && (dist[1] === 0.0))
+		if ((dist[0] == 0.0) && (dist[1] == 0.0))
 		{
 			yaw = 0;
 			pitch = dist[2] > 0.0 ? 90 : 270;
@@ -1709,7 +1709,7 @@ CL.UpdateTEnts = function()
 		org[1] = b.start[1];
 		org[2] = b.start[2];
 		d = Math.sqrt(dist[0] * dist[0] + dist[1] * dist[1] + dist[2] * dist[2]);
-		if (d !== 0.0)
+		if (d != 0.0)
 		{
 			dist[0] /= d;
 			dist[1] /= d;

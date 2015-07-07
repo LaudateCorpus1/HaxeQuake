@@ -10,14 +10,14 @@ PF.VarString = function(first)
 
 PF.error = function()
 {
-	Con.Print('======SERVER ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + PF.VarString(0) + '\n');
+	Con.Print('====SERVER ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + PF.VarString(0) + '\n');
 	ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
 	Host.Error('Program error');
 };
 
 PF.objerror = function()
 {
-	Con.Print('======OBJECT ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + PF.VarString(0) + '\n');
+	Con.Print('====OBJECT ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + PF.VarString(0) + '\n');
 	ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
 	Host.Error('Program error');
 };
@@ -70,10 +70,10 @@ PF.setmodel = function()
 	var i;
 	for (i = 0; i < SV.server.model_precache.length; ++i)
 	{
-		if (SV.server.model_precache[i] === m)
+		if (SV.server.model_precache[i] == m)
 			break;
 	}
-	if (i === SV.server.model_precache.length)
+	if (i == SV.server.model_precache.length)
 		PR.RunError('no precache: ' + m + '\n');
 
 	e.v_int[PR.entvars.model] = PR.globals_int[7];
@@ -133,7 +133,7 @@ PF.vlen = function()
 PF.vectoyaw = function()
 {
 	var value1 = PR.globals_float[4], value2 = PR.globals_float[5];
-	if ((value1 === 0.0) && (value2 === 0.0))
+	if ((value1 == 0.0) && (value2 == 0.0))
 	{
 		PR.globals_float[1] = 0.0;
 		return;
@@ -148,7 +148,7 @@ PF.vectoangles = function()
 {
 	PR.globals_float[3] = 0.0;
 	var value1 = [PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]];
-	if ((value1[0] === 0.0) && (value1[1] === 0.0))
+	if ((value1[0] == 0.0) && (value1[1] == 0.0))
 	{
 		if (value1[2] > 0.0)
 			PR.globals_float[1] = 90.0;
@@ -185,10 +185,10 @@ PF.ambientsound = function()
 	var samp = PR.GetString(PR.globals_int[7]), i;
 	for (i = 0; i < SV.server.sound_precache.length; ++i)
 	{
-		if (SV.server.sound_precache[i] === samp)
+		if (SV.server.sound_precache[i] == samp)
 			break;
 	}
-	if (i === SV.server.sound_precache.length)
+	if (i == SV.server.sound_precache.length)
 	{
 		Con.Print('no precache: ' + samp + '\n');
 		return;
@@ -222,11 +222,11 @@ PF.traceline = function()
 	var trace = SV.Move([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
 		Vec.origin, Vec.origin, [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
 		PR.globals_float[10] >> 0, SV.server.edicts[PR.globals_int[13]]);
-	PR.globals_float[PR.globalvars.trace_allsolid] = (trace.allsolid === true) ? 1.0 : 0.0;
-	PR.globals_float[PR.globalvars.trace_startsolid] = (trace.startsolid === true) ? 1.0 : 0.0;
+	PR.globals_float[PR.globalvars.trace_allsolid] = (trace.allsolid) ? 1.0 : 0.0;
+	PR.globals_float[PR.globalvars.trace_startsolid] = (trace.startsolid) ? 1.0 : 0.0;
 	PR.globals_float[PR.globalvars.trace_fraction] = trace.fraction;
-	PR.globals_float[PR.globalvars.trace_inwater] = (trace.inwater === true) ? 1.0 : 0.0;
-	PR.globals_float[PR.globalvars.trace_inopen] = (trace.inopen === true) ? 1.0 : 0.0;
+	PR.globals_float[PR.globalvars.trace_inwater] = (trace.inwater) ? 1.0 : 0.0;
+	PR.globals_float[PR.globalvars.trace_inopen] = (trace.inopen) ? 1.0 : 0.0;
 	PR.globals_float[PR.globalvars.trace_endpos] = trace.endpos[0];
 	PR.globals_float[PR.globalvars.trace_endpos1] = trace.endpos[1];
 	PR.globals_float[PR.globalvars.trace_endpos2] = trace.endpos[2];
@@ -245,19 +245,19 @@ PF.newcheckclient = function(check)
 	else if (check > SV.svs.maxclients)
 		check = SV.svs.maxclients;
 	var i = 1;
-	if (check !== SV.svs.maxclients)
+	if (check != SV.svs.maxclients)
 		i += check;
 	var ent;
 	for (; ; ++i)
 	{
-		if (i === SV.svs.maxclients + 1)
+		if (i == SV.svs.maxclients + 1)
 			i = 1;
 		ent = SV.server.edicts[i];
-		if (i === check)
+		if (i == check)
 			break;
-		if (ent.free === true)
+		if (ent.free)
 			continue;
-		if ((ent.v_float[PR.entvars.health] <= 0.0) || ((ent.v_float[PR.entvars.flags] & SV.fl.notarget) !== 0))
+		if ((ent.v_float[PR.entvars.health] <= 0.0) || ((ent.v_float[PR.entvars.flags] & SV.fl.notarget) != 0))
 			continue;
 		break;
 	}
@@ -277,7 +277,7 @@ PF.checkclient = function()
 		SV.server.lastchecktime = SV.server.time;
 	}
 	var ent = SV.server.edicts[SV.server.lastcheck];
-	if ((ent.free === true) || (ent.v_float[PR.entvars.health] <= 0.0))
+	if ((ent.free) || (ent.v_float[PR.entvars.health] <= 0.0))
 	{
 		PR.globals_int[1] = 0;
 		return;
@@ -288,7 +288,7 @@ PF.checkclient = function()
 			self.v_float[PR.entvars.origin1] + self.v_float[PR.entvars.view_ofs1],
 			self.v_float[PR.entvars.origin2] + self.v_float[PR.entvars.view_ofs2]
 		], SV.server.worldmodel).num - 1;
-	if ((l < 0) || ((PF.checkpvs[l >> 3] & (1 << (l & 7))) === 0))
+	if ((l < 0) || ((PF.checkpvs[l >> 3] & (1 << (l & 7))) == 0))
 	{
 		PR.globals_int[1] = 0;
 		return;
@@ -331,9 +331,9 @@ PF.findradius = function()
 	for (i = 1; i < SV.server.num_edicts; ++i)
 	{
 		ent = SV.server.edicts[i];
-		if (ent.free === true)
+		if (ent.free)
 			continue;
-		if (ent.v_float[PR.entvars.solid] === SV.solid.not)
+		if (ent.v_float[PR.entvars.solid] == SV.solid.not)
 			continue;
 		eorg[0] = org[0] - (ent.v_float[PR.entvars.origin] + (ent.v_float[PR.entvars.mins] + ent.v_float[PR.entvars.maxs]) * 0.5);
 		eorg[1] = org[1] - (ent.v_float[PR.entvars.origin1] + (ent.v_float[PR.entvars.mins1] + ent.v_float[PR.entvars.maxs1]) * 0.5);
@@ -354,7 +354,7 @@ PF.dprint = function()
 PF.ftos = function()
 {
 	var v = PR.globals_float[4];
-	if (v === Math.floor(v))
+	if (v == Math.floor(v))
 		PR.TempString(v.toString());
 	else
 		PR.TempString(v.toFixed(1));
@@ -393,9 +393,9 @@ PF.Find = function()
 	for (++e; e < SV.server.num_edicts; ++e)
 	{
 		ed = SV.server.edicts[e];
-		if (ed.free === true)
+		if (ed.free)
 			continue;
-		if (PR.GetString(ed.v_int[f]) === s)
+		if (PR.GetString(ed.v_int[f]) == s)
 		{
 			PR.globals_int[1] = ed.num;
 			return;
@@ -407,16 +407,16 @@ PF.Find = function()
 PF.MoveToGoal = function()
 {
 	var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
-	if ((ent.v_float[PR.entvars.flags] & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) === 0)
+	if ((ent.v_float[PR.entvars.flags] & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0)
 	{
 		PR.globals_float[1] = 0.0;
 		return;
 	}
 	var goal = SV.server.edicts[ent.v_int[PR.entvars.goalentity]];
 	var dist = PR.globals_float[4];
-	if ((ent.v_int[PR.entvars.enemy] !== 0) && (SV.CloseEnough(ent, goal, dist) === true))
+	if ((ent.v_int[PR.entvars.enemy] != 0) && (SV.CloseEnough(ent, goal, dist)))
 		return;
-	if ((Math.random() >= 0.75) || (SV.StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist) !== true))
+	if ((Math.random() >= 0.75) || (SV.StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist) != true))
 		SV.NewChaseDir(ent, goal, dist);
 };
 
@@ -433,7 +433,7 @@ PF.precache_sound = function()
 	var i;
 	for (i = 0; i < SV.server.sound_precache.length; ++i)
 	{
-		if (SV.server.sound_precache[i] === s)
+		if (SV.server.sound_precache[i] == s)
 			return;
 	}
 	SV.server.sound_precache[i] = s;
@@ -441,7 +441,7 @@ PF.precache_sound = function()
 
 PF.precache_model = function()
 {
-	if (SV.server.loading !== true)
+	if (SV.server.loading != true)
 		PR.RunError('PF.Precache_*: Precache can only be done in spawn functions');
 	var s = PR.GetString(PR.globals_int[4]);
 	PR.globals_int[1] = PR.globals_int[4];
@@ -449,7 +449,7 @@ PF.precache_model = function()
 	var i;
 	for (i = 0; i < SV.server.model_precache.length; ++i)
 	{
-		if (SV.server.model_precache[i] === s)
+		if (SV.server.model_precache[i] == s)
 			return;
 	}
 	SV.server.model_precache[i] = s;
@@ -479,7 +479,7 @@ PF.eprint = function()
 PF.walkmove = function()
 {
 	var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
-	if ((ent.v_float[PR.entvars.flags] & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) === 0)
+	if ((ent.v_float[PR.entvars.flags] & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0)
 	{
 		PR.globals_float[1] = 0.0;
 		return;
@@ -498,7 +498,7 @@ PF.droptofloor = function()
 	var trace = SV.Move(ED.Vector(ent, PR.entvars.origin),
 		ED.Vector(ent, PR.entvars.mins), ED.Vector(ent, PR.entvars.maxs),
 		[ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] - 256.0], 0, ent);
-	if ((trace.fraction === 1.0) || (trace.allsolid === true))
+	if ((trace.fraction == 1.0) || (trace.allsolid))
 	{
 		PR.globals_float[1] = 0.0;
 		return;
@@ -515,13 +515,13 @@ PF.lightstyle = function()
 	var style = PR.globals_float[4] >> 0;
 	var val = PR.GetString(PR.globals_int[7]);
 	SV.server.lightstyles[style] = val;
-	if (SV.server.loading === true)
+	if (SV.server.loading)
 		return;
 	var i, client;
 	for (i = 0; i < SV.svs.maxclients; ++i)
 	{
 		client = SV.svs.clients[i];
-		if ((client.active !== true) && (client.spawned !== true))
+		if ((client.active != true) && (client.spawned != true))
 			continue;
 		MSG.WriteByte(client.message, Protocol.svc.lightstyle);
 		MSG.WriteByte(client.message, style);
@@ -560,7 +560,7 @@ PF.nextent = function()
 	var i;
 	for (i = PR.globals_int[4] + 1; i < SV.server.num_edicts; ++i)
 	{
-		if (SV.server.edicts[i].free !== true)
+		if (SV.server.edicts[i].free != true)
 		{
 			PR.globals_int[1] = i;
 			return;
@@ -578,9 +578,9 @@ PF.aim = function()
 	var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
 	if (tr.ent != null)
 	{
-		if ((tr.ent.v_float[PR.entvars.takedamage] === SV.damage.aim) &&
-			((Host.teamplay.value === 0) || (ent.v_float[PR.entvars.team] <= 0) ||
-			(ent.v_float[PR.entvars.team] !== tr.ent.v_float[PR.entvars.team])))
+		if ((tr.ent.v_float[PR.entvars.takedamage] == SV.damage.aim) &&
+			((Host.teamplay.value == 0) || (ent.v_float[PR.entvars.team] <= 0) ||
+			(ent.v_float[PR.entvars.team] != tr.ent.v_float[PR.entvars.team])))
 		{
 			PR.globals_float[1] = dir[0];
 			PR.globals_float[2] = dir[1];
@@ -594,11 +594,11 @@ PF.aim = function()
 	for (i = 1; i < SV.server.num_edicts; ++i)
 	{
 		check = SV.server.edicts[i];
-		if (check.v_float[PR.entvars.takedamage] !== SV.damage.aim)
+		if (check.v_float[PR.entvars.takedamage] != SV.damage.aim)
 			continue;
-		if (check === ent)
+		if (check == ent)
 			continue;
-		if ((Host.teamplay.value !== 0) && (ent.v_float[PR.entvars.team] > 0) && (ent.v_float[PR.entvars.team] === check.v_float[PR.entvars.team]))
+		if ((Host.teamplay.value != 0) && (ent.v_float[PR.entvars.team] > 0) && (ent.v_float[PR.entvars.team] == check.v_float[PR.entvars.team]))
 			continue;
 		end[0] = check.v_float[PR.entvars.origin] + 0.5 * (check.v_float[PR.entvars.mins] + check.v_float[PR.entvars.maxs]);
 		end[1] = check.v_float[PR.entvars.origin1] + 0.5 * (check.v_float[PR.entvars.mins1] + check.v_float[PR.entvars.maxs1]);
@@ -611,7 +611,7 @@ PF.aim = function()
 		if (dist < bestdist)
 			continue;
 		tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
-		if (tr.ent === check)
+		if (tr.ent == check)
 		{
 			bestdist = dist;
 			bestent = check;
@@ -642,7 +642,7 @@ PF.changeyaw = function()
 	var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
 	var current = Vec.Anglemod(ent.v_float[PR.entvars.angles1]);
 	var ideal = ent.v_float[PR.entvars.ideal_yaw];
-	if (current === ideal)
+	if (current == ideal)
 		return;
 	var move = ideal - current;
 	if (ideal > current)
@@ -721,7 +721,7 @@ PF.setspawnparms = function()
 
 PF.changelevel = function()
 {
-	if (SV.svs.changelevel_issued === true)
+	if (SV.svs.changelevel_issued)
 		return;
 	SV.svs.changelevel_issued = true;
 	Cmd.text += 'changelevel ' + PR.GetString(PR.globals_int[4]) + '\n';

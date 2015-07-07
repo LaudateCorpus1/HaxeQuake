@@ -203,7 +203,7 @@ PR.progheader_crc = 5927;
 PR.CheckEmptyString = function(s)
 {
 	var c = s.charCodeAt(0);
-	if ((Q.isNaN(c) === true) || (c <= 32))
+	if ((Q.isNaN(c)) || (c <= 32))
 		PR.RunError('Bad string');
 };
 
@@ -304,9 +304,9 @@ PR.LoadProgs = function()
 	var view = new DataView(progs);
 
 	var i = view.getUint32(0, true);
-	if (i !== PR.version)
+	if (i != PR.version)
 		Sys.Error('progs.dat has wrong version number (' + i + ' should be ' + PR.version + ')');
-	if (view.getUint32(4, true) !== PR.progheader_crc)
+	if (view.getUint32(4, true) != PR.progheader_crc)
 		Sys.Error('progs.dat system vars have been modified, PR.js is out of date');
 
 	PR.crc = CRC.Block(new Uint8Array(progs));
@@ -479,19 +479,19 @@ PR.PrintStatement = function(s)
 	}
 	else
 		text = '';
-	if ((s.op === PR.op.jnz) || (s.op === PR.op.jz))
+	if ((s.op == PR.op.jnz) || (s.op == PR.op.jz))
 		text += PR.GlobalString(s.a) + 'branch ' + s.b;
-	else if (s.op === PR.op.jump)
+	else if (s.op == PR.op.jump)
 		text += 'branch ' + s.a;
 	else if ((s.op >= PR.op.store_f) && (s.op <= PR.op.store_fnc))
 		text += PR.GlobalString(s.a) + PR.GlobalStringNoContents(s.b);
 	else
 	{
-		if (s.a !== 0)
+		if (s.a != 0)
 			text += PR.GlobalString(s.a);
-		if (s.b !== 0)
+		if (s.b != 0)
 			text += PR.GlobalString(s.b);
-		if (s.c !== 0)
+		if (s.c != 0)
 			text += PR.GlobalStringNoContents(s.c);
 	}
 	Con.Print(text + '\n');
@@ -499,7 +499,7 @@ PR.PrintStatement = function(s)
 
 PR.StackTrace = function()
 {
-	if (PR.depth === 0)
+	if (PR.depth == 0)
 	{
 		Con.Print('<NO STACK>\n');
 		return;
@@ -524,7 +524,7 @@ PR.StackTrace = function()
 
 PR.Profile_f = function()
 {
-	if (SV.server.active !== true)
+	if (SV.server.active != true)
 		return;
 	var num = 0, max, best, i, f, profile;
 	for (;;)
@@ -598,9 +598,9 @@ PR.LeaveFunction = function()
 
 PR.ExecuteProgram = function(fnum)
 {
-	if ((fnum === 0) || (fnum >= PR.functions.length))
+	if ((fnum == 0) || (fnum >= PR.functions.length))
 	{
-		if (PR.globals_int[PR.globalvars.self] !== 0)
+		if (PR.globals_int[PR.globalvars.self] != 0)
 			ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
 		Host.Error('PR.ExecuteProgram: NULL function');
 	}
@@ -614,11 +614,11 @@ PR.ExecuteProgram = function(fnum)
 	{
 		++s;
 		st = PR.statements[s];
-		if (--runaway === 0)
+		if (--runaway == 0)
 			PR.RunError('runaway loop error');
 		++PR.xfunction.profile;
 		PR.xstatement = s;
-		if (PR.trace === true)
+		if (PR.trace)
 			PR.PrintStatement(st);
 		switch (st.op)
 		{
@@ -678,58 +678,58 @@ PR.ExecuteProgram = function(fnum)
 			PR.globals_float[st.c] = (PR.globals_float[st.a] < PR.globals_float[st.b]) ? 1.0 : 0.0;
 			continue;
 		case PR.op.and:
-			PR.globals_float[st.c] = ((PR.globals_float[st.a] !== 0.0) && (PR.globals_float[st.b] !== 0.0)) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = ((PR.globals_float[st.a] != 0.0) && (PR.globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
 			continue;
 		case PR.op.or:
-			PR.globals_float[st.c] = ((PR.globals_float[st.a] !== 0.0) || (PR.globals_float[st.b] !== 0.0)) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = ((PR.globals_float[st.a] != 0.0) || (PR.globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
 			continue;
 		case PR.op.not_f:
-			PR.globals_float[st.c] = (PR.globals_float[st.a] === 0.0) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.globals_float[st.a] == 0.0) ? 1.0 : 0.0;
 			continue;
 		case PR.op.not_v:
-			PR.globals_float[st.c] = ((PR.globals_float[st.a] === 0.0) &&
-				(PR.globals_float[st.a + 1] === 0.0) &&
-				(PR.globals_float[st.a + 2] === 0.0)) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = ((PR.globals_float[st.a] == 0.0) &&
+				(PR.globals_float[st.a + 1] == 0.0) &&
+				(PR.globals_float[st.a + 2] == 0.0)) ? 1.0 : 0.0;
 			continue;
 		case PR.op.not_s:
-			if (PR.globals_int[st.a] !== 0)
-				PR.globals_float[st.c] = (PR.strings[PR.globals_int[st.a]] === 0) ? 1.0 : 0.0;
+			if (PR.globals_int[st.a] != 0)
+				PR.globals_float[st.c] = (PR.strings[PR.globals_int[st.a]] == 0) ? 1.0 : 0.0;
 			else
 				PR.globals_float[st.c] = 1.0;
 			continue;
 		case PR.op.not_fnc:
 		case PR.op.not_ent:
-			PR.globals_float[st.c] = (PR.globals_int[st.a] === 0) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.globals_int[st.a] == 0) ? 1.0 : 0.0;
 			continue;
 		case PR.op.eq_f:
-			PR.globals_float[st.c] = (PR.globals_float[st.a] === PR.globals_float[st.b]) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.globals_float[st.a] == PR.globals_float[st.b]) ? 1.0 : 0.0;
 			continue;
 		case PR.op.eq_v:
-			PR.globals_float[st.c] = ((PR.globals_float[st.a] === PR.globals_float[st.b])
-				&& (PR.globals_float[st.a + 1] === PR.globals_float[st.b + 1])
-				&& (PR.globals_float[st.a + 2] === PR.globals_float[st.b + 2])) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = ((PR.globals_float[st.a] == PR.globals_float[st.b])
+				&& (PR.globals_float[st.a + 1] == PR.globals_float[st.b + 1])
+				&& (PR.globals_float[st.a + 2] == PR.globals_float[st.b + 2])) ? 1.0 : 0.0;
 			continue;
 		case PR.op.eq_s:
-			PR.globals_float[st.c] = (PR.GetString(PR.globals_int[st.a]) === PR.GetString(PR.globals_int[st.b])) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.GetString(PR.globals_int[st.a]) == PR.GetString(PR.globals_int[st.b])) ? 1.0 : 0.0;
 			continue;
 		case PR.op.eq_e:
 		case PR.op.eq_fnc:
-			PR.globals_float[st.c] = (PR.globals_int[st.a] === PR.globals_int[st.b]) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.globals_int[st.a] == PR.globals_int[st.b]) ? 1.0 : 0.0;
 			continue;
 		case PR.op.ne_f:
-			PR.globals_float[st.c] = (PR.globals_float[st.a] !== PR.globals_float[st.b]) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.globals_float[st.a] != PR.globals_float[st.b]) ? 1.0 : 0.0;
 			continue;
 		case PR.op.ne_v:
-			PR.globals_float[st.c] = ((PR.globals_float[st.a] !== PR.globals_float[st.b])
-				|| (PR.globals_float[st.a + 1] !== PR.globals_float[st.b + 1])
-				|| (PR.globals_float[st.a + 2] !== PR.globals_float[st.b + 2])) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = ((PR.globals_float[st.a] != PR.globals_float[st.b])
+				|| (PR.globals_float[st.a + 1] != PR.globals_float[st.b + 1])
+				|| (PR.globals_float[st.a + 2] != PR.globals_float[st.b + 2])) ? 1.0 : 0.0;
 			continue;
 		case PR.op.ne_s:
-			PR.globals_float[st.c] = (PR.GetString(PR.globals_int[st.a]) !== PR.GetString(PR.globals_int[st.b])) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.GetString(PR.globals_int[st.a]) != PR.GetString(PR.globals_int[st.b])) ? 1.0 : 0.0;
 			continue;
 		case PR.op.ne_e:
 		case PR.op.ne_fnc:
-			PR.globals_float[st.c] = (PR.globals_int[st.a] !== PR.globals_int[st.b]) ? 1.0 : 0.0;
+			PR.globals_float[st.c] = (PR.globals_int[st.a] != PR.globals_int[st.b]) ? 1.0 : 0.0;
 			continue;
 		case PR.op.store_f:
 		case PR.op.store_ent:
@@ -760,7 +760,7 @@ PR.ExecuteProgram = function(fnum)
 			continue;
 		case PR.op.address:
 			ed = PR.globals_int[st.a];
-			if ((ed === 0) && (SV.server.loading !== true))
+			if ((ed == 0) && (SV.server.loading != true))
 				PR.RunError('assignment to world entity');
 			PR.globals_int[st.c] = ed * PR.edict_size + 96 + (PR.globals_int[st.b] << 2);
 			continue;
@@ -779,11 +779,11 @@ PR.ExecuteProgram = function(fnum)
 			PR.globals_int[st.c + 2] = ed.v_int[ptr + 2];
 			continue;
 		case PR.op.jz:
-			if (PR.globals_int[st.a] === 0)
+			if (PR.globals_int[st.a] == 0)
 				s += st.b - 1;
 			continue;
 		case PR.op.jnz:
-			if (PR.globals_int[st.a] !== 0)
+			if (PR.globals_int[st.a] != 0)
 				s += st.b - 1;
 			continue;
 		case PR.op.jump:
@@ -799,7 +799,7 @@ PR.ExecuteProgram = function(fnum)
 		case PR.op.call7:
 		case PR.op.call8:
 			PR.argc = st.op - PR.op.call0;
-			if (PR.globals_int[st.a] === 0)
+			if (PR.globals_int[st.a] == 0)
 				PR.RunError('NULL function');
 			newf = PR.functions[PR.globals_int[st.a]];
 			if (newf.first_statement < 0)
@@ -818,7 +818,7 @@ PR.ExecuteProgram = function(fnum)
 			PR.globals_int[2] = PR.globals_int[st.a + 1];
 			PR.globals_int[3] = PR.globals_int[st.a + 2];
 			s = PR.LeaveFunction();
-			if (PR.depth === exitdepth)
+			if (PR.depth == exitdepth)
 				return;
 			continue;
 		case PR.op.state:
@@ -837,7 +837,7 @@ PR.GetString = function(num)
 	var string = [], c;
 	for (; num < PR.strings.length; ++num)
 	{
-		if (PR.strings[num] === 0)
+		if (PR.strings[num] == 0)
 			break;
 		string[string.length] = String.fromCharCode(PR.strings[num]);
 	}

@@ -116,7 +116,7 @@ SV.StartSound = function(entity, channel, sample, volume, attenuation)
 	var i;
 	for (i = 1; i < SV.server.sound_precache.length; ++i)
 	{
-		if (sample === SV.server.sound_precache[i])
+		if (sample == SV.server.sound_precache[i])
 			break;
 	}
 	if (i >= SV.server.sound_precache.length)
@@ -126,16 +126,16 @@ SV.StartSound = function(entity, channel, sample, volume, attenuation)
 	}
 
 	var field_mask = 0;
-	if (volume !== 255)
+	if (volume != 255)
 		field_mask += 1;
-	if (attenuation !== 1.0)
+	if (attenuation != 1.0)
 		field_mask += 2;
 
 	MSG.WriteByte(datagram, Protocol.svc.sound);
 	MSG.WriteByte(datagram, field_mask);
-	if ((field_mask & 1) !== 0)
+	if ((field_mask & 1) != 0)
 		MSG.WriteByte(datagram, volume);
-	if ((field_mask & 2) !== 0)
+	if ((field_mask & 2) != 0)
 		MSG.WriteByte(datagram, Math.floor(attenuation * 64.0));
 	MSG.WriteShort(datagram, (entity.num << 3) + channel);
 	MSG.WriteByte(datagram, i);
@@ -155,7 +155,7 @@ SV.SendServerinfo = function(client)
 	MSG.WriteByte(message, Protocol.svc.serverinfo);
 	MSG.WriteLong(message, Protocol.version);
 	MSG.WriteByte(message, SV.svs.maxclients);
-	MSG.WriteByte(message, ((Host.coop.value === 0) && (Host.deathmatch.value !== 0)) ? 1 : 0);
+	MSG.WriteByte(message, ((Host.coop.value == 0) && (Host.deathmatch.value != 0)) ? 1 : 0);
 	MSG.WriteString(message, PR.GetString(SV.server.edicts[0].v_int[PR.entvars.message]));
 	var i;
 	for (i = 1; i < SV.server.model_precache.length; ++i)
@@ -179,7 +179,7 @@ SV.ConnectClient = function(clientnum)
 {
 	var client = SV.svs.clients[clientnum];
 	var i, spawn_parms;
-	if (SV.server.loadgame === true)
+	if (SV.server.loadgame)
 	{
 		spawn_parms = [];
 		if (client.spawn_parms == null)
@@ -204,13 +204,13 @@ SV.ConnectClient = function(clientnum)
 	client.ping_times = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 		0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 	client.num_pings = 0;
-	if (SV.server.loadgame !== true)
+	if (SV.server.loadgame != true)
 	{
 		client.spawn_parms = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
 			0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
 	}
 	client.old_frags = 0;
-	if (SV.server.loadgame === true)
+	if (SV.server.loadgame)
 	{
 		for (i = 0; i <= 15; ++i)
 			client.spawn_parms[i] = spawn_parms[i];
@@ -236,10 +236,10 @@ SV.CheckForNewClients = function()
 			return;
 		for (i = 0; i < SV.svs.maxclients; ++i)
 		{
-			if (SV.svs.clients[i].active !== true)
+			if (SV.svs.clients[i].active != true)
 				break;
 		}
-		if (i === SV.svs.maxclients)
+		if (i == SV.svs.maxclients)
 			Sys.Error('SV.CheckForNewClients: no free clients');
 		SV.svs.clients[i].netconnection = ret;
 		SV.ConnectClient(i);
@@ -254,7 +254,7 @@ SV.AddToFatPVS = function(org, node)
 	{
 		if (node.contents < 0)
 		{
-			if (node.contents !== Mod.contents.solid)
+			if (node.contents != Mod.contents.solid)
 			{
 				pvs = Mod.LeafPVS(node, SV.server.worldmodel);
 				for (i = 0; i < SV.fatbytes; ++i)
@@ -295,16 +295,16 @@ SV.WriteEntitiesToClient = function(clent, msg)
 	for (e = 1; e < SV.server.num_edicts; ++e)
 	{
 		ent = SV.server.edicts[e];
-		if (ent !== clent)
+		if (ent != clent)
 		{
-			if ((ent.v_float[PR.entvars.modelindex] === 0.0) || (PR.strings[ent.v_int[PR.entvars.model]] === 0))
+			if ((ent.v_float[PR.entvars.modelindex] == 0.0) || (PR.strings[ent.v_int[PR.entvars.model]] == 0))
 				continue;
 			for (i = 0; i < ent.leafnums.length; ++i)
 			{
-				if ((pvs[ent.leafnums[i] >> 3] & (1 << (ent.leafnums[i] & 7))) !== 0)
+				if ((pvs[ent.leafnums[i] >> 3] & (1 << (ent.leafnums[i] & 7))) != 0)
 					break;
 			}
-			if (i === ent.leafnums.length)
+			if (i == ent.leafnums.length)
 				continue;
 		}
 		if ((msg.data.byteLength - msg.cursize) < 16)
@@ -320,23 +320,23 @@ SV.WriteEntitiesToClient = function(clent, msg)
 			if ((miss < -0.1) || (miss > 0.1))
 				bits += Protocol.u.origin1 << i;
 		}
-		if (ent.v_float[PR.entvars.angles] !== ent.baseline.angles[0])
+		if (ent.v_float[PR.entvars.angles] != ent.baseline.angles[0])
 			bits += Protocol.u.angle1;
-		if (ent.v_float[PR.entvars.angles1] !== ent.baseline.angles[1])
+		if (ent.v_float[PR.entvars.angles1] != ent.baseline.angles[1])
 			bits += Protocol.u.angle2;
-		if (ent.v_float[PR.entvars.angles2] !== ent.baseline.angles[2])
+		if (ent.v_float[PR.entvars.angles2] != ent.baseline.angles[2])
 			bits += Protocol.u.angle3;
-		if (ent.v_float[PR.entvars.movetype] === SV.movetype.step)
+		if (ent.v_float[PR.entvars.movetype] == SV.movetype.step)
 			bits += Protocol.u.nolerp;
-		if (ent.baseline.colormap !== ent.v_float[PR.entvars.colormap])
+		if (ent.baseline.colormap != ent.v_float[PR.entvars.colormap])
 			bits += Protocol.u.colormap;
-		if (ent.baseline.skin !== ent.v_float[PR.entvars.skin])
+		if (ent.baseline.skin != ent.v_float[PR.entvars.skin])
 			bits += Protocol.u.skin;
-		if (ent.baseline.frame !== ent.v_float[PR.entvars.frame])
+		if (ent.baseline.frame != ent.v_float[PR.entvars.frame])
 			bits += Protocol.u.frame;
-		if (ent.baseline.effects !== ent.v_float[PR.entvars.effects])
+		if (ent.baseline.effects != ent.v_float[PR.entvars.effects])
 			bits += Protocol.u.effects;
-		if (ent.baseline.modelindex !== ent.v_float[PR.entvars.modelindex])
+		if (ent.baseline.modelindex != ent.v_float[PR.entvars.modelindex])
 			bits += Protocol.u.model;
 		if (e >= 256)
 			bits += Protocol.u.longentity;
@@ -344,40 +344,40 @@ SV.WriteEntitiesToClient = function(clent, msg)
 			bits += Protocol.u.morebits;
 
 		MSG.WriteByte(msg, bits + Protocol.u.signal);
-		if ((bits & Protocol.u.morebits) !== 0)
+		if ((bits & Protocol.u.morebits) != 0)
 			MSG.WriteByte(msg, bits >> 8);
-		if ((bits & Protocol.u.longentity) !== 0)
+		if ((bits & Protocol.u.longentity) != 0)
 			MSG.WriteShort(msg, e);
 		else
 			MSG.WriteByte(msg, e);
-		if ((bits & Protocol.u.model) !== 0)
+		if ((bits & Protocol.u.model) != 0)
 			MSG.WriteByte(msg, ent.v_float[PR.entvars.modelindex]);
-		if ((bits & Protocol.u.frame) !== 0)
+		if ((bits & Protocol.u.frame) != 0)
 			MSG.WriteByte(msg, ent.v_float[PR.entvars.frame]);
-		if ((bits & Protocol.u.colormap) !== 0)
+		if ((bits & Protocol.u.colormap) != 0)
 			MSG.WriteByte(msg, ent.v_float[PR.entvars.colormap]);
-		if ((bits & Protocol.u.skin) !== 0)
+		if ((bits & Protocol.u.skin) != 0)
 			MSG.WriteByte(msg, ent.v_float[PR.entvars.skin]);
-		if ((bits & Protocol.u.effects) !== 0)
+		if ((bits & Protocol.u.effects) != 0)
 			MSG.WriteByte(msg, ent.v_float[PR.entvars.effects]);
-		if ((bits & Protocol.u.origin1) !== 0)
+		if ((bits & Protocol.u.origin1) != 0)
 			MSG.WriteCoord(msg, ent.v_float[PR.entvars.origin]);
-		if ((bits & Protocol.u.angle1) !== 0)
+		if ((bits & Protocol.u.angle1) != 0)
 			MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles]);
-		if ((bits & Protocol.u.origin2) !== 0)
+		if ((bits & Protocol.u.origin2) != 0)
 			MSG.WriteCoord(msg, ent.v_float[PR.entvars.origin1]);
-		if ((bits & Protocol.u.angle2) !== 0)
+		if ((bits & Protocol.u.angle2) != 0)
 			MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles1]);
-		if ((bits & Protocol.u.origin3) !== 0)
+		if ((bits & Protocol.u.origin3) != 0)
 			MSG.WriteCoord(msg, ent.v_float[PR.entvars.origin2]);
-		if ((bits & Protocol.u.angle3) !== 0)
+		if ((bits & Protocol.u.angle3) != 0)
 			MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles2]);
 	}
 };
 
 SV.WriteClientdataToMessage = function(ent, msg)
 {
-	if ((ent.v_float[PR.entvars.dmg_take] !== 0.0) || (ent.v_float[PR.entvars.dmg_save] !== 0.0))
+	if ((ent.v_float[PR.entvars.dmg_take] != 0.0) || (ent.v_float[PR.entvars.dmg_save] != 0.0))
 	{
 		var other = SV.server.edicts[ent.v_int[PR.entvars.dmg_inflictor]];
 		MSG.WriteByte(msg, Protocol.svc.damage);
@@ -392,7 +392,7 @@ SV.WriteClientdataToMessage = function(ent, msg)
 
 	SV.SetIdealPitch();
 
-	if (ent.v_float[PR.entvars.fixangle] !== 0.0)
+	if (ent.v_float[PR.entvars.fixangle] != 0.0)
 	{
 		MSG.WriteByte(msg, Protocol.svc.setangle);
 		MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles]);
@@ -402,15 +402,15 @@ SV.WriteClientdataToMessage = function(ent, msg)
 	};
 
 	var bits = Protocol.su.items + Protocol.su.weapon;
-	if (ent.v_float[PR.entvars.view_ofs2] !== Protocol.default_viewheight)
+	if (ent.v_float[PR.entvars.view_ofs2] != Protocol.default_viewheight)
 		bits += Protocol.su.viewheight;
-	if (ent.v_float[PR.entvars.idealpitch] !== 0.0)
+	if (ent.v_float[PR.entvars.idealpitch] != 0.0)
 		bits += Protocol.su.idealpitch;
 
 	var val = PR.entvars.items2, items;
 	if (val != null)
 	{
-		if (ent.v_float[val] !== 0.0)
+		if (ent.v_float[val] != 0.0)
 			items = (ent.v_float[PR.entvars.items] >> 0) + ((ent.v_float[val] << 23) >>> 0);
 		else
 			items = (ent.v_float[PR.entvars.items] >> 0) + ((PR.globals_float[PR.globalvars.serverflags] << 28) >>> 0);
@@ -423,48 +423,48 @@ SV.WriteClientdataToMessage = function(ent, msg)
 	if (ent.v_float[PR.entvars.waterlevel] >= 2.0)
 		bits += Protocol.su.inwater;
 
-	if (ent.v_float[PR.entvars.punchangle] !== 0.0)
+	if (ent.v_float[PR.entvars.punchangle] != 0.0)
 		bits += Protocol.su.punch1;
-	if (ent.v_float[PR.entvars.velocity] !== 0.0)
+	if (ent.v_float[PR.entvars.velocity] != 0.0)
 		bits += Protocol.su.velocity1;
-	if (ent.v_float[PR.entvars.punchangle1] !== 0.0)
+	if (ent.v_float[PR.entvars.punchangle1] != 0.0)
 		bits += Protocol.su.punch2;
-	if (ent.v_float[PR.entvars.velocity1] !== 0.0)
+	if (ent.v_float[PR.entvars.velocity1] != 0.0)
 		bits += Protocol.su.velocity2;
-	if (ent.v_float[PR.entvars.punchangle2] !== 0.0)
+	if (ent.v_float[PR.entvars.punchangle2] != 0.0)
 		bits += Protocol.su.punch3;
-	if (ent.v_float[PR.entvars.velocity2] !== 0.0)
+	if (ent.v_float[PR.entvars.velocity2] != 0.0)
 		bits += Protocol.su.velocity3;
 
-	if (ent.v_float[PR.entvars.weaponframe] !== 0.0)
+	if (ent.v_float[PR.entvars.weaponframe] != 0.0)
 		bits += Protocol.su.weaponframe;
-	if (ent.v_float[PR.entvars.armorvalue] !== 0.0)
+	if (ent.v_float[PR.entvars.armorvalue] != 0.0)
 		bits += Protocol.su.armor;
 
 	MSG.WriteByte(msg, Protocol.svc.clientdata);
 	MSG.WriteShort(msg, bits);
-	if ((bits & Protocol.su.viewheight) !== 0)
+	if ((bits & Protocol.su.viewheight) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.view_ofs2]);
-	if ((bits & Protocol.su.idealpitch) !== 0)
+	if ((bits & Protocol.su.idealpitch) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.idealpitch]);
 
-	if ((bits & Protocol.su.punch1) !== 0)
+	if ((bits & Protocol.su.punch1) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.punchangle]);
-	if ((bits & Protocol.su.velocity1) !== 0)
+	if ((bits & Protocol.su.velocity1) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.velocity] * 0.0625);
-	if ((bits & Protocol.su.punch2) !== 0)
+	if ((bits & Protocol.su.punch2) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.punchangle1]);
-	if ((bits & Protocol.su.velocity2) !== 0)
+	if ((bits & Protocol.su.velocity2) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.velocity1] * 0.0625);
-	if ((bits & Protocol.su.punch3) !== 0)
+	if ((bits & Protocol.su.punch3) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.punchangle2]);
-	if ((bits & Protocol.su.velocity3) !== 0)
+	if ((bits & Protocol.su.velocity3) != 0)
 		MSG.WriteChar(msg, ent.v_float[PR.entvars.velocity2] * 0.0625);
 
 	MSG.WriteLong(msg, items);
-	if ((bits & Protocol.su.weaponframe) !== 0)
+	if ((bits & Protocol.su.weaponframe) != 0)
 		MSG.WriteByte(msg, ent.v_float[PR.entvars.weaponframe]);
-	if ((bits & Protocol.su.armor) !== 0)
+	if ((bits & Protocol.su.armor) != 0)
 		MSG.WriteByte(msg, ent.v_float[PR.entvars.armorvalue]);
 	MSG.WriteByte(msg, SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.weaponmodel])));
 	MSG.WriteShort(msg, ent.v_float[PR.entvars.health]);
@@ -473,14 +473,14 @@ SV.WriteClientdataToMessage = function(ent, msg)
 	MSG.WriteByte(msg, ent.v_float[PR.entvars.ammo_nails]);
 	MSG.WriteByte(msg, ent.v_float[PR.entvars.ammo_rockets]);
 	MSG.WriteByte(msg, ent.v_float[PR.entvars.ammo_cells]);
-	if (COM.standard_quake === true)
+	if (COM.standard_quake)
 		MSG.WriteByte(msg, ent.v_float[PR.entvars.weapon]);
 	else
 	{
 		var i, weapon = ent.v_float[PR.entvars.weapon];
 		for (i = 0; i <= 31; ++i)
 		{
-			if ((weapon & (1 << i)) !== 0)
+			if ((weapon & (1 << i)) != 0)
 			{
 				MSG.WriteByte(msg, i);
 				break;
@@ -501,7 +501,7 @@ SV.SendClientDatagram = function()
 	SV.WriteEntitiesToClient(client.edict, msg);
 	if ((msg.cursize + SV.server.datagram.cursize) < msg.data.byteLength)
 		SZ.Write(msg, new Uint8Array(SV.server.datagram.data), SV.server.datagram.cursize);
-	if (NET.SendUnreliableMessage(client.netconnection, msg) === -1)
+	if (NET.SendUnreliableMessage(client.netconnection, msg) == -1)
 	{
 		Host.DropClient(true);
 		return;
@@ -518,12 +518,12 @@ SV.UpdateToReliableMessages = function()
 		Host.client = SV.svs.clients[i];
 		Host.client.edict.v_float[PR.entvars.frags] >>= 0;
 		frags = Host.client.edict.v_float[PR.entvars.frags];
-		if (Host.client.old_frags === frags)
+		if (Host.client.old_frags == frags)
 			continue;
 		for (j = 0; j < SV.svs.maxclients; ++j)
 		{
 			client = SV.svs.clients[j];
-			if (client.active !== true)
+			if (client.active != true)
 				continue;
 			MSG.WriteByte(client.message, Protocol.svc.updatefrags);
 			MSG.WriteByte(client.message, i);
@@ -535,7 +535,7 @@ SV.UpdateToReliableMessages = function()
 	for (i = 0; i < SV.svs.maxclients; ++i)
 	{
 		client = SV.svs.clients[i];
-		if (client.active === true)
+		if (client.active)
 			SZ.Write(client.message, new Uint8Array(SV.server.reliable_datagram.data), SV.server.reliable_datagram.cursize);
 	}
 
@@ -549,39 +549,39 @@ SV.SendClientMessages = function()
 	for (i = 0; i < SV.svs.maxclients; ++i)
 	{
 		Host.client = client = SV.svs.clients[i];
-		if (client.active !== true)
+		if (client.active != true)
 			continue;
-		if (client.spawned === true)
+		if (client.spawned)
 		{
-			if (SV.SendClientDatagram() !== true)
+			if (SV.SendClientDatagram() != true)
 				continue;
 		}
-		else if (client.sendsignon !== true)
+		else if (client.sendsignon != true)
 		{
 			if ((Host.realtime - client.last_message) > 5.0)
 			{
-				if (NET.SendUnreliableMessage(client.netconnection, SV.nop) === -1)
+				if (NET.SendUnreliableMessage(client.netconnection, SV.nop) == -1)
 					Host.DropClient(true);
 				client.last_message = Host.realtime;
 			}
 			continue;
 		}
-		if (client.message.overflowed === true)
+		if (client.message.overflowed)
 		{
 			Host.DropClient(true);
 			client.message.overflowed = false;
 			continue;
 		}
-		if (client.dropasap === true)
+		if (client.dropasap)
 		{
-			if (NET.CanSendMessage(client.netconnection) === true)
+			if (NET.CanSendMessage(client.netconnection))
 				Host.DropClient();
 		}
-		else if (client.message.cursize !== 0)
+		else if (client.message.cursize != 0)
 		{
-			if (NET.CanSendMessage(client.netconnection) !== true)
+			if (NET.CanSendMessage(client.netconnection) != true)
 				continue;
-			if (NET.SendMessage(client.netconnection, client.message) === -1)
+			if (NET.SendMessage(client.netconnection, client.message) == -1)
 				Host.DropClient(true);
 			client.message.cursize = 0;
 			client.last_message = Host.realtime;
@@ -597,12 +597,12 @@ SV.ModelIndex = function(name)
 {
 	if (name == null)
 		return 0;
-	if (name.length === 0)
+	if (name.length == 0)
 		return 0;
 	var i;
 	for (i = 0; i < SV.server.model_precache.length; ++i)
 	{
-		if (SV.server.model_precache[i] === name)
+		if (SV.server.model_precache[i] == name)
 			return i;
 	}
 	Sys.Error('SV.ModelIndex: model ' + name + ' not precached');
@@ -616,9 +616,9 @@ SV.CreateBaseline = function()
 	for (i = 0; i < SV.server.num_edicts; ++i)
 	{
 		svent = SV.server.edicts[i];
-		if (svent.free === true)
+		if (svent.free)
 			continue;
-		if ((i > SV.svs.maxclients) && (svent.v_int[PR.entvars.modelindex] === 0))
+		if ((i > SV.svs.maxclients) && (svent.v_int[PR.entvars.modelindex] == 0))
 			continue;
 		baseline = svent.baseline;
 		baseline.origin = ED.Vector(svent, PR.entvars.origin);
@@ -657,7 +657,7 @@ SV.SaveSpawnparms = function()
 	for (i = 0; i < SV.svs.maxclients; ++i)
 	{
 		Host.client = SV.svs.clients[i];
-		if (Host.client.active !== true)
+		if (Host.client.active != true)
 			continue;
 		PR.globals_int[PR.globalvars.self] = Host.client.edict.num;
 		PR.ExecuteProgram(PR.globals_int[PR.globalvars.SetChangeParms]);
@@ -670,7 +670,7 @@ SV.SpawnServer = function(server)
 {
 	var i;
 
-	if (NET.hostname.string.length === 0)
+	if (NET.hostname.string.length == 0)
 		Cvar.Set('hostname', 'UNNAMED');
 
 	SCR.centertime_off = 0.0;
@@ -678,13 +678,13 @@ SV.SpawnServer = function(server)
 	Con.DPrint('SpawnServer: ' + server + '\n');
 	SV.svs.changelevel_issued = false;
 
-	if (SV.server.active === true)
+	if (SV.server.active)
 	{
 		NET.SendToAll(SV.reconnect);
 		Cmd.ExecuteString('reconnect\n');
 	}
 
-	if (Host.coop.value !== 0)
+	if (Host.coop.value != 0)
 		Cvar.SetValue('deathmatch', 0);
 	Host.current_skill = Math.floor(Host.skill.value + 0.5);
 	if (Host.current_skill < 0)
@@ -769,7 +769,7 @@ SV.SpawnServer = function(server)
 	ent.v_float[PR.entvars.solid] = SV.solid.bsp;
 	ent.v_float[PR.entvars.movetype] = SV.movetype.push;
 
-	if (Host.coop.value !== 0)
+	if (Host.coop.value != 0)
 		PR.globals_float[PR.globalvars.coop] = Host.coop.value;
 	else
 		PR.globals_float[PR.globalvars.deathmatch] = Host.deathmatch.value;
@@ -786,7 +786,7 @@ SV.SpawnServer = function(server)
 	for (i = 0; i < SV.svs.maxclients; ++i)
 	{
 		Host.client = SV.svs.clients[i];
-		if (Host.client.active !== true)
+		if (Host.client.active != true)
 			continue;
 		Host.client.edict.v_int[PR.entvars.netname] = PR.netnames + (i << 5);
 		SV.SendServerinfo(Host.client);
@@ -823,20 +823,20 @@ SV.CheckBottom = function(ent)
 	];
 	for (;;)
 	{
-		if (SV.PointContents([mins[0], mins[1], mins[2] - 1.0]) !== Mod.contents.solid)
+		if (SV.PointContents([mins[0], mins[1], mins[2] - 1.0]) != Mod.contents.solid)
 			break;
-		if (SV.PointContents([mins[0], maxs[1], mins[2] - 1.0]) !== Mod.contents.solid)
+		if (SV.PointContents([mins[0], maxs[1], mins[2] - 1.0]) != Mod.contents.solid)
 			break;
-		if (SV.PointContents([maxs[0], mins[1], mins[2] - 1.0]) !== Mod.contents.solid)
+		if (SV.PointContents([maxs[0], mins[1], mins[2] - 1.0]) != Mod.contents.solid)
 			break;
-		if (SV.PointContents([maxs[0], maxs[1], mins[2] - 1.0]) !== Mod.contents.solid)
+		if (SV.PointContents([maxs[0], maxs[1], mins[2] - 1.0]) != Mod.contents.solid)
 			break;
 		return true;
 	}
 	var start = [(mins[0] + maxs[0]) * 0.5, (mins[1] + maxs[1]) * 0.5, mins[2]];
 	var stop = [start[0], start[1], start[2] - 36.0];
 	var trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
-	if (trace.fraction === 1.0)
+	if (trace.fraction == 1.0)
 		return;
 	var mid, bottom;
 	mid = bottom = trace.endpos[2];
@@ -845,12 +845,12 @@ SV.CheckBottom = function(ent)
 	{
 		for (y = 0; y <= 1; ++y)
 		{
-			start[0] = stop[0] = (x !== 0) ? maxs[0] : mins[0];
-			start[1] = stop[1] = (y !== 0) ? maxs[1] : mins[1];
+			start[0] = stop[0] = (x != 0) ? maxs[0] : mins[0];
+			start[1] = stop[1] = (y != 0) ? maxs[1] : mins[1];
 			trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
-			if ((trace.fraction !== 1.0) && (trace.endpos[2] > bottom))
+			if ((trace.fraction != 1.0) && (trace.endpos[2] > bottom))
 				bottom = trace.endpos[2];
-			if ((trace.fraction === 1.0) || ((mid - trace.endpos[2]) > 18.0))
+			if ((trace.fraction == 1.0) || ((mid - trace.endpos[2]) > 18.0))
 				return;
 		}
 	}
@@ -863,7 +863,7 @@ SV.movestep = function(ent, move, relink)
 	var neworg = [];
 	var mins = ED.Vector(ent, PR.entvars.mins), maxs = ED.Vector(ent, PR.entvars.maxs);
 	var trace;
-	if ((ent.v_float[PR.entvars.flags] & (SV.fl.swim + SV.fl.fly)) !== 0)
+	if ((ent.v_float[PR.entvars.flags] & (SV.fl.swim + SV.fl.fly)) != 0)
 	{
 		var i, enemy = ent.v_int[PR.entvars.enemy], dz;
 		for (i = 0; i <= 1; ++i)
@@ -871,7 +871,7 @@ SV.movestep = function(ent, move, relink)
 			neworg[0] = ent.v_float[PR.entvars.origin] + move[0];
 			neworg[1] = ent.v_float[PR.entvars.origin1] + move[1];
 			neworg[2] = ent.v_float[PR.entvars.origin2];
-			if ((i === 0) && (enemy !== 0))
+			if ((i == 0) && (enemy != 0))
 			{
 				dz = ent.v_float[PR.entvars.origin2] - SV.server.edicts[enemy].v_float[PR.entvars.origin2];
 				if (dz > 40.0)
@@ -880,18 +880,18 @@ SV.movestep = function(ent, move, relink)
 					neworg[2] += 8.0;
 			}
 			trace = SV.Move(ED.Vector(ent, PR.entvars.origin), mins, maxs, neworg, 0, ent);
-			if (trace.fraction === 1.0)
+			if (trace.fraction == 1.0)
 			{
-				if (((ent.v_float[PR.entvars.flags] & SV.fl.swim) !== 0) && (SV.PointContents(trace.endpos) === Mod.contents.empty))
+				if (((ent.v_float[PR.entvars.flags] & SV.fl.swim) != 0) && (SV.PointContents(trace.endpos) == Mod.contents.empty))
 					return 0;
 				ent.v_float[PR.entvars.origin] = trace.endpos[0];
 				ent.v_float[PR.entvars.origin1] = trace.endpos[1];
 				ent.v_float[PR.entvars.origin2] = trace.endpos[2];
-				if (relink === true)
+				if (relink)
 					SV.LinkEdict(ent, true);
 				return 1;
 			}
-			if (enemy === 0)
+			if (enemy == 0)
 				return 0;
 		}
 		return 0;
@@ -901,22 +901,22 @@ SV.movestep = function(ent, move, relink)
 	neworg[2] = ent.v_float[PR.entvars.origin2] + 18.0;
 	var end = [neworg[0], neworg[1], neworg[2] - 36.0];
 	trace = SV.Move(neworg, mins, maxs, end, 0, ent);
-	if (trace.allsolid === true)
+	if (trace.allsolid)
 		return 0;
-	if (trace.startsolid === true)
+	if (trace.startsolid)
 	{
 		neworg[2] -= 18.0;
 		trace = SV.Move(neworg, mins, maxs, end, 0, ent);
-		if ((trace.allsolid === true) || (trace.startsolid === true))
+		if ((trace.allsolid) || (trace.startsolid))
 			return 0;
 	}
-	if (trace.fraction === 1.0)
+	if (trace.fraction == 1.0)
 	{
-		if ((ent.v_float[PR.entvars.flags] & SV.fl.partialground) === 0)
+		if ((ent.v_float[PR.entvars.flags] & SV.fl.partialground) == 0)
 			return 0;
 		ent.v_float[PR.entvars.origin] += move[0];
 		ent.v_float[PR.entvars.origin1] += move[1];
-		if (relink === true)
+		if (relink)
 			SV.LinkEdict(ent, true);
 		ent.v_float[PR.entvars.flags] &= (~SV.fl.onground >>> 0);
 		return 1;
@@ -924,11 +924,11 @@ SV.movestep = function(ent, move, relink)
 	ent.v_float[PR.entvars.origin] = trace.endpos[0];
 	ent.v_float[PR.entvars.origin1] = trace.endpos[1];
 	ent.v_float[PR.entvars.origin2] = trace.endpos[2];
-	if (SV.CheckBottom(ent) !== true)
+	if (SV.CheckBottom(ent) != true)
 	{
-		if ((ent.v_float[PR.entvars.flags] & SV.fl.partialground) !== 0)
+		if ((ent.v_float[PR.entvars.flags] & SV.fl.partialground) != 0)
 		{
-			if (relink === true)
+			if (relink)
 				SV.LinkEdict(ent, true);
 			return 1;
 		}
@@ -939,7 +939,7 @@ SV.movestep = function(ent, move, relink)
 	}
 	ent.v_float[PR.entvars.flags] &= (~SV.fl.partialground >>> 0);
 	ent.v_int[PR.entvars.groundentity] = trace.ent.num;
-	if (relink === true)
+	if (relink)
 		SV.LinkEdict(ent, true);
 	return 1;
 };
@@ -950,7 +950,7 @@ SV.StepDirection = function(ent, yaw, dist)
 	PF.changeyaw();
 	yaw *= Math.PI / 180.0;
 	var oldorigin = ED.Vector(ent, PR.entvars.origin);
-	if (SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], false) === 1)
+	if (SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], false) == 1)
 	{
 		var delta = ent.v_float[PR.entvars.angles1] - ent.v_float[PR.entvars.ideal_yaw];
 		if ((delta > 45.0) && (delta < 315.0))
@@ -981,13 +981,13 @@ SV.NewChaseDir = function(actor, enemy, dist)
 	else
 		dy = -1;
 	var tdir;
-	if ((dx !== -1) && (dy !== -1))
+	if ((dx != -1) && (dy != -1))
 	{
-		if (dx === 0.0)
-			tdir = (dy === 90.0) ? 45.0 : 315.0;
+		if (dx == 0.0)
+			tdir = (dy == 90.0) ? 45.0 : 315.0;
 		else
-			tdir = (dy === 90.0) ? 135.0 : 215.0;
-		if ((tdir !== turnaround) && (SV.StepDirection(actor, tdir, dist) === true))
+			tdir = (dy == 90.0) ? 135.0 : 215.0;
+		if ((tdir != turnaround) && (SV.StepDirection(actor, tdir, dist)))
 			return;
 	}
 	if ((Math.random() >= 0.25) || (Math.abs(deltay) > Math.abs(deltax)))
@@ -996,17 +996,17 @@ SV.NewChaseDir = function(actor, enemy, dist)
 		dx = dy;
 		dy = tdir;
 	}
-	if ((dx !== -1) && (dx !== turnaround) && (SV.StepDirection(actor, dx, dist) === true))
+	if ((dx != -1) && (dx != turnaround) && (SV.StepDirection(actor, dx, dist)))
 		return;
-	if ((dy !== -1) && (dy !== turnaround) && (SV.StepDirection(actor, dy, dist) === true))
+	if ((dy != -1) && (dy != turnaround) && (SV.StepDirection(actor, dy, dist)))
 		return;
-	if ((olddir !== -1) && (SV.StepDirection(actor, olddir, dist) === true))
+	if ((olddir != -1) && (SV.StepDirection(actor, olddir, dist)))
 		return;
 	if (Math.random() >= 0.5)
 	{
 		for (tdir = 0.0; tdir <= 315.0; tdir += 45.0)
 		{
-			if ((tdir !== turnaround) && (SV.StepDirection(actor, tdir, dist) === true))
+			if ((tdir != turnaround) && (SV.StepDirection(actor, tdir, dist)))
 				return;
 		}
 	}
@@ -1014,14 +1014,14 @@ SV.NewChaseDir = function(actor, enemy, dist)
 	{
 		for (tdir = 315.0; tdir >= 0.0; tdir -= 45.0)
 		{
-			if ((tdir !== turnaround) && (SV.StepDirection(actor, tdir, dist) === true))
+			if ((tdir != turnaround) && (SV.StepDirection(actor, tdir, dist)))
 				return;
 		}
 	}
-	if ((turnaround !== -1) && (SV.StepDirection(actor, turnaround, dist) === true))
+	if ((turnaround != -1) && (SV.StepDirection(actor, turnaround, dist)))
 		return;
 	actor.v_float[PR.entvars.ideal_yaw] = olddir;
-	if (SV.CheckBottom(actor) !== true)
+	if (SV.CheckBottom(actor) != true)
 		actor.v_float[PR.entvars.flags] |= SV.fl.partialground;
 };
 
@@ -1046,7 +1046,7 @@ SV.CheckAllEnts = function()
 	for (e = 1; e < SV.server.num_edicts; ++e)
 	{
 		check = SV.server.edicts[e];
-		if (check.free === true)
+		if (check.free)
 			continue;
 		switch (check.v_float[PR.entvars.movetype])
 		{
@@ -1055,7 +1055,7 @@ SV.CheckAllEnts = function()
 		case SV.movetype.noclip:
 			continue;
 		}
-		if (SV.TestEntityPosition(check) === true)
+		if (SV.TestEntityPosition(check))
 			Con.Print('entity in invalid position\n');
 	}
 };
@@ -1066,12 +1066,12 @@ SV.CheckVelocity = function(ent)
 	for (i = 0; i <= 2; ++i)
 	{
 		velocity = ent.v_float[PR.entvars.velocity + i];
-		if (Q.isNaN(velocity) === true)
+		if (Q.isNaN(velocity))
 		{
 			Con.Print('Got a NaN velocity on ' + PR.GetString(ent.v_int[PR.entvars.classname]) + '\n');
 			velocity = 0.0;
 		}
-		if (Q.isNaN(ent.v_float[PR.entvars.origin + i]) === true)
+		if (Q.isNaN(ent.v_float[PR.entvars.origin + i]))
 		{
 			Con.Print('Got a NaN origin on ' + PR.GetString(ent.v_int[PR.entvars.classname]) + '\n');
 			ent.v_float[PR.entvars.origin + i] = 0.0;
@@ -1096,7 +1096,7 @@ SV.RunThink = function(ent)
 	PR.globals_int[PR.globalvars.self] = ent.num;
 	PR.globals_int[PR.globalvars.other] = 0;
 	PR.ExecuteProgram(ent.v_int[PR.entvars.think]);
-	return (ent.free !== true);
+	return (ent.free != true);
 };
 
 SV.Impact = function(e1, e2)
@@ -1105,13 +1105,13 @@ SV.Impact = function(e1, e2)
 	var old_other = PR.globals_int[PR.globalvars.other];
 	PR.globals_float[PR.globalvars.time] = SV.server.time;
 
-	if ((e1.v_int[PR.entvars.touch] !== 0) && (e1.v_float[PR.entvars.solid] !== SV.solid.not))
+	if ((e1.v_int[PR.entvars.touch] != 0) && (e1.v_float[PR.entvars.solid] != SV.solid.not))
 	{
 		PR.globals_int[PR.globalvars.self] = e1.num;
 		PR.globals_int[PR.globalvars.other] = e2.num;
 		PR.ExecuteProgram(e1.v_int[PR.entvars.touch]);
 	}
-	if ((e2.v_int[PR.entvars.touch] !== 0) && (e2.v_float[PR.entvars.solid] !== SV.solid.not))
+	if ((e2.v_int[PR.entvars.touch] != 0) && (e2.v_float[PR.entvars.solid] != SV.solid.not))
 	{
 		PR.globals_int[PR.globalvars.self] = e2.num;
 		PR.globals_int[PR.globalvars.other] = e1.num;
@@ -1153,15 +1153,15 @@ SV.FlyMove = function(ent, time)
 	var blocked = 0;
 	for (bumpcount = 0; bumpcount <= 3; ++bumpcount)
 	{
-		if ((ent.v_float[PR.entvars.velocity] === 0.0) &&
-			(ent.v_float[PR.entvars.velocity1] === 0.0) &&
-			(ent.v_float[PR.entvars.velocity2] === 0.0))
+		if ((ent.v_float[PR.entvars.velocity] == 0.0) &&
+			(ent.v_float[PR.entvars.velocity1] == 0.0) &&
+			(ent.v_float[PR.entvars.velocity2] == 0.0))
 			break;
 		end[0] = ent.v_float[PR.entvars.origin] + time_left * ent.v_float[PR.entvars.velocity];
 		end[1] = ent.v_float[PR.entvars.origin1] + time_left * ent.v_float[PR.entvars.velocity1];
 		end[2] = ent.v_float[PR.entvars.origin2] + time_left * ent.v_float[PR.entvars.velocity2];
 		trace = SV.Move(ED.Vector(ent, PR.entvars.origin), ED.Vector(ent, PR.entvars.mins), ED.Vector(ent, PR.entvars.maxs), end, 0, ent);
-		if (trace.allsolid === true)
+		if (trace.allsolid)
 		{
 			ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
 			return 3;
@@ -1171,7 +1171,7 @@ SV.FlyMove = function(ent, time)
 			ED.SetVector(ent, PR.entvars.origin, trace.endpos);
 			original_velocity = ED.Vector(ent, PR.entvars.velocity);
 			numplanes = 0;
-			if (trace.fraction === 1.0)
+			if (trace.fraction == 1.0)
 				break;
 		}
 		if (trace.ent == null)
@@ -1179,19 +1179,19 @@ SV.FlyMove = function(ent, time)
 		if (trace.plane.normal[2] > 0.7)
 		{
 			blocked |= 1;
-			if (trace.ent.v_float[PR.entvars.solid] === SV.solid.bsp)
+			if (trace.ent.v_float[PR.entvars.solid] == SV.solid.bsp)
 			{
 				ent.v_float[PR.entvars.flags] |= SV.fl.onground;
 				ent.v_int[PR.entvars.groundentity] = trace.ent.num;
 			}
 		}
-		else if (trace.plane.normal[2] === 0.0)
+		else if (trace.plane.normal[2] == 0.0)
 		{
 			blocked |= 2;
 			SV.steptrace = trace;
 		}
 		SV.Impact(ent, trace.ent);
-		if (ent.free === true)
+		if (ent.free)
 			break;
 		time_left -= time_left * trace.fraction;
 		if (numplanes >= 5)
@@ -1205,21 +1205,21 @@ SV.FlyMove = function(ent, time)
 			SV.ClipVelocity(original_velocity, planes[i], new_velocity, 1.0);
 			for (j = 0; j < numplanes; ++j)
 			{
-				if (j !== i)
+				if (j != i)
 				{
 					plane = planes[j];
 					if ((new_velocity[0] * plane[0] + new_velocity[1] * plane[1] + new_velocity[2] * plane[2]) < 0.0)
 						break;
 				}
 			}
-			if (j === numplanes)
+			if (j == numplanes)
 				break;
 		}
-		if (i !== numplanes)
+		if (i != numplanes)
 			ED.SetVector(ent, PR.entvars.velocity, new_velocity);
 		else
 		{
-			if (numplanes !== 2)
+			if (numplanes != 2)
 			{
 				ED.SetVector(ent, PR.entvars.velocity, Vec.origin);
 				return 7;
@@ -1247,7 +1247,7 @@ SV.AddGravity = function(ent)
 {
 	var val = PR.entvars.gravity, ent_gravity;
 	if (val != null)
-		ent_gravity = (ent.v_float[val] !== 0.0) ? ent.v_float[val] : 1.0;
+		ent_gravity = (ent.v_float[val] != 0.0) ? ent.v_float[val] : 1.0;
 	else
 		ent_gravity = 1.0;
 	ent.v_float[PR.entvars.velocity2] -= ent_gravity * SV.gravity.value * Host.frametime;
@@ -1262,9 +1262,9 @@ SV.PushEntity = function(ent, push)
 	];
 	var nomonsters;
 	var solid = ent.v_float[PR.entvars.solid];
-	if (ent.v_float[PR.entvars.movetype] === SV.movetype.flymissile)
+	if (ent.v_float[PR.entvars.movetype] == SV.movetype.flymissile)
 		nomonsters = SV.move.missile;
-	else if ((solid === SV.solid.trigger) || (solid === SV.solid.not))
+	else if ((solid == SV.solid.trigger) || (solid == SV.solid.not))
 		nomonsters = SV.move.nomonsters
 	else
 		nomonsters = SV.move.normal;
@@ -1279,9 +1279,9 @@ SV.PushEntity = function(ent, push)
 
 SV.PushMove = function(pusher, movetime)
 {
-	if ((pusher.v_float[PR.entvars.velocity] === 0.0) &&
-		(pusher.v_float[PR.entvars.velocity1] === 0.0) &&
-		(pusher.v_float[PR.entvars.velocity2] === 0.0))
+	if ((pusher.v_float[PR.entvars.velocity] == 0.0) &&
+		(pusher.v_float[PR.entvars.velocity1] == 0.0) &&
+		(pusher.v_float[PR.entvars.velocity2] == 0.0))
 	{
 		pusher.v_float[PR.entvars.ltime] += movetime;
 		return;
@@ -1312,15 +1312,15 @@ SV.PushMove = function(pusher, movetime)
 	for (e = 1; e < SV.server.num_edicts; ++e)
 	{
 		check = SV.server.edicts[e];
-		if (check.free === true)
+		if (check.free)
 			continue;
 		movetype = check.v_float[PR.entvars.movetype];
-		if ((movetype === SV.movetype.push)
-			|| (movetype === SV.movetype.none)
-			|| (movetype === SV.movetype.noclip))
+		if ((movetype == SV.movetype.push)
+			|| (movetype == SV.movetype.none)
+			|| (movetype == SV.movetype.noclip))
 			continue;
-		if (((check.v_float[PR.entvars.flags] & SV.fl.onground) === 0) ||
-			(check.v_int[PR.entvars.groundentity] !== pusher.num))
+		if (((check.v_float[PR.entvars.flags] & SV.fl.onground) == 0) ||
+			(check.v_int[PR.entvars.groundentity] != pusher.num))
 		{
 			if ((check.v_float[PR.entvars.absmin] >= maxs[0])
 				|| (check.v_float[PR.entvars.absmin1] >= maxs[1])
@@ -1329,21 +1329,21 @@ SV.PushMove = function(pusher, movetime)
 				|| (check.v_float[PR.entvars.absmax1] <= mins[1])
 				|| (check.v_float[PR.entvars.absmax2] <= mins[2]))
 				continue;
-			if (SV.TestEntityPosition(check) !== true)
+			if (SV.TestEntityPosition(check) != true)
 				continue;
 		}
-		if (movetype !== SV.movetype.walk)
+		if (movetype != SV.movetype.walk)
 			check.v_float[PR.entvars.flags] &= (~SV.fl.onground) >>> 0;
 		entorig = ED.Vector(check, PR.entvars.origin);
 		moved[moved.length] = [entorig[0], entorig[1], entorig[2], check];
 		pusher.v_float[PR.entvars.solid] = SV.solid.not;
 		SV.PushEntity(check, move);
 		pusher.v_float[PR.entvars.solid] = SV.solid.bsp;
-		if (SV.TestEntityPosition(check) === true)
+		if (SV.TestEntityPosition(check))
 		{
-			if (check.v_float[PR.entvars.mins] === check.v_float[PR.entvars.maxs])
+			if (check.v_float[PR.entvars.mins] == check.v_float[PR.entvars.maxs])
 				continue;
-			if ((check.v_float[PR.entvars.solid] === SV.solid.not) || (check.v_float[PR.entvars.solid] === SV.solid.trigger))
+			if ((check.v_float[PR.entvars.solid] == SV.solid.not) || (check.v_float[PR.entvars.solid] == SV.solid.trigger))
 			{
 				check.v_float[PR.entvars.mins] = check.v_float[PR.entvars.maxs] = 0.0;
 				check.v_float[PR.entvars.mins1] = check.v_float[PR.entvars.maxs1] = 0.0;
@@ -1359,7 +1359,7 @@ SV.PushMove = function(pusher, movetime)
 			pusher.v_float[PR.entvars.origin2] = pushorig[2];
 			SV.LinkEdict(pusher);
 			pusher.v_float[PR.entvars.ltime] -= movetime;
-			if (pusher.v_int[PR.entvars.blocked] !== 0)
+			if (pusher.v_int[PR.entvars.blocked] != 0)
 			{
 				PR.globals_int[PR.globalvars.self] = pusher.num;
 				PR.globals_int[PR.globalvars.other] = check.num;
@@ -1391,7 +1391,7 @@ SV.Physics_Pusher = function(ent)
 	}
 	else
 		movetime = Host.frametime;
-	if (movetime !== 0.0)
+	if (movetime != 0.0)
 		SV.PushMove(ent, movetime);
 	if ((thinktime <= oldltime) || (thinktime > ent.v_float[PR.entvars.ltime]))
 		return;
@@ -1404,7 +1404,7 @@ SV.Physics_Pusher = function(ent)
 
 SV.CheckStuck = function(ent)
 {
-	if (SV.TestEntityPosition(ent) !== true)
+	if (SV.TestEntityPosition(ent) != true)
 	{
 		ent.v_float[PR.entvars.oldorigin] = ent.v_float[PR.entvars.origin];
 		ent.v_float[PR.entvars.oldorigin1] = ent.v_float[PR.entvars.origin1];
@@ -1415,7 +1415,7 @@ SV.CheckStuck = function(ent)
 	ent.v_float[PR.entvars.origin] = ent.v_float[PR.entvars.oldorigin];
 	ent.v_float[PR.entvars.origin1] = ent.v_float[PR.entvars.oldorigin1];
 	ent.v_float[PR.entvars.origin2] = ent.v_float[PR.entvars.oldorigin2];
-	if (SV.TestEntityPosition(ent) !== true)
+	if (SV.TestEntityPosition(ent) != true)
 	{
 		Con.DPrint('Unstuck.\n');
 		SV.LinkEdict(ent, true);
@@ -1431,7 +1431,7 @@ SV.CheckStuck = function(ent)
 				ent.v_float[PR.entvars.origin] = org[0] + i;
 				ent.v_float[PR.entvars.origin1] = org[1] + j;
 				ent.v_float[PR.entvars.origin2] = org[2] + z;
-				if (SV.TestEntityPosition(ent) !== true)
+				if (SV.TestEntityPosition(ent) != true)
 				{
 					Con.DPrint('Unstuck.\n');
 					SV.LinkEdict(ent, true);
@@ -1525,15 +1525,15 @@ SV.WalkMove = function(ent)
 	var oldorg = ED.Vector(ent, PR.entvars.origin);
 	var oldvel = ED.Vector(ent, PR.entvars.velocity);
 	var clip = SV.FlyMove(ent, Host.frametime);
-	if ((clip & 2) === 0)
+	if ((clip & 2) == 0)
 		return;
-	if ((oldonground === 0) && (ent.v_float[PR.entvars.waterlevel] === 0.0))
+	if ((oldonground == 0) && (ent.v_float[PR.entvars.waterlevel] == 0.0))
 		return;
-	if (ent.v_float[PR.entvars.movetype] !== SV.movetype.walk)
+	if (ent.v_float[PR.entvars.movetype] != SV.movetype.walk)
 		return;
-	if (SV.nostep.value !== 0)
+	if (SV.nostep.value != 0)
 		return;
-	if ((SV.player.v_float[PR.entvars.flags] & SV.fl.waterjump) !== 0)
+	if ((SV.player.v_float[PR.entvars.flags] & SV.fl.waterjump) != 0)
 		return;
 	var nosteporg = ED.Vector(ent, PR.entvars.origin);
 	var nostepvel = ED.Vector(ent, PR.entvars.velocity);
@@ -1543,18 +1543,18 @@ SV.WalkMove = function(ent)
 	ent.v_float[PR.entvars.velocity1] = oldvel[1];
 	ent.v_float[PR.entvars.velocity2] = 0.0;
 	clip = SV.FlyMove(ent, Host.frametime);
-	if (clip !== 0)
+	if (clip != 0)
 	{
 		if ((Math.abs(oldorg[1] - ent.v_float[PR.entvars.origin1]) < 0.03125)
 			&& (Math.abs(oldorg[0] - ent.v_float[PR.entvars.origin]) < 0.03125))
 			clip = SV.TryUnstick(ent, oldvel);
-		if ((clip & 2) !== 0)
+		if ((clip & 2) != 0)
 			SV.WallFriction(ent, SV.steptrace);
 	}
 	var downtrace = SV.PushEntity(ent, [0.0, 0.0, oldvel[2] * Host.frametime - 18.0]);
 	if (downtrace.plane.normal[2] > 0.7)
 	{
-		if (ent.v_float[PR.entvars.solid] === SV.solid.bsp)
+		if (ent.v_float[PR.entvars.solid] == SV.solid.bsp)
 		{
 			ent.v_float[PR.entvars.flags] |= SV.fl.onground;
 			ent.v_int[PR.entvars.groundentity] = downtrace.ent.num;
@@ -1567,25 +1567,25 @@ SV.WalkMove = function(ent)
 
 SV.Physics_Client = function(ent)
 {
-	if (SV.svs.clients[ent.num - 1].active !== true)
+	if (SV.svs.clients[ent.num - 1].active != true)
 		return;
 	PR.globals_float[PR.globalvars.time] = SV.server.time;
 	PR.globals_int[PR.globalvars.self] = ent.num;
 	PR.ExecuteProgram(PR.globals_int[PR.globalvars.PlayerPreThink]);
 	SV.CheckVelocity(ent);
 	var movetype = ent.v_float[PR.entvars.movetype] >> 0;
-	if ((movetype === SV.movetype.toss) || (movetype === SV.movetype.bounce))
+	if ((movetype == SV.movetype.toss) || (movetype == SV.movetype.bounce))
 		SV.Physics_Toss(ent);
 	else
 	{
-		if (SV.RunThink(ent) !== true)
+		if (SV.RunThink(ent) != true)
 			return;
 		switch (movetype)
 		{
 		case SV.movetype.none:
 			break;
 		case SV.movetype.walk:
-			if ((SV.CheckWater(ent) !== true) && ((ent.v_float[PR.entvars.flags] & SV.fl.waterjump) === 0))
+			if ((SV.CheckWater(ent) != true) && ((ent.v_float[PR.entvars.flags] & SV.fl.waterjump) == 0))
 				SV.AddGravity(ent);
 			SV.CheckStuck(ent);
 			SV.WalkMove(ent);
@@ -1610,7 +1610,7 @@ SV.Physics_Client = function(ent)
 
 SV.Physics_Noclip = function(ent)
 {
-	if (SV.RunThink(ent) !== true)
+	if (SV.RunThink(ent) != true)
 		return;
 	ent.v_float[PR.entvars.angles] += Host.frametime * ent.v_float[PR.entvars.avelocity];
 	ent.v_float[PR.entvars.angles1] += Host.frametime * ent.v_float[PR.entvars.avelocity1];
@@ -1624,7 +1624,7 @@ SV.Physics_Noclip = function(ent)
 SV.CheckWaterTransition = function(ent)
 {
 	var cont = SV.PointContents(ED.Vector(ent, PR.entvars.origin));
-	if (ent.v_float[PR.entvars.watertype] === 0.0)
+	if (ent.v_float[PR.entvars.watertype] == 0.0)
 	{
 		ent.v_float[PR.entvars.watertype] = cont;
 		ent.v_float[PR.entvars.waterlevel] = 1.0;
@@ -1632,13 +1632,13 @@ SV.CheckWaterTransition = function(ent)
 	}
 	if (cont <= Mod.contents.water)
 	{
-		if (ent.v_float[PR.entvars.watertype] === Mod.contents.empty)
+		if (ent.v_float[PR.entvars.watertype] == Mod.contents.empty)
 			SV.StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
 		ent.v_float[PR.entvars.watertype] = cont;
 		ent.v_float[PR.entvars.waterlevel] = 1.0;
 		return;
 	}
-	if (ent.v_float[PR.entvars.watertype] !== Mod.contents.empty)
+	if (ent.v_float[PR.entvars.watertype] != Mod.contents.empty)
 		SV.StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
 	ent.v_float[PR.entvars.watertype] = Mod.contents.empty;
 	ent.v_float[PR.entvars.waterlevel] = cont;
@@ -1646,13 +1646,13 @@ SV.CheckWaterTransition = function(ent)
 
 SV.Physics_Toss = function(ent)
 {
-	if (SV.RunThink(ent) !== true)
+	if (SV.RunThink(ent) != true)
 		return;
-	if ((ent.v_float[PR.entvars.flags] & SV.fl.onground) !== 0)
+	if ((ent.v_float[PR.entvars.flags] & SV.fl.onground) != 0)
 		return;
 	SV.CheckVelocity(ent);
 	var movetype = ent.v_float[PR.entvars.movetype];
-	if ((movetype !== SV.movetype.fly) && (movetype !== SV.movetype.flymissile))
+	if ((movetype != SV.movetype.fly) && (movetype != SV.movetype.flymissile))
 		SV.AddGravity(ent);
 	ent.v_float[PR.entvars.angles] += Host.frametime * ent.v_float[PR.entvars.avelocity];
 	ent.v_float[PR.entvars.angles1] += Host.frametime * ent.v_float[PR.entvars.avelocity1];
@@ -1663,14 +1663,14 @@ SV.Physics_Toss = function(ent)
 			ent.v_float[PR.entvars.velocity1] * Host.frametime,
 			ent.v_float[PR.entvars.velocity2] * Host.frametime
 		]);
-	if ((trace.fraction === 1.0) || (ent.free === true))
+	if ((trace.fraction == 1.0) || (ent.free))
 		return;
 	var velocity = [];
-	SV.ClipVelocity(ED.Vector(ent, PR.entvars.velocity), trace.plane.normal, velocity, (movetype === SV.movetype.bounce) ? 1.5 : 1.0);
+	SV.ClipVelocity(ED.Vector(ent, PR.entvars.velocity), trace.plane.normal, velocity, (movetype == SV.movetype.bounce) ? 1.5 : 1.0);
 	ED.SetVector(ent, PR.entvars.velocity, velocity);
 	if (trace.plane.normal[2] > 0.7)
 	{
-		if ((ent.v_float[PR.entvars.velocity2] < 60.0) || (movetype !== SV.movetype.bounce))
+		if ((ent.v_float[PR.entvars.velocity2] < 60.0) || (movetype != SV.movetype.bounce))
 		{
 			ent.v_float[PR.entvars.flags] |= SV.fl.onground;
 			ent.v_int[PR.entvars.groundentity] = trace.ent.num;
@@ -1683,14 +1683,14 @@ SV.Physics_Toss = function(ent)
 
 SV.Physics_Step = function(ent)
 {
-	if ((ent.v_float[PR.entvars.flags] & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) === 0)
+	if ((ent.v_float[PR.entvars.flags] & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0)
 	{
 		var hitsound = (ent.v_float[PR.entvars.velocity2] < (SV.gravity.value * -0.1));
 		SV.AddGravity(ent);
 		SV.CheckVelocity(ent);
 		SV.FlyMove(ent, Host.frametime);
 		SV.LinkEdict(ent, true);
-		if (((ent.v_float[PR.entvars.flags] & SV.fl.onground) !== 0) && (hitsound === true))
+		if (((ent.v_float[PR.entvars.flags] & SV.fl.onground) != 0) && (hitsound))
 			SV.StartSound(ent, 0, 'demon/dland2.wav', 255, 1.0);
 	}
 	SV.RunThink(ent);
@@ -1707,9 +1707,9 @@ SV.Physics = function()
 	for (i = 0; i < SV.server.num_edicts; ++i)
 	{
 		ent = SV.server.edicts[i];
-		if (ent.free === true)
+		if (ent.free)
 			continue;
-		if (PR.globals_float[PR.globalvars.force_retouch] !== 0.0)
+		if (PR.globals_float[PR.globalvars.force_retouch] != 0.0)
 			SV.LinkEdict(ent, true);
 		if ((i > 0) && (i <= SV.svs.maxclients))
 		{
@@ -1739,7 +1739,7 @@ SV.Physics = function()
 		}
 		Sys.Error('SV.Physics: bad movetype ' + (ent.v_float[PR.entvars.movetype] >> 0));
 	}
-	if (PR.globals_float[PR.globalvars.force_retouch] !== 0.0)
+	if (PR.globals_float[PR.globalvars.force_retouch] != 0.0)
 		--PR.globals_float[PR.globalvars.force_retouch];
 	SV.server.time += Host.frametime;
 };
@@ -1749,7 +1749,7 @@ SV.Physics = function()
 SV.SetIdealPitch = function()
 {
 	var ent = SV.player;
-	if ((ent.v_float[PR.entvars.flags] & SV.fl.onground) === 0)
+	if ((ent.v_float[PR.entvars.flags] & SV.fl.onground) == 0)
 		return;
 	var angleval = ent.v_float[PR.entvars.angles1] * (Math.PI / 180.0);
 	var sinval = Math.sin(angleval);
@@ -1762,7 +1762,7 @@ SV.SetIdealPitch = function()
 		top[0] = bottom[0] = ent.v_float[PR.entvars.origin] + cosval * (i + 3) * 12.0;
 		top[1] = bottom[1] = ent.v_float[PR.entvars.origin1] + sinval * (i + 3) * 12.0;
 		tr = SV.Move(top, Vec.origin, Vec.origin, bottom, 1, ent);
-		if ((tr.allsolid === true) || (tr.fraction === 1.0))
+		if ((tr.allsolid) || (tr.fraction == 1.0))
 			return;
 		z[i] = top[2] - tr.fraction * 160.0;
 	}
@@ -1772,12 +1772,12 @@ SV.SetIdealPitch = function()
 		step = z[i] - z[i - 1];
 		if ((step > -0.1) && (step < 0.1))
 			continue;
-		if ((dir !== 0.0) && (((step - dir) > 0.1) || ((step - dir) < -0.1)))
+		if ((dir != 0.0) && (((step - dir) > 0.1) || ((step - dir) < -0.1)))
 			return;
 		++steps;
 		dir = step;
 	}
-	if (dir === 0.0)
+	if (dir == 0.0)
 	{
 		ent.v_float[PR.entvars.idealpitch] = 0.0;
 		return;
@@ -1791,7 +1791,7 @@ SV.UserFriction = function()
 	var ent = SV.player;
 	var vel0 = ent.v_float[PR.entvars.velocity], vel1 = ent.v_float[PR.entvars.velocity1];
 	var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
-	if (speed === 0.0)
+	if (speed == 0.0)
 		return;
 	var start = [
 		ent.v_float[PR.entvars.origin] + vel0 / speed * 16.0,
@@ -1799,7 +1799,7 @@ SV.UserFriction = function()
 		ent.v_float[PR.entvars.origin2] + ent.v_float[PR.entvars.mins2]
 	];
 	var friction = SV.friction.value;
-	if (SV.Move(start, Vec.origin, Vec.origin, [start[0], start[1], start[2] - 34.0], 1, ent).fraction === 1.0)
+	if (SV.Move(start, Vec.origin, Vec.origin, [start[0], start[1], start[2] - 34.0], 1, ent).fraction == 1.0)
 		friction *= SV.edgefriction.value;
 	var newspeed = speed - Host.frametime * (speed < SV.stopspeed.value ? SV.stopspeed.value : speed) * friction;
 	if (newspeed < 0.0)
@@ -1815,7 +1815,7 @@ SV.Accelerate = function(wishvel, air)
 	var ent = SV.player;
 	var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
 	var wishspeed = Vec.Normalize(wishdir);
-	if ((air === true) && (wishspeed > 30.0))
+	if ((air) && (wishspeed > 30.0))
 		wishspeed = 30.0;
 	var addspeed = wishspeed - (ent.v_float[PR.entvars.velocity] * wishdir[0]
 		+ ent.v_float[PR.entvars.velocity1] * wishdir[1]
@@ -1841,7 +1841,7 @@ SV.WaterMove = function()
 		forward[1] * cmd.forwardmove + right[1] * cmd.sidemove,
 		forward[2] * cmd.forwardmove + right[2] * cmd.sidemove
 	];
-	if ((cmd.forwardmove === 0.0) && (cmd.sidemove === 0.0) && (cmd.upmove === 0.0))
+	if ((cmd.forwardmove == 0.0) && (cmd.sidemove == 0.0) && (cmd.upmove == 0.0))
 		wishvel[2] -= 60.0;
 	else
 		wishvel[2] += cmd.upmove;
@@ -1860,7 +1860,7 @@ SV.WaterMove = function()
 		+ ent.v_float[PR.entvars.velocity1] * ent.v_float[PR.entvars.velocity1]
 		+ ent.v_float[PR.entvars.velocity2] * ent.v_float[PR.entvars.velocity2]
 	), newspeed;
-	if (speed !== 0.0)
+	if (speed != 0.0)
 	{
 		newspeed = speed - Host.frametime * speed * SV.friction.value;
 		if (newspeed < 0.0)
@@ -1872,7 +1872,7 @@ SV.WaterMove = function()
 	}
 	else
 		newspeed = 0.0;
-	if (wishspeed === 0.0)
+	if (wishspeed == 0.0)
 		return;
 	var addspeed = wishspeed - newspeed;
 	if (addspeed <= 0.0)
@@ -1888,7 +1888,7 @@ SV.WaterMove = function()
 SV.WaterJump = function()
 {
 	var ent = SV.player;
-	if ((SV.server.time > ent.v_float[PR.entvars.teleport_time]) || (ent.v_float[PR.entvars.waterlevel] === 0.0))
+	if ((SV.server.time > ent.v_float[PR.entvars.teleport_time]) || (ent.v_float[PR.entvars.waterlevel] == 0.0))
 	{
 		ent.v_float[PR.entvars.flags] &= (~SV.fl.waterjump >>> 0);
 		ent.v_float[PR.entvars.teleport_time] = 0.0;
@@ -1910,7 +1910,7 @@ SV.AirMove = function()
 	var wishvel = [
 		forward[0] * fmove + right[0] * smove,
 		forward[1] * fmove + right[1] * smove,
-		((ent.v_float[PR.entvars.movetype] >> 0) !== SV.movetype.walk) ? cmd.upmove : 0.0];
+		((ent.v_float[PR.entvars.movetype] >> 0) != SV.movetype.walk) ? cmd.upmove : 0.0];
 	var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
 	if (Vec.Normalize(wishdir) > SV.maxspeed.value)
 	{
@@ -1918,9 +1918,9 @@ SV.AirMove = function()
 		wishvel[1] = wishdir[1] * SV.maxspeed.value;
 		wishvel[2] = wishdir[2] * SV.maxspeed.value;
 	}
-	if (ent.v_float[PR.entvars.movetype] === SV.movetype.noclip)
+	if (ent.v_float[PR.entvars.movetype] == SV.movetype.noclip)
 		ED.SetVector(ent, PR.entvars.velocity, wishvel);
-	else if ((ent.v_float[PR.entvars.flags] & SV.fl.onground) !== 0)
+	else if ((ent.v_float[PR.entvars.flags] & SV.fl.onground) != 0)
 	{
 		SV.UserFriction(wishvel);
 		SV.Accelerate(wishvel);
@@ -1933,7 +1933,7 @@ SV.ClientThink = function()
 {
 	var ent = SV.player;
 
-	if (ent.v_float[PR.entvars.movetype] === SV.movetype.none)
+	if (ent.v_float[PR.entvars.movetype] == SV.movetype.none)
 		return;
 
 	var punchangle = ED.Vector(ent, PR.entvars.punchangle);
@@ -1948,15 +1948,15 @@ SV.ClientThink = function()
 		return;
 
 	ent.v_float[PR.entvars.angles2] = V.CalcRoll(ED.Vector(ent, PR.entvars.angles), ED.Vector(ent, PR.entvars.velocity)) * 4.0;
-	if (SV.player.v_float[PR.entvars.fixangle] === 0.0)
+	if (SV.player.v_float[PR.entvars.fixangle] == 0.0)
 	{
 		ent.v_float[PR.entvars.angles] = (ent.v_float[PR.entvars.v_angle] + ent.v_float[PR.entvars.punchangle]) / -3.0;
 		ent.v_float[PR.entvars.angles1] = ent.v_float[PR.entvars.v_angle1] + ent.v_float[PR.entvars.punchangle1];
 	}
 
-	if ((ent.v_float[PR.entvars.flags] & SV.fl.waterjump) !== 0)
+	if ((ent.v_float[PR.entvars.flags] & SV.fl.waterjump) != 0)
 		SV.WaterJump();
-	else if ((ent.v_float[PR.entvars.waterlevel] >= 2.0) && (ent.v_float[PR.entvars.movetype] !== SV.movetype.noclip))
+	else if ((ent.v_float[PR.entvars.waterlevel] >= 2.0) && (ent.v_float[PR.entvars.movetype] != SV.movetype.noclip))
 		SV.WaterMove();
 	else
 		SV.AirMove();
@@ -1976,7 +1976,7 @@ SV.ReadClientMove = function()
 	client.edict.v_float[PR.entvars.button0] = i & 1;
 	client.edict.v_float[PR.entvars.button2] = (i & 2) >> 1;
 	i = MSG.ReadByte();
-	if (i !== 0)
+	if (i != 0)
 		client.edict.v_float[PR.entvars.impulse] = i;
 };
 
@@ -2007,47 +2007,47 @@ SV.ReadClientMessage = function()
 	do
 	{
 		ret = NET.GetMessage(Host.client.netconnection);
-		if (ret === -1)
+		if (ret == -1)
 		{
 			Sys.Print('SV.ReadClientMessage: NET.GetMessage failed\n');
 			return;
 		}
-		if (ret === 0)
+		if (ret == 0)
 			return true;
 		MSG.BeginReading();
 		for (;;)
 		{
-			if (Host.client.active !== true)
+			if (Host.client.active != true)
 				return;
-			if (MSG.badread === true)
+			if (MSG.badread)
 			{
 				Sys.Print('SV.ReadClientMessage: badread\n');
 				return;
 			}
 			cmd = MSG.ReadChar();
-			if (cmd === -1)
+			if (cmd == -1)
 			{
 				ret = 1;
 				break;
 			}
-			if (cmd === Protocol.clc.nop)
+			if (cmd == Protocol.clc.nop)
 				continue;
-			if (cmd === Protocol.clc.stringcmd)
+			if (cmd == Protocol.clc.stringcmd)
 			{
 				s = MSG.ReadString();
 				for (i = 0; i < cmds.length; ++i)
 				{
-					if (s.substring(0, cmds[i].length).toLowerCase() !== cmds[i])
+					if (s.substring(0, cmds[i].length).toLowerCase() != cmds[i])
 						continue;
 					Cmd.ExecuteString(s, true);
 					break;
 				}
-				if (i === cmds.length)
+				if (i == cmds.length)
 					Con.DPrint(SV.GetClientName(Host.client) + ' tried to ' + s);
 			}
-			else if (cmd === Protocol.clc.disconnect)
+			else if (cmd == Protocol.clc.disconnect)
 				return;
-			else if (cmd === Protocol.clc.move)
+			else if (cmd == Protocol.clc.move)
 				SV.ReadClientMove();
 			else
 			{
@@ -2055,7 +2055,7 @@ SV.ReadClientMessage = function()
 				return;
 			}
 		}
-	} while (ret === 1);
+	} while (ret == 1);
 };
 
 SV.RunClients = function()
@@ -2064,15 +2064,15 @@ SV.RunClients = function()
 	for (i = 0; i < SV.svs.maxclients; ++i)
 	{
 		Host.client = SV.svs.clients[i];
-		if (Host.client.active !== true)
+		if (Host.client.active != true)
 			continue;
 		SV.player = Host.client.edict;
-		if (SV.ReadClientMessage() !== true)
+		if (SV.ReadClientMessage() != true)
 		{
 			Host.DropClient();
 			continue;
 		}
-		if (Host.client.spawned !== true)
+		if (Host.client.spawned != true)
 		{
 			Host.client.cmd.forwardmove = 0.0;
 			Host.client.cmd.sidemove = 0.0;
@@ -2109,7 +2109,7 @@ SV.InitBoxHull = function()
 		node.planenum = i;
 		node.children = [];
 		node.children[i & 1] = Mod.contents.empty;
-		if (i !== 5)
+		if (i != 5)
 			node.children[1 - (i & 1)] = i + 1;
 		else
 			node.children[1 - (i & 1)] = Mod.contents.solid;
@@ -2124,7 +2124,7 @@ SV.InitBoxHull = function()
 
 SV.HullForEntity = function(ent, mins, maxs, offset)
 {
-	if (ent.v_float[PR.entvars.solid] !== SV.solid.bsp)
+	if (ent.v_float[PR.entvars.solid] != SV.solid.bsp)
 	{
 		SV.box_planes[0].dist = ent.v_float[PR.entvars.maxs] - mins[0];
 		SV.box_planes[1].dist = ent.v_float[PR.entvars.mins] - maxs[0];
@@ -2137,12 +2137,12 @@ SV.HullForEntity = function(ent, mins, maxs, offset)
 		offset[2] = ent.v_float[PR.entvars.origin2];
 		return SV.box_hull;
 	}
-	if (ent.v_float[PR.entvars.movetype] !== SV.movetype.push)
+	if (ent.v_float[PR.entvars.movetype] != SV.movetype.push)
 		Sys.Error('SOLID_BSP without MOVETYPE_PUSH');
 	var model = SV.server.models[ent.v_float[PR.entvars.modelindex] >> 0];
 	if (model == null)
 		Sys.Error('MOVETYPE_PUSH with a non bsp model');
-	if (model.type !== Mod.type.brush)
+	if (model.type != Mod.type.brush)
 		Sys.Error('MOVETYPE_PUSH with a non bsp model');
 	var size = maxs[0] - mins[0];
 	var hull;
@@ -2168,7 +2168,7 @@ SV.CreateAreaNode = function(depth, mins, maxs)
 	anode.solid_edicts = {};
 	anode.solid_edicts.prev = anode.solid_edicts.next = anode.solid_edicts;
 
-	if (depth === 4)
+	if (depth == 4)
 	{
 		anode.axis = -1;
 		anode.children = [];
@@ -2197,13 +2197,13 @@ SV.UnlinkEdict = function(ent)
 SV.TouchLinks = function(ent, node)
 {
 	var l, next, touch, old_self, old_other;
-	for (l = node.trigger_edicts.next; l !== node.trigger_edicts; l = next)
+	for (l = node.trigger_edicts.next; l != node.trigger_edicts; l = next)
 	{
 		next = l.next;
 		touch = l.ent;
-		if (touch === ent)
+		if (touch == ent)
 			continue;
-		if ((touch.v_int[PR.entvars.touch] === 0) || (touch.v_float[PR.entvars.solid] !== SV.solid.trigger))
+		if ((touch.v_int[PR.entvars.touch] == 0) || (touch.v_float[PR.entvars.solid] != SV.solid.trigger))
 			continue;
 		if ((ent.v_float[PR.entvars.absmin] > touch.v_float[PR.entvars.absmax]) ||
 			(ent.v_float[PR.entvars.absmin1] > touch.v_float[PR.entvars.absmax1]) || 
@@ -2221,7 +2221,7 @@ SV.TouchLinks = function(ent, node)
 		PR.globals_int[PR.globalvars.self] = old_self;
 		PR.globals_int[PR.globalvars.other] = old_other;
 	}
-	if (node.axis === -1)
+	if (node.axis == -1)
 		return;
 	if (ent.v_float[PR.entvars.absmax + node.axis] > node.dist)
 		SV.TouchLinks(ent, node.children[0]);
@@ -2231,12 +2231,12 @@ SV.TouchLinks = function(ent, node)
 
 SV.FindTouchedLeafs = function(ent, node)
 {
-	if (node.contents === Mod.contents.solid)
+	if (node.contents == Mod.contents.solid)
 		return;
 
 	if (node.contents < 0)
 	{
-		if (ent.leafnums.length === 16)
+		if (ent.leafnums.length == 16)
 			return;
 		ent.leafnums[ent.leafnums.length] = node.num - 1;
 		return;
@@ -2244,15 +2244,15 @@ SV.FindTouchedLeafs = function(ent, node)
 
 	var sides = Vec.BoxOnPlaneSide([ent.v_float[PR.entvars.absmin], ent.v_float[PR.entvars.absmin1], ent.v_float[PR.entvars.absmin2]],
 		[ent.v_float[PR.entvars.absmax], ent.v_float[PR.entvars.absmax1], ent.v_float[PR.entvars.absmax2]], node.plane);
-	if ((sides & 1) !== 0)
+	if ((sides & 1) != 0)
 		SV.FindTouchedLeafs(ent, node.children[0]);
-	if ((sides & 2) !== 0)
+	if ((sides & 2) != 0)
 		SV.FindTouchedLeafs(ent, node.children[1]);
 };
 
 SV.LinkEdict = function(ent, touch_triggers)
 {
-	if ((ent === SV.server.edicts[0]) || (ent.free === true))
+	if ((ent == SV.server.edicts[0]) || (ent.free))
 		return;
 
 	SV.UnlinkEdict(ent);
@@ -2264,7 +2264,7 @@ SV.LinkEdict = function(ent, touch_triggers)
 	ent.v_float[PR.entvars.absmax1] = ent.v_float[PR.entvars.origin1] + ent.v_float[PR.entvars.maxs1] + 1.0;
 	ent.v_float[PR.entvars.absmax2] = ent.v_float[PR.entvars.origin2] + ent.v_float[PR.entvars.maxs2];
 
-	if ((ent.v_float[PR.entvars.flags] & SV.fl.item) !== 0)
+	if ((ent.v_float[PR.entvars.flags] & SV.fl.item) != 0)
 	{
 		ent.v_float[PR.entvars.absmin] -= 14.0;
 		ent.v_float[PR.entvars.absmin1] -= 14.0;
@@ -2278,16 +2278,16 @@ SV.LinkEdict = function(ent, touch_triggers)
 	}
 
 	ent.leafnums = [];
-	if (ent.v_float[PR.entvars.modelindex] !== 0.0)
+	if (ent.v_float[PR.entvars.modelindex] != 0.0)
 		SV.FindTouchedLeafs(ent, SV.server.worldmodel.nodes[0]);
 
-	if (ent.v_float[PR.entvars.solid] === SV.solid.not)
+	if (ent.v_float[PR.entvars.solid] == SV.solid.not)
 		return;
 
 	var node = SV.areanodes[0];
 	for (;;)
 	{
-		if (node.axis === -1)
+		if (node.axis == -1)
 			break;
 		if (ent.v_float[PR.entvars.absmin + node.axis] > node.dist)
 			node = node.children[0];
@@ -2297,14 +2297,14 @@ SV.LinkEdict = function(ent, touch_triggers)
 			break;
 	}
 
-	var before = (ent.v_float[PR.entvars.solid] === SV.solid.trigger) ? node.trigger_edicts : node.solid_edicts;
+	var before = (ent.v_float[PR.entvars.solid] == SV.solid.trigger) ? node.trigger_edicts : node.solid_edicts;
 	ent.area.next = before;
 	ent.area.prev = before.prev;
 	ent.area.prev.next = ent.area;
 	ent.area.next.prev = ent.area;
 	ent.area.ent = ent;
 
-	if (touch_triggers === true)
+	if (touch_triggers)
 		SV.TouchLinks(ent, SV.areanodes[0]);
 };
 
@@ -2347,10 +2347,10 @@ SV.RecursiveHullCheck = function(hull, num, p1f, p2f, p1, p2, trace)
 {
 	if (num < 0)
 	{
-		if (num !== Mod.contents.solid)
+		if (num != Mod.contents.solid)
 		{
 			trace.allsolid = false;
-			if (num === Mod.contents.empty)
+			if (num == Mod.contents.empty)
 				trace.inopen = true;
 			else
 				trace.inwater = true;
@@ -2397,16 +2397,16 @@ SV.RecursiveHullCheck = function(hull, num, p1f, p2f, p1, p2, trace)
 	];
 	var side = t1 < 0.0 ? 1 : 0;
 
-	if (SV.RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace) !== true)
+	if (SV.RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace) != true)
 		return;
 
-	if (SV.HullPointContents(hull, node.children[1 - side], mid) !== Mod.contents.solid)
+	if (SV.HullPointContents(hull, node.children[1 - side], mid) != Mod.contents.solid)
 		return SV.RecursiveHullCheck(hull, node.children[1 - side], midf, p2f, mid, p2, trace);
 
-	if (trace.allsolid === true)
+	if (trace.allsolid)
 		return;
 
-	if (side === 0)
+	if (side == 0)
 	{
 		trace.plane.normal = [plane.normal[0], plane.normal[1], plane.normal[2]];
 		trace.plane.dist = plane.dist;
@@ -2417,7 +2417,7 @@ SV.RecursiveHullCheck = function(hull, num, p1f, p2f, p1, p2, trace)
 		trace.plane.dist = -plane.dist;
 	}
 
-	while (SV.HullPointContents(hull, hull.firstclipnode, mid) === Mod.contents.solid)
+	while (SV.HullPointContents(hull, hull.firstclipnode, mid) == Mod.contents.solid)
 	{
 		frac -= 0.1;
 		if (frac < 0.0)
@@ -2450,13 +2450,13 @@ SV.ClipMoveToEntity = function(ent, start, mins, maxs, end)
 	SV.RecursiveHullCheck(hull, hull.firstclipnode, 0.0, 1.0,
 		[start[0] - offset[0], start[1] - offset[1], start[2] - offset[2]],
 		[end[0] - offset[0], end[1] - offset[1], end[2] - offset[2]], trace);
-	if (trace.fraction !== 1.0)
+	if (trace.fraction != 1.0)
 	{
 		trace.endpos[0] += offset[0];
 		trace.endpos[1] += offset[1];
 		trace.endpos[2] += offset[2];
 	}
-	if ((trace.fraction < 1.0) || (trace.startsolid === true))
+	if ((trace.fraction < 1.0) || (trace.startsolid))
 		trace.ent = ent;
 	return trace;
 };
@@ -2464,15 +2464,15 @@ SV.ClipMoveToEntity = function(ent, start, mins, maxs, end)
 SV.ClipToLinks = function(node, clip)
 {
 	var l, next, touch, solid, trace;
-	for (l = node.solid_edicts.next; l !== node.solid_edicts; l = l.next)
+	for (l = node.solid_edicts.next; l != node.solid_edicts; l = l.next)
 	{
 		touch = l.ent;
 		solid = touch.v_float[PR.entvars.solid];
-		if ((solid === SV.solid.not) || (touch === clip.passedict))
+		if ((solid == SV.solid.not) || (touch == clip.passedict))
 			continue;
-		if (solid === SV.solid.trigger)
+		if (solid == SV.solid.trigger)
 			Sys.Error('Trigger in clipping list');
-		if ((clip.type === SV.move.nomonsters) && (solid !== SV.solid.bsp))
+		if ((clip.type == SV.move.nomonsters) && (solid != SV.solid.bsp))
 			continue;
 		if ((clip.boxmins[0] > touch.v_float[PR.entvars.absmax]) ||
 			(clip.boxmins[1] > touch.v_float[PR.entvars.absmax1]) ||
@@ -2483,31 +2483,31 @@ SV.ClipToLinks = function(node, clip)
 			continue;
 		if (clip.passedict != null)
 		{
-			if ((clip.passedict.v_float[PR.entvars.size] !== 0.0) && (touch.v_float[PR.entvars.size] === 0.0))
+			if ((clip.passedict.v_float[PR.entvars.size] != 0.0) && (touch.v_float[PR.entvars.size] == 0.0))
 				continue;
 		}
-		if (clip.trace.allsolid === true)
+		if (clip.trace.allsolid)
 			return;
 		if (clip.passedict != null)
 		{
-			if (SV.server.edicts[touch.v_int[PR.entvars.owner]] === clip.passedict)
+			if (SV.server.edicts[touch.v_int[PR.entvars.owner]] == clip.passedict)
 				continue;
-			if (SV.server.edicts[clip.passedict.v_int[PR.entvars.owner]] === touch)
+			if (SV.server.edicts[clip.passedict.v_int[PR.entvars.owner]] == touch)
 				continue;
 		}
-		if ((touch.v_float[PR.entvars.flags] & SV.fl.monster) !== 0)
+		if ((touch.v_float[PR.entvars.flags] & SV.fl.monster) != 0)
 			trace = SV.ClipMoveToEntity(touch, clip.start, clip.mins2, clip.maxs2, clip.end);
 		else
 			trace = SV.ClipMoveToEntity(touch, clip.start, clip.mins, clip.maxs, clip.end);
-		if ((trace.allsolid === true) || (trace.startsolid === true) || (trace.fraction < clip.trace.fraction))
+		if ((trace.allsolid) || (trace.startsolid) || (trace.fraction < clip.trace.fraction))
 		{
 			trace.ent = touch;
 			clip.trace = trace;
-			if (trace.startsolid === true)
+			if (trace.startsolid)
 				clip.trace.startsolid = true;
 		}
 	}
-	if (node.axis === -1)
+	if (node.axis == -1)
 		return;
 	if (clip.boxmaxs[node.axis] > node.dist)
 		SV.ClipToLinks(node.children[0], clip);
@@ -2528,7 +2528,7 @@ SV.Move = function(start, mins, maxs, end, type, passedict)
 		boxmins: [],
 		boxmaxs: []
 	};
-	if (type === SV.move.missile)
+	if (type == SV.move.missile)
 	{
 		clip.mins2 = [-15.0, -15.0, -15.0];
 		clip.maxs2 = [15.0, 15.0, 15.0];

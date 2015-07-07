@@ -8,7 +8,7 @@ Draw.CharToConback = function(num, dest)
 	{
 		for (x = 0; x < 8; ++x)
 		{
-			if (Draw.chars[source + x] !== 0)
+			if (Draw.chars[source + x] != 0)
 				Draw.conback.data[dest + x] = 0x60 + Draw.chars[source + x];
 		}
 		source += 128;
@@ -26,7 +26,7 @@ Draw.Init = function()
 	var trans32 = new Uint32Array(trans);
 	for (i = 0; i < 16384; ++i)
 	{
-		if (Draw.chars[i] !== 0)
+		if (Draw.chars[i] != 0)
 			trans32[i] = COM.LittleLong(VID.d_8to24table[Draw.chars[i]] + 0xff000000);
 	}
 	Draw.char_texture = gl.createTexture();

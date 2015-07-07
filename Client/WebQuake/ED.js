@@ -14,13 +14,13 @@ ED.Alloc = function()
 	for (i = SV.svs.maxclients + 1; i < SV.server.num_edicts; ++i)
 	{
 		e = SV.server.edicts[i];
-		if ((e.free === true) && ((e.freetime < 2.0) || ((SV.server.time - e.freetime) > 0.5)))
+		if ((e.free) && ((e.freetime < 2.0) || ((SV.server.time - e.freetime) > 0.5)))
 		{
 			ED.ClearEdict(e);
 			return e;
 		}
 	}
-	if (i === Def.max_edicts)
+	if (i == Def.max_edicts)
 		Sys.Error('ED.Alloc: no free edicts');
 	e = SV.server.edicts[SV.server.num_edicts++];
 	ED.ClearEdict(e);
@@ -50,7 +50,7 @@ ED.GlobalAtOfs = function(ofs)
 	for (i = 0; i < PR.globaldefs.length; ++i)
 	{
 		def = PR.globaldefs[i];
-		if (def.ofs === ofs)
+		if (def.ofs == ofs)
 			return def;
 	}
 };
@@ -61,7 +61,7 @@ ED.FieldAtOfs = function(ofs)
 	for (i = 0; i < PR.fielddefs.length; ++i)
 	{
 		def = PR.fielddefs[i];
-		if (def.ofs === ofs)
+		if (def.ofs == ofs)
 			return def;
 	}
 };
@@ -72,7 +72,7 @@ ED.FindField = function(name)
 	for (i = 0; i < PR.fielddefs.length; ++i)
 	{
 		def = PR.fielddefs[i];
-		if (PR.GetString(def.name) === name)
+		if (PR.GetString(def.name) == name)
 			return def;
 	}
 };
@@ -83,7 +83,7 @@ ED.FindGlobal = function(name)
 	for (i = 0; i < PR.globaldefs.length; ++i)
 	{
 		def = PR.globaldefs[i];
-		if (PR.GetString(def.name) === name)
+		if (PR.GetString(def.name) == name)
 			return def;
 	}
 };
@@ -93,14 +93,14 @@ ED.FindFunction = function(name)
 	var i;
 	for (i = 0; i < PR.functions.length; ++i)
 	{
-		if (PR.GetString(PR.functions[i].name) === name)
+		if (PR.GetString(PR.functions[i].name) == name)
 			return i;
 	}
 };
 
 ED.Print = function(ed)
 {
-	if (ed.free === true)
+	if (ed.free)
 	{
 		Con.Print('FREE\n');
 		return;
@@ -111,14 +111,14 @@ ED.Print = function(ed)
 	{
 		d = PR.fielddefs[i];
 		name = PR.GetString(d.name);
-		if (name.charCodeAt(name.length - 2) === 95)
+		if (name.charCodeAt(name.length - 2) == 95)
 			continue;
 		v = d.ofs;
-		if (ed.v_int[v] === 0)
+		if (ed.v_int[v] == 0)
 		{
-			if ((d.type & 0x7fff) === 3)
+			if ((d.type & 0x7fff) == 3)
 			{
-				if ((ed.v_int[v + 1] === 0) && (ed.v_int[v + 2] === 0))
+				if ((ed.v_int[v + 1] == 0) && (ed.v_int[v + 2] == 0))
 					continue;
 			}
 			else
@@ -132,7 +132,7 @@ ED.Print = function(ed)
 
 ED.PrintEdicts = function()
 {
-	if (SV.server.active !== true)
+	if (SV.server.active != true)
 		return;
 	Con.Print(SV.server.num_edicts + ' entities\n');
 	var i;
@@ -142,7 +142,7 @@ ED.PrintEdicts = function()
 
 ED.PrintEdict_f = function()
 {
-	if (SV.server.active !== true)
+	if (SV.server.active != true)
 		return;
 	var i = Q.atoi(Cmd.argv[1]);
 	if ((i >= 0) && (i < SV.server.num_edicts))
@@ -151,20 +151,20 @@ ED.PrintEdict_f = function()
 
 ED.Count = function()
 {
-	if (SV.server.active !== true)
+	if (SV.server.active != true)
 		return;
 	var i, ent, active = 0, models = 0, solid = 0, step = 0;
 	for (i = 0; i < SV.server.num_edicts; ++i)
 	{
 		ent = SV.server.edicts[i];
-		if (ent.free === true)
+		if (ent.free)
 			continue;
 		++active;
-		if (ent.v_float[PR.entvars.solid] !== 0.0)
+		if (ent.v_float[PR.entvars.solid] != 0.0)
 			++solid;
-		if (ent.v_int[PR.entvars.model] !== 0)
+		if (ent.v_int[PR.entvars.model] != 0)
 			++models;
-		if (ent.v_float[PR.entvars.movetype] === SV.movetype.step)
+		if (ent.v_float[PR.entvars.movetype] == SV.movetype.step)
 			++step;
 	}
 	var num_edicts = SV.server.num_edicts;
@@ -181,7 +181,7 @@ ED.ParseGlobals = function(data)
 	for (;;)
 	{
 		data = COM.Parse(data);
-		if (COM.token.charCodeAt(0) === 125)
+		if (COM.token.charCodeAt(0) == 125)
 			return;
 		if (data == null)
 			Sys.Error('ED.ParseGlobals: EOF without closing brace');
@@ -189,7 +189,7 @@ ED.ParseGlobals = function(data)
 		data = COM.Parse(data);
 		if (data == null)
 			Sys.Error('ED.ParseGlobals: EOF without closing brace');
-		if (COM.token.charCodeAt(0) === 125)
+		if (COM.token.charCodeAt(0) == 125)
 			Sys.Error('ED.ParseGlobals: closing brace without data');
 		key = ED.FindGlobal(keyname);
 		if (key == null)
@@ -197,7 +197,7 @@ ED.ParseGlobals = function(data)
 			Con.Print('\'' + keyname + '\' is not a global\n');
 			continue;
 		}
-		if (ED.ParseEpair(PR.globals, key, COM.token) !== true)
+		if (ED.ParseEpair(PR.globals, key, COM.token) != true)
 			Host.Error('ED.ParseGlobals: parse error');
 	}
 };
@@ -208,10 +208,10 @@ ED.NewString = function(string)
 	for (i = 0; i < string.length; ++i)
 	{
 		c = string.charCodeAt(i);
-		if ((c === 92) && (i < (string.length - 1)))
+		if ((c == 92) && (i < (string.length - 1)))
 		{
 			++i;
-			newstring[newstring.length] = (string.charCodeAt(i) === 110) ? '\n' : '\\';
+			newstring[newstring.length] = (string.charCodeAt(i) == 110) ? '\n' : '\\';
 		}
 		else
 			newstring[newstring.length] = String.fromCharCode(c);
@@ -265,7 +265,7 @@ ED.ParseEpair = function(base, key, s)
 ED.ParseEdict = function(data, ent)
 {
 	var i, init, anglehack, keyname, n, key;
-	if (ent !== SV.server.edicts[0])
+	if (ent != SV.server.edicts[0])
 	{
 		for (i = 0; i < PR.entityfields; ++i)
 			ent.v_int[i] = 0;
@@ -273,11 +273,11 @@ ED.ParseEdict = function(data, ent)
 	for (;;)
 	{
 		data = COM.Parse(data);
-		if (COM.token.charCodeAt(0) === 125)
+		if (COM.token.charCodeAt(0) == 125)
 			break;
 		if (data == null)
 			Sys.Error('ED.ParseEdict: EOF without closing brace');
-		if (COM.token === 'angle')
+		if (COM.token == 'angle')
 		{
 			COM.token = 'angles';
 			anglehack = true;
@@ -285,22 +285,22 @@ ED.ParseEdict = function(data, ent)
 		else
 		{
 			anglehack = false;
-			if (COM.token === 'light')
+			if (COM.token == 'light')
 				COM.token = 'light_lev';
 		}
 		for (n = COM.token.length; n > 0; --n)
 		{
-			if (COM.token.charCodeAt(n - 1) !== 32)
+			if (COM.token.charCodeAt(n - 1) != 32)
 				break;
 		}
 		keyname = COM.token.substring(0, n);
 		data = COM.Parse(data);
 		if (data == null)
 			Sys.Error('ED.ParseEdict: EOF without closing brace');
-		if (COM.token.charCodeAt(0) === 125)
+		if (COM.token.charCodeAt(0) == 125)
 			Sys.Error('ED.ParseEdict: closing brace without data');
 		init = true;
-		if (keyname.charCodeAt(0) === 95)
+		if (keyname.charCodeAt(0) == 95)
 			continue;
 		key = ED.FindField(keyname);
 		if (key == null)
@@ -308,12 +308,12 @@ ED.ParseEdict = function(data, ent)
 			Con.Print('\'' + keyname + '\' is not a field\n');
 			continue;
 		}
-		if (anglehack == true)
+		if (anglehack)
 			COM.token = '0 ' + COM.token + ' 0';
-		if (ED.ParseEpair(ent.v, key, COM.token) !== true)
+		if (ED.ParseEpair(ent.v, key, COM.token) != true)
 			Host.Error('ED.ParseEdict: parse error');
 	}
-	if (init !== true)
+	if (init != true)
 		ent.free = true;
 	return data;
 };
@@ -328,7 +328,7 @@ ED.LoadFromFile = function(data)
 		data = COM.Parse(data);
 		if (data == null)
 			break;
-		if (COM.token.charCodeAt(0) !== 123)
+		if (COM.token.charCodeAt(0) != 123)
 			Sys.Error('ED.LoadFromFile: found ' + COM.token + ' when expecting {');
 
 		if (ent == null)
@@ -338,25 +338,25 @@ ED.LoadFromFile = function(data)
 		data = ED.ParseEdict(data, ent);
 
 		spawnflags = ent.v_float[PR.entvars.spawnflags] >> 0;
-		if (Host.deathmatch.value !== 0)
+		if (Host.deathmatch.value != 0)
 		{
-			if ((spawnflags & 2048) !== 0)
+			if ((spawnflags & 2048) != 0)
 			{
 				ED.Free(ent);
 				++inhibit;
 				continue;
 			}
 		}
-		else if (((Host.current_skill === 0) && ((spawnflags & 256) !== 0))
-			|| ((Host.current_skill === 1) && ((spawnflags & 512) !== 0))
-			|| ((Host.current_skill >= 2) && ((spawnflags & 1024) !== 0)))
+		else if (((Host.current_skill == 0) && ((spawnflags & 256) != 0))
+			|| ((Host.current_skill == 1) && ((spawnflags & 512) != 0))
+			|| ((Host.current_skill >= 2) && ((spawnflags & 1024) != 0)))
 		{
 			ED.Free(ent);
 			++inhibit;
 			continue;
 		}
 
-		if (ent.v_int[PR.entvars.classname] === 0)
+		if (ent.v_int[PR.entvars.classname] == 0)
 		{
 			Con.Print('No classname for:\n');
 			ED.Print(ent);

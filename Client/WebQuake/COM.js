@@ -10,9 +10,9 @@ COM.DefaultExtension = function(path, extension)
 	for (i = path.length - 1; i >= 0; --i)
 	{
 		src = path.charCodeAt(i);
-		if (src === 47)
+		if (src == 47)
 			break;
-		if (src === 46)
+		if (src == 46)
 			return path;
 	}
 	return path + extension;
@@ -22,13 +22,13 @@ COM.Parse = function(data)
 {
 	COM.token = '';
 	var i = 0, c;
-	if (data.length === 0)
+	if (data.length == 0)
 		return;
 		
 	var skipwhite = true;
 	for (;;)
 	{
-		if (skipwhite !== true)
+		if (skipwhite != true)
 			break;
 		skipwhite = false;
 		for (;;)
@@ -40,11 +40,11 @@ COM.Parse = function(data)
 				break;
 			++i;
 		}
-		if ((c === 47) && (data.charCodeAt(i + 1) == 47))
+		if ((c == 47) && (data.charCodeAt(i + 1) == 47))
 		{
 			for (;;)
 			{
-				if ((i >= data.length) || (data.charCodeAt(i) === 10))
+				if ((i >= data.length) || (data.charCodeAt(i) == 10))
 					break;
 				++i;
 			}
@@ -52,14 +52,14 @@ COM.Parse = function(data)
 		}
 	}
 
-	if (c === 34)
+	if (c == 34)
 	{
 		++i;
 		for (;;)
 		{
 			c = data.charCodeAt(i);
 			++i;
-			if ((i >= data.length) || (c === 34))
+			if ((i >= data.length) || (c == 34))
 				return data.substring(i);
 			COM.token += String.fromCharCode(c);
 		}
@@ -82,7 +82,7 @@ COM.CheckParm = function(parm)
 	var i;
 	for (i = 1; i < COM.argv.length; ++i)
 	{
-		if (COM.argv[i] === parm)
+		if (COM.argv[i] == parm)
 			return i;
 	}
 };
@@ -93,7 +93,7 @@ COM.CheckRegistered = function()
 	if (h == null)
 	{
 		Con.Print('Playing shareware version.\n');
-		if (COM.modified === true)
+		if (COM.modified)
 			Sys.Error('You must have the registered version to use modified games');
 		return;
 	}
@@ -120,7 +120,7 @@ COM.CheckRegistered = function()
 	var i;
 	for (i = 0; i < 256; ++i)
 	{
-		if (check[i] !== pop[i])
+		if (check[i] != pop[i])
 			Sys.Error('Corrupted data file.');
 	}
 	Cvar.Set('registered', '1');
@@ -153,14 +153,14 @@ COM.InitArgv = function(argv)
 
 COM.Init = function()
 {
-	if ((document.location.protocol !== 'http:') && (document.location.protocol !== 'https:'))
+	if ((document.location.protocol != 'http:') && (document.location.protocol != 'https:'))
 		Sys.Error('Protocol is ' + document.location.protocol + ', not http: or https:');
 
 	var swaptest = new ArrayBuffer(2);
 	var swaptestview = new Uint8Array(swaptest);
 	swaptestview[0] = 1;
 	swaptestview[1] = 0;
-	if ((new Uint16Array(swaptest))[0] === 1)
+	if ((new Uint16Array(swaptest))[0] == 1)
 		COM.LittleLong = (function(l) {return l;});
 	else
 		COM.LittleLong = (function(l) {return (l >>> 24) + ((l & 0xff0000) >>> 8) + (((l & 0xff00) << 8) >>> 0) + ((l << 24) >>> 0);});
@@ -246,9 +246,9 @@ COM.LoadFile = function(filename)
 			for (k = 0; k < pak.length; ++k)
 			{
 				file = pak[k];
-				if (file.name !== filename)
+				if (file.name != filename)
 					continue;
-				if (file.filelen === 0)
+				if (file.filelen == 0)
 				{
 					Draw.EndDisc();
 					return new ArrayBuffer(0);
@@ -256,7 +256,7 @@ COM.LoadFile = function(filename)
 				xhr.open('GET', search.filename + '/pak' + j + '.pak', false);
 				xhr.setRequestHeader('Range', 'bytes=' + file.filepos + '-' + (file.filepos + file.filelen - 1));
 				xhr.send();
-				if ((xhr.status >= 200) && (xhr.status <= 299) && (xhr.responseText.length === file.filelen))
+				if ((xhr.status >= 200) && (xhr.status <= 299) && (xhr.responseText.length == file.filelen))
 				{
 					Sys.Print('PackFile: ' + search.filename + '/pak' + j + '.pak : ' + filename + '\n')
 					Draw.EndDisc();
@@ -288,7 +288,7 @@ COM.LoadTextFile = function(filename)
 	var i;
 	for (i = 0; i < bufview.length; ++i)
 	{
-		if (bufview[i] !== 13)
+		if (bufview[i] != 13)
 			f[f.length] = String.fromCharCode(bufview[i]);
 	}
 	return f.join('');
@@ -301,26 +301,26 @@ COM.LoadPackFile = function(packfile)
 	xhr.open('GET', packfile, false);
 	xhr.setRequestHeader('Range', 'bytes=0-11');
 	xhr.send();
-	if ((xhr.status <= 199) || (xhr.status >= 300) || (xhr.responseText.length !== 12))
+	if ((xhr.status <= 199) || (xhr.status >= 300) || (xhr.responseText.length != 12))
 		return;
 	var header = new DataView(Q.strmem(xhr.responseText));
-	if (header.getUint32(0, true) !== 0x4b434150)
+	if (header.getUint32(0, true) != 0x4b434150)
 		Sys.Error(packfile + ' is not a packfile');
 	var dirofs = header.getUint32(4, true);
 	var dirlen = header.getUint32(8, true);
 	var numpackfiles = dirlen >> 6;
-	if (numpackfiles !== 339)
+	if (numpackfiles != 339)
 		COM.modified = true;
 	var pack = [];
-	if (numpackfiles !== 0)
+	if (numpackfiles != 0)
 	{
 		xhr.open('GET', packfile, false);
 		xhr.setRequestHeader('Range', 'bytes=' + dirofs + '-' + (dirofs + dirlen - 1));
 		xhr.send();
-		if ((xhr.status <= 199) || (xhr.status >= 300) || (xhr.responseText.length !== dirlen))
+		if ((xhr.status <= 199) || (xhr.status >= 300) || (xhr.responseText.length != dirlen))
 			return;
 		var info = Q.strmem(xhr.responseText);
-		if (CRC.Block(new Uint8Array(info)) !== 32981)
+		if (CRC.Block(new Uint8Array(info)) != 32981)
 			COM.modified = true;
 		var i;
 		for (i = 0; i < numpackfiles; ++i)
@@ -364,9 +364,9 @@ COM.InitFilesystem = function()
 	else
 		COM.AddGameDirectory('id1');
 		
-	if (COM.rogue === true)
+	if (COM.rogue)
 		COM.AddGameDirectory('rogue');
-	else if (COM.hipnotic === true)
+	else if (COM.hipnotic)
 		COM.AddGameDirectory('hipnotic');
 		
 	i = COM.CheckParm('-game');

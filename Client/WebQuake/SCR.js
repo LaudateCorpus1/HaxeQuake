@@ -11,7 +11,7 @@ SCR.CenterPrint = function(str)
 	var i, start = 0, next;
 	for (i = 0; i < str.length; ++i)
 	{
-		if (str.charCodeAt(i) === 10)
+		if (str.charCodeAt(i) == 10)
 			next = i + 1;
 		else if ((i - start) >= 40)
 			next = i;
@@ -28,7 +28,7 @@ SCR.CenterPrint = function(str)
 SCR.DrawCenterString = function()
 {
 	SCR.centertime_off -= Host.frametime;
-	if (((SCR.centertime_off <= 0.0) && (CL.state.intermission === 0)) || (Key.dest.value !== Key.dest.game))
+	if (((SCR.centertime_off <= 0.0) && (CL.state.intermission == 0)) || (Key.dest.value != Key.dest.game))
 		return;
 
 	var y;
@@ -49,7 +49,7 @@ SCR.DrawCenterString = function()
 			for (j = 0; j < str.length; ++j)
 			{
 				Draw.Character(x, y, str.charCodeAt(j));
-				if ((remaining--) === 0)
+				if ((remaining--) == 0)
 					return;
 				x += 8;
 			}
@@ -75,7 +75,7 @@ SCR.CalcRefdef = function()
 		Cvar.Set('viewsize', '120');
 
 	var size, full;
-	if (CL.state.intermission !== 0)
+	if (CL.state.intermission != 0)
 	{
 		full = true;
 		size = 1.0;
@@ -109,7 +109,7 @@ SCR.CalcRefdef = function()
 	if (vrect.height > (VID.height - Sbar.lines))
 		vrect.height = VID.height - Sbar.lines;
 	vrect.x = (VID.width - vrect.width) >> 1;
-	if (full === true)
+	if (full)
 		vrect.y = 0;
 	else
 		vrect.y = (VID.height - Sbar.lines - vrect.height) >> 1;
@@ -141,7 +141,7 @@ SCR.CalcRefdef = function()
 		R.warpwidth = 2048;
 	if (R.warpheight > 2048)
 		R.warpheight = 2048;
-	if ((R.oldwarpwidth !== R.warpwidth) || (R.oldwarpheight !== R.warpheight))
+	if ((R.oldwarpwidth != R.warpwidth) || (R.oldwarpheight != R.warpheight))
 	{
 		R.oldwarpwidth = R.warpwidth;
 		R.oldwarpheight = R.warpheight;
@@ -185,7 +185,7 @@ SCR.Init = function()
 SCR.count = 0;
 SCR.DrawTurtle = function()
 {
-	if (SCR.showturtle.value === 0)
+	if (SCR.showturtle.value == 0)
 		return;
 	if (Host.frametime < 0.1)
 	{
@@ -198,28 +198,28 @@ SCR.DrawTurtle = function()
 
 SCR.DrawNet = function()
 {
-	if (((Host.realtime - CL.state.last_received_message) >= 0.3) && (CL.cls.demoplayback !== true))
+	if (((Host.realtime - CL.state.last_received_message) >= 0.3) && (CL.cls.demoplayback != true))
 		Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, SCR.net);
 };
 
 SCR.DrawPause = function()
 {
-	if ((SCR.showpause.value !== 0) && (CL.state.paused === true))
+	if ((SCR.showpause.value != 0) && (CL.state.paused))
 		Draw.Pic((VID.width - SCR.pause.width) >> 1, (VID.height - 48 - SCR.pause.height) >> 1, SCR.pause);
 };
 
 SCR.SetUpToDrawConsole = function()
 {
-	Con.forcedup = (CL.state.worldmodel == null) || (CL.cls.signon !== 4);
+	Con.forcedup = (CL.state.worldmodel == null) || (CL.cls.signon != 4);
 
-	if (Con.forcedup === true)
+	if (Con.forcedup)
 	{
 		SCR.con_current = 200;
 		return;
 	}
 
 	var conlines;
-	if (Key.dest.value === Key.dest.console)
+	if (Key.dest.value == Key.dest.console)
 		conlines = 100;
 	else
 		conlines = 0;
@@ -245,7 +245,7 @@ SCR.DrawConsole = function()
 		Con.DrawConsole(SCR.con_current);
 		return;
 	}
-	if ((Key.dest.value === Key.dest.game) || (Key.dest.value === Key.dest.message))
+	if ((Key.dest.value == Key.dest.game) || (Key.dest.value == Key.dest.message))
 		Con.DrawNotify();
 };
 
@@ -257,7 +257,7 @@ SCR.ScreenShot_f = function()
 SCR.BeginLoadingPlaque = function()
 {
 	S.StopAllSounds();
-	if ((CL.cls.state !== CL.active.connected) || (CL.cls.signon !== 4))
+	if ((CL.cls.state != CL.active.connected) || (CL.cls.signon != 4))
 		return;
 	SCR.centertime_off = 0.0;
 	SCR.con_current = 0;
@@ -273,7 +273,7 @@ SCR.EndLoadingPlaque = function()
 
 SCR.UpdateScreen = function()
 {
-	if (SCR.disabled_for_loading === true)
+	if (SCR.disabled_for_loading)
 	{
 		if (Host.realtime <= SCR.disabled_time)
 			return;
@@ -289,7 +289,7 @@ SCR.UpdateScreen = function()
 		pixelRatio = window.devicePixelRatio;
 	else
 		pixelRatio = 1.0;
-	if ((VID.width !== width) || (VID.height !== height) || (SCR.devicePixelRatio !== pixelRatio) || (Host.framecount === 0))
+	if ((VID.width != width) || (VID.height != height) || (SCR.devicePixelRatio != pixelRatio) || (Host.framecount == 0))
 	{
 		VID.width = width;
 		VID.height = height;
@@ -301,41 +301,41 @@ SCR.UpdateScreen = function()
 		SCR.recalc_refdef = true;
 	}
 
-	if (SCR.oldfov !== SCR.fov.value)
+	if (SCR.oldfov != SCR.fov.value)
 	{
 		SCR.oldfov = SCR.fov.value;
 		SCR.recalc_refdef = true;
 	}
-	if (SCR.oldscreensize !== SCR.viewsize.value)
+	if (SCR.oldscreensize != SCR.viewsize.value)
 	{
 		SCR.oldscreensize = SCR.viewsize.value;
 		SCR.recalc_refdef = true;
 	}
-	if (SCR.recalc_refdef === true)
+	if (SCR.recalc_refdef)
 		SCR.CalcRefdef();
 
 	SCR.SetUpToDrawConsole();
 	V.RenderView();
 	GL.Set2D();
-	if (R.dowarp === true)
+	if (R.dowarp)
 		R.WarpScreen();
-	if (Con.forcedup !== true)
+	if (Con.forcedup != true)
 		R.PolyBlend();
 
-	if (CL.cls.state === CL.active.connecting)
+	if (CL.cls.state == CL.active.connecting)
 		SCR.DrawConsole();
-	else if ((CL.state.intermission === 1) && (Key.dest.value === Key.dest.game))
+	else if ((CL.state.intermission == 1) && (Key.dest.value == Key.dest.game))
 		Sbar.IntermissionOverlay();
-	else if ((CL.state.intermission === 2) && (Key.dest.value === Key.dest.game))
+	else if ((CL.state.intermission == 2) && (Key.dest.value == Key.dest.game))
 	{
 		Sbar.FinaleOverlay();
 		SCR.DrawCenterString();
 	}
-	else if ((CL.state.intermission === 3) && (Key.dest.value === Key.dest.game))
+	else if ((CL.state.intermission == 3) && (Key.dest.value == Key.dest.game))
 		SCR.DrawCenterString();
 	else
 	{
-		if (V.crosshair.value !== 0)
+		if (V.crosshair.value != 0)
 		{
 			Draw.Character(R.refdef.vrect.x + (R.refdef.vrect.width >> 1) + V.crossx.value,
 				R.refdef.vrect.y + (R.refdef.vrect.height >> 1) + V.crossy.value, 43);
@@ -351,7 +351,7 @@ SCR.UpdateScreen = function()
 
 	gl.disable(gl.BLEND);
 
-	if (SCR.screenshot === true)
+	if (SCR.screenshot)
 	{
 		SCR.screenshot = false;
 		gl.finish();

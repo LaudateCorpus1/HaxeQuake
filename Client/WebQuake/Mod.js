@@ -34,7 +34,7 @@ Mod.Init = function()
 	Mod.filledcolor = 0;
 	for (i = 0; i <= 255; ++i)
 	{
-		if (VID.d_8to24table[i] === 0)
+		if (VID.d_8to24table[i] == 0)
 		{
 			Mod.filledcolor = i;
 			break;
@@ -73,7 +73,7 @@ Mod.DecompressVis = function(i, model)
 	}
 	for (out = 0; out < row; )
 	{
-		if (model.visdata[i] !== 0)
+		if (model.visdata[i] != 0)
 		{
 			decompressed[out++] = model.visdata[i++];
 			continue;
@@ -87,7 +87,7 @@ Mod.DecompressVis = function(i, model)
 
 Mod.LeafPVS = function(leaf, model)
 {
-	if (leaf === model.leafs[0])
+	if (leaf == model.leafs[0])
 		return Mod.novis;
 	return Mod.DecompressVis(leaf.visofs, model);
 };
@@ -98,7 +98,7 @@ Mod.ClearAll = function()
 	for (i = 0; i < Mod.known.length; ++i)
 	{
 		mod = Mod.known[i];
-		if (mod.type !== Mod.type.brush)
+		if (mod.type != Mod.type.brush)
 			continue;
 		if (mod.cmds != null)
 			gl.deleteBuffer(mod.cmds);
@@ -111,14 +111,14 @@ Mod.ClearAll = function()
 
 Mod.FindName = function(name)
 {
-	if (name.length === 0)
+	if (name.length == 0)
 		Sys.Error('Mod.FindName: NULL name');
 	var i;
 	for (i = 0; i < Mod.known.length; ++i)
 	{
 		if (Mod.known[i] == null)
 			continue;
-		if (Mod.known[i].name === name)
+		if (Mod.known[i].name == name)
 			return Mod.known[i];
 	}
 	for (i = 0; i <= Mod.known.length; ++i)
@@ -132,12 +132,12 @@ Mod.FindName = function(name)
 
 Mod.LoadModel = function(mod, crash)
 {
-	if (mod.needload !== true)
+	if (mod.needload != true)
 		return mod;
 	var buf = COM.LoadFile(mod.name);
 	if (buf == null)
 	{
-		if (crash === true)
+		if (crash)
 			Sys.Error('Mod.LoadModel: ' + mod.name + ' not found');
 		return;
 	}
@@ -163,11 +163,11 @@ Mod.ForName = function(name, crash)
 };
 
 /*
-===============================================================================
+=====================================================
 
 					BRUSHMODEL LOADING
 
-===============================================================================
+=====================================================
 */
 
 Mod.lump =
@@ -219,7 +219,7 @@ Mod.LoadTextures = function(buf)
 	{
 		miptexofs = view.getInt32(dataofs, true);
 		dataofs += 4;
-		if (miptexofs === -1)
+		if (miptexofs == -1)
 		{
 			Mod.loadmodel.textures[i] = R.notexture_mip;
 			continue;
@@ -231,7 +231,7 @@ Mod.LoadTextures = function(buf)
 			width: view.getUint32(miptexofs + 16, true),
 			height: view.getUint32(miptexofs + 20, true)
 		}
-		if (tx.name.substring(0, 3).toLowerCase() === 'sky')
+		if (tx.name.substring(0, 3).toLowerCase() == 'sky')
 		{
 			R.InitSky(new Uint8Array(buf, miptexofs + view.getUint32(miptexofs + 24, true), 32768));
 			tx.texturenum = R.solidskytexture;
@@ -242,7 +242,7 @@ Mod.LoadTextures = function(buf)
 		{
 			glt = GL.LoadTexture(tx.name, tx.width, tx.height, new Uint8Array(buf, miptexofs + view.getUint32(miptexofs + 24, true), tx.width * tx.height));
 			tx.texturenum = glt.texnum;
-			if (tx.name.charCodeAt(0) === 42)
+			if (tx.name.charCodeAt(0) == 42)
 				tx.turbulent = true;
 		}
 		Mod.loadmodel.textures[i] = tx;
@@ -252,9 +252,9 @@ Mod.LoadTextures = function(buf)
 	for (i = 0; i < nummiptex; ++i)
 	{
 		tx = Mod.loadmodel.textures[i];
-		if (tx.name.charCodeAt(0) !== 43)
+		if (tx.name.charCodeAt(0) != 43)
 			continue;
-		if (tx.name.charCodeAt(1) !== 48)
+		if (tx.name.charCodeAt(1) != 48)
 			continue;
 		name = tx.name.substring(2);
 		tx.anims = [i];
@@ -262,12 +262,12 @@ Mod.LoadTextures = function(buf)
 		for (j = 0; j < nummiptex; ++j)
 		{
 			tx2 = Mod.loadmodel.textures[j];
-			if (tx2.name.charCodeAt(0) !== 43)
+			if (tx2.name.charCodeAt(0) != 43)
 				continue;
-			if (tx2.name.substring(2) !== name)
+			if (tx2.name.substring(2) != name)
 				continue;
 			num = tx2.name.charCodeAt(1);
-			if (num === 48)
+			if (num == 48)
 				continue;
 			if ((num >= 49) && (num <= 57))
 			{
@@ -308,7 +308,7 @@ Mod.LoadLighting = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.lighting << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.lighting << 3) + 8, true);
-	if (filelen === 0)
+	if (filelen == 0)
 		return;
 	Mod.loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
 	Mod.loadmodel.lightdata.set(new Uint8Array(buf, fileofs, filelen));
@@ -319,7 +319,7 @@ Mod.LoadVisibility = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.visibility << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.visibility << 3) + 8, true);
-	if (filelen === 0)
+	if (filelen == 0)
 		return;
 	Mod.loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
 	Mod.loadmodel.visdata.set(new Uint8Array(buf, fileofs, filelen));
@@ -338,7 +338,7 @@ Mod.LoadVertexes = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.vertexes << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.vertexes << 3) + 8, true);
-	if ((filelen % 12) !== 0)
+	if ((filelen % 12) != 0)
 		Sys.Error('Mod.LoadVisibility: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen / 12;
 	Mod.loadmodel.vertexes = [];
@@ -356,7 +356,7 @@ Mod.LoadSubmodels = function(buf)
 	var fileofs = view.getUint32((Mod.lump.models << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.models << 3) + 8, true);
 	var count = filelen >> 6;
-	if (count === 0)
+	if (count == 0)
 		Sys.Error('Mod.LoadSubmodels: funny lump size in ' + Mod.loadmodel.name);
 	Mod.loadmodel.submodels = [];
 
@@ -426,7 +426,7 @@ Mod.LoadEdges = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.edges << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.edges << 3) + 8, true);
-	if ((filelen & 3) !== 0)
+	if ((filelen & 3) != 0)
 		Sys.Error('Mod.LoadEdges: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen >> 2;
 	Mod.loadmodel.edges = [];
@@ -443,7 +443,7 @@ Mod.LoadTexinfo = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.texinfo << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.texinfo << 3) + 8, true);
-	if ((filelen % 40) !== 0)
+	if ((filelen % 40) != 0)
 		Sys.Error('Mod.LoadTexinfo: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen / 40;
 	Mod.loadmodel.texinfo = [];
@@ -473,7 +473,7 @@ Mod.LoadFaces = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.faces << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.faces << 3) + 8, true);
-	if ((filelen % 20) !== 0)
+	if ((filelen % 20) != 0)
 		Sys.Error('Mod.LoadFaces: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen / 20;
 	Mod.loadmodel.firstface = 0;
@@ -493,13 +493,13 @@ Mod.LoadFaces = function(buf)
 			styles: [],
 			lightofs: view.getInt32(fileofs + 16, true)
 		};
-		if (styles[0] !== 255)
+		if (styles[0] != 255)
 			out.styles[0] = styles[0];
-		if (styles[1] !== 255)
+		if (styles[1] != 255)
 			out.styles[1] = styles[1];
-		if (styles[2] !== 255)
+		if (styles[2] != 255)
 			out.styles[2] = styles[2];
-		if (styles[3] !== 255)
+		if (styles[3] != 255)
 			out.styles[3] = styles[3];
 
 		mins = [999999, 999999];
@@ -527,9 +527,9 @@ Mod.LoadFaces = function(buf)
 		out.texturemins = [Math.floor(mins[0] / 16) * 16, Math.floor(mins[1] / 16) * 16];
 		out.extents = [Math.ceil(maxs[0] / 16) * 16 - out.texturemins[0], Math.ceil(maxs[1] / 16) * 16 - out.texturemins[1]];
 
-		if (Mod.loadmodel.textures[tex.texture].turbulent === true)
+		if (Mod.loadmodel.textures[tex.texture].turbulent)
 			out.turbulent = true;
-		else if (Mod.loadmodel.textures[tex.texture].sky === true)
+		else if (Mod.loadmodel.textures[tex.texture].sky)
 			out.sky = true;
 
 		Mod.loadmodel.faces[i] = out;
@@ -551,7 +551,7 @@ Mod.LoadNodes = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.nodes << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.nodes << 3) + 8, true);
-	if ((filelen === 0) || ((filelen % 24) !== 0))
+	if ((filelen == 0) || ((filelen % 24) != 0))
 		Sys.Error('Mod.LoadNodes: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen / 24;
 	Mod.loadmodel.nodes = [];
@@ -592,7 +592,7 @@ Mod.LoadLeafs = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.leafs << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.leafs << 3) + 8, true);
-	if ((filelen % 28) !== 0)
+	if ((filelen % 28) != 0)
 		Sys.Error('Mod.LoadLeafs: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen / 28;
 	Mod.loadmodel.leafs = [];
@@ -710,7 +710,7 @@ Mod.LoadPlanes = function(buf)
 	var view = new DataView(buf);
 	var fileofs = view.getUint32((Mod.lump.planes << 3) + 4, true);
 	var filelen = view.getUint32((Mod.lump.planes << 3) + 8, true);
-	if ((filelen % 20) !== 0)
+	if ((filelen % 20) != 0)
 		Sys.Error('Mod.LoadPlanes: funny lump size in ' + Mod.loadmodel.name);
 	var count = filelen / 20;
 	Mod.loadmodel.planes = [];
@@ -738,7 +738,7 @@ Mod.LoadBrushModel = function(buffer)
 {
 	Mod.loadmodel.type = Mod.type.brush;
 	var version = (new DataView(buffer)).getUint32(0, true);
-	if (version !== Mod.version.brush)
+	if (version != Mod.version.brush)
 		Sys.Error('Mod.LoadBrushModel: ' + Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.brush + ')');
 	Mod.LoadVertexes(buffer);
 	Mod.LoadEdges(buffer);
@@ -784,28 +784,28 @@ Mod.LoadBrushModel = function(buffer)
 };
 
 /*
-==============================================================================
+====================================================
 
 ALIAS MODELS
 
-==============================================================================
+====================================================
 */
 
 Mod.TranslatePlayerSkin = function(data, skin)
 {
-	if ((Mod.loadmodel.skinwidth !== 512) || (Mod.loadmodel.skinheight !== 256))
+	if ((Mod.loadmodel.skinwidth != 512) || (Mod.loadmodel.skinheight != 256))
 		data = GL.ResampleTexture(data, Mod.loadmodel.skinwidth, Mod.loadmodel.skinheight, 512, 256);
 	var out = new Uint8Array(new ArrayBuffer(524288));
 	var i, original;
 	for (i = 0; i < 131072; ++i)
 	{
 		original = data[i];
-		if ((original >> 4) === 1)
+		if ((original >> 4) == 1)
 		{
 			out[i << 2] = (original & 15) * 17;
 			out[(i << 2) + 1] = 255;
 		}
-		else if ((original >> 4) === 6)
+		else if ((original >> 4) == 6)
 		{
 			out[(i << 2) + 2] = (original & 15) * 17;
 			out[(i << 2) + 3] = 255;
@@ -822,7 +822,7 @@ Mod.TranslatePlayerSkin = function(data, skin)
 Mod.FloodFillSkin = function(skin)
 {
 	var fillcolor = skin[0];
-	if (fillcolor === Mod.filledcolor)
+	if (fillcolor == Mod.filledcolor)
 		return;
 
 	var width = Mod.loadmodel.skinwidth;
@@ -838,22 +838,22 @@ Mod.FloodFillSkin = function(skin)
 		skin[y * width + x] = Mod.filledcolor;
 		if (x > 0)
 		{
-			if (skin[y * width + x - 1] === fillcolor)
+			if (skin[y * width + x - 1] == fillcolor)
 				lifo[sp++] = [x - 1, y];
 		}
 		if (x < (width - 1))
 		{
-			if (skin[y * width + x + 1] === fillcolor)
+			if (skin[y * width + x + 1] == fillcolor)
 				lifo[sp++] = [x + 1, y];
 		}
 		if (y > 0)
 		{
-			if (skin[(y - 1) * width + x] === fillcolor)
+			if (skin[(y - 1) * width + x] == fillcolor)
 				lifo[sp++] = [x, y - 1];
 		}
 		if (y < (height - 1))
 		{
-			if (skin[(y + 1) * width + x] === fillcolor)
+			if (skin[(y + 1) * width + x] == fillcolor)
 				lifo[sp++] = [x, y + 1];
 		}
 	}
@@ -869,7 +869,7 @@ Mod.LoadAllSkins = function(buffer, inmodel)
 	for (i = 0; i < Mod.loadmodel.numskins; ++i)
 	{
 		inmodel += 4;
-		if (model.getUint32(inmodel - 4, true) === 0)
+		if (model.getUint32(inmodel - 4, true) == 0)
 		{
 			skin = new Uint8Array(buffer, inmodel, skinsize);
 			Mod.FloodFillSkin(skin);
@@ -880,7 +880,7 @@ Mod.LoadAllSkins = function(buffer, inmodel)
 					Mod.loadmodel.skinheight,
 					skin)
 			};
-			if (Mod.loadmodel.player === true)
+			if (Mod.loadmodel.player)
 				Mod.TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), Mod.loadmodel.skins[i]);
 			inmodel += skinsize;
 		}
@@ -907,7 +907,7 @@ Mod.LoadAllSkins = function(buffer, inmodel)
 					Mod.loadmodel.skinwidth,
 					Mod.loadmodel.skinheight,
 					skin);
-				if (Mod.loadmodel.player === true)
+				if (Mod.loadmodel.player)
 					Mod.TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), group.skins[j]);
 				inmodel += skinsize;
 			}
@@ -925,7 +925,7 @@ Mod.LoadAllFrames = function(buffer, inmodel)
 	for (i = 0; i < Mod.loadmodel.numframes; ++i)
 	{
 		inmodel += 4;
-		if (model.getUint32(inmodel - 4, true) === 0)
+		if (model.getUint32(inmodel - 4, true) == 0)
 		{
 			frame = {
 				group: false,
@@ -989,29 +989,29 @@ Mod.LoadAliasModel = function(buffer)
 	var i, j, k, l;
 
 	Mod.loadmodel.type = Mod.type.alias;
-	Mod.loadmodel.player = Mod.loadmodel.name === 'progs/player.mdl';
+	Mod.loadmodel.player = Mod.loadmodel.name == 'progs/player.mdl';
 	var model = new DataView(buffer);
 	var version = model.getUint32(4, true);
-	if (version !== Mod.version.alias)
+	if (version != Mod.version.alias)
 		Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.alias + ')');
 	Mod.loadmodel.scale = [model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true)];
 	Mod.loadmodel.scale_origin = [model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true)];
 	Mod.loadmodel.boundingradius = model.getFloat32(32, true);
 	Mod.loadmodel.numskins = model.getUint32(48, true);
-	if (Mod.loadmodel.numskins === 0)
+	if (Mod.loadmodel.numskins == 0)
 		Sys.Error('model ' + Mod.loadmodel.name + ' has no skins');
 	Mod.loadmodel.skinwidth = model.getUint32(52, true);
 	Mod.loadmodel.skinheight = model.getUint32(56, true);
 	Mod.loadmodel.numverts = model.getUint32(60, true);
-	if (Mod.loadmodel.numverts === 0)
+	if (Mod.loadmodel.numverts == 0)
 		Sys.Error('model ' + Mod.loadmodel.name + ' has no vertices');
 	Mod.loadmodel.numtris = model.getUint32(64, true);
-	if (Mod.loadmodel.numtris === 0)
+	if (Mod.loadmodel.numtris == 0)
 		Sys.Error('model ' + Mod.loadmodel.name + ' has no triangles');
 	Mod.loadmodel.numframes = model.getUint32(68, true);
-	if (Mod.loadmodel.numframes === 0)
+	if (Mod.loadmodel.numframes == 0)
 		Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
-	Mod.loadmodel.random = model.getUint32(72, true) === 1;
+	Mod.loadmodel.random = model.getUint32(72, true) == 1;
 	Mod.loadmodel.flags = model.getUint32(76, true);
 	Mod.loadmodel.mins = [-16.0, -16.0, -16.0];
 	Mod.loadmodel.maxs = [16.0, 16.0, 16.0];
@@ -1022,7 +1022,7 @@ Mod.LoadAliasModel = function(buffer)
 	for (i = 0; i < Mod.loadmodel.numverts; ++i)
 	{
 		Mod.loadmodel.stverts[i] = {
-			onseam: model.getUint32(inmodel, true) !== 0,
+			onseam: model.getUint32(inmodel, true) != 0,
 			s: model.getUint32(inmodel + 4, true),
 			t: model.getUint32(inmodel + 8, true)
 		};
@@ -1033,7 +1033,7 @@ Mod.LoadAliasModel = function(buffer)
 	for (i = 0; i < Mod.loadmodel.numtris; ++i)
 	{
 		Mod.loadmodel.triangles[i] = {
-			facesfront: model.getUint32(inmodel, true) !== 0,
+			facesfront: model.getUint32(inmodel, true) != 0,
 			vertindex: [
 				model.getUint32(inmodel + 4, true),
 				model.getUint32(inmodel + 8, true),
@@ -1051,7 +1051,7 @@ Mod.LoadAliasModel = function(buffer)
 	for (i = 0; i < Mod.loadmodel.numtris; ++i)
 	{
 		triangle = Mod.loadmodel.triangles[i];
-		if (triangle.facesfront === true)
+		if (triangle.facesfront)
 		{
 			vert = Mod.loadmodel.stverts[triangle.vertindex[0]];
 			cmds[cmds.length] = (vert.s + 0.5) / Mod.loadmodel.skinwidth;
@@ -1067,7 +1067,7 @@ Mod.LoadAliasModel = function(buffer)
 		for (j = 0; j < 3; ++j)
 		{
 			vert = Mod.loadmodel.stverts[triangle.vertindex[j]];
-			if (vert.onseam === true)
+			if (vert.onseam)
 				cmds[cmds.length] = (vert.s + Mod.loadmodel.skinwidth / 2 + 0.5) / Mod.loadmodel.skinwidth;
 			else
 				cmds[cmds.length] = (vert.s + 0.5) / Mod.loadmodel.skinwidth;
@@ -1079,7 +1079,7 @@ Mod.LoadAliasModel = function(buffer)
 	for (i = 0; i < Mod.loadmodel.numframes; ++i)
 	{
 		group = Mod.loadmodel.frames[i];
-		if (group.group === true)
+		if (group.group)
 		{
 			for (j = 0; j < group.frames.length; ++j)
 			{
@@ -1143,9 +1143,9 @@ Mod.LoadSpriteFrame = function(identifier, buffer, inframe, frame)
 	for (i = 0; i < GL.textures.length; ++i)
 	{
 		glt = GL.textures[i];
-		if (glt.identifier === identifier)
+		if (glt.identifier == identifier)
 		{
-			if ((width !== glt.width) || (height !== glt.height))
+			if ((width != glt.width) || (height != glt.height))
 				Sys.Error('Mod.LoadSpriteFrame: cache mismatch');
 			frame.texturenum = glt.texnum;
 			return inframe + 16 + frame.width * frame.height;
@@ -1154,7 +1154,7 @@ Mod.LoadSpriteFrame = function(identifier, buffer, inframe, frame)
 
 	var data = new Uint8Array(buffer, inframe + 16, size);
 	var scaled_width = frame.width, scaled_height = frame.height;
-	if (((frame.width & (frame.width - 1)) !== 0) || ((frame.height & (frame.height - 1)) !== 0))
+	if (((frame.width & (frame.width - 1)) != 0) || ((frame.height & (frame.height - 1)) != 0))
 	{
 		--scaled_width;
 		scaled_width |= (scaled_width >> 1);
@@ -1175,7 +1175,7 @@ Mod.LoadSpriteFrame = function(identifier, buffer, inframe, frame)
 		scaled_width = GL.maxtexturesize;
 	if (scaled_height > GL.maxtexturesize)
 		scaled_height = GL.maxtexturesize;
-	if ((scaled_width !== frame.width) || (scaled_height !== frame.height))
+	if ((scaled_width != frame.width) || (scaled_height != frame.height))
 	{
 		size = scaled_width * scaled_height;
 		data = GL.ResampleTexture(data, frame.width, frame.height, scaled_width, scaled_height);
@@ -1185,7 +1185,7 @@ Mod.LoadSpriteFrame = function(identifier, buffer, inframe, frame)
 	var trans32 = new Uint32Array(trans);
 	for (i = 0; i < size; ++i)
 	{
-		if (data[i] !== 255)
+		if (data[i] != 255)
 			trans32[i] = COM.LittleLong(VID.d_8to24table[data[i]] + 0xff000000);
 	}
 
@@ -1205,16 +1205,16 @@ Mod.LoadSpriteModel = function(buffer)
 	Mod.loadmodel.type = Mod.type.sprite;
 	var model = new DataView(buffer);
 	var version = model.getUint32(4, true);
-	if (version !== Mod.version.sprite)
+	if (version != Mod.version.sprite)
 		Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.sprite + ')');
-	Mod.loadmodel.oriented = model.getUint32(8, true) === 3;
+	Mod.loadmodel.oriented = model.getUint32(8, true) == 3;
 	Mod.loadmodel.boundingradius = model.getFloat32(12, true);
 	Mod.loadmodel.width = model.getUint32(16, true);
 	Mod.loadmodel.height = model.getUint32(20, true);
 	Mod.loadmodel.numframes = model.getUint32(24, true);
-	if (Mod.loadmodel.numframes === 0)
+	if (Mod.loadmodel.numframes == 0)
 		Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
-	Mod.loadmodel.random = model.getUint32(32, true) === 1;
+	Mod.loadmodel.random = model.getUint32(32, true) == 1;
 	Mod.loadmodel.mins = [Mod.loadmodel.width * -0.5, Mod.loadmodel.width * -0.5, Mod.loadmodel.height * -0.5];
 	Mod.loadmodel.maxs = [Mod.loadmodel.width * 0.5, Mod.loadmodel.width * 0.5, Mod.loadmodel.height * 0.5];
 
@@ -1223,7 +1223,7 @@ Mod.LoadSpriteModel = function(buffer)
 	for (i = 0; i < Mod.loadmodel.numframes; ++i)
 	{
 		inframe += 4;
-		if (model.getUint32(inframe - 4, true) === 0)
+		if (model.getUint32(inframe - 4, true) == 0)
 		{
 			frame = {group: false};
 			Mod.loadmodel.frames[i] = frame;

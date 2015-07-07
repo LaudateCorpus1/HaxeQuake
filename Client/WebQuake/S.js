@@ -38,7 +38,7 @@ S.Init = function()
 	{
 		ch = {sfx: S.PrecacheSound('ambience/' + ambient_sfx[i] + '.wav'), end: 0.0, master_vol: 0.0};
 		S.ambient_channels[i] = ch;
-		if (S.LoadSound(ch.sfx) !== true)
+		if (S.LoadSound(ch.sfx) != true)
 			continue;
 		if (ch.sfx.cache.loopstart == null)
 		{
@@ -68,7 +68,7 @@ S.Init = function()
 
 S.NoteOff = function(node)
 {
-	if ((node.playbackState === 1) || (node.playbackState === 2))
+	if ((node.playbackState == 1) || (node.playbackState == 2))
 	{
 		try { node.noteOff(0.0); } catch (e) {}
 	}
@@ -76,7 +76,7 @@ S.NoteOff = function(node)
 
 S.NoteOn = function(node)
 {
-	if ((node.playbackState === 0) || (node.playbackState === 3))
+	if ((node.playbackState == 0) || (node.playbackState == 3))
 	{
 		try { node.noteOn(0.0); } catch (e) {}
 	}
@@ -84,23 +84,23 @@ S.NoteOn = function(node)
 
 S.PrecacheSound = function(name)
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 	var i, sfx;
 	for (i = 0; i < S.known_sfx.length; ++i)
 	{
-		if (S.known_sfx[i].name === name)
+		if (S.known_sfx[i].name == name)
 		{
 			sfx = S.known_sfx[i];
 			break;
 		}
 	}
-	if (i === S.known_sfx.length)
+	if (i == S.known_sfx.length)
 	{
 		S.known_sfx[i] = {name: name};
 		sfx = S.known_sfx[i];
 	}
-	if (S.precache.value !== 0)
+	if (S.precache.value != 0)
 		S.LoadSound(sfx);
 	return sfx;
 };
@@ -109,14 +109,14 @@ S.PickChannel = function(entnum, entchannel)
 {
 	var i, channel;
 
-	if (entchannel !== 0)
+	if (entchannel != 0)
 	{
 		for (i = 0; i < S.channels.length; ++i)
 		{
 			channel = S.channels[i];
 			if (channel == null)
 				continue;
-			if ((channel.entnum === entnum) && ((channel.entchannel === entchannel) || (entchannel === -1)))
+			if ((channel.entnum == entnum) && ((channel.entchannel == entchannel) || (entchannel == -1)))
 			{
 				channel.sfx = null;
 				if (channel.nodes != null)
@@ -134,7 +134,7 @@ S.PickChannel = function(entnum, entchannel)
 		}
 	}
 
-	if ((entchannel === 0) || (i === S.channels.length))
+	if ((entchannel == 0) || (i == S.channels.length))
 	{
 		for (i = 0; i < S.channels.length; ++i)
 		{
@@ -146,7 +146,7 @@ S.PickChannel = function(entnum, entchannel)
 		}
 	}
 
-	if (i === S.channels.length)
+	if (i == S.channels.length)
 	{
 		S.channels[i] = {end: 0.0};
 		return S.channels[i];
@@ -156,7 +156,7 @@ S.PickChannel = function(entnum, entchannel)
 
 S.Spatialize = function(ch)
 {
-	if (ch.entnum === CL.state.viewentity)
+	if (ch.entnum == CL.state.viewentity)
 	{
 		ch.leftvol = ch.master_vol;
 		ch.rightvol = ch.master_vol;
@@ -169,7 +169,7 @@ S.Spatialize = function(ch)
 		ch.origin[2] - S.listener_origin[2]
 	];
 	var dist = Math.sqrt(source[0] * source[0] + source[1] * source[1] + source[2] * source[2]);
-	if (dist !== 0.0)
+	if (dist != 0.0)
 	{
 		source[0] /= dist;
 		source[1] /= dist;
@@ -190,7 +190,7 @@ S.Spatialize = function(ch)
 
 S.StartSound = function(entnum, entchannel, sfx, origin, vol, attenuation)
 {
-	if ((S.nosound.value !== 0) || (sfx == null))
+	if ((S.nosound.value != 0) || (sfx == null))
 		return;
 
 	var target_chan = S.PickChannel(entnum, entchannel);
@@ -200,10 +200,10 @@ S.StartSound = function(entnum, entchannel, sfx, origin, vol, attenuation)
 	target_chan.entnum = entnum;
 	target_chan.entchannel = entchannel;
 	S.Spatialize(target_chan);
-	if ((target_chan.leftvol === 0.0) && (target_chan.rightvol === 0.0))
+	if ((target_chan.leftvol == 0.0) && (target_chan.rightvol == 0.0))
 		return;
 
-	if (S.LoadSound(sfx) !== true)
+	if (S.LoadSound(sfx) != true)
 	{
 		target_chan.sfx = null;
 		return;
@@ -251,9 +251,9 @@ S.StartSound = function(entnum, entchannel, sfx, origin, vol, attenuation)
 		for (i = 0; i < S.channels.length; ++i)
 		{
 			check = S.channels[i];
-			if (check === target_chan)
+			if (check == target_chan)
 				continue;
-			if ((check.sfx !== sfx) || (check.pos !== 0.0))
+			if ((check.sfx != sfx) || (check.pos != 0.0))
 				continue;
 			skip = Math.random() * 0.1;
 			if (skip >= sfx.cache.length)
@@ -281,7 +281,7 @@ S.StartSound = function(entnum, entchannel, sfx, origin, vol, attenuation)
 
 S.StopSound = function(entnum, entchannel)
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 	var i, ch;
 	for (i = 0; i < S.channels.length; ++i)
@@ -289,7 +289,7 @@ S.StopSound = function(entnum, entchannel)
 		ch = S.channels[i];
 		if (ch == null)
 			continue;
-		if ((ch.entnum === entnum) && (ch.entchannel === entchannel))
+		if ((ch.entnum == entnum) && (ch.entchannel == entchannel))
 		{
 			ch.end = 0.0;
 			ch.sfx = null;
@@ -310,7 +310,7 @@ S.StopSound = function(entnum, entchannel)
 
 S.StopAllSounds = function()
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 
 	var i, ch;
@@ -352,9 +352,9 @@ S.StopAllSounds = function()
 
 S.StaticSound = function(sfx, origin, vol, attenuation)
 {
-	if ((S.nosound.value !== 0) || (sfx == null))
+	if ((S.nosound.value != 0) || (sfx == null))
 		return;
-	if (S.LoadSound(sfx) !== true)
+	if (S.LoadSound(sfx) != true)
 		return;
 	if (sfx.cache.loopstart == null)
 	{
@@ -435,7 +435,7 @@ S.UpdateAmbientSounds = function()
 	var i, ch, vol, sc;
 
 	var l = Mod.PointInLeaf(S.listener_origin, CL.state.worldmodel);
-	if ((l == null) || (S.ambient_level.value === 0))
+	if ((l == null) || (S.ambient_level.value == 0))
 	{
 		for (i = 0; i < S.ambient_channels.length; ++i)
 		{
@@ -447,7 +447,7 @@ S.UpdateAmbientSounds = function()
 			}
 			else if (ch.audio != null)
 			{
-				if (ch.audio.paused !== true)
+				if (ch.audio.paused != true)
 					ch.audio.pause();
 			}
 		}
@@ -476,7 +476,7 @@ S.UpdateAmbientSounds = function()
 				ch.master_vol = vol;
 		}
 
-		if (ch.master_vol === 0.0)
+		if (ch.master_vol == 0.0)
 		{
 			if (S.context != null)
 			{
@@ -484,7 +484,7 @@ S.UpdateAmbientSounds = function()
 			}
 			else
 			{
-				if (ch.audio.paused !== true)
+				if (ch.audio.paused != true)
 					ch.audio.pause();
 			}
 			continue;
@@ -500,7 +500,7 @@ S.UpdateAmbientSounds = function()
 		{
 			ch.audio.volume = ch.master_vol * S.volume.value;
 			sc = ch.sfx.cache;
-			if (ch.audio.paused === true)
+			if (ch.audio.paused)
 			{
 				ch.audio.play();
 				ch.end = Host.realtime + sc.length;
@@ -590,13 +590,13 @@ S.UpdateStaticSounds = function()
 	for (i = 0; i < S.static_channels.length; ++i)
 	{
 		ch = S.static_channels[i];
-		if ((ch.leftvol === 0.0) && (ch.rightvol === 0.0))
+		if ((ch.leftvol == 0.0) && (ch.rightvol == 0.0))
 			continue;
 		sfx = ch.sfx;
 		for (j = i + 1; j < S.static_channels.length; ++j)
 		{
 			ch2 = S.static_channels[j];
-			if (sfx === ch2.sfx)
+			if (sfx == ch2.sfx)
 			{
 				ch.leftvol += ch2.leftvol;
 				ch.rightvol += ch2.rightvol;
@@ -611,7 +611,7 @@ S.UpdateStaticSounds = function()
 		for (i = 0; i < S.static_channels.length; ++i)
 		{
 			ch = S.static_channels[i];
-			if ((ch.leftvol === 0.0) && (ch.rightvol === 0.0))
+			if ((ch.leftvol == 0.0) && (ch.rightvol == 0.0))
 			{
 				S.NoteOff(ch.nodes.source);
 				continue;
@@ -633,15 +633,15 @@ S.UpdateStaticSounds = function()
 			volume = (ch.leftvol + ch.rightvol) * 0.5;
 			if (volume > 1.0)
 				volume = 1.0;
-			if (volume === 0.0)
+			if (volume == 0.0)
 			{
-				if (ch.audio.paused !== true)
+				if (ch.audio.paused != true)
 					ch.audio.pause();
 				continue;
 			}
 			ch.audio.volume = volume * S.volume.value;
 			sc = ch.sfx.cache;
-			if (ch.audio.paused === true)
+			if (ch.audio.paused)
 			{
 				ch.audio.play();
 				ch.end = Host.realtime + sc.length;
@@ -665,7 +665,7 @@ S.UpdateStaticSounds = function()
 
 S.Update = function(origin, forward, right, up)
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 
 	S.listener_origin[0] = origin[0];
@@ -693,7 +693,7 @@ S.Update = function(origin, forward, right, up)
 
 S.Play = function()
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 	var i, sfx;
 	for (i = 1; i < Cmd.argv.length; ++i)
@@ -706,7 +706,7 @@ S.Play = function()
 
 S.PlayVol = function()
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 	var i, sfx;
 	for (i = 1; i < Cmd.argv.length; i += 2)
@@ -719,7 +719,7 @@ S.PlayVol = function()
 
 S.LoadSound = function(s)
 {
-	if (S.nosound.value !== 0)
+	if (S.nosound.value != 0)
 		return;
 	if (s.cache != null)
 		return true;
@@ -734,7 +734,7 @@ S.LoadSound = function(s)
 	}
 
 	var view = new DataView(data);
-	if ((view.getUint32(0, true) !== 0x46464952) || (view.getUint32(8, true) !== 0x45564157))
+	if ((view.getUint32(0, true) != 0x46464952) || (view.getUint32(8, true) != 0x45564157))
 	{
 		Con.Print('Missing RIFF/WAVE chunks\n');
 		return;
@@ -745,7 +745,7 @@ S.LoadSound = function(s)
 		switch (view.getUint32(p, true))
 		{
 		case 0x20746d66: // fmt
-			if (view.getInt16(p + 8, true) !== 1)
+			if (view.getInt16(p + 8, true) != 1)
 			{
 				Con.Print('Microsoft PCM format only\n');
 				return;
@@ -767,15 +767,15 @@ S.LoadSound = function(s)
 			loopstart = view.getUint32(p + 32, true);
 			break;
 		case 0x5453494c: // LIST
-			if (cue !== true)
+			if (cue != true)
 				break;
 			cue = false;
-			if (view.getUint32(p + 28, true) === 0x6b72616d)
+			if (view.getUint32(p + 28, true) == 0x6b72616d)
 				samples = loopstart + view.getUint32(p + 24, true);
 			break;
 		}
 		p += view.getUint32(p + 4, true) + 8;
-		if ((p & 1) !== 0)
+		if ((p & 1) != 0)
 			++p;
 	}
 
@@ -797,7 +797,7 @@ S.LoadSound = function(s)
 		sc.length = datalen / fmt.avgBytesPerSec;
 
 	sc.size = datalen + 44;
-	if ((sc.size & 1) !== 0)
+	if ((sc.size & 1) != 0)
 		++sc.size;
 	var out = new ArrayBuffer(sc.size);
 	view = new DataView(out);

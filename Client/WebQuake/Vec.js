@@ -183,7 +183,7 @@ Vec.Length = function(v)
 Vec.Normalize = function(v)
 {
 	var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-	if (length === 0.0)
+	if (length == 0.0)
 	{
 		v[0] = v[1] = v[2] = 0.0;
 		return 0.0;

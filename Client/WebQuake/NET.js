@@ -9,7 +9,7 @@ NET.NewQSocket = function()
 	var i;
 	for (i = 0; i < NET.activeSockets.length; ++i)
 	{
-		if (NET.activeSockets[i].disconnected === true)
+		if (NET.activeSockets[i].disconnected)
 			break;
 	}
 	NET.activeSockets[i] = {
@@ -25,7 +25,7 @@ NET.Connect = function(host)
 {
 	NET.time = Sys.FloatTime();
 
-	if (host === 'local')
+	if (host == 'local')
 	{
 		NET.driverlevel = 0;
 		return Loop.Connect(host);
@@ -35,10 +35,10 @@ NET.Connect = function(host)
 	for (NET.driverlevel = 1; NET.driverlevel < NET.drivers.length; ++NET.driverlevel)
 	{
 		dfunc = NET.drivers[NET.driverlevel];
-		if (dfunc.initialized !== true)
+		if (dfunc.initialized != true)
 			continue;
 		ret = dfunc.Connect(host);
-		if (ret === 0)
+		if (ret == 0)
 		{
 			CL.cls.state = CL.active.connecting;
 			Con.Print('trying...\n');
@@ -63,7 +63,7 @@ NET.CheckForResend = function()
 			++NET.reps;
 		}
 	}
-	else if (NET.reps === 3)
+	else if (NET.reps == 3)
 	{
 		if ((NET.time - NET.start_time) >= 10.0)
 		{
@@ -74,12 +74,12 @@ NET.CheckForResend = function()
 		}
 	}
 	var ret = dfunc.CheckForResend();
-	if (ret === 1)
+	if (ret == 1)
 	{
 		NET.newsocket.disconnected = false;
 		CL.Connect(NET.newsocket);
 	}
-	else if (ret === -1)
+	else if (ret == -1)
 	{
 		NET.newsocket.disconnected = false;
 		NET.Close(NET.newsocket);
@@ -96,7 +96,7 @@ NET.CheckNewConnections = function()
 	for (NET.driverlevel = 0; NET.driverlevel < NET.drivers.length; ++NET.driverlevel)
 	{
 		dfunc = NET.drivers[NET.driverlevel];
-		if (dfunc.initialized !== true)
+		if (dfunc.initialized != true)
 			continue;
 		ret = dfunc.CheckNewConnections();
 		if (ret != null)
@@ -108,7 +108,7 @@ NET.Close = function(sock)
 {
 	if (sock == null)
 		return;
-	if (sock.disconnected === true)
+	if (sock.disconnected)
 		return;
 	NET.time = Sys.FloatTime();
 	NET.drivers[sock.driver].Close(sock);
@@ -119,16 +119,16 @@ NET.GetMessage = function(sock)
 {
 	if (sock == null)
 		return -1;
-	if (sock.disconnected === true)
+	if (sock.disconnected)
 	{
 		Con.Print('NET.GetMessage: disconnected socket\n');
 		return -1;
 	}
 	NET.time = Sys.FloatTime();
 	var ret = NET.drivers[sock.driver].GetMessage(sock);
-	if (sock.driver !== 0)
+	if (sock.driver != 0)
 	{
-		if (ret === 0)
+		if (ret == 0)
 		{
 			if ((NET.time - sock.lastMessageTime) > NET.messagetimeout.value)
 			{
@@ -146,7 +146,7 @@ NET.SendMessage = function(sock, data)
 {
 	if (sock == null)
 		return -1;
-	if (sock.disconnected === true)
+	if (sock.disconnected)
 	{
 		Con.Print('NET.SendMessage: disconnected socket\n');
 		return -1;
@@ -159,7 +159,7 @@ NET.SendUnreliableMessage = function(sock, data)
 {
 	if (sock == null)
 		return -1;
-	if (sock.disconnected === true)
+	if (sock.disconnected)
 	{
 		Con.Print('NET.SendUnreliableMessage: disconnected socket\n');
 		return -1;
@@ -172,7 +172,7 @@ NET.CanSendMessage = function(sock)
 {
 	if (sock == null)
 		return;
-	if (sock.disconnected === true)
+	if (sock.disconnected)
 		return;
 	NET.time = Sys.FloatTime();
 	return NET.drivers[sock.driver].CanSendMessage(sock);
@@ -186,12 +186,12 @@ NET.SendToAll = function(data)
 		Host.client = SV.svs.clients[i];
 		if (Host.client.netconnection == null)
 			continue;
-		if (Host.client.active !== true)
+		if (Host.client.active != true)
 		{
 			state1[i] = state2[i] = true;
 			continue;
 		}
-		if (Host.client.netconnection.driver === 0)
+		if (Host.client.netconnection.driver == 0)
 		{
 			NET.SendMessage(Host.client.netconnection, data);
 			state1[i] = state2[i] = true;
@@ -201,15 +201,15 @@ NET.SendToAll = function(data)
 		state1[i] = state2[i] = false;
 	}
 	var start = Sys.FloatTime();
-	for (; count !== 0; )
+	for (; count != 0; )
 	{
 		count = 0;
 		for (i = 0; i < SV.svs.maxclients; ++i)
 		{
 			Host.client = SV.svs.clients[i];
-			if (state1[i] !== true)
+			if (state1[i] != true)
 			{
-				if (NET.CanSendMessage(Host.client.netconnection) === true)
+				if (NET.CanSendMessage(Host.client.netconnection))
 				{
 					state1[i] = true;
 					NET.SendMessage(Host.client.netconnection, data);
@@ -219,9 +219,9 @@ NET.SendToAll = function(data)
 				++count;
 				continue;
 			}
-			if (state2[i] !== true)
+			if (state2[i] != true)
 			{
-				if (NET.CanSendMessage(Host.client.netconnection) === true)
+				if (NET.CanSendMessage(Host.client.netconnection))
 					state2[i] = true;
 				else
 					NET.GetMessage(Host.client.netconnection);

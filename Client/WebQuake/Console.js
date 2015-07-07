@@ -7,9 +7,9 @@ Con.text = [];
 Con.ToggleConsole_f = function()
 {
 	SCR.EndLoadingPlaque();
-	if (Key.dest.value === Key.dest.console)
+	if (Key.dest.value == Key.dest.console)
 	{
-		if (CL.cls.state !== CL.active.connected)
+		if (CL.cls.state != CL.active.connected)
 		{
 			M.Menu_Main_f();
 			return;
@@ -53,7 +53,7 @@ Con.MessageMode2_f = function()
 Con.Init = function()
 {
 	Con.debuglog = (COM.CheckParm('-condebug') != null);
-	if (Con.debuglog === true)
+	if (Con.debuglog)
 		COM.WriteTextFile('qconsole.log', '');
 	Con.Print('Console initialized.\n');
 
@@ -66,7 +66,7 @@ Con.Init = function()
 
 Con.Print = function(msg)
 {
-	if (Con.debuglog === true)
+	if (Con.debuglog)
 	{
 		var data = COM.LoadTextFile('qconsole.log');
 		if (data != null)
@@ -84,7 +84,7 @@ Con.Print = function(msg)
 	if (msg.charCodeAt(0) <= 2)
 	{
 		mask = 128;
-		if (msg.charCodeAt(0) === 1)
+		if (msg.charCodeAt(0) == 1)
 			S.LocalSound(Con.sfx_talk);
 		msg = msg.substring(1);
 	}
@@ -93,7 +93,7 @@ Con.Print = function(msg)
 	{
 		if (Con.text[Con.current] == null)
 			Con.text[Con.current] = {text: '', time: Host.realtime};
-		if (msg.charCodeAt(i) === 10)
+		if (msg.charCodeAt(i) == 10)
 		{
 			if (Con.text.length >= 1024)
 			{
@@ -110,13 +110,13 @@ Con.Print = function(msg)
 
 Con.DPrint = function(msg)
 {
-	if (Host.developer.value !== 0)
+	if (Host.developer.value != 0)
 		Con.Print(msg);
 };
 
 Con.DrawInput = function()
 {
-	if ((Key.dest.value !== Key.dest.console) && (Con.forcedup !== true))
+	if ((Key.dest.value != Key.dest.console) && (Con.forcedup != true))
 		return;
 	var text = ']' + Key.edit_line + String.fromCharCode(10 + ((Host.realtime * 4.0) & 1));
 	var width = (VID.width >> 3) - 2;
@@ -138,7 +138,7 @@ Con.DrawNotify = function()
 		Draw.String(8, v, Con.text[i].text.substring(0, width));
 		v += 8;
 	}
-	if (Key.dest.value === Key.dest.message)
+	if (Key.dest.value == Key.dest.message)
 		Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + ((Host.realtime * 4.0) & 1)));
 };
 
@@ -155,7 +155,7 @@ Con.DrawConsole = function(lines)
 	var i;
 	for (i = Con.text.length - 1 - Con.backscroll; i >= 0;)
 	{
-		if (Con.text[i].text.length === 0)
+		if (Con.text[i].text.length == 0)
 			y -= 8;
 		else
 			y -= Math.ceil(Con.text[i].text.length / width) << 3;
@@ -168,7 +168,7 @@ Con.DrawConsole = function(lines)
 	{
 		text = Con.text[i].text;
 		rows = Math.ceil(text.length / width);
-		if (rows === 0)
+		if (rows == 0)
 		{
 			y += 8;
 			continue;

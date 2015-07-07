@@ -61,7 +61,7 @@ M.DrawTextBox = function(x, y, width, lines)
 		for (n = 0; n < lines; ++n)
 		{
 			M.DrawPic(cx, cy += 8, p);
-			if (n === 0)
+			if (n == 0)
 				p = M.box_mm2;
 		}
 		M.DrawPic(cx, cy + 8, M.box_bm);
@@ -79,9 +79,9 @@ M.DrawTextBox = function(x, y, width, lines)
 M.ToggleMenu_f = function()
 {
 	M.entersound = true;
-	if (Key.dest.value === Key.dest.menu)
+	if (Key.dest.value == Key.dest.menu)
 	{
-		if (M.state.value !== M.state.main)
+		if (M.state.value != M.state.main)
 		{
 			M.Menu_Main_f();
 			return;
@@ -100,7 +100,7 @@ M.main_items = 5;
 
 M.Menu_Main_f = function()
 {
-	if (Key.dest.value !== Key.dest.menu)
+	if (Key.dest.value != Key.dest.menu)
 	{
 		M.save_demonum = CL.cls.demonum;
 		CL.cls.demonum = -1;
@@ -126,7 +126,7 @@ M.Main_Key = function(k)
 		Key.dest.value = Key.dest.game;
 		M.state.value = M.state.none;
 		CL.cls.demonum = M.save_demonum;
-		if ((CL.cls.demonum !== -1) && (CL.cls.demoplayback !== true) && (CL.cls.state !== CL.active.connected))
+		if ((CL.cls.demonum != -1) && (CL.cls.demoplayback != true) && (CL.cls.state != CL.active.connected))
 			CL.NextDemo();
 		return;
 	case Key.k.downarrow:
@@ -202,9 +202,9 @@ M.SinglePlayer_Key = function(k)
 		switch (M.singleplayer_cursor)
 		{
 		case 0:
-			if (SV.server.active === true)
+			if (SV.server.active)
 			{
-				if (confirm('Are you sure you want to start a new game?') !== true)
+				if (confirm('Are you sure you want to start a new game?') != true)
 					return;
 				Cmd.text += 'disconnect\n';
 			}
@@ -250,7 +250,7 @@ M.ScanSaves = function()
 		for (version = 0; version < f.length; ++version)
 		{
 			c = f.charCodeAt(version);
-			if (c === 10)
+			if (c == 10)
 			{
 				++version;
 				break;
@@ -260,9 +260,9 @@ M.ScanSaves = function()
 		for (j = 0; j <= 39; ++j)
 		{
 			c = f.charCodeAt(version + j);
-			if (c === 13)
+			if (c == 13)
 				break;
-			if (c === 95)
+			if (c == 95)
 				name[j] = ' ';
 			else
 				name[j] = String.fromCharCode(c);
@@ -283,7 +283,7 @@ M.Menu_Load_f = function()
 
 M.Menu_Save_f = function()
 {
-	if ((SV.server.active !== true) || (CL.state.intermission !== 0) || (SV.svs.maxclients !== 1))
+	if ((SV.server.active != true) || (CL.state.intermission != 0) || (SV.svs.maxclients != 1))
 		return;
 	M.entersound = true;
 	M.state.value = M.state.save;
@@ -318,7 +318,7 @@ M.Load_Key = function(k)
 		return;
 	case Key.k.enter:
 		S.LocalSound(M.sfx_menu2);
-		if (M.loadable[M.load_cursor] !== true)
+		if (M.loadable[M.load_cursor] != true)
 			return;
 		M.state.value = M.state.none;
 		Key.dest.value = Key.dest.game;
@@ -338,9 +338,9 @@ M.Load_Key = function(k)
 			M.load_cursor = 0;
 		return;
 	case Key.k.del:
-		if (M.removable[M.load_cursor] !== true)
+		if (M.removable[M.load_cursor] != true)
 			return;
-		if (confirm('Delete selected game?') !== true)
+		if (confirm('Delete selected game?') != true)
 			return;
 		localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + M.load_cursor + '.sav');
 		M.ScanSaves();
@@ -372,9 +372,9 @@ M.Save_Key = function(k)
 			M.load_cursor = 0;
 		return;
 	case Key.k.del:
-		if (M.removable[M.load_cursor] !== true)
+		if (M.removable[M.load_cursor] != true)
 			return;
-		if (confirm('Delete selected game?') !== true)
+		if (confirm('Delete selected game?') != true)
 			return;
 		localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + M.load_cursor + '.sav');
 		M.ScanSaves();
@@ -423,18 +423,18 @@ M.MultiPlayer_Draw = function()
 
 	M.DrawCharacter(56, M.multiplayer_cursor_table[M.multiplayer_cursor], 12 + ((Host.realtime * 4.0) & 1));
 
-	if (M.multiplayer_cursor === 0)
+	if (M.multiplayer_cursor == 0)
 		M.DrawCharacter(M.multiplayer_joinname.length <= 20 ? 80 + (M.multiplayer_joinname.length << 3) : 248, 56, 10 + ((Host.realtime * 4.0) & 1));
-	else if (M.multiplayer_cursor === 1)
+	else if (M.multiplayer_cursor == 1)
 		M.DrawCharacter(168 + (M.multiplayer_myname.length << 3), 72, 10 + ((Host.realtime * 4.0) & 1));
 
-	if (WEBS.available !== true)
+	if (WEBS.available != true)
 		M.PrintWhite(52, 172, 'No Communications Available');
 };
 
 M.MultiPlayer_Key = function(k)
 {
-	if (k === Key.k.escape)
+	if (k == Key.k.escape)
 		M.Menu_Main_f();
 
 	switch (k)
@@ -450,13 +450,13 @@ M.MultiPlayer_Key = function(k)
 			M.multiplayer_cursor = 0;
 		return;
 	case Key.k.leftarrow:
-		if (M.multiplayer_cursor === 2)
+		if (M.multiplayer_cursor == 2)
 		{
 			if (--M.multiplayer_top < 0)
 				M.multiplayer_top = 13;
 			S.LocalSound(M.sfx_menu3);
 		}
-		else if (M.multiplayer_cursor === 3)
+		else if (M.multiplayer_cursor == 3)
 		{
 			if (--M.multiplayer_bottom < 0)
 				M.multiplayer_bottom = 13;
@@ -464,9 +464,9 @@ M.MultiPlayer_Key = function(k)
 		}
 		return;
 	case Key.k.rightarrow:
-		if (M.multiplayer_cursor === 2)
+		if (M.multiplayer_cursor == 2)
 			(M.multiplayer_top <= 12) ? ++M.multiplayer_top : M.multiplayer_top = 0;
-		else if (M.multiplayer_cursor === 3)
+		else if (M.multiplayer_cursor == 3)
 			(M.multiplayer_bottom <= 12) ? ++M.multiplayer_bottom : M.multiplayer_bottom = 0;
 		else
 			return;
@@ -477,12 +477,12 @@ M.MultiPlayer_Key = function(k)
 		{
 		case 0:
 			S.LocalSound(M.sfx_menu2);
-			if (WEBS.available !== true)
+			if (WEBS.available != true)
 				return;
 			Key.dest.value = Key.dest.game;
 			M.state.value = M.state.none;
 			Cmd.text += 'connect "';
-			if (M.multiplayer_joinname.substring(0, 5) !== 'ws://')
+			if (M.multiplayer_joinname.substring(0, 5) != 'ws://')
 				Cmd.text += 'ws://';
 			Cmd.text += M.multiplayer_joinname + '"\n';
 			return;
@@ -495,9 +495,9 @@ M.MultiPlayer_Key = function(k)
 			(M.multiplayer_bottom <= 12) ? ++M.multiplayer_bottom : M.multiplayer_bottom = 0;
 			return;
 		case 4:
-			if (CL.name.string !== M.multiplayer_myname)
+			if (CL.name.string != M.multiplayer_myname)
 				Cmd.text += 'name "' + M.multiplayer_myname + '"\n';
-			if ((M.multiplayer_top !== M.multiplayer_oldtop) || (M.multiplayer_bottom !== M.multiplayer_oldbottom))
+			if ((M.multiplayer_top != M.multiplayer_oldtop) || (M.multiplayer_bottom != M.multiplayer_oldbottom))
 			{
 				M.multiplayer_oldtop = M.multiplayer_top;
 				M.multiplayer_oldbottom = M.multiplayer_bottom;
@@ -507,15 +507,15 @@ M.MultiPlayer_Key = function(k)
 		}
 		return;
 	case Key.k.backspace:
-		if (M.multiplayer_cursor === 0)
+		if (M.multiplayer_cursor == 0)
 		{
-			if (M.multiplayer_joinname.length !== 0)
+			if (M.multiplayer_joinname.length != 0)
 				M.multiplayer_joinname = M.multiplayer_joinname.substring(0, M.multiplayer_joinname.length - 1);
 			return;
 		}
-		if (M.multiplayer_cursor === 1)
+		if (M.multiplayer_cursor == 1)
 		{
-			if (M.multiplayer_myname.length !== 0)
+			if (M.multiplayer_myname.length != 0)
 				M.multiplayer_myname = M.multiplayer_myname.substring(0, M.multiplayer_myname.length - 1);
 		}
 		return;
@@ -523,12 +523,12 @@ M.MultiPlayer_Key = function(k)
 
 	if ((k < 32) || (k > 127))
 		return;
-	if (M.multiplayer_cursor === 0)
+	if (M.multiplayer_cursor == 0)
 	{
 		M.multiplayer_joinname += String.fromCharCode(k);
 		return;
 	}
-	if (M.multiplayer_cursor === 1)
+	if (M.multiplayer_cursor == 1)
 	{
 		if (M.multiplayer_myname.length <= 14)
 			M.multiplayer_myname += String.fromCharCode(k);
@@ -606,10 +606,10 @@ M.AdjustSliders = function(dir)
 		Cvar.SetValue('m_pitch', -CL.m_pitch.value);
 		return;
 	case 10: // lookspring
-		Cvar.SetValue('lookspring', (CL.lookspring.value !== 0) ? 0 : 1);
+		Cvar.SetValue('lookspring', (CL.lookspring.value != 0) ? 0 : 1);
 		return;
 	case 11: // lookstrafe
-		Cvar.SetValue('lookstrafe', (CL.lookstrafe.value !== 0) ? 0 : 1);
+		Cvar.SetValue('lookstrafe', (CL.lookstrafe.value != 0) ? 0 : 1);
 	}
 };
 
@@ -658,9 +658,9 @@ M.Options_Draw = function()
 	M.Print(96, 104, 'Invert Mouse');
 	M.Print(220, 104, (CL.m_pitch.value < 0.0) ? 'on' : 'off');
 	M.Print(112, 112, 'Lookspring');
-	M.Print(220, 112, (CL.lookspring.value !== 0) ? 'on' : 'off');
+	M.Print(220, 112, (CL.lookspring.value != 0) ? 'on' : 'off');
 	M.Print(112, 120, 'Lookstrafe');
-	M.Print(220, 120, (CL.lookstrafe.value !== 0) ? 'on' : 'off');
+	M.Print(220, 120, (CL.lookstrafe.value != 0) ? 'on' : 'off');
 	
 	M.DrawCharacter(200, 32 + (M.options_cursor << 3), 12 + ((Host.realtime * 4.0) & 1));
 };
@@ -744,10 +744,10 @@ M.FindKeysForCommand = function(command)
 	var twokeys = [], i;
 	for (i = 0; i < Key.bindings.length; ++i)
 	{
-		if (Key.bindings[i] === command)
+		if (Key.bindings[i] == command)
 		{
 			twokeys[twokeys.length] = i;
-			if (twokeys.length === 2)
+			if (twokeys.length == 2)
 				return twokeys;
 		}
 	}
@@ -759,7 +759,7 @@ M.UnbindCommand = function(command)
 	var i;
 	for (i = 0; i < Key.bindings.length; ++i)
 	{
-		if (Key.bindings[i] === command)
+		if (Key.bindings[i] == command)
 			delete Key.bindings[i];
 	}
 };
@@ -768,7 +768,7 @@ M.Keys_Draw = function()
 {
 	M.DrawPic(160 - (M.ttl_cstm.width >> 1), 4, M.ttl_cstm);
 
-	if (M.bind_grab === true)
+	if (M.bind_grab)
 	{
 		M.Print(12, 32, 'Press a key or button for this action');
 		M.DrawCharacter(130, 48 + (M.keys_cursor << 3), 61);
@@ -799,10 +799,10 @@ M.Keys_Draw = function()
 
 M.Keys_Key = function(k)
 {
-	if (M.bind_grab === true)
+	if (M.bind_grab)
 	{
 		S.LocalSound(M.sfx_menu1);
-		if ((k !== Key.k.escape) && (k !== 96))
+		if ((k != Key.k.escape) && (k != 96))
 			Cmd.text = 'bind "' + Key.KeynumToString(k) + '" "' + M.bindnames[M.keys_cursor][0] + '"\n' + Cmd.text;
 		M.bind_grab = false;
 		return;
@@ -890,9 +890,9 @@ M.quitMessage =
 
 M.Menu_Quit_f = function()
 {
-	if (M.state.value === M.state.quit)
+	if (M.state.value == M.state.quit)
 		return;
-	M.wasInMenus = (Key.dest.value === Key.dest.menu);
+	M.wasInMenus = (Key.dest.value == Key.dest.menu);
 	Key.dest.value = Key.dest.menu;
 	M.quit_prevstate = M.state.value;
 	M.state.value = M.state.quit;
@@ -902,7 +902,7 @@ M.Menu_Quit_f = function()
 
 M.Quit_Draw = function()
 {
-	if (M.wasInMenus === true)
+	if (M.wasInMenus)
 	{
 		M.state.value = M.quit_prevstate;
 		M.recursiveDraw = true;
@@ -922,7 +922,7 @@ M.Quit_Key = function(k)
 	{
 	case Key.k.escape:
 	case 110:
-		if (M.wasInMenus === true)
+		if (M.wasInMenus)
 		{
 			M.state.value = M.quit_prevstate;
 			M.entersound = true;
@@ -999,12 +999,12 @@ M.Init = function()
 	for (i = 0; i < 4096; ++i)
 	{
 		p = data[i];
-		if ((p >> 4) === 1)
+		if ((p >> 4) == 1)
 		{
 			trans[i << 2] = (p & 15) * 17;
 			trans[(i << 2) + 1] = 255;
 		}
-		else if ((p >> 4) === 6)
+		else if ((p >> 4) == 6)
 		{
 			trans[(i << 2) + 2] = (p & 15) * 17;
 			trans[(i << 2) + 3] = 255;
@@ -1031,12 +1031,12 @@ M.Init = function()
 
 M.Draw = function()
 {
-	if ((M.state.value === M.state.none) || (Key.dest.value !== Key.dest.menu))
+	if ((M.state.value == M.state.none) || (Key.dest.value != Key.dest.menu))
 		return;
 
-	if (M.recursiveDraw !== true)
+	if (M.recursiveDraw != true)
 	{
-		if (SCR.con_current !== 0)
+		if (SCR.con_current != 0)
 			Draw.ConsoleBackground(VID.height);
 		else
 			Draw.FadeScreen();
@@ -1073,7 +1073,7 @@ M.Draw = function()
 	case M.state.quit:
 		M.Quit_Draw();
 	}
-	if (M.entersound === true)
+	if (M.entersound)
 	{
 		S.LocalSound(M.sfx_menu2);
 		M.entersound = false;

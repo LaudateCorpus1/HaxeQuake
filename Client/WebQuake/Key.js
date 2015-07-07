@@ -104,7 +104,7 @@ Key.names = [
 
 Key.Console = function(key)
 {
-	if (key === Key.k.enter)
+	if (key == Key.k.enter)
 	{
 		Cmd.text += Key.edit_line + '\n';
 		Con.Print(']' + Key.edit_line + '\n');
@@ -114,7 +114,7 @@ Key.Console = function(key)
 		return;
 	}
 
-	if (key === Key.k.tab)
+	if (key == Key.k.tab)
 	{
 		var cmd = Cmd.CompleteCommand(Key.edit_line);
 		if (cmd == null)
@@ -125,14 +125,14 @@ Key.Console = function(key)
 		return;
 	}
 
-	if ((key === Key.k.backspace) || (key === Key.k.leftarrow))
+	if ((key == Key.k.backspace) || (key == Key.k.leftarrow))
 	{
 		if (Key.edit_line.length > 0)
 			Key.edit_line = Key.edit_line.substring(0, Key.edit_line.length - 1);
 		return;
 	}
 
-	if (key === Key.k.uparrow)
+	if (key == Key.k.uparrow)
 	{
 		if (--Key.history_line < 0)
 			Key.history_line = 0;
@@ -140,7 +140,7 @@ Key.Console = function(key)
 		return;
 	}
 
-	if (key === Key.k.downarrow)
+	if (key == Key.k.downarrow)
 	{
 		if (Key.history_line >= Key.lines.length)
 			return;
@@ -154,7 +154,7 @@ Key.Console = function(key)
 		return;
 	}
 
-	if (key === Key.k.pgup)
+	if (key == Key.k.pgup)
 	{
 		Con.backscroll += 2;
 		if (Con.backscroll > Con.text.length)
@@ -162,7 +162,7 @@ Key.Console = function(key)
 		return;
 	}
 
-	if (key === Key.k.pgdn)
+	if (key == Key.k.pgdn)
 	{
 		Con.backscroll -= 2;
 		if (Con.backscroll < 0)
@@ -170,7 +170,7 @@ Key.Console = function(key)
 		return;
 	}
 
-	if (key === Key.k.home)
+	if (key == Key.k.home)
 	{
 		Con.backscroll = Con.text.length - 10;
 		if (Con.backscroll < 0)
@@ -178,7 +178,7 @@ Key.Console = function(key)
 		return;
 	}
 
-	if (key === Key.k.end)
+	if (key == Key.k.end)
 	{
 		Con.backscroll = 0;
 		return;
@@ -194,9 +194,9 @@ Key.chat_buffer = '';
 
 Key.Message = function(key)
 {
-	if (key === Key.k.enter)
+	if (key == Key.k.enter)
 	{
-		if (Key.team_message === true)
+		if (Key.team_message)
 			Cmd.text += 'say_team "' + Key.chat_buffer + '"\n';
 		else
 			Cmd.text += 'say "' + Key.chat_buffer + '"\n';
@@ -204,7 +204,7 @@ Key.Message = function(key)
 		Key.chat_buffer = '';
 		return;
 	}
-	if (key === Key.k.escape)
+	if (key == Key.k.escape)
 	{
 		Key.dest.value = Key.dest.game;
 		Key.chat_buffer = '';
@@ -212,9 +212,9 @@ Key.Message = function(key)
 	}
 	if ((key < 32) || (key > 127))
 		return;
-	if (key === Key.k.backspace)
+	if (key == Key.k.backspace)
 	{
-		if (Key.chat_buffer.length !== 0)
+		if (Key.chat_buffer.length != 0)
 			Key.chat_buffer = Key.chat_buffer.substring(0, Key.chat_buffer.length - 1);
 		return;
 	}
@@ -225,13 +225,13 @@ Key.Message = function(key)
 
 Key.StringToKeynum = function(str)
 {
-	if (str.length === 1)
+	if (str.length == 1)
 		return str.charCodeAt(0);
 	str = str.toUpperCase();
 	var i;
 	for (i = 0; i < Key.names.length; ++i)
 	{
-		if (Key.names[i].name === str)
+		if (Key.names[i].name == str)
 			return Key.names[i].keynum;
 	}
 };
@@ -243,7 +243,7 @@ Key.KeynumToString = function(keynum)
 	var i;
 	for (i = 0; i < Key.names.length; ++i)
 	{
-		if (Key.names[i].keynum === keynum)
+		if (Key.names[i].keynum == keynum)
 			return Key.names[i].name;
 	}
 	return '<UNKNOWN KEYNUM>';
@@ -251,7 +251,7 @@ Key.KeynumToString = function(keynum)
 
 Key.Unbind_f = function()
 {
-	if (Cmd.argv.length !== 2)
+	if (Cmd.argv.length != 2)
 	{
 		Con.Print('unbind <key> : remove commands from a key\n');
 		return;
@@ -273,7 +273,7 @@ Key.Unbindall_f = function()
 Key.Bind_f = function()
 {
 	var c = Cmd.argv.length;
-	if ((c !== 2) && (c !== 3))
+	if ((c != 2) && (c != 3))
 	{
 		Con.Print('bind <key> [command] : attach a command to a key\n');
 		return;
@@ -284,7 +284,7 @@ Key.Bind_f = function()
 		Con.Print('"' + Cmd.argv[1] + '" isn\'t a valid key\n');
 		return;
 	}
-	if (c === 2)
+	if (c == 2)
 	{
 		if (Key.bindings[b] != null)
 			Con.Print('"' + Cmd.argv[1] + '" = "' + Key.bindings[b] + '"\n');
@@ -367,27 +367,27 @@ Key.Init = function()
 
 Key.Event = function(key, down)
 {
-	if (CL.cls.state === CL.active.connecting)
+	if (CL.cls.state == CL.active.connecting)
 		return;
-	if (down === true)
+	if (down)
 	{
-		if ((key !== Key.k.backspace) && (key !== Key.k.pause) && (Key.down[key] === true))
+		if ((key != Key.k.backspace) && (key != Key.k.pause) && (Key.down[key]))
 			return;
 		if ((key >= 200) && (Key.bindings[key] == null))
 			Con.Print(Key.KeynumToString(key) + ' is unbound, hit F4 to set.\n');
 	}
 	Key.down[key] = down;
 
-	if (key === Key.k.shift)
+	if (key == Key.k.shift)
 		Key.shift_down = down;
 
-	if (key === Key.k.escape)
+	if (key == Key.k.escape)
 	{
-		if (down !== true)
+		if (down != true)
 			return;
-		if (Key.dest.value === Key.dest.message)
+		if (Key.dest.value == Key.dest.message)
 			Key.Message(key);
-		else if (Key.dest.value === Key.dest.menu)
+		else if (Key.dest.value == Key.dest.menu)
 			M.Keydown(key);
 		else
 			M.ToggleMenu_f();
@@ -396,40 +396,40 @@ Key.Event = function(key, down)
 
 	var kb;
 
-	if (down !== true)
+	if (down != true)
 	{
 		kb = Key.bindings[key];
 		if (kb != null)
 		{
-			if (kb.charCodeAt(0) === 43)
+			if (kb.charCodeAt(0) == 43)
 				Cmd.text += '-' + kb.substring(1) + ' ' + key + '\n';
 		}
-		if (Key.shift[key] !== key)
+		if (Key.shift[key] != key)
 		{
 			kb = Key.bindings[Key.shift[key]];
 			if (kb != null)
 			{
-				if (kb.charCodeAt(0) === 43)
+				if (kb.charCodeAt(0) == 43)
 					Cmd.text += '-' + kb.substring(1) + ' ' + key + '\n';
 			}
 		}
 		return;
 	}
 
-	if ((CL.cls.demoplayback === true) && (Key.consolekeys[key] === true) && (Key.dest.value === Key.dest.game))
+	if ((CL.cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest.value == Key.dest.game))
 	{
 		M.ToggleMenu_f();
 		return;
 	}
 
-	if (((Key.dest.value === Key.dest.menu) && ((key === Key.k.escape) || ((key >= Key.k.f1) && (key <= Key.k.f12))))
-		|| ((Key.dest.value === Key.dest.console) && (Key.consolekeys[key] !== true))
-		|| ((Key.dest.value === Key.dest.game) && ((Con.forcedup !== true) || (Key.consolekeys[key] !== true))))
+	if (((Key.dest.value == Key.dest.menu) && ((key == Key.k.escape) || ((key >= Key.k.f1) && (key <= Key.k.f12))))
+		|| ((Key.dest.value == Key.dest.console) && (Key.consolekeys[key] != true))
+		|| ((Key.dest.value == Key.dest.game) && ((Con.forcedup != true) || (Key.consolekeys[key] != true))))
 	{
 		kb = Key.bindings[key];
 		if (kb != null)
 		{
-			if (kb.charCodeAt(0) === 43)
+			if (kb.charCodeAt(0) == 43)
 				Cmd.text += kb + ' ' + key + '\n';
 			else
 				Cmd.text += kb + '\n';
@@ -437,12 +437,12 @@ Key.Event = function(key, down)
 		return;
 	}
 
-	if (Key.shift_down === true)
+	if (Key.shift_down)
 		key = Key.shift[key];
 
-	if (Key.dest.value === Key.dest.message)
+	if (Key.dest.value == Key.dest.message)
 		Key.Message(key);
-	else if (Key.dest.value === Key.dest.menu)
+	else if (Key.dest.value == Key.dest.menu)
 		M.Keydown(key);
 	else
 		Key.Console(key);

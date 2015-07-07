@@ -6,9 +6,9 @@ GL.programs = [];
 
 GL.Bind = function(target, texnum)
 {
-	if (GL.currenttextures[target] !== texnum)
+	if (GL.currenttextures[target] != texnum)
 	{
-		if (GL.activetexture !== target)
+		if (GL.activetexture != target)
 		{
 			GL.activetexture = target;
 			gl.activeTexture(gl.TEXTURE0 + target);
@@ -25,7 +25,7 @@ GL.TextureMode_f = function()
 	{
 		for (i = 0; i < GL.modes.length; ++i)
 		{
-			if (GL.filter_min === GL.modes[i][1])
+			if (GL.filter_min == GL.modes[i][1])
 			{
 				Con.Print(GL.modes[i][0] + '\n');
 				return;
@@ -37,10 +37,10 @@ GL.TextureMode_f = function()
 	var name = Cmd.argv[1].toUpperCase();
 	for (i = 0; i < GL.modes.length; ++i)
 	{
-		if (GL.modes[i][0] === name)
+		if (GL.modes[i][0] == name)
 			break;
 	}
-	if (i === GL.modes.length)
+	if (i == GL.modes.length)
 	{
 		Con.Print('bad filter name\n');
 		return;
@@ -99,7 +99,7 @@ GL.ResampleTexture = function(data, inwidth, inheight, outwidth, outheight)
 GL.Upload = function(data, width, height)
 {
 	var scaled_width = width, scaled_height = height;
-	if (((width & (width - 1)) !== 0) || ((height & (height - 1)) !== 0))
+	if (((width & (width - 1)) != 0) || ((height & (height - 1)) != 0))
 	{
 		--scaled_width;
 		scaled_width |= (scaled_width >> 1);
@@ -120,7 +120,7 @@ GL.Upload = function(data, width, height)
 		scaled_width = GL.maxtexturesize;
 	if (scaled_height > GL.maxtexturesize)
 		scaled_height = GL.maxtexturesize;
-	if ((scaled_width !== width) || (scaled_height !== height))
+	if ((scaled_width != width) || (scaled_height != height))
 		data = GL.ResampleTexture(data, width, height, scaled_width, scaled_height);
 	var trans = new ArrayBuffer((scaled_width * scaled_height) << 2)
 	var trans32 = new Uint32Array(trans);
@@ -140,14 +140,14 @@ GL.Upload = function(data, width, height)
 GL.LoadTexture = function(identifier, width, height, data)
 {
 	var glt, i;
-	if (identifier.length !== 0)
+	if (identifier.length != 0)
 	{
 		for (i = 0; i < GL.textures.length; ++i)
 		{
 			glt = GL.textures[i];
-			if (glt.identifier === identifier)
+			if (glt.identifier == identifier)
 			{
-				if ((width !== glt.width) || (height !== glt.height))
+				if ((width != glt.width) || (height != glt.height))
 					Sys.Error('GL.LoadTexture: cache mismatch');
 				return glt;
 			}
@@ -155,7 +155,7 @@ GL.LoadTexture = function(identifier, width, height, data)
 	}
 
 	var scaled_width = width, scaled_height = height;
-	if (((width & (width - 1)) !== 0) || ((height & (height - 1)) !== 0))
+	if (((width & (width - 1)) != 0) || ((height & (height - 1)) != 0))
 	{
 		--scaled_width ;
 		scaled_width |= (scaled_width >> 1);
@@ -177,12 +177,12 @@ GL.LoadTexture = function(identifier, width, height, data)
 	if (scaled_height > GL.maxtexturesize)
 		scaled_height = GL.maxtexturesize;
 	scaled_width >>= GL.picmip.value;
-	if (scaled_width === 0)
+	if (scaled_width == 0)
 		scaled_width = 1;
 	scaled_height >>= GL.picmip.value;
-	if (scaled_height === 0)
+	if (scaled_height == 0)
 		scaled_height = 1;
-	if ((scaled_width !== width) || (scaled_height !== height))
+	if ((scaled_width != width) || (scaled_height != height))
 		data = GL.ResampleTexture(data, width, height, scaled_width, scaled_height);
 
 	glt = {texnum: gl.createTexture(), identifier: identifier, width: width, height: height};
@@ -195,7 +195,7 @@ GL.LoadTexture = function(identifier, width, height, data)
 GL.LoadPicTexture = function(pic)
 {
 	var data = pic.data, scaled_width = pic.width, scaled_height = pic.height;
-	if (((pic.width & (pic.width - 1)) !== 0) || ((pic.height & (pic.height - 1)) !== 0))
+	if (((pic.width & (pic.width - 1)) != 0) || ((pic.height & (pic.height - 1)) != 0))
 	{
 		--scaled_width ;
 		scaled_width |= (scaled_width >> 1);
@@ -216,7 +216,7 @@ GL.LoadPicTexture = function(pic)
 		scaled_width = GL.maxtexturesize;
 	if (scaled_height > GL.maxtexturesize)
 		scaled_height = GL.maxtexturesize;
-	if ((scaled_width !== pic.width) || (scaled_height !== pic.height))
+	if ((scaled_width != pic.width) || (scaled_height != pic.height))
 		data = GL.ResampleTexture(data, pic.width, pic.height, scaled_width, scaled_height);
 
 	var texnum = gl.createTexture();
@@ -226,7 +226,7 @@ GL.LoadPicTexture = function(pic)
 	var i;
 	for (i = scaled_width * scaled_height - 1; i >= 0; --i)
 	{
-		if (data[i] !== 255)
+		if (data[i] != 255)
 			trans32[i] = COM.LittleLong(VID.d_8to24table[data[i]] + 0xff000000);
 	}
 	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, scaled_width, scaled_height, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(trans));
@@ -248,20 +248,20 @@ GL.CreateProgram = function(identifier, uniforms, attribs, textures)
 	var vsh = gl.createShader(gl.VERTEX_SHADER);
 	gl.shaderSource(vsh, document.getElementById('vsh' + identifier).text);
 	gl.compileShader(vsh);
-	if (gl.getShaderParameter(vsh, gl.COMPILE_STATUS) !== true)
+	if (gl.getShaderParameter(vsh, gl.COMPILE_STATUS) != true)
 		Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(vsh));
 
 	var fsh = gl.createShader(gl.FRAGMENT_SHADER);
 	gl.shaderSource(fsh, document.getElementById('fsh' + identifier).text);
 	gl.compileShader(fsh);
-	if (gl.getShaderParameter(fsh, gl.COMPILE_STATUS) !== true)
+	if (gl.getShaderParameter(fsh, gl.COMPILE_STATUS) != true)
 		Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(fsh));
 
 	gl.attachShader(p, vsh);
 	gl.attachShader(p, fsh);
 
 	gl.linkProgram(p);
-	if (gl.getProgramParameter(p, gl.LINK_STATUS) !== true)
+	if (gl.getProgramParameter(p, gl.LINK_STATUS) != true)
 		Sys.Error('Error linking program: ' + gl.getProgramInfoLog(p));
 
 	gl.useProgram(p);
@@ -289,7 +289,7 @@ GL.UseProgram = function(identifier)
 	var program = GL.currentprogram;
 	if (program != null)
 	{
-		if (program.identifier === identifier)
+		if (program.identifier == identifier)
 			return program;
 		for (i = 0; i < program.attribs.length; ++i)
 			gl.disableVertexAttribArray(program[program.attribs[i]]);
@@ -297,7 +297,7 @@ GL.UseProgram = function(identifier)
 	for (i = 0; i < GL.programs.length; ++i)
 	{
 		program = GL.programs[i];
-		if (program.identifier === identifier)
+		if (program.identifier == identifier)
 		{
 			GL.currentprogram = program;
 			gl.useProgram(program.program);

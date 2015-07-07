@@ -5,10 +5,13 @@ import js.Browser.window;
 import js.html.ArrayBuffer;
 import js.html.BinaryType;
 import js.html.Uint8Array;
-import quake.NET.NETSocket;
 
 private class WebSocket extends js.html.WebSocket {
-	public var data_socket:NETSocket;
+	public var data_socket:WEBSNETSocket;
+}
+
+private extern class WEBSNETSocket extends quake.NET.NETSocket<WebSocket> {
+    var receiveMessage:Array<Uint8Array>;
 }
 
 @:expose("WEBS")
@@ -31,7 +34,7 @@ class NET_WEBS {
 		if (host.substring(0, 5) != 'ws://')
 			return null;
 		host = 'ws://' + host.split('/')[2];
-		var sock:NETSocket = (untyped NET).NewQSocket();
+		var sock:WEBSNETSocket = (untyped NET).NewQSocket();
 		sock.disconnected = true;
 		sock.receiveMessage = [];
 		sock.address = host;
@@ -50,7 +53,7 @@ class NET_WEBS {
 	static function CheckNewConnections() {
 	}
 
-	static function GetMessage(sock:NETSocket):Int {
+	static function GetMessage(sock:WEBSNETSocket):Int {
 		if (sock.driverdata == null)
 			return -1;
 		if (sock.driverdata.readyState != 1)
@@ -63,7 +66,7 @@ class NET_WEBS {
 		return message[0];
 	}
 
-	static function SendMessage(sock:NETSocket, data:MSG):Int {
+	static function SendMessage(sock:WEBSNETSocket, data:MSG):Int {
 		if (sock.driverdata == null)
 			return -1;
 		if (sock.driverdata.readyState != 1)
@@ -75,7 +78,7 @@ class NET_WEBS {
 		return 1;
 	}
 
-	static function SendUnreliableMessage(sock:NETSocket, data:MSG):Int {
+	static function SendUnreliableMessage(sock:WEBSNETSocket, data:MSG):Int {
 		if (sock.driverdata == null)
 			return -1;
 		if (sock.driverdata.readyState != 1)
@@ -87,7 +90,7 @@ class NET_WEBS {
 		return 1;
 	}
 
-	static function CanSendMessage(sock:NETSocket):Bool {
+	static function CanSendMessage(sock:WEBSNETSocket):Bool {
 		if (sock.driverdata == null)
 			return false;
 		if (sock.driverdata.readyState == 1)
@@ -95,7 +98,7 @@ class NET_WEBS {
 		return false;
 	}
 
-	static function Close(sock:NETSocket):Void {
+	static function Close(sock:WEBSNETSocket):Void {
 		if (sock.driverdata != null)
 			sock.driverdata.close(1000);
 	}
@@ -108,11 +111,11 @@ class NET_WEBS {
 		return null;
 	}
 
-	static function OnError(sock:NETSocket):Void {
+	static function OnError(sock:WEBSNETSocket):Void {
 		(untyped NET).Close(sock);
 	}
 
-	static function OnMessage(sock:NETSocket, message:MSG):Void {
+	static function OnMessage(sock:WEBSNETSocket, message:MSG):Void {
 		var data = message.data;
 		if ((data is String))
 			return;

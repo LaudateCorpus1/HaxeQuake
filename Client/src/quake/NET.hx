@@ -3,9 +3,8 @@ package quake;
 import js.html.Uint8Array;
 
 @:publicFields
-extern class NETSocket {
+extern class NETSocket<T> {
     var disconnected:Bool;
-    var receiveMessage:Array<Uint8Array>;
     var address:String;
-    var driverdata:Dynamic;
+    var driverdata:T;
 }

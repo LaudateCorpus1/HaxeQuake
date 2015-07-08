@@ -6,7 +6,7 @@ using Tools;
 class Cvar {
     public var name(default,null):String;
     public var string(default,null):String;
-    public var value(default,null):Float;
+    public var value:Float;
     public var archive(default,null):Bool;
     public var server(default,null):Bool;
 

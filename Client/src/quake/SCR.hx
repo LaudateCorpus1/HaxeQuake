@@ -338,7 +338,7 @@ class SCR {
 			SCR.DrawCenterString();
 			Sbar.DrawSbar();
 			SCR.DrawConsole();
-			(untyped M).Draw();
+			M.DrawMenu();
 		}
 
 		gl.disable(RenderingContext.BLEND);

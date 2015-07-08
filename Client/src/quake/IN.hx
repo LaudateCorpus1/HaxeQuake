@@ -110,7 +110,7 @@ class IN {
     {
         if (document.pointerLockElement == VID.mainwindow)
             return;
-        Key.Event(Key.k.escape, true);
-        Key.Event(Key.k.escape);
+        Key.Event(escape, true);
+        Key.Event(escape);
     }
 }

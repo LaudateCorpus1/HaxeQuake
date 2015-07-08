@@ -6,7 +6,7 @@ import js.html.DataView;
 import js.html.Uint8Array;
 
 @:publicFields
-private class Sfx {
+class Sfx {
 	var name:String;
 	var cache:SfxCache;
 

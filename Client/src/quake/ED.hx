@@ -3,6 +3,8 @@ package quake;
 import js.html.ArrayBuffer;
 import js.html.Float32Array;
 import js.html.Int32Array;
+import quake.PR.EType;
+import quake.PR.PRDef;
 
 @:publicFields
 class Edict {
@@ -14,28 +16,13 @@ class Edict {
 	var v_float:Float32Array;
 }
 
-@:publicFields
-class Ddef {
-	var type:Int;
-	var ofs:Int;
-	var name:Int;
-}
 
-@:enum abstract EType(Int) from Int {
-	var ev_void = 0;
-	var ev_string = 1;
-	var ev_float = 2;
-	var ev_vector = 3;
-	var ev_entity = 4;
-	var ev_field = 5;
-	var ev_function = 6;
-	var ev_pointer = 7;
-}
 
 @:expose("ED")
+@:publicFields
 class ED {
 	static function ClearEdict(e:Edict):Void {
-		for (i in 0...(untyped PR).entityfields)
+		for (i in 0...PR.entityfields)
 			e.v_int[i] = 0;
 		e.free = false;
 	}
@@ -60,54 +47,54 @@ class ED {
 	static function Free(ed:Edict):Void {
 		(untyped SV).UnlinkEdict(ed);
 		ed.free = true;
-		ed.v_int[(untyped PR).entvars.model] = 0;
-		ed.v_float[(untyped PR).entvars.takedamage] = 0.0;
-		ed.v_float[(untyped PR).entvars.modelindex] = 0.0;
-		ed.v_float[(untyped PR).entvars.colormap] = 0.0;
-		ed.v_float[(untyped PR).entvars.skin] = 0.0;
-		ed.v_float[(untyped PR).entvars.frame] = 0.0;
-		SetVector(ed, (untyped PR).entvars.origin, Vec.origin);
-		SetVector(ed, (untyped PR).entvars.angles, Vec.origin);
-		ed.v_float[(untyped PR).entvars.nextthink] = -1.0;
-		ed.v_float[(untyped PR).entvars.solid] = 0.0;
+		ed.v_int[PR.entvars.model] = 0;
+		ed.v_float[PR.entvars.takedamage] = 0.0;
+		ed.v_float[PR.entvars.modelindex] = 0.0;
+		ed.v_float[PR.entvars.colormap] = 0.0;
+		ed.v_float[PR.entvars.skin] = 0.0;
+		ed.v_float[PR.entvars.frame] = 0.0;
+		SetVector(ed, PR.entvars.origin, Vec.origin);
+		SetVector(ed, PR.entvars.angles, Vec.origin);
+		ed.v_float[PR.entvars.nextthink] = -1.0;
+		ed.v_float[PR.entvars.solid] = 0.0;
 		ed.freetime = (untyped SV).server.time;
 	}
 
-	static function GlobalAtOfs(ofs:Int):Ddef {
-		for (def in (untyped PR.globaldefs : Array<Ddef>)) {
+	static function GlobalAtOfs(ofs:Int):PRDef {
+		for (def in PR.globaldefs) {
 			if (def.ofs == ofs)
 				return def;
 		}
 		return null;
 	}
 
-	static function FieldAtOfs(ofs:Int):Ddef {
-		for (def in (untyped PR.fielddefs : Array<Ddef>)) {
+	static function FieldAtOfs(ofs:Int):PRDef {
+		for (def in PR.fielddefs) {
 			if (def.ofs == ofs)
 				return def;
 		}
 		return null;
 	}
 
-	static function FindField(name:String):Ddef {
-		for (def in (untyped PR.fielddefs : Array<Ddef>)) {
-			if ((untyped PR).GetString(def.name) == name)
+	static function FindField(name:String):PRDef {
+		for (def in PR.fielddefs) {
+			if (PR.GetString(def.name) == name)
 				return def;
 		}
 		return null;
 	}
 
-	static function FindGlobal(name:String):Ddef {
-		for (def in (untyped PR.globaldefs : Array<Ddef>)) {
-			if ((untyped PR).GetString(def.name) == name)
+	static function FindGlobal(name:String):PRDef {
+		for (def in PR.globaldefs) {
+			if (PR.GetString(def.name) == name)
 				return def;
 		}
 		return null;
 	}
 
 	static function FindFunction(name:String):Int {
-		for (i in 0...(untyped PR).functions.length) {
-			if ((untyped PR).GetString((untyped PR).functions[i].name) == name)
+		for (i in 0...PR.functions.length) {
+			if (PR.GetString(PR.functions[i].name) == name)
 				return i;
 		}
 		return null;
@@ -119,9 +106,9 @@ class ED {
 			return;
 		}
 		Console.Print('\nEDICT ' + ed.num + ':\n');
-		for (i in 1...(untyped PR).fielddefs.length) {
-			var d = (untyped PR).fielddefs[i];
-			var name:String = (untyped PR).GetString(d.name);
+		for (i in 1...PR.fielddefs.length) {
+			var d = PR.fielddefs[i];
+			var name = PR.GetString(d.name);
 			if (name.charCodeAt(name.length - 2) == 95)
 				continue;
 			var v = d.ofs;
@@ -129,13 +116,13 @@ class ED {
 				if ((d.type & 0x7fff) == 3) {
 					if ((ed.v_int[v + 1] == 0) && (ed.v_int[v + 2] == 0))
 						continue;
-				}
-				else
+				} else {
 					continue;
+				}
 			}
 			while (name.length <= 14)
 				name += ' ';
-			Console.Print(name + (untyped PR).ValueString(d.type, ed.v, v) + '\n');
+			Console.Print(name + PR.ValueString(d.type, ed.v, v) + '\n');
 		}
 	}
 
@@ -164,11 +151,11 @@ class ED {
 			if (ent.free)
 				continue;
 			++active;
-			if (ent.v_float[(untyped PR).entvars.solid] != 0.0)
+			if (ent.v_float[PR.entvars.solid] != 0.0)
 				++solid;
-			if (ent.v_int[(untyped PR).entvars.model] != 0)
+			if (ent.v_int[PR.entvars.model] != 0)
 				++models;
-			if (ent.v_float[(untyped PR).entvars.movetype] == (untyped SV).movetype.step)
+			if (ent.v_float[PR.entvars.movetype] == (untyped SV).movetype.step)
 				++step;
 		}
 		var num_edicts = (untyped SV).server.num_edicts;
@@ -197,7 +184,7 @@ class ED {
 				Console.Print('\'' + keyname + '\' is not a global\n');
 				continue;
 			}
-			if (ParseEpair((untyped PR).globals, key, COM.token) != true)
+			if (!ParseEpair(PR.globals, key, COM.token))
 				(untyped Host).Error('ED.ParseGlobals: parse error');
 		}
 	}
@@ -215,10 +202,10 @@ class ED {
 				newstring[newstring.length] = String.fromCharCode(c);
 			i++;
 		}
-		return (untyped PR).NewString(newstring.join(''), string.length + 1);
+		return PR.NewString(newstring.join(''), string.length + 1);
 	}
 
-	static function ParseEpair(base:ArrayBuffer, key, s:String):Bool {
+	static function ParseEpair(base:ArrayBuffer, key:PRDef, s:String):Bool {
 		var d_float = new Float32Array(base);
 		var d_int = new Int32Array(base);
 		switch (key.type & 0x7fff : EType) {
@@ -259,7 +246,7 @@ class ED {
 
 	static function ParseEdict(data:String, ent:Edict):String {
 		if (ent != (untyped SV).server.edicts[0]) {
-			for (i in 0...(untyped PR).entityfields)
+			for (i in 0...PR.entityfields)
 				ent.v_int[i] = 0;
 		}
 		var init = false;
@@ -273,9 +260,7 @@ class ED {
 			if (COM.token == 'angle') {
 				COM.token = 'angles';
 				anglehack = true;
-			}
-			else
-			{
+			} else {
 				anglehack = false;
 				if (COM.token == 'light')
 					COM.token = 'light_lev';
@@ -302,7 +287,7 @@ class ED {
 			}
 			if (anglehack)
 				COM.token = '0 ' + COM.token + ' 0';
-			if (ParseEpair(ent.v, key, COM.token) != true)
+			if (!ParseEpair(ent.v, key, COM.token))
 				(untyped Host).Error('ED.ParseEdict: parse error');
 		}
 		if (!init)
@@ -312,7 +297,7 @@ class ED {
 
 	static function LoadFromFile(data:String):Void {
 		var ent, inhibit = 0;
-		(untyped PR).globals_float[(untyped PR).globalvars.time] = (untyped SV).server.time;
+		PR.globals_float[PR.globalvars.time] = (untyped SV).server.time;
 
 		while (true) {
 			data = COM.Parse(data);
@@ -327,7 +312,7 @@ class ED {
 				ent = Alloc();
 			data = ParseEdict(data, ent);
 
-			var spawnflags = Std.int(ent.v_float[(untyped PR).entvars.spawnflags]);
+			var spawnflags = Std.int(ent.v_float[PR.entvars.spawnflags]);
 			if ((untyped Host).deathmatch.value != 0) {
 				if ((spawnflags & 2048) != 0) {
 					Free(ent);
@@ -343,14 +328,14 @@ class ED {
 				continue;
 			}
 
-			if (ent.v_int[(untyped PR).entvars.classname] == 0) {
+			if (ent.v_int[PR.entvars.classname] == 0) {
 				Console.Print('No classname for:\n');
 				Print(ent);
 				Free(ent);
 				continue;
 			}
 
-			var func = FindFunction((untyped PR).GetString(ent.v_int[(untyped PR).entvars.classname]));
+			var func = FindFunction(PR.GetString(ent.v_int[PR.entvars.classname]));
 			if (func == null) {
 				Console.Print('No spawn function for:\n');
 				Print(ent);
@@ -358,8 +343,8 @@ class ED {
 				continue;
 			}
 
-			(untyped PR).globals_int[(untyped PR).globalvars.self] = ent.num;
-			(untyped PR).ExecuteProgram(func);
+			PR.globals_int[PR.globalvars.self] = ent.num;
+			PR.ExecuteProgram(func);
 		}
 
 		Console.DPrint(inhibit + ' entities inhibited\n');

@@ -154,7 +154,7 @@ class M {
 		DrawPic(16, 4, qplaque);
 		DrawPic(160 - (ttl_main.width >> 1), 4, ttl_main);
 		DrawPic(72, 32, mainmenu);
-		DrawPic(54, 32 + main_cursor * 20, menudot[Math.floor((untyped Host).realtime * 10.0) % 6]);
+		DrawPic(54, 32 + main_cursor * 20, menudot[Math.floor(Host.realtime * 10.0) % 6]);
 	}
 
 	static function Main_Key(k:KeyCode):Void {
@@ -205,7 +205,7 @@ class M {
 		DrawPic(16, 4, qplaque);
 		DrawPic(160 - (ttl_sgl.width >> 1), 4, ttl_sgl);
 		DrawPic(72, 32, sp_menu);
-		DrawPic(54, 32 + singleplayer_cursor * 20, menudot[Math.floor((untyped Host).realtime * 10.0) % 6]);
+		DrawPic(54, 32 + singleplayer_cursor * 20, menudot[Math.floor(Host.realtime * 10.0) % 6]);
 	}
 
 	static function SinglePlayer_Key(k) {
@@ -311,14 +311,14 @@ class M {
 		DrawPic(160 - (p_load.width >> 1), 4, p_load);
 		for (i in 0...max_savegames)
 			Print(16, 32 + (i << 3), filenames[i]);
-		DrawCharacter(8, 32 + (load_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+		DrawCharacter(8, 32 + (load_cursor << 3), 12 + (Std.int(Host.realtime * 4) & 1));
 	}
 
 	static function Save_Draw() {
 		DrawPic(160 - (p_save.width >> 1), 4, p_save);
 		for (i in 0...max_savegames)
 			Print(16, 32 + (i << 3), filenames[i]);
-		DrawCharacter(8, 32 + (load_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+		DrawCharacter(8, 32 + (load_cursor << 3), 12 + (Std.int(Host.realtime * 4) & 1));
 	}
 
 	static function Load_Key(k:KeyCode) {
@@ -424,12 +424,12 @@ class M {
 			(multiplayer_top << 4) + (multiplayer_top >= 8 ? 4 : 11),
 			(multiplayer_bottom << 4) + (multiplayer_bottom >= 8 ? 4 : 11));
 
-		DrawCharacter(56, multiplayer_cursor_table[multiplayer_cursor], 12 + (((untyped Host).realtime * 4) & 1));
+		DrawCharacter(56, multiplayer_cursor_table[multiplayer_cursor], 12 + (Std.int(Host.realtime * 4) & 1));
 
 		if (multiplayer_cursor == 0)
-			DrawCharacter(multiplayer_joinname.length <= 20 ? 80 + (multiplayer_joinname.length << 3) : 248, 56, 10 + (((untyped Host).realtime * 4) & 1));
+			DrawCharacter(multiplayer_joinname.length <= 20 ? 80 + (multiplayer_joinname.length << 3) : 248, 56, 10 + (Std.int(Host.realtime * 4) & 1));
 		else if (multiplayer_cursor == 1)
-			DrawCharacter(168 + (multiplayer_myname.length << 3), 72, 10 + (((untyped Host).realtime * 4) & 1));
+			DrawCharacter(168 + (multiplayer_myname.length << 3), 72, 10 + (Std.int(Host.realtime * 4) & 1));
 
 		if (!NET_WEBS.available)
 			PrintWhite(52, 172, 'No Communications Available');
@@ -646,7 +646,7 @@ class M {
 		Print(112, 120, 'Lookstrafe');
 		Print(220, 120, ((untyped CL).lookstrafe.value != 0) ? 'on' : 'off');
 		
-		DrawCharacter(200, 32 + (options_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+		DrawCharacter(200, 32 + (options_cursor << 3), 12 + (Std.int(Host.realtime * 4) & 1));
 	}
 
 	static function Options_Key(k) {
@@ -750,7 +750,7 @@ class M {
 		else
 		{
 			Print(18, 32, 'Enter to change, backspace to clear');
-			DrawCharacter(130, 48 + (keys_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+			DrawCharacter(130, 48 + (keys_cursor << 3), 12 + (Std.int(Host.realtime * 4) & 1));
 		}
 
 		var y = 48;
@@ -885,7 +885,7 @@ class M {
 				}
 			case 121:
 				Key.dest.value = Key.dest.console;
-				(untyped Host).Quit_f();
+				Host.Quit_f();
 			default:
 		}
 	}

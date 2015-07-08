@@ -78,7 +78,7 @@ class IN {
         }
         else
         {
-            if ((strafe != 0) && ((untyped Host).noclip_anglehack))
+            if ((strafe != 0) && (Host.noclip_anglehack))
                 (untyped CL).state.cmd.upmove -= (untyped CL).m_forward.value * mouse_y;
             else
                 (untyped CL).state.cmd.forwardmove -= (untyped CL).m_forward.value * mouse_y;

@@ -54,6 +54,7 @@ class MSkin {
 
 @:publicFields
 class MFrame {
+    var name:String;
     var group:Bool;
     var frames:Array<MFrame>;
     var interval:Float;

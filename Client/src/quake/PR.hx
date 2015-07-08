@@ -402,7 +402,17 @@ class PR {
 		noise: 101, // string
 		noise1: 102, // string
 		noise2: 103, // string
-		noise3: 104 // string
+		noise3: 104, // string
+
+		ammo_shells1: null,
+		ammo_nails1: null,
+		ammo_lava_nails: null,
+		ammo_rockets1: null,
+		ammo_multi_rockets: null,
+		ammo_cells1: null,
+		ammo_plasma: null,
+		gravity: null,
+		items2: null,
 	}
 
 	static var progheader_crc = 5927;
@@ -737,7 +747,7 @@ class PR {
 		PrintStatement(statements[xstatement]);
 		StackTrace();
 		Console.Print(error + '\n');
-		(untyped Host).Error('Program error');
+		Host.Error('Program error');
 	}
 
 	static function EnterFunction(f:PRFunction):Int {
@@ -777,7 +787,7 @@ class PR {
 		if ((fnum == 0) || (fnum >= PR.functions.length)) {
 			if (PR.globals_int[PR.globalvars.self] != 0)
 				ED.Print((untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]]);
-			(untyped Host).Error('PR.ExecuteProgram: NULL function');
+			Host.Error('PR.ExecuteProgram: NULL function');
 		}
 		var runaway = 100000;
 		PR.trace = false;

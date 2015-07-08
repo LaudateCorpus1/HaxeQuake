@@ -23,6 +23,7 @@ interface INETSocket {
     var disconnected:Bool;
 	var driver:Int;
 	var lastMessageTime:Float;
+	var connecttime:Float;
 }
 
 private typedef NETDriver = {
@@ -108,7 +109,7 @@ class NET {
 				Close(newsocket);
 				(untyped CL).cls.state = (untyped CL).active.disconnected;
 				Console.Print('No Response\n');
-				(untyped Host).Error('NET.CheckForResend: connect failed\n');
+				Host.Error('NET.CheckForResend: connect failed\n');
 			}
 		}
 		var ret = dfunc.CheckForResend();
@@ -121,7 +122,7 @@ class NET {
 			Close(newsocket);
 			(untyped CL).cls.state = (untyped CL).active.disconnected;
 			Console.Print('Network Error\n');
-			(untyped Host).Error('NET.CheckForResend: connect failed\n');
+			Host.Error('NET.CheckForResend: connect failed\n');
 		}
 	}
 
@@ -207,15 +208,15 @@ class NET {
 	static function SendToAll(data:MSG):Int {
 		var count = 0, state1 = [], state2 = [];
 		for (i in 0...(untyped SV).svs.maxclients) {
-			(untyped Host).client = (untyped SV).svs.clients[i];
-			if ((untyped Host).client.netconnection == null)
+			Host.client = (untyped SV).svs.clients[i];
+			if (Host.client.netconnection == null)
 				continue;
-			if ((untyped Host).client.active != true) {
+			if (Host.client.active != true) {
 				state1[i] = state2[i] = true;
 				continue;
 			}
-			if ((untyped Host).client.netconnection.driver == 0) {
-				SendMessage((untyped Host).client.netconnection, data);
+			if (Host.client.netconnection.driver == 0) {
+				SendMessage(Host.client.netconnection, data);
 				state1[i] = state2[i] = true;
 				continue;
 			}
@@ -226,22 +227,22 @@ class NET {
 		while (count != 0) {
 			count = 0;
 			for (i in 0...(untyped SV).svs.maxclients) {
-				(untyped Host).client = (untyped SV).svs.clients[i];
+				Host.client = (untyped SV).svs.clients[i];
 				if (state1[i] != true) {
-					if (CanSendMessage((untyped Host).client.netconnection)) {
+					if (CanSendMessage(Host.client.netconnection)) {
 						state1[i] = true;
-						SendMessage((untyped Host).client.netconnection, data);
+						SendMessage(Host.client.netconnection, data);
 					}
 					else
-						GetMessage((untyped Host).client.netconnection);
+						GetMessage(Host.client.netconnection);
 					++count;
 					continue;
 				}
 				if (state2[i] != true) {
-					if (CanSendMessage((untyped Host).client.netconnection))
+					if (CanSendMessage(Host.client.netconnection))
 						state2[i] = true;
 					else
-						GetMessage((untyped Host).client.netconnection);
+						GetMessage(Host.client.netconnection);
 					++count;
 				}
 			}

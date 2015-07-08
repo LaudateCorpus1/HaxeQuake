@@ -56,7 +56,7 @@ class SCR {
 	}
 
 	static function DrawCenterString():Void {
-		SCR.centertime_off -= (untyped Host).frametime;
+		SCR.centertime_off -= Host.frametime;
 		if ((SCR.centertime_off <= 0.0 && (untyped CL).state.intermission == 0) || Key.dest.value != Key.dest.game)
 			return;
 
@@ -198,7 +198,7 @@ class SCR {
 	static function DrawTurtle() {
 		if (SCR.showturtle.value == 0)
 			return;
-		if ((untyped Host).frametime < 0.1) {
+		if (Host.frametime < 0.1) {
 			SCR.count = 0;
 			return;
 		}
@@ -207,7 +207,7 @@ class SCR {
 	}
 
 	static function DrawNet() {
-		if ((((untyped Host).realtime - (untyped CL).state.last_received_message) >= 0.3) && ((untyped CL).cls.demoplayback != true))
+		if (((Host.realtime - (untyped CL).state.last_received_message) >= 0.3) && ((untyped CL).cls.demoplayback != true))
 			Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, SCR.net);
 	}
 
@@ -231,12 +231,12 @@ class SCR {
 			conlines = 0;
 
 		if (conlines < SCR.con_current) {
-			SCR.con_current -= Std.int(SCR.conspeed.value * (untyped Host).frametime);
+			SCR.con_current -= Std.int(SCR.conspeed.value * Host.frametime);
 			if (conlines > SCR.con_current)
 				SCR.con_current = conlines;
 		}
 		else if (conlines > SCR.con_current) {
-			SCR.con_current += Std.int(SCR.conspeed.value * (untyped Host).frametime);
+			SCR.con_current += Std.int(SCR.conspeed.value * Host.frametime);
 			if (conlines < SCR.con_current)
 				SCR.con_current = conlines;
 		}
@@ -262,7 +262,7 @@ class SCR {
 		SCR.centertime_off = 0.0;
 		SCR.con_current = 0;
 		SCR.disabled_for_loading = true;
-		SCR.disabled_time = (untyped Host).realtime + 60.0;
+		SCR.disabled_time = Host.realtime + 60.0;
 	}
 
 	static function EndLoadingPlaque() {
@@ -272,7 +272,7 @@ class SCR {
 
 	static function UpdateScreen() {
 		if (SCR.disabled_for_loading) {
-			if ((untyped Host).realtime <= SCR.disabled_time)
+			if (Host.realtime <= SCR.disabled_time)
 				return;
 			SCR.disabled_for_loading = false;
 			Console.Print('load failed.\n');
@@ -286,7 +286,7 @@ class SCR {
 			pixelRatio = window.devicePixelRatio;
 		else
 			pixelRatio = 1.0;
-		if ((VID.width != width) || (VID.height != height) || (SCR.devicePixelRatio != pixelRatio) || ((untyped Host).framecount == 0)) {
+		if ((VID.width != width) || (VID.height != height) || (SCR.devicePixelRatio != pixelRatio) || (Host.framecount == 0)) {
 			VID.width = width;
 			VID.height = height;
 			VID.mainwindow.width = Std.int(width * pixelRatio);

@@ -185,7 +185,7 @@ class ED {
 				continue;
 			}
 			if (!ParseEpair(PR.globals, key, COM.token))
-				(untyped Host).Error('ED.ParseGlobals: parse error');
+				Host.Error('ED.ParseGlobals: parse error');
 		}
 	}
 
@@ -288,7 +288,7 @@ class ED {
 			if (anglehack)
 				COM.token = '0 ' + COM.token + ' 0';
 			if (!ParseEpair(ent.v, key, COM.token))
-				(untyped Host).Error('ED.ParseEdict: parse error');
+				Host.Error('ED.ParseEdict: parse error');
 		}
 		if (!init)
 			ent.free = true;
@@ -313,16 +313,16 @@ class ED {
 			data = ParseEdict(data, ent);
 
 			var spawnflags = Std.int(ent.v_float[PR.entvars.spawnflags]);
-			if ((untyped Host).deathmatch.value != 0) {
+			if (Host.deathmatch.value != 0) {
 				if ((spawnflags & 2048) != 0) {
 					Free(ent);
 					++inhibit;
 					continue;
 				}
 			}
-			else if ((((untyped Host).current_skill == 0) && ((spawnflags & 256) != 0))
-				|| (((untyped Host).current_skill == 1) && ((spawnflags & 512) != 0))
-				|| (((untyped Host).current_skill >= 2) && ((spawnflags & 1024) != 0))) {
+			else if (((Host.current_skill == 0) && ((spawnflags & 256) != 0))
+				|| ((Host.current_skill == 1) && ((spawnflags & 512) != 0))
+				|| ((Host.current_skill >= 2) && ((spawnflags & 1024) != 0))) {
 				Free(ent);
 				++inhibit;
 				continue;

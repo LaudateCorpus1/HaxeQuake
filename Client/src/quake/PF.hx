@@ -17,13 +17,13 @@ class PF {
     static function error() {
         Console.Print('====SERVER ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
         ED.Print((untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]]);
-        (untyped Host).Error('Program error');
+        Host.Error('Program error');
     }
 
     static function objerror() {
         Console.Print('====OBJECT ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
         ED.Print((untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]]);
-        (untyped Host).Error('Program error');
+        Host.Error('Program error');
     }
 
     static function makevectors() {
@@ -83,7 +83,7 @@ class PF {
     }
 
     static function bprint() {
-        (untyped Host).BroadcastPrint(VarString(0));
+        Host.BroadcastPrint(VarString(0));
     }
 
     static function sprint() {
@@ -515,7 +515,7 @@ class PF {
         var tr = (untyped SV).Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {
             if ((tr.ent.v_float[PR.entvars.takedamage] == (untyped SV).damage.aim) &&
-                (((untyped Host).teamplay.value == 0) || (ent.v_float[PR.entvars.team] <= 0) ||
+                ((Host.teamplay.value == 0) || (ent.v_float[PR.entvars.team] <= 0) ||
                 (ent.v_float[PR.entvars.team] != tr.ent.v_float[PR.entvars.team]))) {
                 PR.globals_float[1] = dir[0];
                 PR.globals_float[2] = dir[1];
@@ -532,7 +532,7 @@ class PF {
                 continue;
             if (check == ent)
                 continue;
-            if (((untyped Host).teamplay.value != 0) && (ent.v_float[PR.entvars.team] > 0) && (ent.v_float[PR.entvars.team] == check.v_float[PR.entvars.team]))
+            if ((Host.teamplay.value != 0) && (ent.v_float[PR.entvars.team] > 0) && (ent.v_float[PR.entvars.team] == check.v_float[PR.entvars.team]))
                 continue;
             end[0] = check.v_float[PR.entvars.origin] + 0.5 * (check.v_float[PR.entvars.mins] + check.v_float[PR.entvars.maxs]);
             end[1] = check.v_float[PR.entvars.origin1] + 0.5 * (check.v_float[PR.entvars.mins1] + check.v_float[PR.entvars.maxs1]);

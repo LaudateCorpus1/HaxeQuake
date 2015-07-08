@@ -47,13 +47,13 @@ class Cvar {
             v.string = value;
             v.value = Q.atof(value);
             if (v.server && changed && (untyped SV).server.active)
-                (untyped Host).BroadcastPrint('"' + v.name + '" changed to "' + v.string + '"\n');
+                Host.BroadcastPrint('"' + v.name + '" changed to "' + v.string + '"\n');
             return;
         }
         Console.Print('Cvar.Set: variable ' + name + ' not found\n');
     }
 
-    public static inline function SetValue(name:String, value:Float):Void {
+    public static function SetValue(name:String, value:Float):Void {
         Cvar.Set(name, value.toFixed(6));
     }
 
@@ -81,10 +81,9 @@ class Cvar {
         return true;
     }
 
-    static function WriteVariables():String {
+    public static function WriteVariables():String {
         var f = [];
-        for (v in vars)
-        {
+        for (v in vars) {
             if (v.archive)
                 f.push(v.name + ' "' + v.string + '"\n');
         }

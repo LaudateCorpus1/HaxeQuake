@@ -13,9 +13,9 @@ class MSG {
 	var allowoverflow = false;
 	var overflowed = false;
 
-	function new(capacity:Int) {
+	function new(capacity:Int, size = 0) {
 		data = new ArrayBuffer(capacity);
-		cursize = 0;
+		cursize = size;
 	}
 
 	static var badread:Bool;

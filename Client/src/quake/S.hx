@@ -206,7 +206,7 @@ class S {
 
 		target_chan.sfx = sfx;
 		target_chan.pos = 0.0;
-		target_chan.end = (untyped Host).realtime + sfx.cache.length;
+		target_chan.end = Host.realtime + sfx.cache.length;
 		target_chan.audio = cast sfx.cache.data.cloneNode();
 		var volume = (target_chan.leftvol + target_chan.rightvol) * 0.5;
 		if (volume > 1.0)
@@ -269,7 +269,7 @@ class S {
 		ss.origin = [origin[0], origin[1], origin[2]];
 		ss.master_vol = vol;
 		ss.dist_mult = attenuation * 0.000015625;
-		ss.end = (untyped Host).realtime + sfx.cache.length;
+		ss.end = Host.realtime + sfx.cache.length;
 		S.static_channels.push(ss);
 		ss.audio = cast sfx.cache.data.cloneNode();
 		ss.audio.pause();
@@ -323,12 +323,12 @@ class S {
 				vol = 0.0;
 			vol /= 255.0;
 			if (ch.master_vol < vol) {
-				ch.master_vol += ((untyped Host).frametime * S.ambient_fade.value) / 255.0;
+				ch.master_vol += (Host.frametime * S.ambient_fade.value) / 255.0;
 				if (ch.master_vol > vol)
 					ch.master_vol = vol;
 			}
 			else if (ch.master_vol > vol) {
-				ch.master_vol -= ((untyped Host).frametime * S.ambient_fade.value) / 255.0;
+				ch.master_vol -= (Host.frametime * S.ambient_fade.value) / 255.0;
 				if (ch.master_vol < vol)
 					ch.master_vol = vol;
 			}
@@ -344,17 +344,17 @@ class S {
 			var sc = ch.sfx.cache;
 			if (ch.audio.paused) {
 				ch.audio.play();
-				ch.end = (untyped Host).realtime + sc.length;
+				ch.end = Host.realtime + sc.length;
 				continue;
 			}
-			if ((untyped Host).realtime >= ch.end) {
+			if (Host.realtime >= ch.end) {
 				try {
 					ch.audio.currentTime = sc.loopstart;
 				} catch (e:Dynamic) {
-					ch.end = (untyped Host).realtime;
+					ch.end = Host.realtime;
 					continue;
 				}
-				ch.end = (untyped Host).realtime + sc.length - sc.loopstart;
+				ch.end = Host.realtime + sc.length - sc.loopstart;
 			}
 		}
 	}
@@ -365,16 +365,16 @@ class S {
 				continue;
 			if (ch.sfx == null)
 				continue;
-			if ((untyped Host).realtime >= ch.end) {
+			if (Host.realtime >= ch.end) {
 				var sc = ch.sfx.cache;
 				if (sc.loopstart != null) {
 					try {
 						ch.audio.currentTime = sc.loopstart;
 					} catch (e:Dynamic) {
-						ch.end = (untyped Host).realtime;
+						ch.end = Host.realtime;
 						continue;
 					}
-					ch.end = (untyped Host).realtime + sc.length - sc.loopstart;
+					ch.end = Host.realtime + sc.length - sc.loopstart;
 				} else {
 					ch.sfx = null;
 					ch.audio = null;
@@ -422,16 +422,16 @@ class S {
 			var sc = ch.sfx.cache;
 			if (ch.audio.paused) {
 				ch.audio.play();
-				ch.end = (untyped Host).realtime + sc.length;
+				ch.end = Host.realtime + sc.length;
 				continue;
 			}
-			if ((untyped Host).realtime >= ch.end) {
+			if (Host.realtime >= ch.end) {
 				try
 				{
 					ch.audio.currentTime = sc.loopstart;
 				}
 				catch (e:Dynamic) {
-					ch.end = (untyped Host).realtime;
+					ch.end = Host.realtime;
 					continue;
 				}
 			}

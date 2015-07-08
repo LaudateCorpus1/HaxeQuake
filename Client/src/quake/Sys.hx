@@ -33,7 +33,7 @@ class Sys {
             window.clearInterval(frame);
         for (e in events)
             Reflect.setField(window, e, null);
-        (untyped Host).Shutdown();
+        Host.Shutdown();
         document.body.style.cursor = 'auto';
         VID.mainwindow.style.display = 'none';
         if (COM.registered.value != 0)
@@ -152,12 +152,12 @@ class Sys {
             Sys.oldtime = Date.now().getTime() * 0.001;
 
             Sys.Print('Host.Init\n');
-            (untyped Host).Init();
+            Host.Init();
 
             for (e in events)
                 Reflect.setField(window, e, Reflect.field(Sys, e));
 
-            frame = window.setInterval((untyped Host).Frame, 1000.0 / 60.0);
+            frame = window.setInterval(Host.Frame, 1000.0 / 60.0);
         }
     }
 
@@ -225,7 +225,7 @@ class Sys {
     }
 
     static function onunload() {
-        (untyped Host).Shutdown();
+        Host.Shutdown();
     }
 
     static function onwheel(e:WheelEvent):Void {

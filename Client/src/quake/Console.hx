@@ -94,7 +94,7 @@ class Console {
         }
         for (i in 0...msg.length) {
             if (text[current] == null)
-                text[current] = new ConsoleEntry("", (untyped Host).realtime);
+                text[current] = new ConsoleEntry("", Host.realtime);
             if (msg.charCodeAt(i) == 10) {
                 if (text.length >= 1024) {
                     text = text.slice(-512);
@@ -109,14 +109,14 @@ class Console {
     }
 
     static function DPrint(msg:String):Void {
-        if ((untyped Host).developer.value != 0)
+        if (Host.developer.value != 0)
             Print(msg);
     }
 
     static function DrawInput():Void {
         if ((Key.dest.value != Key.dest.console) && (forcedup != true))
             return;
-        var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1));
+        var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1));
         var width = (VID.width >> 3) - 2;
         if (text.length >= width)
             text = text.substring(1 + text.length - width);
@@ -127,13 +127,13 @@ class Console {
         var width = (VID.width >> 3) - 2;
         var i = text.length - 4, v = 0;
         for (i in (i < 0 ? 0 : i)...text.length) {
-            if (((untyped Host).realtime - text[i].time) > notifytime.value)
+            if ((Host.realtime - text[i].time) > notifytime.value)
                 continue;
             Draw.String(8, v, text[i].text.substring(0, width));
             v += 8;
         }
         if (Key.dest.value == Key.dest.message)
-            Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + (Std.int((untyped Host).realtime * 4.0) & 1)));
+            Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1)));
     }
 
     static function DrawConsole(lines:Int):Void {

@@ -405,7 +405,7 @@ class Sbar {
 	}
 
 	static function DrawFace() {
-		if ((COM.rogue) && ((untyped CL).state.maxclients != 1) && ((untyped Host).teamplay.value >= 4) && ((untyped Host).teamplay.value <= 6)) {
+		if ((COM.rogue) && ((untyped CL).state.maxclients != 1) && (Host.teamplay.value >= 4) && (Host.teamplay.value <= 6)) {
 			var s = (untyped CL).state.scores[(untyped CL).state.viewentity - 1];
 			var top = (s.colors & 0xf0) + 8;
 			var xofs = (untyped CL).state.gametype == 1 ? 113 : (VID.width >> 1) - 47;

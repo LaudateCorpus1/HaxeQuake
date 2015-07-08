@@ -90,7 +90,7 @@ class V {
 	}
 
 	static function DriftPitch():Void {
-		if (((untyped Host).noclip_anglehack) || ((untyped CL).state.onground != true) || ((untyped CL).cls.demoplayback)) {
+		if ((Host.noclip_anglehack) || ((untyped CL).state.onground != true) || ((untyped CL).cls.demoplayback)) {
 			(untyped CL).state.driftmove = 0.0;
 			(untyped CL).state.pitchvel = 0.0;
 			return;
@@ -100,7 +100,7 @@ class V {
 			if (Math.abs((untyped CL).state.cmd.forwardmove) < (untyped CL).forwardspeed.value)
 				(untyped CL).state.driftmove = 0.0;
 			else
-				(untyped CL).state.driftmove += (untyped Host).frametime;
+				(untyped CL).state.driftmove += Host.frametime;
 			if ((untyped CL).state.driftmove > V.centermove.value)
 				StartPitchDrift();
 			return;
@@ -112,8 +112,8 @@ class V {
 			return;
 		}
 
-		var move = (untyped Host).frametime * (untyped CL).state.pitchvel;
-		(untyped CL).state.pitchvel += (untyped Host).frametime * V.centerspeed.value;
+		var move = Host.frametime * (untyped CL).state.pitchvel;
+		(untyped CL).state.pitchvel += Host.frametime * V.centerspeed.value;
 
 		if (delta > 0) {
 			if (move > delta) {
@@ -229,10 +229,10 @@ class V {
 		else
 			cshift[3] = 0.0;
 
-		(untyped CL).state.cshifts[(untyped CL).cshift.damage][3] -= (untyped Host).frametime * 150.0;
+		(untyped CL).state.cshifts[(untyped CL).cshift.damage][3] -= Host.frametime * 150.0;
 		if ((untyped CL).state.cshifts[(untyped CL).cshift.damage][3] < 0.0)
 			(untyped CL).state.cshifts[(untyped CL).cshift.damage][3] = 0.0;
-		(untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] -= (untyped Host).frametime * 100.0;
+		(untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] -= Host.frametime * 100.0;
 		if ((untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] < 0.0)
 			(untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] = 0.0;
 
@@ -299,7 +299,7 @@ class V {
 				R.refdef.viewangles[2] += (V.dmg_time / V.kicktime.value) * V.dmg_roll;
 				R.refdef.viewangles[0] -= (V.dmg_time / V.kicktime.value) * V.dmg_pitch;
 			}
-			V.dmg_time -= (untyped Host).frametime;
+			V.dmg_time -= Host.frametime;
 		}
 		if ((untyped CL).state.stats[Def.stat.health] <= 0)
 			R.refdef.viewangles[2] = 80.0;

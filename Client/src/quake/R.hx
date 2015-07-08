@@ -1830,7 +1830,7 @@ class R {
         program = GL.UseProgram('Turbulent');
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
-        gl.uniform1f(program.uTime, (untyped Host).realtime % (Math.PI * 2.0));
+        gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 20, e.model.waterchain);
         gl.vertexAttribPointer(program.aTexCoord, 2, RenderingContext.FLOAT, false, 20, e.model.waterchain + 12);
         for (i in 0...clmodel.chains.length) {
@@ -1896,7 +1896,7 @@ class R {
         program = GL.UseProgram('Turbulent');
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, GL.identity);
-        gl.uniform1f(program.uTime, (untyped Host).realtime % (Math.PI * 2.0));
+        gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 20, clmodel.waterchain);
         gl.vertexAttribPointer(program.aTexCoord, 2, RenderingContext.FLOAT, false, 20, clmodel.waterchain + 12);
         for (i in 0...clmodel.leafs.length) {
@@ -2069,7 +2069,7 @@ class R {
         var program = GL.UseProgram('Warp');
         var vrect = R.refdef.vrect;
         gl.uniform4f(program.uRect, vrect.x, vrect.y, vrect.width, vrect.height);
-        gl.uniform1f(program.uTime, (untyped Host).realtime % (Math.PI * 2.0));
+        gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
         GL.Bind(program.tTexture, R.warptexture);
         gl.clear(RenderingContext.COLOR_BUFFER_BIT);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -2141,7 +2141,7 @@ class R {
         gl.disable(RenderingContext.CULL_FACE);
 
         program = GL.UseProgram('Sky');
-        gl.uniform2f(program.uTime, ((untyped Host).realtime * 0.125) % 1.0, ((untyped Host).realtime * 0.03125) % 1.0);
+        gl.uniform2f(program.uTime, (Host.realtime * 0.125) % 1.0, (Host.realtime * 0.03125) % 1.0);
         GL.Bind(program.tSolid, R.solidskytexture);
         GL.Bind(program.tAlpha, R.alphaskytexture);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.skyvecs);

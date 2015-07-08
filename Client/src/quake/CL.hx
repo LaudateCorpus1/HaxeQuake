@@ -111,6 +111,7 @@ private class ClientState {
     var inwater:Bool;
     var paused:Bool;
     var onground:Bool;
+    var nodrift:Bool;
     var model_precache:Array<MModel>;
     var sound_precache:Array<Sfx>;
     var maxclients:Int;
@@ -575,8 +576,8 @@ static function InitInput() {
 
 static var cls = new ClientStatic();
 static var state:ClientState;
-static var static_entities = [];
-static var visedicts = [];
+static var static_entities:Array<REntity> = [];
+static var visedicts:Array<REntity> = [];
 
 static function Rcon_f() {
     if (CL.rcon_password.string.length == 0) {

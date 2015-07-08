@@ -53,24 +53,24 @@ class IN {
         }
         old_mouse_x = IN.mouse_x;
         old_mouse_y = IN.mouse_y;
-        mouse_x *= (untyped CL).sensitivity.value;
-        mouse_y *= (untyped CL).sensitivity.value;
+        mouse_x *= CL.sensitivity.value;
+        mouse_y *= CL.sensitivity.value;
 
-        var strafe = (untyped CL).kbuttons[(untyped CL).kbutton.strafe].state & 1;
-        var mlook = (untyped CL).kbuttons[(untyped CL).kbutton.mlook].state & 1;
-        var angles:Vec = (untyped CL).state.viewangles;
+        var strafe = CL.kbuttons[CL.kbutton.strafe].state & 1;
+        var mlook = CL.kbuttons[CL.kbutton.mlook].state & 1;
+        var angles:Vec = CL.state.viewangles;
 
-        if ((strafe != 0) || (((untyped CL).lookstrafe.value != 0) && (mlook != 0)))
-            (untyped CL).state.cmd.sidemove += (untyped CL).m_side.value * mouse_x;
+        if ((strafe != 0) || ((CL.lookstrafe.value != 0) && (mlook != 0)))
+            CL.state.cmd.sidemove += CL.m_side.value * mouse_x;
         else
-            angles[1] -= (untyped CL).m_yaw.value * mouse_x;
+            angles[1] -= CL.m_yaw.value * mouse_x;
 
         if (mlook != 0)
             V.StopPitchDrift();
 
         if ((mlook != 0) && (strafe == 0))
         {
-            angles[0] += (untyped CL).m_pitch.value * mouse_y;
+            angles[0] += CL.m_pitch.value * mouse_y;
             if (angles[0] > 80.0)
                 angles[0] = 80.0;
             else if (angles[0] < -70.0)
@@ -79,9 +79,9 @@ class IN {
         else
         {
             if ((strafe != 0) && (Host.noclip_anglehack))
-                (untyped CL).state.cmd.upmove -= (untyped CL).m_forward.value * mouse_y;
+                CL.state.cmd.upmove -= CL.m_forward.value * mouse_y;
             else
-                (untyped CL).state.cmd.forwardmove -= (untyped CL).m_forward.value * mouse_y;
+                CL.state.cmd.forwardmove -= CL.m_forward.value * mouse_y;
         }
 
         IN.mouse_x = IN.mouse_y = 0;

@@ -59,12 +59,12 @@ class V {
 			|| (V.bob.value == 0.0))
 			return 0.0;
 
-		var cycle = ((untyped CL).state.time - Math.floor((untyped CL).state.time / V.bobcycle.value) * V.bobcycle.value) / V.bobcycle.value;
+		var cycle = (CL.state.time - Math.floor(CL.state.time / V.bobcycle.value) * V.bobcycle.value) / V.bobcycle.value;
 		if (cycle < V.bobup.value)
 			cycle = Math.PI * cycle / V.bobup.value;
 		else
 			cycle = Math.PI + Math.PI * (cycle - V.bobup.value) / (1.0 - V.bobup.value);
-		var bob = Math.sqrt((untyped CL).state.velocity[0] * (untyped CL).state.velocity[0] + (untyped CL).state.velocity[1] * (untyped CL).state.velocity[1]) * V.bob.value;
+		var bob = Math.sqrt(CL.state.velocity[0] * CL.state.velocity[0] + CL.state.velocity[1] * CL.state.velocity[1]) * V.bob.value;
 		bob = bob * 0.3 + bob * 0.7 * Math.sin(cycle);
 		if (bob > 4.0)
 			bob = 4.0;
@@ -74,60 +74,60 @@ class V {
 	}
 
 	static function StartPitchDrift():Void {
-		if ((untyped CL).state.laststop == (untyped CL).state.time)
+		if (CL.state.laststop == CL.state.time)
 			return;
-		if (((untyped CL).state.nodrift) || ((untyped CL).state.pitchvel == 0.0)) {
-			(untyped CL).state.pitchvel = V.centerspeed.value;
-			(untyped CL).state.nodrift = false;
-			(untyped CL).state.driftmove = 0.0;
+		if ((CL.state.nodrift) || (CL.state.pitchvel == 0.0)) {
+			CL.state.pitchvel = V.centerspeed.value;
+			CL.state.nodrift = false;
+			CL.state.driftmove = 0.0;
 		}
 	}
 
 	static function StopPitchDrift():Void {
-		(untyped CL).state.laststop = (untyped CL).state.time;
-		(untyped CL).state.nodrift = true;
-		(untyped CL).state.pitchvel = 0.0;
+		CL.state.laststop = CL.state.time;
+		CL.state.nodrift = true;
+		CL.state.pitchvel = 0.0;
 	}
 
 	static function DriftPitch():Void {
-		if ((Host.noclip_anglehack) || ((untyped CL).state.onground != true) || ((untyped CL).cls.demoplayback)) {
-			(untyped CL).state.driftmove = 0.0;
-			(untyped CL).state.pitchvel = 0.0;
+		if ((Host.noclip_anglehack) || (CL.state.onground != true) || (CL.cls.demoplayback)) {
+			CL.state.driftmove = 0.0;
+			CL.state.pitchvel = 0.0;
 			return;
 		}
 
-		if ((untyped CL).state.nodrift) {
-			if (Math.abs((untyped CL).state.cmd.forwardmove) < (untyped CL).forwardspeed.value)
-				(untyped CL).state.driftmove = 0.0;
+		if (CL.state.nodrift) {
+			if (Math.abs(CL.state.cmd.forwardmove) < CL.forwardspeed.value)
+				CL.state.driftmove = 0.0;
 			else
-				(untyped CL).state.driftmove += Host.frametime;
-			if ((untyped CL).state.driftmove > V.centermove.value)
+				CL.state.driftmove += Host.frametime;
+			if (CL.state.driftmove > V.centermove.value)
 				StartPitchDrift();
 			return;
 		}
 
-		var delta = (untyped CL).state.idealpitch - (untyped CL).state.viewangles[0];
+		var delta = CL.state.idealpitch - CL.state.viewangles[0];
 		if (delta == 0.0) {
-			(untyped CL).state.pitchvel = 0.0;
+			CL.state.pitchvel = 0.0;
 			return;
 		}
 
-		var move = Host.frametime * (untyped CL).state.pitchvel;
-		(untyped CL).state.pitchvel += Host.frametime * V.centerspeed.value;
+		var move = Host.frametime * CL.state.pitchvel;
+		CL.state.pitchvel += Host.frametime * V.centerspeed.value;
 
 		if (delta > 0) {
 			if (move > delta) {
-				(untyped CL).state.pitchvel = 0.0;
+				CL.state.pitchvel = 0.0;
 				move = delta;
 			}
-			(untyped CL).state.viewangles[0] += move;
+			CL.state.viewangles[0] += move;
 		}
 		else if (delta < 0) {
 			if (move > -delta) {
-				(untyped CL).state.pitchvel = 0.0;
+				CL.state.pitchvel = 0.0;
 				move = -delta;
 			}
-			(untyped CL).state.viewangles[0] -= move;
+			CL.state.viewangles[0] -= move;
 		}
 	}
 
@@ -135,15 +135,15 @@ class V {
 	static function ParseDamage():Void {
 		var armor = MSG.ReadByte();
 		var blood = MSG.ReadByte();
-		var ent = (untyped CL).entities[(untyped CL).state.viewentity];
+		var ent = CL.entities[CL.state.viewentity];
 		var from = [MSG.ReadCoord() - ent.origin[0], MSG.ReadCoord() - ent.origin[1], MSG.ReadCoord() - ent.origin[2]];
 		Vec.Normalize(from);
 		var count = (blood + armor) * 0.5;
 		if (count < 10.0)
 			count = 10.0;
-		(untyped CL).state.faceanimtime = (untyped CL).state.time + 0.2;
+		CL.state.faceanimtime = CL.state.time + 0.2;
 
-		var cshift = (untyped CL).state.cshifts[(untyped CL).cshift.damage];
+		var cshift = CL.state.cshifts[CL.cshift.damage];
 		cshift[3] += 3.0 * count;
 		if (cshift[3] < 0.0)
 			cshift[3] = 0.0;
@@ -180,7 +180,7 @@ class V {
 	}
 
 	static function BonusFlash_f():Void {
-		var cshift = (untyped CL).state.cshifts[(untyped CL).cshift.bonus];
+		var cshift = CL.state.cshifts[CL.cshift.bonus];
 		cshift[0] = 215.0;
 		cshift[1] = 186.0;
 		cshift[2] = 69.0;
@@ -190,37 +190,37 @@ class V {
 	static function SetContentsColor(contents:ModContents):Void {
 		switch (contents) {
 			case empty | solid:
-				(untyped CL).state.cshifts[(untyped CL).cshift.contents] = V.cshift_empty;
+				CL.state.cshifts[CL.cshift.contents] = V.cshift_empty;
 			case lava:
-				(untyped CL).state.cshifts[(untyped CL).cshift.contents] = V.cshift_lava;
+				CL.state.cshifts[CL.cshift.contents] = V.cshift_lava;
 			case slime:
-				(untyped CL).state.cshifts[(untyped CL).cshift.contents] = V.cshift_slime;
+				CL.state.cshifts[CL.cshift.contents] = V.cshift_slime;
 			default:
-				(untyped CL).state.cshifts[(untyped CL).cshift.contents] = V.cshift_water;
+				CL.state.cshifts[CL.cshift.contents] = V.cshift_water;
 		}
 	}
 
 	static function CalcBlend():Void {
-		var cshift = (untyped CL).state.cshifts[(untyped CL).cshift.powerup];
-		if (((untyped CL).state.items & Def.it.quad) != 0) {
+		var cshift = CL.state.cshifts[CL.cshift.powerup];
+		if ((CL.state.items & Def.it.quad) != 0) {
 			cshift[0] = 0.0;
 			cshift[1] = 0.0;
 			cshift[2] = 255.0;
 			cshift[3] = 30.0;
 		}
-		else if (((untyped CL).state.items & Def.it.suit) != 0) {
+		else if ((CL.state.items & Def.it.suit) != 0) {
 			cshift[0] = 0.0;
 			cshift[1] = 255.0;
 			cshift[2] = 0.0;
 			cshift[3] = 20.0;
 		}
-		else if (((untyped CL).state.items & Def.it.invisibility) != 0) {
+		else if ((CL.state.items & Def.it.invisibility) != 0) {
 			cshift[0] = 100.0;
 			cshift[1] = 100.0;
 			cshift[2] = 100.0;
 			cshift[3] = 100.0;
 		}
-		else if (((untyped CL).state.items & Def.it.invulnerability) != 0) {
+		else if ((CL.state.items & Def.it.invulnerability) != 0) {
 			cshift[0] = 255.0;
 			cshift[1] = 255.0;
 			cshift[2] = 0.0;
@@ -229,12 +229,12 @@ class V {
 		else
 			cshift[3] = 0.0;
 
-		(untyped CL).state.cshifts[(untyped CL).cshift.damage][3] -= Host.frametime * 150.0;
-		if ((untyped CL).state.cshifts[(untyped CL).cshift.damage][3] < 0.0)
-			(untyped CL).state.cshifts[(untyped CL).cshift.damage][3] = 0.0;
-		(untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] -= Host.frametime * 100.0;
-		if ((untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] < 0.0)
-			(untyped CL).state.cshifts[(untyped CL).cshift.bonus][3] = 0.0;
+		CL.state.cshifts[CL.cshift.damage][3] -= Host.frametime * 150.0;
+		if (CL.state.cshifts[CL.cshift.damage][3] < 0.0)
+			CL.state.cshifts[CL.cshift.damage][3] = 0.0;
+		CL.state.cshifts[CL.cshift.bonus][3] -= Host.frametime * 100.0;
+		if (CL.state.cshifts[CL.cshift.bonus][3] < 0.0)
+			CL.state.cshifts[CL.cshift.bonus][3] = 0.0;
 
 		if (V.cshiftpercent.value == 0) {
 			V.blend[0] = V.blend[1] = V.blend[2] = V.blend[3] = 0.0;
@@ -243,7 +243,7 @@ class V {
 
 		var r = 0.0, g = 0.0, b = 0.0, a = 0.0;
 		for (i in 0...4) {
-			var cshift = (untyped CL).state.cshifts[i];
+			var cshift = CL.state.cshifts[i];
 			var a2 = cshift[3] * V.cshiftpercent.value / 25500.0;
 			if (a2 == 0.0)
 				continue;
@@ -268,31 +268,31 @@ class V {
 	}
 
 	static function CalcIntermissionRefdef():Void {
-		var ent = (untyped CL).entities[(untyped CL).state.viewentity];
+		var ent = CL.entities[CL.state.viewentity];
 		R.refdef.vieworg[0] = ent.origin[0];
 		R.refdef.vieworg[1] = ent.origin[1];
 		R.refdef.vieworg[2] = ent.origin[2];
-		R.refdef.viewangles[0] = ent.angles[0] + Math.sin((untyped CL).state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
-		R.refdef.viewangles[1] = ent.angles[1] + Math.sin((untyped CL).state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
-		R.refdef.viewangles[2] = ent.angles[2] + Math.sin((untyped CL).state.time * V.iroll_cycle.value) * V.iroll_level.value;
-		(untyped CL).state.viewent.model = null;
+		R.refdef.viewangles[0] = ent.angles[0] + Math.sin(CL.state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
+		R.refdef.viewangles[1] = ent.angles[1] + Math.sin(CL.state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
+		R.refdef.viewangles[2] = ent.angles[2] + Math.sin(CL.state.time * V.iroll_cycle.value) * V.iroll_level.value;
+		CL.state.viewent.model = null;
 	}
 
 	static function CalcRefdef():Void {
 		DriftPitch();
 
-		var ent:{angles:Vec, origin:Vec} = (untyped CL).entities[(untyped CL).state.viewentity];
-		ent.angles[1] = (untyped CL).state.viewangles[1];
-		ent.angles[0] = -(untyped CL).state.viewangles[0];
+		var ent:{angles:Vec, origin:Vec} = CL.entities[CL.state.viewentity];
+		ent.angles[1] = CL.state.viewangles[1];
+		ent.angles[0] = -CL.state.viewangles[0];
 		var bob = CalcBob();
 
 		R.refdef.vieworg[0] = ent.origin[0] + 0.03125;
 		R.refdef.vieworg[1] = ent.origin[1] + 0.03125;
-		R.refdef.vieworg[2] = ent.origin[2] + (untyped CL).state.viewheight + bob + 0.03125;
+		R.refdef.vieworg[2] = ent.origin[2] + CL.state.viewheight + bob + 0.03125;
 
-		R.refdef.viewangles[0] = (untyped CL).state.viewangles[0];
-		R.refdef.viewangles[1] = (untyped CL).state.viewangles[1];
-		R.refdef.viewangles[2] = (untyped CL).state.viewangles[2] + CalcRoll((untyped CL).entities[(untyped CL).state.viewentity].angles, (untyped CL).state.velocity);
+		R.refdef.viewangles[0] = CL.state.viewangles[0];
+		R.refdef.viewangles[1] = CL.state.viewangles[1];
+		R.refdef.viewangles[2] = CL.state.viewangles[2] + CalcRoll(CL.entities[CL.state.viewentity].angles, CL.state.velocity);
 
 		if (V.dmg_time > 0.0) {
 			if (V.kicktime.value != 0.0) {
@@ -301,12 +301,12 @@ class V {
 			}
 			V.dmg_time -= Host.frametime;
 		}
-		if ((untyped CL).state.stats[Def.stat.health] <= 0)
+		if (CL.state.stats[Def.stat.health] <= 0)
 			R.refdef.viewangles[2] = 80.0;
 
-		var ipitch = V.idlescale.value * Math.sin((untyped CL).state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
-		var iyaw = V.idlescale.value * Math.sin((untyped CL).state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
-		var iroll = V.idlescale.value * Math.sin((untyped CL).state.time * V.iroll_cycle.value) * V.iroll_level.value;
+		var ipitch = V.idlescale.value * Math.sin(CL.state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
+		var iyaw = V.idlescale.value * Math.sin(CL.state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
+		var iroll = V.idlescale.value * Math.sin(CL.state.time * V.iroll_cycle.value) * V.iroll_level.value;
 		R.refdef.viewangles[0] += ipitch;
 		R.refdef.viewangles[1] += iyaw;
 		R.refdef.viewangles[2] += iroll;
@@ -330,13 +330,13 @@ class V {
 		else if (R.refdef.vieworg[2] > (ent.origin[2] + 30.0))
 			R.refdef.vieworg[2] = ent.origin[2] + 30.0;
 
-		var view = (untyped CL).state.viewent;
+		var view = CL.state.viewent;
 		view.angles[0] = -R.refdef.viewangles[0] - ipitch;
 		view.angles[1] = R.refdef.viewangles[1] - iyaw;
-		view.angles[2] = (untyped CL).state.viewangles[2] - iroll;
+		view.angles[2] = CL.state.viewangles[2] - iroll;
 		view.origin[0] = ent.origin[0] + forward[0] * bob * 0.4;
 		view.origin[1] = ent.origin[1] + forward[1] * bob * 0.4;
-		view.origin[2] = ent.origin[2] + (untyped CL).state.viewheight + forward[2] * bob * 0.4 + bob;
+		view.origin[2] = ent.origin[2] + CL.state.viewheight + forward[2] * bob * 0.4 + bob;
 		switch (SCR.viewsize.value) {
 			case 110 | 90:
 				view.origin[2] += 1.0;
@@ -345,15 +345,15 @@ class V {
 			case 80:
 				view.origin[2] += 0.5;
 		}
-		view.model = (untyped CL).state.model_precache[(untyped CL).state.stats[Def.stat.weapon]];
-		view.frame = (untyped CL).state.stats[Def.stat.weaponframe];
+		view.model = CL.state.model_precache[CL.state.stats[Def.stat.weapon]];
+		view.frame = CL.state.stats[Def.stat.weaponframe];
 
-		R.refdef.viewangles[0] += (untyped CL).state.punchangle[0];
-		R.refdef.viewangles[1] += (untyped CL).state.punchangle[1];
-		R.refdef.viewangles[2] += (untyped CL).state.punchangle[2];
+		R.refdef.viewangles[0] += CL.state.punchangle[0];
+		R.refdef.viewangles[1] += CL.state.punchangle[1];
+		R.refdef.viewangles[2] += CL.state.punchangle[2];
 
-		if (((untyped CL).state.onground) && ((ent.origin[2] - V.oldz) > 0.0)) {
-			var steptime:Float = (untyped CL).state.time - (untyped CL).state.oldtime;
+		if ((CL.state.onground) && ((ent.origin[2] - V.oldz) > 0.0)) {
+			var steptime:Float = CL.state.time - CL.state.oldtime;
 			if (steptime < 0.0)
 				steptime = 0.0;
 			V.oldz += steptime * 80.0;
@@ -373,14 +373,14 @@ class V {
 	static function RenderView():Void {
 		if (Console.forcedup)
 			return;
-		if ((untyped CL).state.maxclients >= 2) {
+		if (CL.state.maxclients >= 2) {
 			Cvar.Set('scr_ofsx', '0');
 			Cvar.Set('scr_ofsy', '0');
 			Cvar.Set('scr_ofsz', '0');
 		}
-		if ((untyped CL).state.intermission != 0)
+		if (CL.state.intermission != 0)
 			CalcIntermissionRefdef();
-		else if ((untyped CL).state.paused != true)
+		else if (CL.state.paused != true)
 			CalcRefdef();
 		R.PushDlights();
 		R.RenderView();

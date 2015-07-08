@@ -207,11 +207,11 @@ class Cmd {
     }
 
     static function ForwardToServer() {
-        if ((untyped CL).cls.state != (untyped CL).active.connected) {
+        if (CL.cls.state != CL.active.connected) {
             Console.Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
             return;
         }
-        if ((untyped CL).cls.demoplayback == true)
+        if (CL.cls.demoplayback == true)
             return;
         var args = String.fromCharCode(Protocol.clc.stringcmd);
         if (Cmd.argv[0].toLowerCase() != 'cmd')
@@ -220,6 +220,6 @@ class Cmd {
             args += Cmd.args;
         else
             args += '\n';
-        MSG.WriteString((untyped CL).cls.message, args);
+        MSG.WriteString(CL.cls.message, args);
     }
 }

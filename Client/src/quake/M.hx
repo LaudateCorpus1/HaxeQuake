@@ -142,8 +142,8 @@ class M {
 
 	static function Menu_Main_f() {
 		if (Key.dest.value != Key.dest.menu) {
-			save_demonum = (untyped CL).cls.demonum;
-			(untyped CL).cls.demonum = -1;
+			save_demonum = CL.cls.demonum;
+			CL.cls.demonum = -1;
 		}
 		Key.dest.value = Key.dest.menu;
 		state = main;
@@ -162,9 +162,9 @@ class M {
 			case KeyCode.escape:
 				Key.dest.value = Key.dest.game;
 				state = none;
-				(untyped CL).cls.demonum = save_demonum;
-				if (((untyped CL).cls.demonum != -1) && ((untyped CL).cls.demoplayback != true) && ((untyped CL).cls.state != (untyped CL).active.connected))
-					(untyped CL).NextDemo();
+				CL.cls.demonum = save_demonum;
+				if ((CL.cls.demonum != -1) && (CL.cls.demoplayback != true) && (CL.cls.state != CL.active.connected))
+					CL.NextDemo();
 			case KeyCode.downarrow:
 				S.LocalSound(sfx_menu1);
 				if (++main_cursor >= main_items)
@@ -299,7 +299,7 @@ class M {
 	}
 
 	static function Menu_Save_f() {
-		if (((untyped SV).server.active != true) || ((untyped CL).state.intermission != 0) || ((untyped SV).svs.maxclients != 1))
+		if (((untyped SV).server.active != true) || (CL.state.intermission != 0) || ((untyped SV).svs.maxclients != 1))
 			return;
 		entersound = true;
 		state = save;
@@ -396,9 +396,9 @@ class M {
 		Key.dest.value = Key.dest.menu;
 		state = multiplayer;
 		entersound = true;
-		multiplayer_myname = (untyped CL).name.string;
-		multiplayer_top = multiplayer_oldtop = (untyped CL).color.value >> 4;
-		multiplayer_bottom = multiplayer_oldbottom = (untyped CL).color.value & 15;
+		multiplayer_myname = CL.name.string;
+		multiplayer_top = multiplayer_oldtop = Std.int(CL.color.value) >> 4;
+		multiplayer_bottom = multiplayer_oldbottom = Std.int(CL.color.value) & 15;
 	}
 
 	static function MultiPlayer_Draw() {
@@ -490,7 +490,7 @@ class M {
 						S.LocalSound(sfx_menu3);
 						(multiplayer_bottom <= 12) ? ++multiplayer_bottom : multiplayer_bottom = 0;
 					case 4:
-						if ((untyped CL).name.string != multiplayer_myname)
+						if (CL.name.string != multiplayer_myname)
 							Cmd.text += 'name "' + multiplayer_myname + '"\n';
 						if ((multiplayer_top != multiplayer_oldtop) || (multiplayer_bottom != multiplayer_oldbottom)) {
 							multiplayer_oldtop = multiplayer_top;
@@ -556,12 +556,12 @@ class M {
 			Cvar.SetValue('gamma', V.gamma.value);
 			return;
 		case 5: // mouse speed
-			(untyped CL).sensitivity.value += dir * 0.5;
-			if ((untyped CL).sensitivity.value < 1.0)
-				(untyped CL).sensitivity.value = 1.0;
-			else if ((untyped CL).sensitivity.value > 11.0)
-				(untyped CL).sensitivity.value = 11.0;
-			Cvar.SetValue('sensitivity', (untyped CL).sensitivity.value);
+			CL.sensitivity.value += dir * 0.5;
+			if (CL.sensitivity.value < 1.0)
+				CL.sensitivity.value = 1.0;
+			else if (CL.sensitivity.value > 11.0)
+				CL.sensitivity.value = 11.0;
+			Cvar.SetValue('sensitivity', CL.sensitivity.value);
 			return;
 		case 6: // music volume
 			S.bgmvolume.value += dir * 0.1;
@@ -580,7 +580,7 @@ class M {
 			Cvar.SetValue('volume', S.volume.value);
 			return;
 		case 8: // allways run
-			if ((untyped CL).forwardspeed.value > 200.0) {
+			if (CL.forwardspeed.value > 200.0) {
 				Cvar.SetValue('cl_forwardspeed', 200.0);
 				Cvar.SetValue('cl_backspeed', 200.0);
 				return;
@@ -589,13 +589,13 @@ class M {
 			Cvar.SetValue('cl_backspeed', 400.0);
 			return;
 		case 9: // invert mouse
-			Cvar.SetValue('m_pitch', -(untyped CL).m_pitch.value);
+			Cvar.SetValue('m_pitch', -CL.m_pitch.value);
 			return;
 		case 10: // lookspring
-			Cvar.SetValue('lookspring', ((untyped CL).lookspring.value != 0) ? 0 : 1);
+			Cvar.SetValue('lookspring', (CL.lookspring.value != 0) ? 0 : 1);
 			return;
 		case 11: // lookstrafe
-			Cvar.SetValue('lookstrafe', ((untyped CL).lookstrafe.value != 0) ? 0 : 1);
+			Cvar.SetValue('lookstrafe', (CL.lookstrafe.value != 0) ? 0 : 1);
 		}
 	}
 
@@ -632,19 +632,19 @@ class M {
 		Print(112, 64, 'Brightness');
 		DrawSlider(220, 64, (1.0 - V.gamma.value) * 2.0);
 		Print(104, 72, 'Mouse Speed');
-		DrawSlider(220, 72, ((untyped CL).sensitivity.value - 1) / 10);
+		DrawSlider(220, 72, (CL.sensitivity.value - 1) / 10);
 		Print(72, 80, 'CD Music Volume');
 		DrawSlider(220, 80, S.bgmvolume.value);
 		Print(96, 88, 'Sound Volume');
 		DrawSlider(220, 88, S.volume.value);
 		Print(112, 96, 'Always Run');
-		Print(220, 96, ((untyped CL).forwardspeed.value > 200.0) ? 'on' : 'off');
+		Print(220, 96, (CL.forwardspeed.value > 200.0) ? 'on' : 'off');
 		Print(96, 104, 'Invert Mouse');
-		Print(220, 104, ((untyped CL).m_pitch.value < 0.0) ? 'on' : 'off');
+		Print(220, 104, (CL.m_pitch.value < 0.0) ? 'on' : 'off');
 		Print(112, 112, 'Lookspring');
-		Print(220, 112, ((untyped CL).lookspring.value != 0) ? 'on' : 'off');
+		Print(220, 112, (CL.lookspring.value != 0) ? 'on' : 'off');
 		Print(112, 120, 'Lookstrafe');
-		Print(220, 120, ((untyped CL).lookstrafe.value != 0) ? 'on' : 'off');
+		Print(220, 120, (CL.lookstrafe.value != 0) ? 'on' : 'off');
 		
 		DrawCharacter(200, 32 + (options_cursor << 3), 12 + (Std.int(Host.realtime * 4) & 1));
 	}

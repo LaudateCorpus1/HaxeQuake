@@ -25,7 +25,7 @@ class Console {
     static function ToggleConsole_f():Void {
         SCR.EndLoadingPlaque();
         if (Key.dest.value == Key.dest.console) {
-            if ((untyped CL).cls.state != (untyped CL).active.connected) {
+            if (CL.cls.state != CL.active.connected) {
                 (untyped M).Menu_Main_f();
                 return;
             }

@@ -48,10 +48,10 @@ static var current_skill:Int;
 
 static function EndGame(message) {
 	Console.DPrint('Host.EndGame: ' + message + '\n');
-	if ((untyped CL).cls.demonum != -1)
-		(untyped CL).NextDemo();
+	if (CL.cls.demonum != -1)
+		CL.NextDemo();
 	else
-		(untyped CL).Disconnect();
+		CL.Disconnect();
 	throw 'Host.abortserver';
 }
 
@@ -66,15 +66,15 @@ static function Error(error) {
 	Console.Print('Host.Error: ' + error + '\n');
 	if ((untyped SV).server.active)
 		Host.ShutdownServer(false);
-	(untyped CL).Disconnect();
-	(untyped CL).cls.demonum = -1;
+	CL.Disconnect();
+	CL.cls.demonum = -1;
 	Host.inerror = false;
 	throw new js.Error('Host.abortserver');
 }
 
 static function FindMaxClients() {
 	(untyped SV).svs.maxclients = (untyped SV).svs.maxclientslimit = 1;
-	(untyped CL).cls.state = (untyped CL).active.disconnected;
+	CL.cls.state = CL.active.disconnected;
 	(untyped SV).svs.clients = [{
 		num: 0,
 		message: {data: new ArrayBuffer(8000), cursize: 0, allowoverflow: true},
@@ -163,8 +163,8 @@ static function ShutdownServer(crash) {
 	if ((untyped SV).server.active != true)
 		return;
 	(untyped SV).server.active = false;
-	if ((untyped CL).cls.state == (untyped CL).active.connected)
-		(untyped CL).Disconnect();
+	if (CL.cls.state == CL.active.connected)
+		CL.Disconnect();
 	var start = Sys.FloatTime(), count = 0;
 	do
 	{
@@ -229,7 +229,7 @@ static function _Frame() {
 			Host.frametime = 0.001;
 	}
 
-	if ((untyped CL).cls.state == (untyped CL).active.connecting) {
+	if (CL.cls.state == CL.active.connecting) {
 		NET.CheckForResend();
 		SCR.UpdateScreen();
 		return;
@@ -239,12 +239,12 @@ static function _Frame() {
 
 	Cmd.Execute();
 
-	(untyped CL).SendCmd();
+	CL.SendCmd();
 	if ((untyped SV).server.active)
 		Host.ServerFrame();
 
-	if ((untyped CL).cls.state == (untyped CL).active.connected)
-		(untyped CL).ReadFromServer();
+	if (CL.cls.state == CL.active.connected)
+		CL.ReadFromServer();
 
 	if (Host.speeds.value != 0)
 		time1 = Sys.FloatTime();
@@ -252,9 +252,9 @@ static function _Frame() {
 	if (Host.speeds.value != 0)
 		time2 = Sys.FloatTime();
 
-	if ((untyped CL).cls.signon == 4) {
+	if (CL.cls.signon == 4) {
 		S.Update(R.refdef.vieworg, R.vpn, R.vright, R.vup);
-		(untyped CL).DecayLights();
+		CL.DecayLights();
 	}
 	else
 		S.Update(Vec.origin, Vec.origin, Vec.origin, Vec.origin);
@@ -277,7 +277,7 @@ static function _Frame() {
 	}
 
 	if (Host.startdemos) {
-		(untyped CL).NextDemo();
+		CL.NextDemo();
 		Host.startdemos = false;
 	}
 
@@ -330,7 +330,7 @@ static function Init() {
 	M.Init();
 	CDAudio.Init();
 	Sbar.Init();
-	(untyped CL).Init();
+	CL.Init();
 	IN.Init();
 	Cmd.text = 'exec quake.rc\n' + Cmd.text;
 	Host.initialized = true;
@@ -511,8 +511,8 @@ static function Map_f() {
 	}
 	if (Cmd.client)
 		return;
-	(untyped CL).cls.demonum = -1;
-	(untyped CL).Disconnect();
+	CL.cls.demonum = -1;
+	CL.Disconnect();
 	Host.ShutdownServer(false);
 	Key.dest.value = Key.dest.game;
 	SCR.BeginLoadingPlaque();
@@ -520,9 +520,9 @@ static function Map_f() {
 	(untyped SV).SpawnServer(Cmd.argv[1]);
 	if ((untyped SV).server.active != true)
 		return;
-	(untyped CL).cls.spawnparms = '';
+	CL.cls.spawnparms = '';
 	for (i in 2...Cmd.argv.length)
-		(untyped CL).cls.spawnparms += Cmd.argv[i] + ' ';
+		CL.cls.spawnparms += Cmd.argv[i] + ' ';
 	Cmd.ExecuteString('connect local');
 }
 
@@ -531,7 +531,7 @@ static function Changelevel_f() {
 		Console.Print('changelevel <levelname> : continue game on a new level\n');
 		return;
 	}
-	if (((untyped SV).server.active != true) || ((untyped CL).cls.demoplayback)) {
+	if (((untyped SV).server.active != true) || (CL.cls.demoplayback)) {
 		Console.Print('Only the server may changelevel\n');
 		return;
 	}
@@ -540,38 +540,38 @@ static function Changelevel_f() {
 }
 
 static function Restart_f() {
-	if (((untyped CL).cls.demoplayback != true) && ((untyped SV).server.active) && (Cmd.client != true))
+	if ((CL.cls.demoplayback != true) && ((untyped SV).server.active) && (Cmd.client != true))
 		(untyped SV).SpawnServer(PR.GetString(PR.globals_int[PR.globalvars.mapname]));
 }
 
 static function Reconnect_f() {
 	SCR.BeginLoadingPlaque();
-	(untyped CL).cls.signon = 0;
+	CL.cls.signon = 0;
 }
 
 static function Connect_f() {
-	(untyped CL).cls.demonum = -1;
-	if ((untyped CL).cls.demoplayback) {
-		(untyped CL).StopPlayback();
-		(untyped CL).Disconnect();
+	CL.cls.demonum = -1;
+	if (CL.cls.demoplayback) {
+		CL.StopPlayback();
+		CL.Disconnect();
 	}
-	(untyped CL).EstablishConnection(Cmd.argv[1]);
-	(untyped CL).cls.signon = 0;
+	CL.EstablishConnection(Cmd.argv[1]);
+	CL.cls.signon = 0;
 }
 
 static function SavegameComment() {
-	var text = ~/\s/gm.replace((untyped CL).state.levelname, "_");
-	for (i in (untyped CL).state.levelname.length...22)
+	var text = ~/\s/gm.replace(CL.state.levelname, "_");
+	for (i in CL.state.levelname.length...22)
 		text += '_';
 
 	text += 'kills:';
-	var kills = (untyped CL).state.stats[Def.stat.monsters].toString();
+	var kills = Std.string(CL.state.stats[Def.stat.monsters]);
 	if (kills.length == 2)
 		text += '_';
 	else if (kills.length == 1)
 		text += '__';
 	text += kills + '/';
-	kills = (untyped CL).state.stats[Def.stat.totalmonsters].toString();
+	kills = Std.string(CL.state.stats[Def.stat.totalmonsters]);
 	if (kills.length == 2)
 		text += '_';
 	else if (kills.length == 1)
@@ -588,7 +588,7 @@ static function Savegame_f() {
 		Console.Print('Not playing a local game.\n');
 		return;
 	}
-	if ((untyped CL).state.intermission != 0) {
+	if (CL.state.intermission != 0) {
 		Console.Print('Can\'t save in intermission.\n');
 		return;
 	}
@@ -672,7 +672,7 @@ static function Loadgame_f() {
 		Console.Print('load <savename> : load a game\n');
 		return;
 	}
-	(untyped CL).cls.demonum = -1;
+	CL.cls.demonum = -1;
 	var name = COM.DefaultExtension(Cmd.argv[1], '.sav');
 	Console.Print('Loading game from ' + name + '...\n');
 	var f = COM.LoadTextFile(name);
@@ -696,7 +696,7 @@ static function Loadgame_f() {
 	Cvar.SetValue('skill', Host.current_skill);
 
 	var time = Std.parseFloat(f[20]);
-	(untyped CL).Disconnect();
+	CL.Disconnect();
 	(untyped SV).SpawnServer(f[19]);
 	if ((untyped SV).server.active != true) {
 		Console.Print('Couldn\'t load map\n');
@@ -752,13 +752,13 @@ static function Loadgame_f() {
 	client.spawn_parms = [];
 	for (i in 0...16)
 		client.spawn_parms[i] = spawn_parms[i];
-	(untyped CL).EstablishConnection('local');
+	CL.EstablishConnection('local');
 	Host.Reconnect_f();
 }
 
 static function Name_f() {
 	if (Cmd.argv.length <= 1) {
-		Console.Print('"name" is "' + (untyped CL).name.string + '"\n');
+		Console.Print('"name" is "' + CL.name.string + '"\n');
 		return;
 	}
 
@@ -770,7 +770,7 @@ static function Name_f() {
 
 	if (Cmd.client != true) {
 		Cvar.Set('_cl_name', newName);
-		if ((untyped CL).cls.state == (untyped CL).active.connected)
+		if (CL.cls.state == CL.active.connected)
 			Cmd.ForwardToServer();
 		return;
 	}
@@ -854,7 +854,8 @@ static function Tell_f() {
 
 static function Color_f() {
 	if (Cmd.argv.length <= 1) {
-		Console.Print('"color" is "' + ((untyped CL).color.value >> 4) + ' ' + ((untyped CL).color.value & 15) + '"\ncolor <0-13> [0-13]\n');
+		var col = Std.int(CL.color.value);
+		Console.Print('"color" is "' + (col >> 4) + ' ' + (col & 15) + '"\ncolor <0-13> [0-13]\n');
 		return;
 	}
 
@@ -873,7 +874,7 @@ static function Color_f() {
 
 	if (Cmd.client != true) {
 		Cvar.SetValue('_cl_color', playercolor);
-		if ((untyped CL).cls.state == (untyped CL).active.connected)
+		if (CL.cls.state == CL.active.connected)
 			Cmd.ForwardToServer();
 		return;
 	}
@@ -1052,7 +1053,7 @@ static function Kick_f() {
 		return;
 	var who;
 	if (Cmd.client != true)
-		who = (untyped CL).name.string;
+		who = CL.name.string;
 	else {
 		if (Host.client == save)
 			return;
@@ -1213,14 +1214,14 @@ static function Viewmodel_f() {
 		return;
 	}
 	ent.v_float[PR.entvars.frame] = 0.0;
-	(untyped CL).state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])] = m;
+	CL.state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])] = m;
 }
 
 static function Viewframe_f() {
 	var ent = Host.FindViewthing();
 	if (ent == null)
 		return;
-	var m:MModel = (untyped CL).state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])];
+	var m:MModel = CL.state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])];
 	var f = Q.atoi(Cmd.argv[1]);
 	if (f >= m.frames.length)
 		f = m.frames.length - 1;
@@ -1231,7 +1232,7 @@ static function Viewnext_f() {
 	var ent = Host.FindViewthing();
 	if (ent == null)
 		return;
-	var m:MModel = (untyped CL).state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])];
+	var m:MModel = CL.state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])];
 	var f = Std.int(ent.v_float[PR.entvars.frame]) + 1;
 	if (f >= m.frames.length)
 		f = m.frames.length - 1;
@@ -1243,7 +1244,7 @@ static function Viewprev_f() {
 	var ent = Host.FindViewthing();
 	if (ent == null)
 		return;
-	var m:MModel = (untyped CL).state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])];
+	var m:MModel = CL.state.model_precache[Std.int(ent.v_float[PR.entvars.modelindex])];
 	var f = Std.int(ent.v_float[PR.entvars.frame]) - 1;
 	if (f < 0)
 		f = 0;
@@ -1255,32 +1256,32 @@ static var startdemos:Bool;
 
 static function Startdemos_f() {
 	Console.Print((Cmd.argv.length - 1) + ' demo(s) in loop\n');
-	(untyped CL).cls.demos = [];
+	CL.cls.demos = [];
 	for (i in 1...Cmd.argv.length)
-		(untyped CL).cls.demos[i - 1] = Cmd.argv[i];
-	if (((untyped CL).cls.demonum != -1) && ((untyped CL).cls.demoplayback != true)) {
-		(untyped CL).cls.demonum = 0;
+		CL.cls.demos[i - 1] = Cmd.argv[i];
+	if ((CL.cls.demonum != -1) && (CL.cls.demoplayback != true)) {
+		CL.cls.demonum = 0;
 		if (Host.framecount != 0)
-			(untyped CL).NextDemo();
+			CL.NextDemo();
 		else
 			Host.startdemos = true;
 	}
 	else
-		(untyped CL).cls.demonum = -1;
+		CL.cls.demonum = -1;
 }
 
 static function Demos_f() {
-	if ((untyped CL).cls.demonum == -1)
-		(untyped CL).cls.demonum = 1;
-	(untyped CL).Disconnect();
-	(untyped CL).NextDemo();
+	if (CL.cls.demonum == -1)
+		CL.cls.demonum = 1;
+	CL.Disconnect();
+	CL.NextDemo();
 }
 
 static function Stopdemo_f() {
-	if ((untyped CL).cls.demoplayback != true)
+	if (CL.cls.demoplayback != true)
 		return;
-	(untyped CL).StopPlayback();
-	(untyped CL).Disconnect();
+	CL.StopPlayback();
+	CL.Disconnect();
 }
 
 static function InitCommands() {

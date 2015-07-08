@@ -44,7 +44,14 @@ class MModel {
     var surfedges:Array<Int>;
     var random:Bool;
     var nodes:Array<MNode>;
+    var hulls:Array<MHull>;
 }
+
+@:publicFields
+class MHull {
+    var firstclipnode:Int;
+}
+
 
 @:publicFields
 class MSkin {

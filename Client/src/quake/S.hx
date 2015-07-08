@@ -155,7 +155,7 @@ class S {
 	}
 
 	static function Spatialize(ch:Channel):Void {
-		if (ch.entnum == (untyped CL).state.viewentity) {
+		if (ch.entnum == CL.state.viewentity) {
 			ch.leftvol = ch.master_vol;
 			ch.rightvol = ch.master_vol;
 			return;
@@ -295,14 +295,14 @@ class S {
 	}
 
 	static inline function LocalSound(sound:Sfx):Void {
-		StartSound((untyped CL).state.viewentity, -1, sound, Vec.origin, 1.0, 1.0);
+		StartSound(CL.state.viewentity, -1, sound, Vec.origin, 1.0, 1.0);
 	}
 
 	static function UpdateAmbientSounds():Void {
-		if ((untyped CL).state.worldmodel == null)
+		if (CL.state.worldmodel == null)
 			return;
 
-		var l = (untyped Mod).PointInLeaf(S.listener_origin, (untyped CL).state.worldmodel);
+		var l = (untyped Mod).PointInLeaf(S.listener_origin, CL.state.worldmodel);
 		if ((l == null) || (S.ambient_level.value == 0)) {
 			for (ch in S.ambient_channels) {
 				ch.master_vol = 0.0;
@@ -471,7 +471,7 @@ class S {
 		for (i in 1...Cmd.argv.length) {
 			var sfx = S.PrecacheSound(COM.DefaultExtension(Cmd.argv[i], '.wav'));
 			if (sfx != null)
-				S.StartSound((untyped CL).state.viewentity, 0, sfx, S.listener_origin, 1.0, 1.0);
+				S.StartSound(CL.state.viewentity, 0, sfx, S.listener_origin, 1.0, 1.0);
 		}
 	}
 
@@ -482,7 +482,7 @@ class S {
 		while (i < Cmd.argv.length) {
 			var sfx = S.PrecacheSound(COM.DefaultExtension(Cmd.argv[i], '.wav'));
 			if (sfx != null)
-				S.StartSound((untyped CL).state.viewentity, 0, sfx, S.listener_origin, Q.atof(Cmd.argv[i + 1]), 1.0);
+				S.StartSound(CL.state.viewentity, 0, sfx, S.listener_origin, Q.atof(Cmd.argv[i + 1]), 1.0);
 			i += 2;
 		}
 	}

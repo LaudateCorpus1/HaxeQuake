@@ -84,7 +84,7 @@ class NET {
 				continue;
 			var ret = dfunc.Connect(host);
 			if ((cast ret) == 0) {
-				(untyped CL).cls.state = (untyped CL).active.connecting;
+				CL.cls.state = CL.active.connecting;
 				Console.Print('trying...\n');
 				start_time = time;
 				reps = 0;
@@ -108,7 +108,7 @@ class NET {
 		} else if (reps == 3) {
 			if ((time - start_time) >= 10.0) {
 				Close(newsocket);
-				(untyped CL).cls.state = (untyped CL).active.disconnected;
+				CL.cls.state = CL.active.disconnected;
 				Console.Print('No Response\n');
 				Host.Error('NET.CheckForResend: connect failed\n');
 			}
@@ -116,12 +116,12 @@ class NET {
 		var ret = dfunc.CheckForResend();
 		if (ret == 1) {
 			newsocket.disconnected = false;
-			(untyped CL).Connect(newsocket);
+			CL.Connect(newsocket);
 		}
 		else if (ret == -1) {
 			newsocket.disconnected = false;
 			Close(newsocket);
-			(untyped CL).cls.state = (untyped CL).active.disconnected;
+			CL.cls.state = CL.active.disconnected;
 			Console.Print('Network Error\n');
 			Host.Error('NET.CheckForResend: connect failed\n');
 		}

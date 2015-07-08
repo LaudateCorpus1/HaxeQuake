@@ -52,12 +52,12 @@ class SCR {
 		}
 		SCR.centerstring.push(str.substring(start, i));
 		SCR.centertime_off = SCR.centertime.value;
-		SCR.centertime_start = (untyped CL).state.time;
+		SCR.centertime_start = CL.state.time;
 	}
 
 	static function DrawCenterString():Void {
 		SCR.centertime_off -= Host.frametime;
-		if ((SCR.centertime_off <= 0.0 && (untyped CL).state.intermission == 0) || Key.dest.value != Key.dest.game)
+		if ((SCR.centertime_off <= 0.0 && CL.state.intermission == 0) || Key.dest.value != Key.dest.game)
 			return;
 
 		var y;
@@ -66,8 +66,8 @@ class SCR {
 		else
 			y = 48;
 
-		if ((untyped CL).state.intermission) {
-			var remaining = Math.floor(SCR.printspeed.value * ((untyped CL).state.time - SCR.centertime_start));
+		if (CL.state.intermission != 0) {
+			var remaining = Math.floor(SCR.printspeed.value * (CL.state.time - SCR.centertime_start));
 			for (str in SCR.centerstring) {
 				var x = (VID.width - (str.length << 3)) >> 1;
 				for (j in 0...str.length) {
@@ -96,7 +96,7 @@ class SCR {
 			Cvar.Set('viewsize', '120');
 
 		var size, full;
-		if ((untyped CL).state.intermission != 0) {
+		if (CL.state.intermission != 0) {
 			full = true;
 			size = 1.0;
 			Sbar.lines = 0;
@@ -207,17 +207,17 @@ class SCR {
 	}
 
 	static function DrawNet() {
-		if (((Host.realtime - (untyped CL).state.last_received_message) >= 0.3) && ((untyped CL).cls.demoplayback != true))
+		if (((Host.realtime - CL.state.last_received_message) >= 0.3) && (CL.cls.demoplayback != true))
 			Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, SCR.net);
 	}
 
 	static function DrawPause() {
-		if ((SCR.showpause.value != 0) && ((untyped CL).state.paused))
+		if ((SCR.showpause.value != 0) && (CL.state.paused))
 			Draw.Pic((VID.width - SCR.pause.width) >> 1, (VID.height - 48 - SCR.pause.height) >> 1, SCR.pause);
 	}
 
 	static function SetUpToDrawConsole() {
-		Console.forcedup = ((untyped CL).state.worldmodel == null) || ((untyped CL).cls.signon != 4);
+		Console.forcedup = (CL.state.worldmodel == null) || (CL.cls.signon != 4);
 
 		if (Console.forcedup) {
 			SCR.con_current = 200;
@@ -257,7 +257,7 @@ class SCR {
 
 	static function BeginLoadingPlaque() {
 		S.StopAllSounds();
-		if (((untyped CL).cls.state != (untyped CL).active.connected) || ((untyped CL).cls.signon != 4))
+		if ((CL.cls.state != CL.active.connected) || (CL.cls.signon != 4))
 			return;
 		SCR.centertime_off = 0.0;
 		SCR.con_current = 0;
@@ -316,15 +316,15 @@ class SCR {
 		if (Console.forcedup != true)
 			R.PolyBlend();
 
-		if ((untyped CL).cls.state == (untyped CL).active.connecting)
+		if (CL.cls.state == CL.active.connecting)
 			SCR.DrawConsole();
-		else if (((untyped CL).state.intermission == 1) && (Key.dest.value == Key.dest.game))
+		else if ((CL.state.intermission == 1) && (Key.dest.value == Key.dest.game))
 			Sbar.IntermissionOverlay();
-		else if (((untyped CL).state.intermission == 2) && (Key.dest.value == Key.dest.game)) {
+		else if ((CL.state.intermission == 2) && (Key.dest.value == Key.dest.game)) {
 			Sbar.FinaleOverlay();
 			SCR.DrawCenterString();
 		}
-		else if (((untyped CL).state.intermission == 3) && (Key.dest.value == Key.dest.game))
+		else if ((CL.state.intermission == 3) && (Key.dest.value == Key.dest.game))
 			SCR.DrawCenterString();
 		else
 		{

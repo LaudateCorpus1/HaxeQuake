@@ -339,7 +339,7 @@ class Key {
 	}
 
 	static function Event(key:KeyCode, down = false):Void {
-		if ((untyped CL).cls.state == (untyped CL).active.connecting)
+		if (CL.cls.state == CL.active.connecting)
 			return;
 		if (down) {
 			if ((key != KeyCode.backspace) && (key != KeyCode.pause) && (Key.down[key]))
@@ -382,7 +382,7 @@ class Key {
 			return;
 		}
 
-		if (((untyped CL).cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest.value == Key.dest.game)) {
+		if ((CL.cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest.value == Key.dest.game)) {
 			(untyped M).ToggleMenu_f();
 			return;
 		}

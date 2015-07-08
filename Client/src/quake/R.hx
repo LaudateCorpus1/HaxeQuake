@@ -143,13 +143,13 @@ class R {
 
     static function AnimateLight() {
         if (R.fullbright.value == 0) {
-            var i = Math.floor((untyped CL).state.time * 10.0);
+            var i = Math.floor(CL.state.time * 10.0);
             for (j in 0...64) {
-                if ((untyped CL).lightstyle[j].length == 0) {
+                if (CL.lightstyle[j].length == 0) {
                     R.lightstylevalue[j] = 12;
                     continue;
                 }
-                R.lightstylevalue[j] = (untyped CL).lightstyle[j].charCodeAt(i % (untyped CL).lightstyle[j].length) - 97;
+                R.lightstylevalue[j] = CL.lightstyle[j].charCodeAt(i % CL.lightstyle[j].length) - 97;
             }
         } else {
             for (j in 0...64)
@@ -168,8 +168,8 @@ class R {
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.dlightvecs);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 0, 0);
         for (i in 0...32) {
-            var l:DLight = (untyped CL).dlights[i];
-            if ((l.die < (untyped CL).state.time) || (l.radius == 0.0))
+            var l:DLight = CL.dlights[i];
+            if ((l.die < CL.state.time) || (l.radius == 0.0))
                 continue;
             if (Vec.Length([l.origin[0] - R.refdef.vieworg[0], l.origin[1] - R.refdef.vieworg[1], l.origin[2] - R.refdef.vieworg[2]]) < (l.radius * 0.35)) {
                 var a = l.radius * 0.0003;
@@ -201,7 +201,7 @@ class R {
             return;
         }
         for (i in 0...node.numfaces) {
-            var surf = (untyped CL).state.worldmodel.faces[node.firstface + i];
+            var surf = CL.state.worldmodel.faces[node.firstface + i];
             if ((surf.sky) || (surf.turbulent))
                 continue;
             if (surf.dlightframe != (R.dlightframecount + 1)) {
@@ -222,23 +222,23 @@ class R {
 
         var bit = 1;
         for (i in 0...32) {
-            var l:DLight = (untyped CL).dlights[i];
-            if ((l.die >= (untyped CL).state.time) && (l.radius != 0.0)) {
-                R.MarkLights(l, bit, (untyped CL).state.worldmodel.nodes[0]);
-                for (j in 0...(untyped CL).numvisedicts) {
-                    var ent = (untyped CL).visedicts[j];
+            var l:DLight = CL.dlights[i];
+            if ((l.die >= CL.state.time) && (l.radius != 0.0)) {
+                R.MarkLights(l, bit, CL.state.worldmodel.nodes[0]);
+                for (j in 0...CL.numvisedicts) {
+                    var ent = CL.visedicts[j];
                     if (ent.model == null)
                         continue;
                     if ((ent.model.type != (untyped Mod).type.brush) || (ent.model.submodel != true))
                         continue;
-                    R.MarkLights(l, bit, (untyped CL).state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
+                    R.MarkLights(l, bit, CL.state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
                 }
             }
             bit += bit;
         }
 
-        for (i in 0...(untyped CL).state.worldmodel.faces.length) {
-            var surf:MSurface = (untyped CL).state.worldmodel.faces[i];
+        for (i in 0...CL.state.worldmodel.faces.length) {
+            var surf:MSurface = CL.state.worldmodel.faces[i];
             if (surf.dlightframe == R.dlightframecount)
                 R.RemoveDynamicLights(surf);
             else if (surf.dlightframe == (R.dlightframecount + 1))
@@ -290,11 +290,11 @@ class R {
             return -1;
 
         for (i in 0...node.numfaces) {
-            var surf:MSurface = (untyped CL).state.worldmodel.faces[node.firstface + i];
+            var surf:MSurface = CL.state.worldmodel.faces[node.firstface + i];
             if ((surf.sky) || (surf.turbulent))
                 continue;
 
-            var tex = (untyped CL).state.worldmodel.texinfo[surf.texinfo];
+            var tex = CL.state.worldmodel.texinfo[surf.texinfo];
 
             var s = Vec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3];
             var t = Vec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3];
@@ -320,7 +320,7 @@ class R {
             r = 0;
             var size = ((surf.extents[0] >> 4) + 1) * ((surf.extents[1] >> 4) + 1);
             for (maps in 0...surf.styles.length) {
-                r += (untyped CL).state.worldmodel.lightdata[lightmap] * R.lightstylevalue[surf.styles[maps]] * 22;
+                r += CL.state.worldmodel.lightdata[lightmap] * R.lightstylevalue[surf.styles[maps]] * 22;
                 lightmap += size;
             }
             return r >> 8;
@@ -329,9 +329,9 @@ class R {
     }
 
     static function LightPoint(p:Vec):Int {
-        if ((untyped CL).state.worldmodel.lightdata == null)
+        if (CL.state.worldmodel.lightdata == null)
             return 255;
-        var r = R.RecursiveLightPoint((untyped CL).state.worldmodel.nodes[0], p, [p[0], p[1], p[2] - 2048.0]);
+        var r = R.RecursiveLightPoint(CL.state.worldmodel.nodes[0], p, [p[0], p[1], p[2] - 2048.0]);
         if (r == -1)
             return 0;
         return r;
@@ -381,7 +381,7 @@ class R {
         }
         var frame = e.model.frames[num];
         if (frame.group) {
-            var time = (untyped CL).state.time + e.syncbase;
+            var time = CL.state.time + e.syncbase;
             var num = frame.frames.length - 1;
             var fullinterval = frame.frames[num].interval;
             var targettime = time - Math.floor(time / fullinterval) * fullinterval;
@@ -585,8 +585,8 @@ class R {
         var program;
         if ((e.colormap != 0) && (clmodel.player) && (R.nocolors.value == 0)) {
             program = GL.UseProgram('Player');
-            var top = ((untyped CL).state.scores[e.colormap - 1].colors & 0xf0) + 4;
-            var bottom = (((untyped CL).state.scores[e.colormap - 1].colors & 0xf) << 4) + 4;
+            var top = (CL.state.scores[e.colormap - 1].colors & 0xf0) + 4;
+            var bottom = ((CL.state.scores[e.colormap - 1].colors & 0xf) << 4) + 4;
             if (top <= 127)
                 top += 7;
             if (bottom <= 127)
@@ -602,11 +602,11 @@ class R {
 
         var ambientlight:Float = R.LightPoint(e.origin);
         var shadelight = ambientlight;
-        if ((e == (untyped CL).state.viewent) && (ambientlight < 24.0))
+        if ((e == CL.state.viewent) && (ambientlight < 24.0))
             ambientlight = shadelight = 24;
         for (i in 0...32) {
-            var dl = (untyped CL).dlights[i];
-            if (dl.die < (untyped CL).state.time)
+            var dl = CL.dlights[i];
+            if (dl.die < CL.state.time)
                 continue;
             var add = dl.radius - Vec.Length([e.origin[0] - dl.origin[0], e.origin[1] - dl.origin[1], e.origin[1] - dl.origin[1]]);
             if (add > 0) {
@@ -618,7 +618,7 @@ class R {
             ambientlight = 128.0;
         if ((ambientlight + shadelight) > 192.0)
             shadelight = 192.0 - ambientlight;
-        if ((e.num >= 1) && (e.num <= (untyped CL).state.maxclients) && (ambientlight < 8.0))
+        if ((e.num >= 1) && (e.num <= CL.state.maxclients) && (ambientlight < 8.0))
             ambientlight = shadelight = 8.0;
         gl.uniform1f(program.uAmbientLight, ambientlight * 0.0078125);
         gl.uniform1f(program.uShadeLight, shadelight * 0.0078125);
@@ -633,7 +633,7 @@ class R {
 
         R.c_alias_polys += clmodel.numtris;
 
-        var time = (untyped CL).state.time + e.syncbase;
+        var time = CL.state.time + e.syncbase;
         var num = e.frame;
         if (num >= clmodel.numframes || num < 0) {
             Console.DPrint('R.DrawAliasModel: no such frame ' + num + '\n');
@@ -685,9 +685,9 @@ class R {
     static function DrawEntitiesOnList() {
         if (R.drawentities.value == 0)
             return;
-        var vis = (R.novis.value != 0) ? (untyped Mod).novis : (untyped Mod).LeafPVS(R.viewleaf, (untyped CL).state.worldmodel);
-        for (i in 0...(untyped CL).state.num_statics) {
-            R.currententity = (untyped CL).static_entities[i];
+        var vis = (R.novis.value != 0) ? (untyped Mod).novis : (untyped Mod).LeafPVS(R.viewleaf, CL.state.worldmodel);
+        for (i in 0...CL.state.num_statics) {
+            R.currententity = CL.static_entities[i];
             if (R.currententity.model == null)
                 continue;
             var j = 0;
@@ -708,8 +708,8 @@ class R {
                 default:
             }
         }
-        for (i in 0...(untyped CL).numvisedicts) {
-            R.currententity = (untyped CL).visedicts[i];
+        for (i in 0...CL.numvisedicts) {
+            R.currententity = CL.visedicts[i];
             if (R.currententity.model == null)
                 continue;
             switch (R.currententity.model.type) {
@@ -722,15 +722,15 @@ class R {
         }
         gl.depthMask(false);
         gl.enable(RenderingContext.BLEND);
-        for (i in 0...(untyped CL).state.num_statics) {
-            R.currententity = (untyped CL).static_entities[i];
+        for (i in 0...CL.state.num_statics) {
+            R.currententity = CL.static_entities[i];
             if (R.currententity.model == null)
                 continue;
             if (R.currententity.model.type == (untyped Mod).type.sprite)
                 R.DrawSpriteModel(R.currententity);
         }
-        for (i in 0...(untyped CL).numvisedicts) {
-            R.currententity = (untyped CL).visedicts[i];
+        for (i in 0...CL.numvisedicts) {
+            R.currententity = CL.visedicts[i];
             if (R.currententity.model == null)
                 continue;
             if (R.currententity.model.type == (untyped Mod).type.sprite)
@@ -747,11 +747,11 @@ class R {
             return;
         if (R.drawentities.value == 0)
             return;
-        if (((untyped CL).state.items & Def.it.invisibility) != 0)
+        if ((CL.state.items & Def.it.invisibility) != 0)
             return;
-        if ((untyped CL).state.stats[Def.stat.health] <= 0)
+        if (CL.state.stats[Def.stat.health] <= 0)
             return;
-        if ((untyped CL).state.viewent.model == null)
+        if (CL.state.viewent.model == null)
             return;
 
         gl.depthRange(0.0, 0.3);
@@ -762,7 +762,7 @@ class R {
         var program = GL.UseProgram('Alias');
         gl.uniformMatrix4fv(program.uPerspective, false, R.perspective);
 
-        R.DrawAliasModel((untyped CL).state.viewent);
+        R.DrawAliasModel(CL.state.viewent);
 
         ymax = 4.0 * Math.tan(R.refdef.fov_y * Math.PI / 360.0);
         R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
@@ -873,11 +873,11 @@ class R {
     }
 
     static function RenderScene() {
-        if ((untyped CL).state.maxclients >= 2)
+        if (CL.state.maxclients >= 2)
             Cvar.Set('r_fullbright', '0');
         R.AnimateLight();
         Vec.AngleVectors(R.refdef.viewangles, R.vpn, R.vright, R.vup);
-        R.viewleaf = (untyped Mod).PointInLeaf(R.refdef.vieworg, (untyped CL).state.worldmodel);
+        R.viewleaf = (untyped Mod).PointInLeaf(R.refdef.vieworg, CL.state.worldmodel);
         V.SetContentsColor(R.viewleaf.contents);
         V.CalcBlend();
         R.dowarp = (R.waterwarp.value != 0) && (R.viewleaf.contents <= (untyped Mod).contents.water);
@@ -1302,16 +1302,16 @@ class R {
     static function EntityParticles(ent:REntity) {
         var allocated = R.AllocParticles(162);
         for (i in 0...allocated.length) {
-            var angle = (untyped CL).state.time * R.avelocities[i][0];
+            var angle = CL.state.time * R.avelocities[i][0];
             var sp = Math.sin(angle);
             var cp = Math.cos(angle);
-            var angle = (untyped CL).state.time * R.avelocities[i][1];
+            var angle = CL.state.time * R.avelocities[i][1];
             var sy = Math.sin(angle);
             var cy = Math.cos(angle);
 
             R.particles[allocated[i]] = {
                 var p = new RParticle(explode);
-                p.die = (untyped CL).state.time + 0.01;
+                p.die = CL.state.time + 0.01;
                 p.color = 0x6f;
                 p.ramp = 0.0;
                 p.vel = [0.0, 0.0, 0.0];
@@ -1385,7 +1385,7 @@ class R {
         for (i in 0...allocated.length) {
             R.particles[allocated[i]] = {
                 var p = new RParticle((i & 1) != 0 ? explode : explode2);
-                p.die = (untyped CL).state.time + 5.0;
+                p.die = CL.state.time + 5.0;
                 p.color = R.ramp1[0];
                 p.ramp = Math.floor(Math.random() * 4.0);
                 p.vel = [Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0];
@@ -1404,7 +1404,7 @@ class R {
         for (i in 0...allocated.length) {
             R.particles[allocated[i]] = {
                 var p = new RParticle(blob);
-                p.die = (untyped CL).state.time + 0.3;
+                p.die = CL.state.time + 0.3;
                 p.color = colorStart + (colorMod++ % colorLength);
                 p.org = [
                     org[0] + Math.random() * 32.0 - 16.0,
@@ -1421,7 +1421,7 @@ class R {
         var allocated = R.AllocParticles(1024);
         for (i in 0...allocated.length) {
             var p = R.particles[allocated[i]];
-            p.die = (untyped CL).state.time + 1.0 + Math.random() * 0.4;
+            p.die = CL.state.time + 1.0 + Math.random() * 0.4;
             if ((i & 1) != 0) {
                 p.type = blob;
                 p.color = 66 + Math.floor(Math.random() * 7.0);
@@ -1443,7 +1443,7 @@ class R {
         for (i in 0...allocated.length) {
             R.particles[allocated[i]] = {
                 var p = new RParticle(slowgrav);
-                p.die = (untyped CL).state.time + 0.6 * Math.random();
+                p.die = CL.state.time + 0.6 * Math.random();
                 p.color = (color & 0xf8) + Math.floor(Math.random() * 8.0);
                 p.org = [
                     org[0] + Math.random() * 16.0 - 8.0,
@@ -1464,7 +1464,7 @@ class R {
                 if (k >= allocated.length)
                     return;
                 var p = R.particles[allocated[k++]];
-                p.die = (untyped CL).state.time + 2.0 + Math.random() * 0.64;
+                p.die = CL.state.time + 2.0 + Math.random() * 0.64;
                 p.color = 224 + Math.floor(Math.random() * 8.0);
                 p.type = slowgrav;
                 dir[0] = (j + Math.random()) * 8.0;
@@ -1490,7 +1490,7 @@ class R {
                     if (l >= allocated.length)
                         return;
                     var p = R.particles[allocated[l++]];
-                    p.die = (untyped CL).state.time + 0.2 + Math.random() * 0.16;
+                    p.die = CL.state.time + 0.2 + Math.random() * 0.16;
                     p.color = 7 + Math.floor(Math.random() * 8.0);
                     p.type = slowgrav;
                     dir[0] = j * 8.0;
@@ -1529,7 +1529,7 @@ class R {
         for (i in 0...allocated.length) {
             var p = R.particles[allocated[i]];
             p.vel = [0.0, 0.0, 0.0];
-            p.die = (untyped CL).state.time + 2.0;
+            p.die = CL.state.time + 2.0;
             switch (type) {
                 case 0 | 1:
                     p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
@@ -1549,7 +1549,7 @@ class R {
                         start[2] + Math.random() * 6.0 - 3.0
                     ];
                 case 3 | 5:
-                    p.die = (untyped CL).state.time + 0.5;
+                    p.die = CL.state.time + 0.5;
                     p.type = tracer;
                     if (type == 3)
                         p.color = 52 + ((R.tracercount++ & 4) << 1);
@@ -1576,7 +1576,7 @@ class R {
                 case 6:
                     p.color = 152 + Math.floor(Math.random() * 4.0);
                     p.type = tracer;
-                    p.die = (untyped CL).state.time + 0.3;
+                    p.die = CL.state.time + 0.3;
                     p.org = [
                         start[0] + Math.random() * 16.0 - 8.0,
                         start[1] + Math.random() * 16.0 - 8.0,
@@ -1598,13 +1598,13 @@ class R {
         gl.depthMask(false);
         gl.enable(RenderingContext.BLEND);
 
-        var frametime = (untyped CL).state.time - (untyped CL).state.oldtime;
+        var frametime = CL.state.time - CL.state.oldtime;
         var grav = frametime * (untyped SV).gravity.value * 0.05;
         var dvel = frametime * 4.0;
 
         for (i in 0...R.numparticles) {
             var p = R.particles[i];
-            if (p.die < (untyped CL).state.time)
+            if (p.die < CL.state.time)
                 continue;
 
             var color = VID.d_8to24table[p.color];
@@ -1672,7 +1672,7 @@ class R {
         for (i in 0...R.numparticles) {
             if (count == 0)
                 return allocated;
-            if (R.particles[i].die < (untyped CL).state.time) {
+            if (R.particles[i].die < CL.state.time) {
                 allocated[allocated.length] = i;
                 --count;
             }
@@ -1690,7 +1690,7 @@ class R {
         var smax = (surf.extents[0] >> 4) + 1;
         var tmax = (surf.extents[1] >> 4) + 1;
         var size = smax * tmax;
-        var tex = (untyped CL).state.worldmodel.texinfo[surf.texinfo];
+        var tex = CL.state.worldmodel.texinfo[surf.texinfo];
         var impact = [], local = [];
 
         var blocklights = [];
@@ -1700,7 +1700,7 @@ class R {
         for (i in 0...32) {
             if (((surf.dlightbits >>> i) & 1) == 0)
                 continue;
-            var light = (untyped CL).dlights[i];
+            var light = CL.dlights[i];
             var dist = Vec.DotProduct(light.origin, surf.plane.normal) - surf.plane.dist;
             var rad = light.radius - Math.abs(dist);
             var minlight = light.minlight;
@@ -1793,7 +1793,7 @@ class R {
             return base;
         if ((R.currententity.frame != 0) && (base.alternate_anims.length != 0))
             anims = base.alternate_anims;
-        return R.currententity.model.textures[anims[(Math.floor((untyped CL).state.time * 5.0) + frame) % anims.length]];
+        return R.currententity.model.textures[anims[(Math.floor(CL.state.time * 5.0) + frame) % anims.length]];
     }
 
     static function DrawBrushModel(e:REntity):Void {
@@ -1885,8 +1885,8 @@ class R {
     }
 
     static function DrawWorld() {
-        var clmodel:MModel = (untyped CL).state.worldmodel;
-        R.currententity = (untyped CL).entities[0];
+        var clmodel:MModel = CL.state.worldmodel;
+        R.currententity = CL.entities[0];
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
 
         var program = GL.UseProgram('Brush');
@@ -1944,11 +1944,11 @@ class R {
             return;
         ++R.visframecount;
         R.oldviewleaf = R.viewleaf;
-        var vis = (R.novis.value != 0) ? (untyped Mod).novis : (untyped Mod).LeafPVS(R.viewleaf, (untyped CL).state.worldmodel);
-        for (i in 0...(untyped CL).state.worldmodel.leafs.length) {
+        var vis = (R.novis.value != 0) ? (untyped Mod).novis : (untyped Mod).LeafPVS(R.viewleaf, CL.state.worldmodel);
+        for (i in 0...CL.state.worldmodel.leafs.length) {
             if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                 continue;
-            var node:MNode = (untyped CL).state.worldmodel.leafs[i + 1];
+            var node:MNode = CL.state.worldmodel.leafs[i + 1];
             while (node != null) {
                 if (node.markvisframe == R.visframecount)
                     break;
@@ -1963,21 +1963,21 @@ class R {
             var p = [R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2]];
             var leaf;
             if (R.viewleaf.contents <= (untyped Mod).contents.water) {
-                leaf = (untyped Mod).PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0], (untyped CL).state.worldmodel);
+                leaf = (untyped Mod).PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0], CL.state.worldmodel);
                 if (leaf.contents <= (untyped Mod).contents.water)
                     break;
             } else {
-                leaf = (untyped Mod).PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0], (untyped CL).state.worldmodel);
+                leaf = (untyped Mod).PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0], CL.state.worldmodel);
                 if (leaf.contents > (untyped Mod).contents.water)
                     break;
             }
             if (leaf == R.viewleaf)
                 break;
-            vis = (untyped Mod).LeafPVS(leaf, (untyped CL).state.worldmodel);
-            for (i in 0...(untyped CL).state.worldmodel.leafs.length) {
+            vis = (untyped Mod).LeafPVS(leaf, CL.state.worldmodel);
+            for (i in 0...CL.state.worldmodel.leafs.length) {
                 if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                     continue;
-                var node:MNode = (untyped CL).state.worldmodel.leafs[i + 1];
+                var node:MNode = CL.state.worldmodel.leafs[i + 1];
                 while (node != null) {
                     if (node.markvisframe == R.visframecount)
                         break;
@@ -1987,7 +1987,7 @@ class R {
             }
         } while (false);
         R.drawsky = false;
-        R.RecursiveWorldNode((untyped CL).state.worldmodel.nodes[0]);
+        R.RecursiveWorldNode(CL.state.worldmodel.nodes[0]);
     }
 
     static var drawsky:Bool;
@@ -2060,8 +2060,8 @@ class R {
         for (i in 0...1024)
             R.allocated[i] = 0;
 
-        for (i in 1...(untyped CL).state.model_precache.length) {
-            R.currentmodel = (untyped CL).state.model_precache[i];
+        for (i in 1...CL.state.model_precache.length) {
+            R.currentmodel = CL.state.model_precache[i];
             if (R.currentmodel.type != (untyped Mod).type.brush)
                 continue;
             if (R.currentmodel.name.charCodeAt(0) != 42) {
@@ -2144,7 +2144,7 @@ class R {
             return;
 
         gl.colorMask(false, false, false, false);
-        var clmodel:MModel = (untyped CL).state.worldmodel;
+        var clmodel:MModel = CL.state.worldmodel;
         var program = GL.UseProgram('SkyChain');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 12, clmodel.skychain);

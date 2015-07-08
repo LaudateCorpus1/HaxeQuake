@@ -6,6 +6,7 @@ import quake.ED.Edict;
 import quake.Mod.MModel;
 import quake.NET.INETSocket;
 import quake.PR.EType;
+import quake.Protocol.SVC;
 using Tools;
 
 @:publicFields
@@ -104,7 +105,7 @@ static function InitLocal() {
 }
 
 static function ClientPrint(string:String):Void {
-	MSG.WriteByte(Host.client.message, Protocol.svc.print);
+	MSG.WriteByte(Host.client.message, SVC.print);
 	MSG.WriteString(Host.client.message, string);
 }
 
@@ -113,7 +114,7 @@ static function BroadcastPrint(string:String):Void {
 		var client = (untyped SV).svs.clients[i];
 		if ((client.active != true) || (client.spawned != true))
 			continue;
-		MSG.WriteByte(client.message, Protocol.svc.print);
+		MSG.WriteByte(client.message, SVC.print);
 		MSG.WriteString(client.message, string);
 	}
 }
@@ -122,7 +123,7 @@ static function DropClient(crash:Bool):Void {
 	var client = Host.client;
 	if (!crash) {
 		if (NET.CanSendMessage(client.netconnection)) {
-			MSG.WriteByte(client.message, Protocol.svc.disconnect);
+			MSG.WriteByte(client.message, SVC.disconnect);
 			NET.SendMessage(client.netconnection, client.message);
 		}
 		if ((client.edict != null) && (client.spawned)) {
@@ -144,13 +145,13 @@ static function DropClient(crash:Bool):Void {
 		var client = (untyped SV).svs.clients[i];
 		if (!client.active)
 			continue;
-		MSG.WriteByte(client.message, Protocol.svc.updatename);
+		MSG.WriteByte(client.message, SVC.updatename);
 		MSG.WriteByte(client.message, num);
 		MSG.WriteByte(client.message, 0);
-		MSG.WriteByte(client.message, Protocol.svc.updatefrags);
+		MSG.WriteByte(client.message, SVC.updatefrags);
 		MSG.WriteByte(client.message, num);
 		MSG.WriteShort(client.message, 0);
-		MSG.WriteByte(client.message, Protocol.svc.updatecolors);
+		MSG.WriteByte(client.message, SVC.updatecolors);
 		MSG.WriteByte(client.message, num);
 		MSG.WriteByte(client.message, 0);
 	}
@@ -183,7 +184,7 @@ static function ShutdownServer(crash) {
 			break;
 	} while (count != 0);
 	var buf = new MSG(4, 1);
-	(new Uint8Array(buf.data))[0] = Protocol.svc.disconnect;
+	(new Uint8Array(buf.data))[0] = SVC.disconnect;
 	count = NET.SendToAll(buf);
 	if (count != 0)
 		Console.Print('Host.ShutdownServer: NET.SendToAll failed for ' + count + ' clients\n');
@@ -779,7 +780,7 @@ static function Name_f() {
 		Console.Print(name + ' renamed to ' + newName + '\n');
 	(untyped SV).SetClientName(Host.client, newName);
 	var msg = (untyped SV).server.reliable_datagram;
-	MSG.WriteByte(msg, Protocol.svc.updatename);
+	MSG.WriteByte(msg, SVC.updatename);
 	MSG.WriteByte(msg, Host.client.num);
 	MSG.WriteString(msg, newName);
 }
@@ -880,7 +881,7 @@ static function Color_f() {
 	Host.client.colors = playercolor;
 	Host.client.edict.v_float[PR.entvars.team] = bottom + 1;
 	var msg = (untyped SV).server.reliable_datagram;
-	MSG.WriteByte(msg, Protocol.svc.updatecolors);
+	MSG.WriteByte(msg, SVC.updatecolors);
 	MSG.WriteByte(msg, Host.client.num);
 	MSG.WriteByte(msg, playercolor);
 }
@@ -910,7 +911,7 @@ static function Pause_f() {
 	}
 	(untyped SV).server.paused = !(untyped SV).server.paused;
 	Host.BroadcastPrint((untyped SV).GetClientName(Host.client) + ((untyped SV).server.paused ? ' paused the game\n' : ' unpaused the game\n'));
-	MSG.WriteByte((untyped SV).server.reliable_datagram, Protocol.svc.setpause);
+	MSG.WriteByte((untyped SV).server.reliable_datagram, SVC.setpause);
 	MSG.WriteByte((untyped SV).server.reliable_datagram, (untyped SV).server.paused ? 1 : 0);
 }
 
@@ -925,7 +926,7 @@ static function PreSpawn_f() {
 		return;
 	}
 	SZ.Write(client.message, new Uint8Array((untyped SV).server.signon.data), (untyped SV).server.signon.cursize);
-	MSG.WriteByte(client.message, Protocol.svc.signonnum);
+	MSG.WriteByte(client.message, SVC.signonnum);
 	MSG.WriteByte(client.message, 2);
 	client.sendsignon = true;
 }
@@ -962,43 +963,43 @@ static function Spawn_f() {
 
 	var message = client.message;
 	message.cursize = 0;
-	MSG.WriteByte(message, Protocol.svc.time);
+	MSG.WriteByte(message, SVC.time);
 	MSG.WriteFloat(message, (untyped SV).server.time);
 	for (i in 0...(untyped SV).svs.maxclients) {
 		client = (untyped SV).svs.clients[i];
-		MSG.WriteByte(message, Protocol.svc.updatename);
+		MSG.WriteByte(message, SVC.updatename);
 		MSG.WriteByte(message, i);
 		MSG.WriteString(message, (untyped SV).GetClientName(client));
-		MSG.WriteByte(message, Protocol.svc.updatefrags);
+		MSG.WriteByte(message, SVC.updatefrags);
 		MSG.WriteByte(message, i);
 		MSG.WriteShort(message, client.old_frags);
-		MSG.WriteByte(message, Protocol.svc.updatecolors);
+		MSG.WriteByte(message, SVC.updatecolors);
 		MSG.WriteByte(message, i);
 		MSG.WriteByte(message, client.colors);
 	}
 	for (i in 0...64) {
-		MSG.WriteByte(message, Protocol.svc.lightstyle);
+		MSG.WriteByte(message, SVC.lightstyle);
 		MSG.WriteByte(message, i);
 		MSG.WriteString(message, (untyped SV).server.lightstyles[i]);
 	}
-	MSG.WriteByte(message, Protocol.svc.updatestat);
+	MSG.WriteByte(message, SVC.updatestat);
 	MSG.WriteByte(message, Def.stat.totalsecrets);
 	MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.total_secrets]));
-	MSG.WriteByte(message, Protocol.svc.updatestat);
+	MSG.WriteByte(message, SVC.updatestat);
 	MSG.WriteByte(message, Def.stat.totalmonsters);
 	MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.total_monsters]));
-	MSG.WriteByte(message, Protocol.svc.updatestat);
+	MSG.WriteByte(message, SVC.updatestat);
 	MSG.WriteByte(message, Def.stat.secrets);
 	MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.found_secrets]));
-	MSG.WriteByte(message, Protocol.svc.updatestat);
+	MSG.WriteByte(message, SVC.updatestat);
 	MSG.WriteByte(message, Def.stat.monsters);
 	MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.killed_monsters]));
-	MSG.WriteByte(message, Protocol.svc.setangle);
+	MSG.WriteByte(message, SVC.setangle);
 	MSG.WriteAngle(message, ent.v_float[PR.entvars.angles]);
 	MSG.WriteAngle(message, ent.v_float[PR.entvars.angles1]);
 	MSG.WriteAngle(message, 0.0);
 	(untyped SV).WriteClientdataToMessage(ent, message);
-	MSG.WriteByte(message, Protocol.svc.signonnum);
+	MSG.WriteByte(message, SVC.signonnum);
 	MSG.WriteByte(message, 3);
 	Host.client.sendsignon = true;
 }

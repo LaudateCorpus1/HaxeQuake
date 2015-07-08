@@ -12,6 +12,7 @@ import quake.GL.GLTexture;
 
 @:publicFields
 class MModel {
+    var flags:Int;
     var oriented:Bool;
     var numframes:Int;
     var frames:Array<MFrame>;
@@ -41,6 +42,8 @@ class MModel {
     var vertexes:Array<Vec>;
     var edges:Array<Array<Int>>;
     var surfedges:Array<Int>;
+    var random:Bool;
+    var nodes:Array<MNode>;
 }
 
 @:publicFields

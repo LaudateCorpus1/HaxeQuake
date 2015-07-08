@@ -1,6 +1,7 @@
 package quake;
 
 import quake.ED.Edict;
+import quake.Protocol.SVC;
 using Tools;
 
 @:expose("PF")
@@ -93,7 +94,7 @@ class PF {
             return;
         }
         var client = (untyped SV).svs.clients[entnum - 1];
-        MSG.WriteByte(client.message, Protocol.svc.print);
+        MSG.WriteByte(client.message, SVC.print);
         MSG.WriteString(client.message, VarString(1));
     }
 
@@ -104,7 +105,7 @@ class PF {
             return;
         }
         var client = (untyped SV).svs.clients[entnum - 1];
-        MSG.WriteByte(client.message, Protocol.svc.centerprint);
+        MSG.WriteByte(client.message, SVC.centerprint);
         MSG.WriteString(client.message, VarString(1));
     }
 
@@ -177,7 +178,7 @@ class PF {
             return;
         }
         var signon = (untyped SV).server.signon;
-        MSG.WriteByte(signon, Protocol.svc.spawnstaticsound);
+        MSG.WriteByte(signon, SVC.spawnstaticsound);
         MSG.WriteCoord(signon, PR.globals_float[4]);
         MSG.WriteCoord(signon, PR.globals_float[5]);
         MSG.WriteCoord(signon, PR.globals_float[6]);
@@ -281,7 +282,7 @@ class PF {
         if ((entnum <= 0) || (entnum > (untyped SV).svs.maxclients))
             PR.RunError('Parm 0 not a client');
         var client = (untyped SV).svs.clients[entnum - 1];
-        MSG.WriteByte(client.message, Protocol.svc.stufftext);
+        MSG.WriteByte(client.message, SVC.stufftext);
         MSG.WriteString(client.message, PR.GetString(PR.globals_int[7]));
     }
 
@@ -470,7 +471,7 @@ class PF {
             var client = (untyped SV).svs.clients[i];
             if ((client.active != true) && (client.spawned != true))
                 continue;
-            MSG.WriteByte(client.message, Protocol.svc.lightstyle);
+            MSG.WriteByte(client.message, SVC.lightstyle);
             MSG.WriteByte(client.message, style);
             MSG.WriteString(client.message, val);
         }
@@ -623,7 +624,7 @@ class PF {
     static function makestatic() {
         var ent:Edict = (untyped SV).server.edicts[PR.globals_int[4]];
         var message = (untyped SV).server.signon;
-        MSG.WriteByte(message, Protocol.svc.spawnstatic);
+        MSG.WriteByte(message, SVC.spawnstatic);
         MSG.WriteByte(message, (untyped SV).ModelIndex(PR.GetString(ent.v_int[PR.entvars.model])));
         MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.frame]));
         MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.colormap]));

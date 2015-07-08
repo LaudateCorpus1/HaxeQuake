@@ -41,16 +41,41 @@ private class RParticle {
 }
 
 @:publicFields
-private class REntity {
-    var leafs:Array<Int>;
+class REntity {
+    var leafs:Array<Int> = [];
     var model:MModel;
-    var angles:Vec;
-    var origin:Vec;
-    var frame:Int;
-    var syncbase:Float;
+    var angles:Vec = [0.0, 0.0, 0.0];
+    var msg_angles:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+    var origin:Vec = [0.0, 0.0, 0.0];
+    var msg_origins:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+    var frame = 0;
+    var syncbase = 0.0;
     var colormap:Int;
     var num:Int;
-    var skinnum:Int;
+    var skinnum = 0;
+    var msgtime = 0.0;
+    var forcelink:Bool;
+    var effects = 0;
+    var update_type = 0;
+    var visframe = 0;
+    var dlightframe = 0;
+    var dlightbits = 0;
+    var baseline = new REntityState();
+    function new(n = -1) {
+        num = n;
+    }
+}
+
+@:publicFields
+class REntityState {
+    var origin:Vec = [0.0, 0.0, 0.0];
+    var angles:Vec = [0.0, 0.0, 0.0];
+    var modelindex = 0;
+    var frame = 0;
+    var colormap = 0;
+    var skin = 0;
+    var effects = 0;
+    function new() {}
 }
 
 
@@ -1274,7 +1299,7 @@ class R {
         GL.CreateProgram('Particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }
 
-    static function EntityParticles(ent) {
+    static function EntityParticles(ent:REntity) {
         var allocated = R.AllocParticles(162);
         for (i in 0...allocated.length) {
             var angle = (untyped CL).state.time * R.avelocities[i][0];
@@ -1300,7 +1325,7 @@ class R {
         }
     }
 
-    static function ClearParticles() {
+    static function ClearParticles():Void {
         R.particles = [];
         for (i in 0...R.numparticles)
             R.particles[i] = {

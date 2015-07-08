@@ -144,7 +144,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
     }
 
-    static function Copy(v1:Vec, v2:Vec):Void {
+    public static inline function Copy(v1:Vec, v2:Vec):Void {
         v2[0] = v1[0];
         v2[1] = v1[1];
         v2[2] = v1[2];

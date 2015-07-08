@@ -24,6 +24,7 @@ interface INETSocket {
 	var driver:Int;
 	var lastMessageTime:Float;
 	var connecttime:Float;
+	var address:String;
 }
 
 private typedef NETDriver = {

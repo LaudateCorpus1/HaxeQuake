@@ -151,31 +151,31 @@ class M {
 	}
 
 	static function Main_Draw() {
-		DrawPic(16, 4, M.qplaque);
-		DrawPic(160 - (M.ttl_main.width >> 1), 4, M.ttl_main);
-		DrawPic(72, 32, M.mainmenu);
-		DrawPic(54, 32 + M.main_cursor * 20, M.menudot[Math.floor((untyped Host).realtime * 10.0) % 6]);
+		DrawPic(16, 4, qplaque);
+		DrawPic(160 - (ttl_main.width >> 1), 4, ttl_main);
+		DrawPic(72, 32, mainmenu);
+		DrawPic(54, 32 + main_cursor * 20, menudot[Math.floor((untyped Host).realtime * 10.0) % 6]);
 	}
 
 	static function Main_Key(k:KeyCode):Void {
 		switch (k) {
 			case KeyCode.escape:
 				Key.dest.value = Key.dest.game;
-				M.state = none;
-				(untyped CL).cls.demonum = M.save_demonum;
+				state = none;
+				(untyped CL).cls.demonum = save_demonum;
 				if (((untyped CL).cls.demonum != -1) && ((untyped CL).cls.demoplayback != true) && ((untyped CL).cls.state != (untyped CL).active.connected))
 					(untyped CL).NextDemo();
 			case KeyCode.downarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (++M.main_cursor >= M.main_items)
-					M.main_cursor = 0;
+				S.LocalSound(sfx_menu1);
+				if (++main_cursor >= main_items)
+					main_cursor = 0;
 			case KeyCode.uparrow:
-				S.LocalSound(M.sfx_menu1);
-				if (--M.main_cursor < 0)
-					M.main_cursor = M.main_items - 1;
+				S.LocalSound(sfx_menu1);
+				if (--main_cursor < 0)
+					main_cursor = main_items - 1;
 			case KeyCode.enter:
-				M.entersound = true;
-				switch (M.main_cursor) {
+				entersound = true;
+				switch (main_cursor) {
 					case 0:
 						Menu_SinglePlayer_f();
 					case 1:
@@ -197,15 +197,15 @@ class M {
 
 	static function Menu_SinglePlayer_f() {
 		Key.dest.value = Key.dest.menu;
-		M.state = singleplayer;
-		M.entersound = true;
+		state = singleplayer;
+		entersound = true;
 	}
 
 	static function SinglePlayer_Draw() {
-		DrawPic(16, 4, M.qplaque);
-		DrawPic(160 - (M.ttl_sgl.width >> 1), 4, M.ttl_sgl);
-		DrawPic(72, 32, M.sp_menu);
-		DrawPic(54, 32 + M.singleplayer_cursor * 20, M.menudot[Math.floor((untyped Host).realtime * 10.0) % 6]);
+		DrawPic(16, 4, qplaque);
+		DrawPic(160 - (ttl_sgl.width >> 1), 4, ttl_sgl);
+		DrawPic(72, 32, sp_menu);
+		DrawPic(54, 32 + singleplayer_cursor * 20, menudot[Math.floor((untyped Host).realtime * 10.0) % 6]);
 	}
 
 	static function SinglePlayer_Key(k) {
@@ -214,18 +214,18 @@ class M {
 			Menu_Main_f();
 			return;
 		case KeyCode.downarrow:
-			S.LocalSound(M.sfx_menu1);
-			if (++M.singleplayer_cursor >= M.singleplayer_items)
-				M.singleplayer_cursor = 0;
+			S.LocalSound(sfx_menu1);
+			if (++singleplayer_cursor >= singleplayer_items)
+				singleplayer_cursor = 0;
 			return;
 		case KeyCode.uparrow:
-			S.LocalSound(M.sfx_menu1);
-			if (--M.singleplayer_cursor < 0)
-				M.singleplayer_cursor = M.singleplayer_items - 1;
+			S.LocalSound(sfx_menu1);
+			if (--singleplayer_cursor < 0)
+				singleplayer_cursor = singleplayer_items - 1;
 			return;
 		case KeyCode.enter:
-			M.entersound = true;
-			switch (M.singleplayer_cursor) {
+			entersound = true;
+			switch (singleplayer_cursor) {
 			case 0:
 				if ((untyped SV).server.active) {
 					if (window.confirm('Are you sure you want to start a new game?') != true)
@@ -255,17 +255,17 @@ class M {
 		var searchpaths = COM.searchpaths;
 		var search = 'Quake.' + COM.gamedir[0].filename + '/s';
 		COM.searchpaths = COM.gamedir;
-		for (i in 0...M.max_savegames) {
+		for (i in 0...max_savegames) {
 			var f = localStorage.getItem(search + i + '.sav');
 			if (f != null)
-				M.removable[i] = true;
+				removable[i] = true;
 			else
 			{
-				M.removable[i] = false;
+				removable[i] = false;
 				f = COM.LoadTextFile('s' + i + '.sav');
 				if (f == null) {
-					M.filenames[i] = '--- UNUSED SLOT ---';
-					M.loadable[i] = false;
+					filenames[i] = '--- UNUSED SLOT ---';
+					loadable[i] = false;
 					continue;
 				}
 			}
@@ -285,15 +285,15 @@ class M {
 				else
 					name[j] = String.fromCharCode(c);
 			}
-			M.filenames[i] = name.join('');
-			M.loadable[i] = true;
+			filenames[i] = name.join('');
+			loadable[i] = true;
 		}
 		COM.searchpaths = searchpaths;
 	}
 
 	static function Menu_Load_f() {
-		M.entersound = true;
-		M.state = load;
+		entersound = true;
+		state = load;
 		Key.dest.value = Key.dest.menu;
 		ScanSaves();
 	}
@@ -301,24 +301,24 @@ class M {
 	static function Menu_Save_f() {
 		if (((untyped SV).server.active != true) || ((untyped CL).state.intermission != 0) || ((untyped SV).svs.maxclients != 1))
 			return;
-		M.entersound = true;
-		M.state = save;
+		entersound = true;
+		state = save;
 		Key.dest.value = Key.dest.menu;
 		ScanSaves();
 	}
 
 	static function Load_Draw() {
-		DrawPic(160 - (M.p_load.width >> 1), 4, M.p_load);
-		for (i in 0...M.max_savegames)
-			Print(16, 32 + (i << 3), M.filenames[i]);
-		DrawCharacter(8, 32 + (M.load_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+		DrawPic(160 - (p_load.width >> 1), 4, p_load);
+		for (i in 0...max_savegames)
+			Print(16, 32 + (i << 3), filenames[i]);
+		DrawCharacter(8, 32 + (load_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
 	}
 
 	static function Save_Draw() {
-		DrawPic(160 - (M.p_save.width >> 1), 4, M.p_save);
-		for (i in 0...M.max_savegames)
-			Print(16, 32 + (i << 3), M.filenames[i]);
-		DrawCharacter(8, 32 + (M.load_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+		DrawPic(160 - (p_save.width >> 1), 4, p_save);
+		for (i in 0...max_savegames)
+			Print(16, 32 + (i << 3), filenames[i]);
+		DrawCharacter(8, 32 + (load_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
 	}
 
 	static function Load_Key(k:KeyCode) {
@@ -326,28 +326,28 @@ class M {
 			case KeyCode.escape:
 				Menu_SinglePlayer_f();
 			case KeyCode.enter:
-				S.LocalSound(M.sfx_menu2);
-				if (M.loadable[M.load_cursor] != true)
+				S.LocalSound(sfx_menu2);
+				if (loadable[load_cursor] != true)
 					return;
-				M.state = none;
+				state = none;
 				Key.dest.value = Key.dest.game;
 				SCR.BeginLoadingPlaque();
-				Cmd.text += 'load s' + M.load_cursor + '\n';
+				Cmd.text += 'load s' + load_cursor + '\n';
 			case KeyCode.uparrow | KeyCode.leftarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (--M.load_cursor < 0)
-					M.load_cursor = M.max_savegames - 1;
+				S.LocalSound(sfx_menu1);
+				if (--load_cursor < 0)
+					load_cursor = max_savegames - 1;
 			case KeyCode.downarrow | KeyCode.rightarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (++M.load_cursor >= M.max_savegames)
-					M.load_cursor = 0;
+				S.LocalSound(sfx_menu1);
+				if (++load_cursor >= max_savegames)
+					load_cursor = 0;
 				return;
 			case KeyCode.del:
-				if (M.removable[M.load_cursor] != true)
+				if (removable[load_cursor] != true)
 					return;
 				if (window.confirm('Delete selected game?') != true)
 					return;
-				localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + M.load_cursor + '.sav');
+				localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + load_cursor + '.sav');
 				ScanSaves();
 			default:
 		}
@@ -358,23 +358,23 @@ class M {
 			case KeyCode.escape:
 				Menu_SinglePlayer_f();
 			case KeyCode.enter:
-				M.state = none;
+				state = none;
 				Key.dest.value = Key.dest.game;
-				Cmd.text += 'save s' + M.load_cursor + '\n';
+				Cmd.text += 'save s' + load_cursor + '\n';
 			case KeyCode.uparrow | KeyCode.leftarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (--M.load_cursor < 0)
-					M.load_cursor = M.max_savegames - 1;
+				S.LocalSound(sfx_menu1);
+				if (--load_cursor < 0)
+					load_cursor = max_savegames - 1;
 			case KeyCode.downarrow | KeyCode.rightarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (++M.load_cursor >= M.max_savegames)
-					M.load_cursor = 0;
+				S.LocalSound(sfx_menu1);
+				if (++load_cursor >= max_savegames)
+					load_cursor = 0;
 			case KeyCode.del:
-				if (M.removable[M.load_cursor] != true)
+				if (removable[load_cursor] != true)
 					return;
 				if (window.confirm('Delete selected game?') != true)
 					return;
-				localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + M.load_cursor + '.sav');
+				localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + load_cursor + '.sav');
 				ScanSaves();
 			default:
 		}
@@ -394,24 +394,24 @@ class M {
 
 	static function Menu_MultiPlayer_f() {
 		Key.dest.value = Key.dest.menu;
-		M.state = multiplayer;
-		M.entersound = true;
-		M.multiplayer_myname = (untyped CL).name.string;
-		M.multiplayer_top = M.multiplayer_oldtop = (untyped CL).color.value >> 4;
-		M.multiplayer_bottom = M.multiplayer_oldbottom = (untyped CL).color.value & 15;
+		state = multiplayer;
+		entersound = true;
+		multiplayer_myname = (untyped CL).name.string;
+		multiplayer_top = multiplayer_oldtop = (untyped CL).color.value >> 4;
+		multiplayer_bottom = multiplayer_oldbottom = (untyped CL).color.value & 15;
 	}
 
 	static function MultiPlayer_Draw() {
-		DrawPic(16, 4, M.qplaque);
-		DrawPic(160 - (M.p_multi.width >> 1), 4, M.p_multi);
+		DrawPic(16, 4, qplaque);
+		DrawPic(160 - (p_multi.width >> 1), 4, p_multi);
 
 		Print(64, 40, 'Join game at:');
 		DrawTextBox(72, 48, 22, 1);
-		Print(80, 56, M.multiplayer_joinname.substring(M.multiplayer_joinname.length - 21));
+		Print(80, 56, multiplayer_joinname.substring(multiplayer_joinname.length - 21));
 
 		Print(64, 72, 'Your name');
 		DrawTextBox(160, 64, 16, 1);
-		Print(168, 72, M.multiplayer_myname);
+		Print(168, 72, multiplayer_myname);
 
 		Print(64, 96, 'Shirt color');
 		Print(64, 120, 'Pants color');
@@ -419,17 +419,17 @@ class M {
 		DrawTextBox(64, 148, 14, 1);
 		Print(72, 156, 'Accept Changes');
 
-		DrawPic(160, 80, M.bigbox);
-		DrawPicTranslate(172, 88, M.menuplyr,
-			(M.multiplayer_top << 4) + (M.multiplayer_top >= 8 ? 4 : 11),
-			(M.multiplayer_bottom << 4) + (M.multiplayer_bottom >= 8 ? 4 : 11));
+		DrawPic(160, 80, bigbox);
+		DrawPicTranslate(172, 88, menuplyr,
+			(multiplayer_top << 4) + (multiplayer_top >= 8 ? 4 : 11),
+			(multiplayer_bottom << 4) + (multiplayer_bottom >= 8 ? 4 : 11));
 
-		DrawCharacter(56, M.multiplayer_cursor_table[M.multiplayer_cursor], 12 + (((untyped Host).realtime * 4) & 1));
+		DrawCharacter(56, multiplayer_cursor_table[multiplayer_cursor], 12 + (((untyped Host).realtime * 4) & 1));
 
-		if (M.multiplayer_cursor == 0)
-			DrawCharacter(M.multiplayer_joinname.length <= 20 ? 80 + (M.multiplayer_joinname.length << 3) : 248, 56, 10 + (((untyped Host).realtime * 4) & 1));
-		else if (M.multiplayer_cursor == 1)
-			DrawCharacter(168 + (M.multiplayer_myname.length << 3), 72, 10 + (((untyped Host).realtime * 4) & 1));
+		if (multiplayer_cursor == 0)
+			DrawCharacter(multiplayer_joinname.length <= 20 ? 80 + (multiplayer_joinname.length << 3) : 248, 56, 10 + (((untyped Host).realtime * 4) & 1));
+		else if (multiplayer_cursor == 1)
+			DrawCharacter(168 + (multiplayer_myname.length << 3), 72, 10 + (((untyped Host).realtime * 4) & 1));
 
 		if (!NET_WEBS.available)
 			PrintWhite(52, 172, 'No Communications Available');
@@ -441,73 +441,73 @@ class M {
 
 		switch (k) {
 			case KeyCode.uparrow:
-				S.LocalSound(M.sfx_menu1);
-				if (--M.multiplayer_cursor < 0)
-					M.multiplayer_cursor = M.multiplayer_items - 1;
+				S.LocalSound(sfx_menu1);
+				if (--multiplayer_cursor < 0)
+					multiplayer_cursor = multiplayer_items - 1;
 				return;
 			case KeyCode.downarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (++M.multiplayer_cursor >= M.multiplayer_items)
-					M.multiplayer_cursor = 0;
+				S.LocalSound(sfx_menu1);
+				if (++multiplayer_cursor >= multiplayer_items)
+					multiplayer_cursor = 0;
 				return;
 			case KeyCode.leftarrow:
-				if (M.multiplayer_cursor == 2) {
-					if (--M.multiplayer_top < 0)
-						M.multiplayer_top = 13;
-					S.LocalSound(M.sfx_menu3);
+				if (multiplayer_cursor == 2) {
+					if (--multiplayer_top < 0)
+						multiplayer_top = 13;
+					S.LocalSound(sfx_menu3);
 				}
-				else if (M.multiplayer_cursor == 3) {
-					if (--M.multiplayer_bottom < 0)
-						M.multiplayer_bottom = 13;
-					S.LocalSound(M.sfx_menu3);
+				else if (multiplayer_cursor == 3) {
+					if (--multiplayer_bottom < 0)
+						multiplayer_bottom = 13;
+					S.LocalSound(sfx_menu3);
 				}
 				return;
 			case KeyCode.rightarrow:
-				if (M.multiplayer_cursor == 2)
-					(M.multiplayer_top <= 12) ? ++M.multiplayer_top : M.multiplayer_top = 0;
-				else if (M.multiplayer_cursor == 3)
-					(M.multiplayer_bottom <= 12) ? ++M.multiplayer_bottom : M.multiplayer_bottom = 0;
+				if (multiplayer_cursor == 2)
+					(multiplayer_top <= 12) ? ++multiplayer_top : multiplayer_top = 0;
+				else if (multiplayer_cursor == 3)
+					(multiplayer_bottom <= 12) ? ++multiplayer_bottom : multiplayer_bottom = 0;
 				else
 					return;
-				S.LocalSound(M.sfx_menu3);
+				S.LocalSound(sfx_menu3);
 				return;
 			case KeyCode.enter:
-				switch (M.multiplayer_cursor) {
+				switch (multiplayer_cursor) {
 					case 0:
-						S.LocalSound(M.sfx_menu2);
+						S.LocalSound(sfx_menu2);
 						if (!NET_WEBS.available)
 							return;
 						Key.dest.value = Key.dest.game;
-						M.state = none;
+						state = none;
 						Cmd.text += 'connect "';
-						if (M.multiplayer_joinname.substring(0, 5) != 'ws://')
+						if (multiplayer_joinname.substring(0, 5) != 'ws://')
 							Cmd.text += 'ws://';
-						Cmd.text += M.multiplayer_joinname + '"\n';
+						Cmd.text += multiplayer_joinname + '"\n';
 					case 2:
-						S.LocalSound(M.sfx_menu3);
-						(M.multiplayer_top <= 12) ? ++M.multiplayer_top : M.multiplayer_top = 0;
+						S.LocalSound(sfx_menu3);
+						(multiplayer_top <= 12) ? ++multiplayer_top : multiplayer_top = 0;
 					case 3:
-						S.LocalSound(M.sfx_menu3);
-						(M.multiplayer_bottom <= 12) ? ++M.multiplayer_bottom : M.multiplayer_bottom = 0;
+						S.LocalSound(sfx_menu3);
+						(multiplayer_bottom <= 12) ? ++multiplayer_bottom : multiplayer_bottom = 0;
 					case 4:
-						if ((untyped CL).name.string != M.multiplayer_myname)
-							Cmd.text += 'name "' + M.multiplayer_myname + '"\n';
-						if ((M.multiplayer_top != M.multiplayer_oldtop) || (M.multiplayer_bottom != M.multiplayer_oldbottom)) {
-							M.multiplayer_oldtop = M.multiplayer_top;
-							M.multiplayer_oldbottom = M.multiplayer_bottom;
-							Cmd.text += 'color ' + M.multiplayer_top + ' ' + M.multiplayer_bottom + '\n';
+						if ((untyped CL).name.string != multiplayer_myname)
+							Cmd.text += 'name "' + multiplayer_myname + '"\n';
+						if ((multiplayer_top != multiplayer_oldtop) || (multiplayer_bottom != multiplayer_oldbottom)) {
+							multiplayer_oldtop = multiplayer_top;
+							multiplayer_oldbottom = multiplayer_bottom;
+							Cmd.text += 'color ' + multiplayer_top + ' ' + multiplayer_bottom + '\n';
 						}
-						M.entersound = true;
+						entersound = true;
 				}
 			case KeyCode.backspace:
-				if (M.multiplayer_cursor == 0) {
-					if (M.multiplayer_joinname.length != 0)
-						M.multiplayer_joinname = M.multiplayer_joinname.substring(0, M.multiplayer_joinname.length - 1);
+				if (multiplayer_cursor == 0) {
+					if (multiplayer_joinname.length != 0)
+						multiplayer_joinname = multiplayer_joinname.substring(0, multiplayer_joinname.length - 1);
 					return;
 				}
-				if (M.multiplayer_cursor == 1) {
-					if (M.multiplayer_myname.length != 0)
-						M.multiplayer_myname = M.multiplayer_myname.substring(0, M.multiplayer_myname.length - 1);
+				if (multiplayer_cursor == 1) {
+					if (multiplayer_myname.length != 0)
+						multiplayer_myname = multiplayer_myname.substring(0, multiplayer_myname.length - 1);
 				}
 				return;
 			default:
@@ -515,13 +515,13 @@ class M {
 
 		if ((k < 32) || (k > 127))
 			return;
-		if (M.multiplayer_cursor == 0) {
-			M.multiplayer_joinname += String.fromCharCode(k);
+		if (multiplayer_cursor == 0) {
+			multiplayer_joinname += String.fromCharCode(k);
 			return;
 		}
-		if (M.multiplayer_cursor == 1) {
-			if (M.multiplayer_myname.length <= 14)
-				M.multiplayer_myname += String.fromCharCode(k);
+		if (multiplayer_cursor == 1) {
+			if (multiplayer_myname.length <= 14)
+				multiplayer_myname += String.fromCharCode(k);
 		}
 	}
 
@@ -531,14 +531,14 @@ class M {
 
 	static function Menu_Options_f() {
 		Key.dest.value = Key.dest.menu;
-		M.state = options;
-		M.entersound = true;
+		state = options;
+		entersound = true;
 	}
 
 	static function AdjustSliders(dir) {
-		S.LocalSound(M.sfx_menu3);
+		S.LocalSound(sfx_menu3);
 		
-		switch (M.options_cursor) {
+		switch (options_cursor) {
 		case 3: // screen size
 			SCR.viewsize.value += dir * 10;
 			if (SCR.viewsize.value < 30)
@@ -620,8 +620,8 @@ class M {
 	}
 
 	static function Options_Draw() {
-		DrawPic(16, 4, M.qplaque);
-		DrawPic(160 - (M.p_option.width >> 1), 4, M.p_option);
+		DrawPic(16, 4, qplaque);
+		DrawPic(160 - (p_option.width >> 1), 4, p_option);
 		
 		Print(48, 32, 'Customize controls');
 		Print(88, 40, 'Go to console');
@@ -646,7 +646,7 @@ class M {
 		Print(112, 120, 'Lookstrafe');
 		Print(220, 120, ((untyped CL).lookstrafe.value != 0) ? 'on' : 'off');
 		
-		DrawCharacter(200, 32 + (M.options_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+		DrawCharacter(200, 32 + (options_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
 	}
 
 	static function Options_Key(k) {
@@ -655,13 +655,13 @@ class M {
 			Menu_Main_f();
 			return;
 		case KeyCode.enter:
-			M.entersound = true;
-			switch (M.options_cursor) {
+			entersound = true;
+			switch (options_cursor) {
 			case 0:
 				Menu_Keys_f();
 				return;
 			case 1:
-				M.state = none;
+				state = none;
 				Console.ToggleConsole_f();
 				return;
 			case 2:
@@ -672,14 +672,14 @@ class M {
 			}
 			return;
 		case KeyCode.uparrow:
-			S.LocalSound(M.sfx_menu1);
-			if (--M.options_cursor < 0)
-				M.options_cursor = M.options_items - 1;
+			S.LocalSound(sfx_menu1);
+			if (--options_cursor < 0)
+				options_cursor = options_items - 1;
 			return;
 		case KeyCode.downarrow:
-			S.LocalSound(M.sfx_menu1);
-			if (++M.options_cursor >= M.options_items)
-				M.options_cursor = 0;
+			S.LocalSound(sfx_menu1);
+			if (++options_cursor >= options_items)
+				options_cursor = 0;
 			return;
 		case KeyCode.leftarrow:
 			AdjustSliders(-1);
@@ -715,8 +715,8 @@ class M {
 
 	static function Menu_Keys_f() {
 		Key.dest.value = Key.dest.menu;
-		M.state = keys;
-		M.entersound = true;
+		state = keys;
+		entersound = true;
 	}
 
 	static function FindKeysForCommand(command) {
@@ -741,22 +741,22 @@ class M {
 	static var bind_grab:Bool;
 
 	static function Keys_Draw() {
-		DrawPic(160 - (M.ttl_cstm.width >> 1), 4, M.ttl_cstm);
+		DrawPic(160 - (ttl_cstm.width >> 1), 4, ttl_cstm);
 
-		if (M.bind_grab) {
+		if (bind_grab) {
 			Print(12, 32, 'Press a key or button for this action');
-			DrawCharacter(130, 48 + (M.keys_cursor << 3), 61);
+			DrawCharacter(130, 48 + (keys_cursor << 3), 61);
 		}
 		else
 		{
 			Print(18, 32, 'Enter to change, backspace to clear');
-			DrawCharacter(130, 48 + (M.keys_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
+			DrawCharacter(130, 48 + (keys_cursor << 3), 12 + (((untyped Host).realtime * 4) & 1));
 		}
 
 		var y = 48;
-		for (i in 0...M.bindnames.length) {
-			Print(16, y, M.bindnames[i][1]);
-			var keys = FindKeysForCommand(M.bindnames[i][0]);
+		for (i in 0...bindnames.length) {
+			Print(16, y, bindnames[i][1]);
+			var keys = FindKeysForCommand(bindnames[i][0]);
 			if (keys[0] == null)
 				Print(140, y, '???');
 			else
@@ -771,11 +771,11 @@ class M {
 	}
 
 	static function Keys_Key(k:KeyCode):Void {
-		if (M.bind_grab) {
-			S.LocalSound(M.sfx_menu1);
+		if (bind_grab) {
+			S.LocalSound(sfx_menu1);
 			if (k != KeyCode.escape && k != 96)
-				Cmd.text = 'bind "' + Key.KeynumToString(k) + '" "' + M.bindnames[M.keys_cursor][0] + '"\n' + Cmd.text;
-			M.bind_grab = false;
+				Cmd.text = 'bind "' + Key.KeynumToString(k) + '" "' + bindnames[keys_cursor][0] + '"\n' + Cmd.text;
+			bind_grab = false;
 			return;
 		}
 
@@ -783,21 +783,21 @@ class M {
 			case KeyCode.escape:
 				Menu_Options_f();
 			case KeyCode.leftarrow | KeyCode.uparrow:
-				S.LocalSound(M.sfx_menu1);
-				if (--M.keys_cursor < 0)
-					M.keys_cursor = M.bindnames.length - 1;
+				S.LocalSound(sfx_menu1);
+				if (--keys_cursor < 0)
+					keys_cursor = bindnames.length - 1;
 			case KeyCode.downarrow | KeyCode.rightarrow:
-				S.LocalSound(M.sfx_menu1);
-				if (++M.keys_cursor >= M.bindnames.length)
-					M.keys_cursor = 0;
+				S.LocalSound(sfx_menu1);
+				if (++keys_cursor >= bindnames.length)
+					keys_cursor = 0;
 			case KeyCode.enter:
-				S.LocalSound(M.sfx_menu2);
-				if (FindKeysForCommand(M.bindnames[M.keys_cursor][0])[1] != null)
-					UnbindCommand(M.bindnames[M.keys_cursor][0]);
-				M.bind_grab = true;
+				S.LocalSound(sfx_menu2);
+				if (FindKeysForCommand(bindnames[keys_cursor][0])[1] != null)
+					UnbindCommand(bindnames[keys_cursor][0]);
+				bind_grab = true;
 			case KeyCode.backspace | KeyCode.del:
-				S.LocalSound(M.sfx_menu2);
-				UnbindCommand(M.bindnames[M.keys_cursor][0]);
+				S.LocalSound(sfx_menu2);
+				UnbindCommand(bindnames[keys_cursor][0]);
 			default:
 		}
 	}
@@ -808,13 +808,13 @@ class M {
 
 	static function Menu_Help_f() {
 		Key.dest.value = Key.dest.menu;
-		M.state = help;
-		M.entersound = true;
-		M.help_page = 0;
+		state = help;
+		entersound = true;
+		help_page = 0;
 	}
 
 	static function Help_Draw() {
-		DrawPic(0, 0, M.help_pages[M.help_page]);
+		DrawPic(0, 0, help_pages[help_page]);
 	}
 
 	static function Help_Key(k) {
@@ -824,15 +824,15 @@ class M {
 			return;
 		case KeyCode.uparrow:
 		case KeyCode.rightarrow:
-			M.entersound = true;
-			if (++M.help_page >= M.num_help_pages)
-				M.help_page = 0;
+			entersound = true;
+			if (++help_page >= num_help_pages)
+				help_page = 0;
 			return;
 		case KeyCode.downarrow:
 		case KeyCode.leftarrow:
-			M.entersound = true;
-			if (--M.help_page < 0)
-				M.help_page = M.num_help_pages - 1;
+			entersound = true;
+			if (--help_page < 0)
+				help_page = num_help_pages - 1;
 		};
 	}
 
@@ -849,14 +849,14 @@ class M {
 	];
 
 	static function Menu_Quit_f() {
-		if (M.state == quit)
+		if (state == quit)
 			return;
-		M.wasInMenus = (Key.dest.value == Key.dest.menu);
+		wasInMenus = (Key.dest.value == Key.dest.menu);
 		Key.dest.value = Key.dest.menu;
-		M.quit_prevstate = M.state;
-		M.state = quit;
-		M.entersound = true;
-		M.msgNumber = Math.floor(Math.random() * M.quitMessage.length);
+		quit_prevstate = state;
+		state = quit;
+		entersound = true;
+		msgNumber = Math.floor(Math.random() * quitMessage.length);
 	}
 
 	static function Quit_Draw():Void {

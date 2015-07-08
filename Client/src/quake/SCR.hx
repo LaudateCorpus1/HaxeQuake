@@ -256,7 +256,7 @@ class SCR {
 	}
 
 	static function BeginLoadingPlaque() {
-		(untyped S).StopAllSounds();
+		S.StopAllSounds();
 		if (((untyped CL).cls.state != (untyped CL).active.connected) || ((untyped CL).cls.signon != 4))
 			return;
 		SCR.centertime_off = 0.0;

@@ -93,13 +93,13 @@ class CDAudio {
     static function Update():Void {
         if (!initialized || !enabled)
             return;
-        if ((untyped S).bgmvolume.value == CDAudio.cdvolume)
+        if (S.bgmvolume.value == CDAudio.cdvolume)
             return;
-        if ((untyped S).bgmvolume.value < 0.0)
+        if (S.bgmvolume.value < 0.0)
             Cvar.SetValue('bgmvolume', 0.0);
-        else if ((untyped S).bgmvolume.value > 1.0)
+        else if (S.bgmvolume.value > 1.0)
             Cvar.SetValue('bgmvolume', 1.0);
-        CDAudio.cdvolume = (untyped S).bgmvolume.value;
+        CDAudio.cdvolume = S.bgmvolume.value;
         if (CDAudio.cd != null)
             CDAudio.cd.volume = CDAudio.cdvolume;
     }

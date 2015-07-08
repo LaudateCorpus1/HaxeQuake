@@ -89,7 +89,7 @@ class Console {
         if (msg.charCodeAt(0) <= 2) {
             mask = 128;
             if (msg.charCodeAt(0) == 1)
-                (untyped S).LocalSound(sfx_talk);
+                S.LocalSound(sfx_talk);
             msg = msg.substring(1);
         }
         for (i in 0...msg.length) {

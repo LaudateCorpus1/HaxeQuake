@@ -29,7 +29,7 @@ class Cmd {
     static var args:String;
     static var argv = new Array<String>();
     static var functions = new Array<Func>();
-    static var client:Dynamic;
+    static var client:Bool;
 
     static inline function Wait_f() {
         Cmd.wait = true;
@@ -184,7 +184,7 @@ class Cmd {
         return null;
     }
 
-    static function ExecuteString(text:String, client = null):Void {
+    static function ExecuteString(text:String, client = false):Void {
         Cmd.client = client;
         TokenizeString(text);
         if (Cmd.argv.length == 0)

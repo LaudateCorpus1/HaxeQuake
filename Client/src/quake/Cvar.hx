@@ -20,7 +20,7 @@ class Cvar {
 
     public static var vars:Array<Cvar> = [];
 
-    static function FindVar(name:String):Cvar {
+    public static function FindVar(name:String):Cvar {
         for (v in vars) {
             if (v.name == name)
                 return v;

@@ -914,9 +914,9 @@ class PR {
 					var newf = PR.functions[PR.globals_int[st.a]];
 					if (newf.first_statement < 0) {
 						var ptr = -newf.first_statement;
-						if (ptr >= (untyped PF).builtin.length)
+						if (ptr >= PF.builtin.length)
 							PR.RunError('Bad builtin call number');
-						(untyped PF).builtin[ptr]();
+						PF.builtin[ptr]();
 						continue;
 					}
 					s = PR.EnterFunction(newf);

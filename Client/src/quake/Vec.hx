@@ -69,7 +69,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         ];
     }
 
-    static function Anglemod(a:Float):Float {
+    public static function Anglemod(a:Float):Float {
         return (a % 360.0 + 360.0) % 360.0;
     }
 

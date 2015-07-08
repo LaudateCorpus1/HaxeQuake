@@ -1,5 +1,7 @@
 package quake;
 
+import quake.S.Sfx;
+
 @:publicFields
 private class ConsoleEntry {
     var text:String;
@@ -18,7 +20,7 @@ class Console {
     static var current = 0;
     static var vislines:Int;
     static var text:Array<ConsoleEntry> = [];
-    static var sfx_talk:Dynamic;
+    static var sfx_talk:Sfx;
     static var notifytime:Cvar;
     static var forcedup:Bool;
 

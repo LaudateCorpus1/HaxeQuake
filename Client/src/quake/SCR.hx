@@ -31,8 +31,8 @@ class SCR {
 	static var centertime:Cvar;
 	static var printspeed:Cvar;
 
-	static var net:Dynamic;
-	static var turtle:Dynamic;
+	static var net:DrawPic;
+	static var turtle:DrawPic;
 	static var pause:DrawPic;
 
 	static function CenterPrint(str:String):Void {

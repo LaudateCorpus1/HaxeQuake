@@ -2,14 +2,6 @@ package quake;
 
 typedef Matrix = Array<Array<Float>>;
 
-@:publicFields
-class Plane {
-    var type:Int;
-    var normal:Vec;
-    var dist:Float;
-    var signbits:Int;
-}
-
 @:expose("Vec")
 abstract Vec(Array<Float>) from Array<Float> {
     public static var origin:Vec = [0.0, 0.0, 0.0];
@@ -45,7 +37,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         return dst;
     }
 
-    static function RotatePointAroundVector(dir:Vec, point:Vec, degrees:Float):Vec {
+    public static function RotatePointAroundVector(dir:Vec, point:Vec, degrees:Float):Vec {
         var r = Perpendicular(dir);
         var up = CrossProduct(r, dir);
         var m = [
@@ -73,7 +65,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         return (a % 360.0 + 360.0) % 360.0;
     }
 
-    static function BoxOnPlaneSide(emins:Vec, emaxs:Vec, p:Plane) {
+    public static function BoxOnPlaneSide(emins:Vec, emaxs:Vec, p:Plane) {
         if (p.type <= 2) {
             if (p.dist <= emins[p.type])
                 return 1;
@@ -148,7 +140,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         }
     }
 
-    static function DotProduct(v1:Vec, v2:Vec):Float {
+    public static inline function DotProduct(v1:Vec, v2:Vec):Float {
         return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
     }
 
@@ -166,7 +158,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         ];
     }
 
-    static function Length(v:Vec):Float {
+    public static inline function Length(v:Vec):Float {
         return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
     }
 

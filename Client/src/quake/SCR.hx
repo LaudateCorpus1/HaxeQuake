@@ -117,7 +117,7 @@ class SCR {
 			size *= 0.01;
 		}
 
-		var vrect = (untyped R).refdef.vrect;
+		var vrect = R.refdef.vrect;
 		vrect.width = Math.floor(VID.width * size);
 		if (vrect.width < 96) {
 			size = 96.0 / vrect.width;
@@ -137,34 +137,34 @@ class SCR {
 		else if (SCR.fov.value > 170)
 			Cvar.Set('fov', '170');
 		if ((vrect.width * 0.75) <= vrect.height) {
-			(untyped R).refdef.fov_x = SCR.fov.value;
-			(untyped R).refdef.fov_y = Math.atan(vrect.height / (vrect.width / Math.tan(SCR.fov.value * Math.PI / 360.0))) * 360.0 / Math.PI;
+			R.refdef.fov_x = SCR.fov.value;
+			R.refdef.fov_y = Math.atan(vrect.height / (vrect.width / Math.tan(SCR.fov.value * Math.PI / 360.0))) * 360.0 / Math.PI;
 		}
 		else
 		{
-			(untyped R).refdef.fov_x = Math.atan(vrect.width / (vrect.height / Math.tan(SCR.fov.value * 0.82 * Math.PI / 360.0))) * 360.0 / Math.PI;
-			(untyped R).refdef.fov_y = SCR.fov.value * 0.82;
+			R.refdef.fov_x = Math.atan(vrect.width / (vrect.height / Math.tan(SCR.fov.value * 0.82 * Math.PI / 360.0))) * 360.0 / Math.PI;
+			R.refdef.fov_y = SCR.fov.value * 0.82;
 		}
 
-		var ymax = 4.0 * Math.tan((untyped R).refdef.fov_y * Math.PI / 360.0);
-		(untyped R).perspective[0] = 4.0 / (ymax * (untyped R).refdef.vrect.width / (untyped R).refdef.vrect.height);
-		(untyped R).perspective[5] = 4.0 / ymax;
+		var ymax = 4.0 * Math.tan(R.refdef.fov_y * Math.PI / 360.0);
+		R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
+		R.perspective[5] = 4.0 / ymax;
 		GL.ortho[0] = 2.0 / VID.width;
 		GL.ortho[5] = -2.0 / VID.height;
 
-		(untyped R).warpwidth = Std.int(vrect.width * SCR.devicePixelRatio);
-		(untyped R).warpheight = Std.int(vrect.height * SCR.devicePixelRatio);
-		if ((untyped R).warpwidth > 2048)
-			(untyped R).warpwidth = 2048;
-		if ((untyped R).warpheight > 2048)
-			(untyped R).warpheight = 2048;
-		if (((untyped R).oldwarpwidth != (untyped R).warpwidth) || ((untyped R).oldwarpheight != (untyped R).warpheight)) {
-			(untyped R).oldwarpwidth = (untyped R).warpwidth;
-			(untyped R).oldwarpheight = (untyped R).warpheight;
-			GL.Bind(0, (untyped R).warptexture);
-			gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, (untyped R).warpwidth, (untyped R).warpheight, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, null);
-			gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, (untyped R).warprenderbuffer);
-			gl.renderbufferStorage(RenderingContext.RENDERBUFFER, RenderingContext.DEPTH_COMPONENT16, (untyped R).warpwidth, (untyped R).warpheight);
+		R.warpwidth = Std.int(vrect.width * SCR.devicePixelRatio);
+		R.warpheight = Std.int(vrect.height * SCR.devicePixelRatio);
+		if (R.warpwidth > 2048)
+			R.warpwidth = 2048;
+		if (R.warpheight > 2048)
+			R.warpheight = 2048;
+		if ((R.oldwarpwidth != R.warpwidth) || (R.oldwarpheight != R.warpheight)) {
+			R.oldwarpwidth = R.warpwidth;
+			R.oldwarpheight = R.warpheight;
+			GL.Bind(0, R.warptexture);
+			gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, R.warpwidth, R.warpheight, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, null);
+			gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, R.warprenderbuffer);
+			gl.renderbufferStorage(RenderingContext.RENDERBUFFER, RenderingContext.DEPTH_COMPONENT16, R.warpwidth, R.warpheight);
 			gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, null);
 		}
 	}
@@ -203,12 +203,12 @@ class SCR {
 			return;
 		}
 		if (++SCR.count >= 3)
-			Draw.Pic((untyped R).refdef.vrect.x, (untyped R).refdef.vrect.y, SCR.turtle);
+			Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, SCR.turtle);
 	}
 
 	static function DrawNet() {
 		if ((((untyped Host).realtime - (untyped CL).state.last_received_message) >= 0.3) && ((untyped CL).cls.demoplayback != true))
-			Draw.Pic((untyped R).refdef.vrect.x, (untyped R).refdef.vrect.y, SCR.net);
+			Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, SCR.net);
 	}
 
 	static function DrawPause() {
@@ -311,10 +311,10 @@ class SCR {
 		SCR.SetUpToDrawConsole();
 		V.RenderView();
 		GL.Set2D();
-		if ((untyped R).dowarp)
-			(untyped R).WarpScreen();
+		if (R.dowarp)
+			R.WarpScreen();
 		if (Console.forcedup != true)
-			(untyped R).PolyBlend();
+			R.PolyBlend();
 
 		if ((untyped CL).cls.state == (untyped CL).active.connecting)
 			SCR.DrawConsole();
@@ -329,8 +329,8 @@ class SCR {
 		else
 		{
 			if (V.crosshair.value != 0) {
-				Draw.Character(Std.int((untyped R).refdef.vrect.x + ((untyped R).refdef.vrect.width >> 1) + V.crossx.value),
-					Std.int((untyped R).refdef.vrect.y + ((untyped R).refdef.vrect.height >> 1) + V.crossy.value), 43);
+				Draw.Character(Std.int(R.refdef.vrect.x + (R.refdef.vrect.width >> 1) + V.crossx.value),
+					Std.int(R.refdef.vrect.y + (R.refdef.vrect.height >> 1) + V.crossy.value), 43);
 			}
 			SCR.DrawNet();
 			SCR.DrawTurtle();

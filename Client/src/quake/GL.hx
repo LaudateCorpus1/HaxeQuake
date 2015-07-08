@@ -25,7 +25,7 @@ private class GLModeSetting {
 }
 
 @:publicFields
-private class GLTexture {
+class GLTexture {
 	var texnum:Texture;
 	var identifier:String;
 	var width:Int;

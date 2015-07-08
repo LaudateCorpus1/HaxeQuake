@@ -269,12 +269,12 @@ class V {
 
 	static function CalcIntermissionRefdef():Void {
 		var ent = (untyped CL).entities[(untyped CL).state.viewentity];
-		(untyped R).refdef.vieworg[0] = ent.origin[0];
-		(untyped R).refdef.vieworg[1] = ent.origin[1];
-		(untyped R).refdef.vieworg[2] = ent.origin[2];
-		(untyped R).refdef.viewangles[0] = ent.angles[0] + Math.sin((untyped CL).state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
-		(untyped R).refdef.viewangles[1] = ent.angles[1] + Math.sin((untyped CL).state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
-		(untyped R).refdef.viewangles[2] = ent.angles[2] + Math.sin((untyped CL).state.time * V.iroll_cycle.value) * V.iroll_level.value;
+		R.refdef.vieworg[0] = ent.origin[0];
+		R.refdef.vieworg[1] = ent.origin[1];
+		R.refdef.vieworg[2] = ent.origin[2];
+		R.refdef.viewangles[0] = ent.angles[0] + Math.sin((untyped CL).state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
+		R.refdef.viewangles[1] = ent.angles[1] + Math.sin((untyped CL).state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
+		R.refdef.viewangles[2] = ent.angles[2] + Math.sin((untyped CL).state.time * V.iroll_cycle.value) * V.iroll_level.value;
 		(untyped CL).state.viewent.model = null;
 	}
 
@@ -286,53 +286,53 @@ class V {
 		ent.angles[0] = -(untyped CL).state.viewangles[0];
 		var bob = CalcBob();
 
-		(untyped R).refdef.vieworg[0] = ent.origin[0] + 0.03125;
-		(untyped R).refdef.vieworg[1] = ent.origin[1] + 0.03125;
-		(untyped R).refdef.vieworg[2] = ent.origin[2] + (untyped CL).state.viewheight + bob + 0.03125;
+		R.refdef.vieworg[0] = ent.origin[0] + 0.03125;
+		R.refdef.vieworg[1] = ent.origin[1] + 0.03125;
+		R.refdef.vieworg[2] = ent.origin[2] + (untyped CL).state.viewheight + bob + 0.03125;
 
-		(untyped R).refdef.viewangles[0] = (untyped CL).state.viewangles[0];
-		(untyped R).refdef.viewangles[1] = (untyped CL).state.viewangles[1];
-		(untyped R).refdef.viewangles[2] = (untyped CL).state.viewangles[2] + CalcRoll((untyped CL).entities[(untyped CL).state.viewentity].angles, (untyped CL).state.velocity);
+		R.refdef.viewangles[0] = (untyped CL).state.viewangles[0];
+		R.refdef.viewangles[1] = (untyped CL).state.viewangles[1];
+		R.refdef.viewangles[2] = (untyped CL).state.viewangles[2] + CalcRoll((untyped CL).entities[(untyped CL).state.viewentity].angles, (untyped CL).state.velocity);
 
 		if (V.dmg_time > 0.0) {
 			if (V.kicktime.value != 0.0) {
-				(untyped R).refdef.viewangles[2] += (V.dmg_time / V.kicktime.value) * V.dmg_roll;
-				(untyped R).refdef.viewangles[0] -= (V.dmg_time / V.kicktime.value) * V.dmg_pitch;
+				R.refdef.viewangles[2] += (V.dmg_time / V.kicktime.value) * V.dmg_roll;
+				R.refdef.viewangles[0] -= (V.dmg_time / V.kicktime.value) * V.dmg_pitch;
 			}
 			V.dmg_time -= (untyped Host).frametime;
 		}
 		if ((untyped CL).state.stats[Def.stat.health] <= 0)
-			(untyped R).refdef.viewangles[2] = 80.0;
+			R.refdef.viewangles[2] = 80.0;
 
 		var ipitch = V.idlescale.value * Math.sin((untyped CL).state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
 		var iyaw = V.idlescale.value * Math.sin((untyped CL).state.time * V.iyaw_cycle.value) * V.iyaw_level.value;
 		var iroll = V.idlescale.value * Math.sin((untyped CL).state.time * V.iroll_cycle.value) * V.iroll_level.value;
-		(untyped R).refdef.viewangles[0] += ipitch;
-		(untyped R).refdef.viewangles[1] += iyaw;
-		(untyped R).refdef.viewangles[2] += iroll;
+		R.refdef.viewangles[0] += ipitch;
+		R.refdef.viewangles[1] += iyaw;
+		R.refdef.viewangles[2] += iroll;
 
 		var forward = [], right = [], up = [];
 		Vec.AngleVectors([-ent.angles[0], ent.angles[1], ent.angles[2]], forward, right, up);
-		(untyped R).refdef.vieworg[0] += V.ofsx.value * forward[0] + V.ofsy.value * right[0] + V.ofsz.value * up[0];
-		(untyped R).refdef.vieworg[1] += V.ofsx.value * forward[1] + V.ofsy.value * right[1] + V.ofsz.value * up[1];
-		(untyped R).refdef.vieworg[2] += V.ofsx.value * forward[2] + V.ofsy.value * right[2] + V.ofsz.value * up[2];
+		R.refdef.vieworg[0] += V.ofsx.value * forward[0] + V.ofsy.value * right[0] + V.ofsz.value * up[0];
+		R.refdef.vieworg[1] += V.ofsx.value * forward[1] + V.ofsy.value * right[1] + V.ofsz.value * up[1];
+		R.refdef.vieworg[2] += V.ofsx.value * forward[2] + V.ofsy.value * right[2] + V.ofsz.value * up[2];
 
-		if ((untyped R).refdef.vieworg[0] < (ent.origin[0] - 14.0))
-			(untyped R).refdef.vieworg[0] = ent.origin[0] - 14.0;
-		else if ((untyped R).refdef.vieworg[0] > (ent.origin[0] + 14.0))
-			(untyped R).refdef.vieworg[0] = ent.origin[0] + 14.0;
-		if ((untyped R).refdef.vieworg[1] < (ent.origin[1] - 14.0))
-			(untyped R).refdef.vieworg[1] = ent.origin[1] - 14.0;
-		else if ((untyped R).refdef.vieworg[1] > (ent.origin[1] + 14.0))
-			(untyped R).refdef.vieworg[1] = ent.origin[1] + 14.0;
-		if ((untyped R).refdef.vieworg[2] < (ent.origin[2] - 22.0))
-			(untyped R).refdef.vieworg[2] = ent.origin[2] - 22.0;
-		else if ((untyped R).refdef.vieworg[2] > (ent.origin[2] + 30.0))
-			(untyped R).refdef.vieworg[2] = ent.origin[2] + 30.0;
+		if (R.refdef.vieworg[0] < (ent.origin[0] - 14.0))
+			R.refdef.vieworg[0] = ent.origin[0] - 14.0;
+		else if (R.refdef.vieworg[0] > (ent.origin[0] + 14.0))
+			R.refdef.vieworg[0] = ent.origin[0] + 14.0;
+		if (R.refdef.vieworg[1] < (ent.origin[1] - 14.0))
+			R.refdef.vieworg[1] = ent.origin[1] - 14.0;
+		else if (R.refdef.vieworg[1] > (ent.origin[1] + 14.0))
+			R.refdef.vieworg[1] = ent.origin[1] + 14.0;
+		if (R.refdef.vieworg[2] < (ent.origin[2] - 22.0))
+			R.refdef.vieworg[2] = ent.origin[2] - 22.0;
+		else if (R.refdef.vieworg[2] > (ent.origin[2] + 30.0))
+			R.refdef.vieworg[2] = ent.origin[2] + 30.0;
 
 		var view = (untyped CL).state.viewent;
-		view.angles[0] = -(untyped R).refdef.viewangles[0] - ipitch;
-		view.angles[1] = (untyped R).refdef.viewangles[1] - iyaw;
+		view.angles[0] = -R.refdef.viewangles[0] - ipitch;
+		view.angles[1] = R.refdef.viewangles[1] - iyaw;
 		view.angles[2] = (untyped CL).state.viewangles[2] - iroll;
 		view.origin[0] = ent.origin[0] + forward[0] * bob * 0.4;
 		view.origin[1] = ent.origin[1] + forward[1] * bob * 0.4;
@@ -348,9 +348,9 @@ class V {
 		view.model = (untyped CL).state.model_precache[(untyped CL).state.stats[Def.stat.weapon]];
 		view.frame = (untyped CL).state.stats[Def.stat.weaponframe];
 
-		(untyped R).refdef.viewangles[0] += (untyped CL).state.punchangle[0];
-		(untyped R).refdef.viewangles[1] += (untyped CL).state.punchangle[1];
-		(untyped R).refdef.viewangles[2] += (untyped CL).state.punchangle[2];
+		R.refdef.viewangles[0] += (untyped CL).state.punchangle[0];
+		R.refdef.viewangles[1] += (untyped CL).state.punchangle[1];
+		R.refdef.viewangles[2] += (untyped CL).state.punchangle[2];
 
 		if (((untyped CL).state.onground) && ((ent.origin[2] - V.oldz) > 0.0)) {
 			var steptime:Float = (untyped CL).state.time - (untyped CL).state.oldtime;
@@ -361,7 +361,7 @@ class V {
 				V.oldz = ent.origin[2];
 			else if ((ent.origin[2] - V.oldz) > 12.0)
 				V.oldz = ent.origin[2] - 12.0;
-			(untyped R).refdef.vieworg[2] += V.oldz - ent.origin[2];
+			R.refdef.vieworg[2] += V.oldz - ent.origin[2];
 			view.origin[2] += V.oldz - ent.origin[2];
 		}
 		else
@@ -382,8 +382,8 @@ class V {
 			CalcIntermissionRefdef();
 		else if ((untyped CL).state.paused != true)
 			CalcRefdef();
-		(untyped R).PushDlights();
-		(untyped R).RenderView();
+		R.PushDlights();
+		R.RenderView();
 	}
 
 	static function Init():Void {

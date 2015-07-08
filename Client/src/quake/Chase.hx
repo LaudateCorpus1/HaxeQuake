@@ -20,7 +20,7 @@ class Chase {
         var r:Vec = [];
         Vec.AngleVectors((untyped CL).state.viewangles, forward, r);
         var trace:Dynamic = {plane: {}}
-        var org:Vec = (untyped R).refdef.vieworg;
+        var org:Vec = R.refdef.vieworg;
         (untyped SV).RecursiveHullCheck((untyped CL).state.worldmodel.hulls[0], 0, 0.0, 1.0, org, [
             org[0] + 4096.0 * forward[0],
             org[1] + 4096.0 * forward[1],
@@ -30,7 +30,7 @@ class Chase {
         var dist = (stop[0] - org[0]) * forward[0] + (stop[1] - org[1]) * forward[1] + stop[2] * forward[2];
         if (dist < 1.0)
             dist = 1.0;
-        (untyped R).refdef.viewangles[0] = Math.atan(stop[2] / dist) / Math.PI * -180.0;
+        R.refdef.viewangles[0] = Math.atan(stop[2] / dist) / Math.PI * -180.0;
         org[0] -= forward[0] * back.value + r[0] * right.value;
         org[1] -= forward[1] * back.value + r[1] * right.value;
         org[2] += up.value;

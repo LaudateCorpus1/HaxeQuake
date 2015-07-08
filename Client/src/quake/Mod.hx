@@ -2,6 +2,7 @@ package quake;
 
 import js.html.webgl.Buffer;
 import js.html.webgl.Texture;
+import quake.ED.Edict;
 import quake.GL.GLTexture;
 
 @:enum abstract MModelType(Int) {
@@ -27,6 +28,7 @@ class MModel {
     var maxs:Vec;
     var radius:Float;
     var submodel:Bool;
+    var submodels:Array<MModel>;
     var lightdata:Array<Int>;
     var chains:Array<Array<Int>>;
     var textures:Array<MTexture>;
@@ -45,13 +47,25 @@ class MModel {
     var random:Bool;
     var nodes:Array<MNode>;
     var hulls:Array<MHull>;
+    var entities:String;
 }
 
 @:publicFields
 class MHull {
+    var clipnodes:Array<MClipNode>;
+    var planes:Array<Plane>;
     var firstclipnode:Int;
+    var lastclipnode:Int;
+    var clip_mins:Vec;
+    var clip_maxs:Vec;
+    function new() {}
 }
 
+@:publicFields
+class MClipNode {
+    var planenum:Int;
+    var children:Array<ModContents>;
+}
 
 @:publicFields
 class MSkin {
@@ -139,4 +153,52 @@ class MTexture {
     var turbulent:Bool;
     var texturenum:Texture;
     function new() {}
+}
+
+@:publicFields
+class MTrace {
+    var allsolid:Bool;
+    var startsolid:Bool;
+    var inopen:Bool;
+    var inwater:Bool;
+    var plane:Plane;
+    var fraction:Float;
+    var endpos:Vec;
+    var ent:Edict;
+    function new() {}
+}
+
+
+@:publicFields
+class MMoveClip {
+    var type:Int;
+    var trace:MTrace;
+    var boxmins:Vec;
+    var boxmaxs:Vec;
+    var mins:Vec;
+    var maxs:Vec;
+    var mins2:Vec;
+    var maxs2:Vec;
+    var start:Vec;
+    var end:Vec;
+    var passedict:Edict;
+    function new() {}
+}
+
+
+@:publicFields
+class MAreaNode {
+    var axis:Int;
+    var dist:Float;
+    var children:Array<MAreaNode>;
+    var trigger_edicts:MLink;
+    var solid_edicts:MLink;
+    function new() {}
+}
+
+class MLink {
+    public var prev:MLink;
+    public var next:MLink;
+    public var ent:Edict;
+    public function new() {}
 }

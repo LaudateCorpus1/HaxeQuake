@@ -227,7 +227,7 @@ class M {
 			entersound = true;
 			switch (singleplayer_cursor) {
 			case 0:
-				if ((untyped SV).server.active) {
+				if (SV.server.active) {
 					if (window.confirm('Are you sure you want to start a new game?') != true)
 						return;
 					Cmd.text += 'disconnect\n';
@@ -299,7 +299,7 @@ class M {
 	}
 
 	static function Menu_Save_f() {
-		if (((untyped SV).server.active != true) || (CL.state.intermission != 0) || ((untyped SV).svs.maxclients != 1))
+		if ((SV.server.active != true) || (CL.state.intermission != 0) || (SV.svs.maxclients != 1))
 			return;
 		entersound = true;
 		state = save;

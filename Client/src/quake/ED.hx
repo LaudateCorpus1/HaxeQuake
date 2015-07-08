@@ -3,8 +3,11 @@ package quake;
 import js.html.ArrayBuffer;
 import js.html.Float32Array;
 import js.html.Int32Array;
+import quake.Mod.MLink;
 import quake.PR.EType;
 import quake.PR.PRDef;
+import quake.R.REntityState;
+import quake.SV.MoveType;
 
 @:publicFields
 class Edict {
@@ -14,6 +17,19 @@ class Edict {
 	var v:ArrayBuffer;
 	var v_int:Int32Array;
 	var v_float:Float32Array;
+	var leafnums:Array<Int>;
+	var baseline:REntityState;
+	var area:MLink;
+
+	var flags(get,set):Int;
+	inline function get_flags():Int return Std.int(v_float[PR.entvars.flags]);
+	inline function set_flags(v:Int):Int return {v_float[PR.entvars.flags] = v; v;}
+
+	var items(get,set):Int;
+	inline function get_items():Int return Std.int(v_float[PR.entvars.items]);
+	inline function set_items(v:Int):Int return {v_float[PR.entvars.items] = v; v;}
+
+	function new() {}
 }
 
 
@@ -28,24 +44,24 @@ class ED {
 	}
 
 	static function Alloc():Edict {
-		var i = (untyped SV).svs.maxclients + 1;
+		var i = SV.svs.maxclients + 1;
 		var e:Edict;
-		while (i < (untyped SV).server.num_edicts) {
-			e = (untyped SV).server.edicts[i++];
-			if ((e.free) && ((e.freetime < 2.0) || (((untyped SV).server.time - e.freetime) > 0.5))) {
+		while (i < SV.server.num_edicts) {
+			e = SV.server.edicts[i++];
+			if ((e.free) && ((e.freetime < 2.0) || ((SV.server.time - e.freetime) > 0.5))) {
 				ClearEdict(e);
 				return e;
 			}
 		}
 		if (i == Def.max_edicts)
 			Sys.Error('ED.Alloc: no free edicts');
-		e = (untyped SV).server.edicts[(untyped SV).server.num_edicts++];
+		e = SV.server.edicts[SV.server.num_edicts++];
 		ClearEdict(e);
 		return e;
 	}
 
 	static function Free(ed:Edict):Void {
-		(untyped SV).UnlinkEdict(ed);
+		SV.UnlinkEdict(ed);
 		ed.free = true;
 		ed.v_int[PR.entvars.model] = 0;
 		ed.v_float[PR.entvars.takedamage] = 0.0;
@@ -57,7 +73,7 @@ class ED {
 		SetVector(ed, PR.entvars.angles, Vec.origin);
 		ed.v_float[PR.entvars.nextthink] = -1.0;
 		ed.v_float[PR.entvars.solid] = 0.0;
-		ed.freetime = (untyped SV).server.time;
+		ed.freetime = SV.server.time;
 	}
 
 	static function GlobalAtOfs(ofs:Int):PRDef {
@@ -127,27 +143,27 @@ class ED {
 	}
 
 	static function PrintEdicts() {
-		if (!(untyped SV).server.active)
+		if (!SV.server.active)
 			return;
-		Console.Print((untyped SV).server.num_edicts + ' entities\n');
-		for (i in 0...(untyped SV).server.num_edicts)
-			Print((untyped SV).server.edicts[i]);
+		Console.Print(SV.server.num_edicts + ' entities\n');
+		for (i in 0...SV.server.num_edicts)
+			Print(SV.server.edicts[i]);
 	}
 
 	static function PrintEdict_f() {
-		if ((untyped SV).server.active != true)
+		if (SV.server.active != true)
 			return;
 		var i = Q.atoi(Cmd.argv[1]);
-		if ((i >= 0) && (i < (untyped SV).server.num_edicts))
-			Print((untyped SV).server.edicts[i]);
+		if ((i >= 0) && (i < SV.server.num_edicts))
+			Print(SV.server.edicts[i]);
 	}
 
 	static function Count() {
-		if (!(untyped SV).server.active)
+		if (!SV.server.active)
 			return;
 		var active = 0, models = 0, solid = 0, step = 0;
-		for (i in 0...(untyped SV).server.num_edicts) {
-			var ent = (untyped SV).server.edicts[i];
+		for (i in 0...SV.server.num_edicts) {
+			var ent = SV.server.edicts[i];
 			if (ent.free)
 				continue;
 			++active;
@@ -155,10 +171,10 @@ class ED {
 				++solid;
 			if (ent.v_int[PR.entvars.model] != 0)
 				++models;
-			if (ent.v_float[PR.entvars.movetype] == (untyped SV).movetype.step)
+			if (ent.v_float[PR.entvars.movetype] == MoveType.step)
 				++step;
 		}
-		var num_edicts = (untyped SV).server.num_edicts;
+		var num_edicts = SV.server.num_edicts;
 		Console.Print('num_edicts:' + (num_edicts <= 9 ? '  ' : (num_edicts <= 99 ? ' ' : '')) + num_edicts + '\n');
 		Console.Print('active    :' + (active <= 9 ? '  ' : (active <= 99 ? ' ' : '')) + active + '\n');
 		Console.Print('view      :' + (models <= 9 ? '  ' : (models <= 99 ? ' ' : '')) + models + '\n');
@@ -245,7 +261,7 @@ class ED {
 	}
 
 	static function ParseEdict(data:String, ent:Edict):String {
-		if (ent != (untyped SV).server.edicts[0]) {
+		if (ent != SV.server.edicts[0]) {
 			for (i in 0...PR.entityfields)
 				ent.v_int[i] = 0;
 		}
@@ -297,7 +313,7 @@ class ED {
 
 	static function LoadFromFile(data:String):Void {
 		var ent, inhibit = 0;
-		PR.globals_float[PR.globalvars.time] = (untyped SV).server.time;
+		PR.globals_float[PR.globalvars.time] = SV.server.time;
 
 		while (true) {
 			data = COM.Parse(data);
@@ -307,7 +323,7 @@ class ED {
 				Sys.Error('ED.LoadFromFile: found ' + COM.token + ' when expecting {');
 
 			if (ent == null)
-				ent = (untyped SV).server.edicts[0];
+				ent = SV.server.edicts[0];
 			else
 				ent = Alloc();
 			data = ParseEdict(data, ent);

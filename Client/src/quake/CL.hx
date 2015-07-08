@@ -51,7 +51,7 @@ private class ClientStatic {
 }
 
 @:publicFields
-private class ClientCmd {
+class ClientCmd {
     var viewangles:Vec;
     var forwardmove:Float = 0.0;
     var sidemove:Float = 0.0;
@@ -626,7 +626,7 @@ static var lightstyle:Array<String>;
 static var beams:Array<Beam>;
 
 static function ClearState() {
-    if ((untyped SV).server.active != true) {
+    if (SV.server.active != true) {
         Console.DPrint('Clearing memory\n');
         (untyped Mod).ClearAll();
         CL.cls.signon = 0;
@@ -664,7 +664,7 @@ static function Disconnect() {
         CL.cls.message.cursize = 0;
         NET.Close(CL.cls.netcon);
         CL.cls.state = CL.active.disconnected;
-        if ((untyped SV).server.active)
+        if (SV.server.active)
             Host.ShutdownServer(false);
     }
     CL.cls.demoplayback = CL.cls.timedemo = false;
@@ -791,7 +791,7 @@ static function DecayLights() {
 
 static function LerpPoint() {
     var f = CL.state.mtime[0] - CL.state.mtime[1];
-    if ((f == 0.0) || (CL.nolerp.value != 0) || (CL.cls.timedemo) || ((untyped SV).server.active)) {
+    if ((f == 0.0) || (CL.nolerp.value != 0) || (CL.cls.timedemo) || (SV.server.active)) {
         CL.state.time = CL.state.mtime[0];
         return 1.0;
     }
@@ -1074,7 +1074,7 @@ static function ParseStartSoundPacket() {
 
 static var lastmsg = 0.0;
 static function KeepaliveMessage() {
-    if (((untyped SV).server.active) || (CL.cls.demoplayback))
+    if ((SV.server.active) || (CL.cls.demoplayback))
         return;
     var oldsize = NET.message.cursize;
     var olddata = new Uint8Array(8192);

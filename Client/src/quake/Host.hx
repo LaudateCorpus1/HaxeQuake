@@ -2,18 +2,21 @@ package quake;
 
 import js.html.ArrayBuffer;
 import js.html.Uint8Array;
+import quake.CL.ClientCmd;
 import quake.ED.Edict;
 import quake.Mod.MModel;
 import quake.NET.INETSocket;
 import quake.PR.EType;
 import quake.Protocol.SVC;
+import quake.SV.MoveType;
 using Tools;
 
 @:publicFields
-private class HClient {
+class HClient {
 	var active:Bool;
 	var spawned:Bool;
 	var sendsignon:Bool;
+	var dropasap:Bool;
 	var message:MSG;
 	var netconnection:INETSocket;
 	var edict:Edict;
@@ -21,6 +24,18 @@ private class HClient {
 	var num:Int;
 	var colors:Int;
 	var spawn_parms:Array<Float>;
+	var last_message:Float;
+	var cmd:ClientCmd;
+	var wishdir:Vec;
+	var ping_times:Array<Float>;
+	var num_pings:Int;
+	function new() {
+		num = 0;
+		message = new MSG(8000);
+		message.allowoverflow = true;
+		colors = 0;
+		old_frags = 0;
+	}
 }
 
 @:expose("Host")
@@ -64,7 +79,7 @@ static function Error(error) {
 	Host.inerror = true;
 	SCR.EndLoadingPlaque();
 	Console.Print('Host.Error: ' + error + '\n');
-	if ((untyped SV).server.active)
+	if (SV.server.active)
 		Host.ShutdownServer(false);
 	CL.Disconnect();
 	CL.cls.demonum = -1;
@@ -73,14 +88,9 @@ static function Error(error) {
 }
 
 static function FindMaxClients() {
-	(untyped SV).svs.maxclients = (untyped SV).svs.maxclientslimit = 1;
+	SV.svs.maxclients = SV.svs.maxclientslimit = 1;
 	CL.cls.state = CL.active.disconnected;
-	(untyped SV).svs.clients = [{
-		num: 0,
-		message: {data: new ArrayBuffer(8000), cursize: 0, allowoverflow: true},
-		colors: 0,
-		old_frags: 0
-	}];
+	SV.svs.clients = [new HClient()];
 	Cvar.SetValue('deathmatch', 0);
 }
 
@@ -110,8 +120,8 @@ static function ClientPrint(string:String):Void {
 }
 
 static function BroadcastPrint(string:String):Void {
-	for (i in 0...(untyped SV).svs.maxclients) {
-		var client = (untyped SV).svs.clients[i];
+	for (i in 0...SV.svs.maxclients) {
+		var client = SV.svs.clients[i];
 		if ((client.active != true) || (client.spawned != true))
 			continue;
 		MSG.WriteByte(client.message, SVC.print);
@@ -132,17 +142,17 @@ static function DropClient(crash:Bool):Void {
 			PR.ExecuteProgram(PR.globals_int[PR.globalvars.ClientDisconnect]);
 			PR.globals_int[PR.globalvars.self] = saveSelf;
 		}
-		Sys.Print('Client ' + (untyped SV).GetClientName(client) + ' removed\n');
+		Sys.Print('Client ' + SV.GetClientName(client) + ' removed\n');
 	}
 	NET.Close(client.netconnection);
 	client.netconnection = null;
 	client.active = false;
-	(untyped SV).SetClientName(client, '');
+	SV.SetClientName(client, '');
 	client.old_frags = -999999;
 	--NET.activeconnections;
 	var num = client.num;
-	for (i in 0...(untyped SV).svs.maxclients) {
-		var client = (untyped SV).svs.clients[i];
+	for (i in 0...SV.svs.maxclients) {
+		var client = SV.svs.clients[i];
 		if (!client.active)
 			continue;
 		MSG.WriteByte(client.message, SVC.updatename);
@@ -160,16 +170,16 @@ static function DropClient(crash:Bool):Void {
 static var client:HClient;
 
 static function ShutdownServer(crash) {
-	if ((untyped SV).server.active != true)
+	if (SV.server.active != true)
 		return;
-	(untyped SV).server.active = false;
+	SV.server.active = false;
 	if (CL.cls.state == CL.active.connected)
 		CL.Disconnect();
 	var start = Sys.FloatTime(), count = 0;
 	do
 	{
-		for (i in 0...(untyped SV).svs.maxclients) {
-			Host.client = (untyped SV).svs.clients[i];
+		for (i in 0...SV.svs.maxclients) {
+			Host.client = SV.svs.clients[i];
 			if ((Host.client.active != true) || (Host.client.message.cursize == 0))
 				continue;
 			if (NET.CanSendMessage(Host.client.netconnection)) {
@@ -188,8 +198,8 @@ static function ShutdownServer(crash) {
 	count = NET.SendToAll(buf);
 	if (count != 0)
 		Console.Print('Host.ShutdownServer: NET.SendToAll failed for ' + count + ' clients\n');
-	for (i in 0...(untyped SV).svs.maxclients) {
-		Host.client = (untyped SV).svs.clients[i];
+	for (i in 0...SV.svs.maxclients) {
+		Host.client = SV.svs.clients[i];
 		if (Host.client.active)
 			Host.DropClient(crash);
 	}
@@ -205,12 +215,12 @@ static var oldrealtime:Float;
 
 static function ServerFrame() {
 	PR.globals_float[PR.globalvars.frametime] = Host.frametime;
-	(untyped SV).server.datagram.cursize = 0;
-	(untyped SV).CheckForNewClients();
-	(untyped SV).RunClients();
-	if (((untyped SV).server.paused != true) && (((untyped SV).svs.maxclients >= 2) || (Key.dest.value == Key.dest.game)))
-		(untyped SV).Physics();
-	(untyped SV).SendClientMessages();
+	SV.server.datagram.cursize = 0;
+	SV.CheckForNewClients();
+	SV.RunClients();
+	if ((SV.server.paused != true) && ((SV.svs.maxclients >= 2) || (Key.dest.value == Key.dest.game)))
+		SV.Physics();
+	SV.SendClientMessages();
 }
 
 static var time3 = 0.0;
@@ -240,7 +250,7 @@ static function _Frame() {
 	Cmd.Execute();
 
 	CL.SendCmd();
-	if ((untyped SV).server.active)
+	if (SV.server.active)
 		Host.ServerFrame();
 
 	if (CL.cls.state == CL.active.connected)
@@ -300,8 +310,8 @@ static function Frame() {
 	Host.timecount = 0;
 	Host.timetotal = 0.0;
 	var c = 0;
-	for (i in 0...(untyped SV).svs.maxclients) {
-		if ((untyped SV).svs.clients[i].active)
+	for (i in 0...SV.svs.maxclients) {
+		if (SV.svs.clients[i].active)
 			++c;
 	}
 	Console.Print('serverprofile: ' + (c <= 9 ? ' ' : '') + c + ' clients ' + (m <= 9 ? ' ' : '') + m + ' msec\n');
@@ -320,7 +330,7 @@ static function Init() {
 	PR.Init();
 	(untyped Mod).Init();
 	NET.Init();
-	(untyped SV).Init();
+	SV.Init();
 	Console.Print(Def.timedate);
 	VID.Init();
 	Draw.Init();
@@ -366,20 +376,20 @@ static function Quit_f() {
 static function Status_f() {
 	var print;
 	if (Cmd.client != true) {
-		if ((untyped SV).server.active != true) {
+		if (SV.server.active != true) {
 			Cmd.ForwardToServer();
 			return;
 		}
 		print = Console.Print;
 	}
 	else
-		print = (untyped SV).ClientPrint;
+		print = (cast SV).ClientPrint;
 	print('host:    ' + NET.hostname.string + '\n');
 	print('version: 1.09\n');
 	print('map:     ' + PR.GetString(PR.globals_int[PR.globalvars.mapname]) + '\n');
-	print('players: ' + NET.activeconnections + ' active (' + (untyped SV).svs.maxclients + ' max)\n\n');
-	for (i in 0...(untyped SV).svs.maxclients) {
-		var client = (untyped SV).svs.clients[i];
+	print('players: ' + NET.activeconnections + ' active (' + SV.svs.maxclients + ' max)\n\n');
+	for (i in 0...SV.svs.maxclients) {
+		var client = SV.svs.clients[i];
 		if (client.active != true)
 			continue;
 		var frags = client.edict.v_float[PR.entvars.frags].toFixed(0);
@@ -401,7 +411,7 @@ static function Status_f() {
 		var str = '#' + (i + 1) + ' ';
 		if (i <= 8)
 			str += ' ';
-		str += (untyped SV).GetClientName(client);
+		str += SV.GetClientName(client);
 		while (str.length <= 21)
 			str += ' ';
 		str += frags + '  ';
@@ -425,8 +435,8 @@ static function God_f() {
 	}
 	if (PR.globals_float[PR.globalvars.deathmatch] != 0)
 		return;
-	(untyped SV).player.v_float[PR.entvars.flags] ^= (untyped SV).fl.godmode;
-	if (((untyped SV).player.v_float[PR.entvars.flags] & (untyped SV).fl.godmode) == 0)
+	SV.player.flags = SV.player.flags ^ SV.fl.godmode;
+	if ((SV.player.flags & SV.fl.godmode) == 0)
 		Host.ClientPrint('godmode OFF\n');
 	else
 		Host.ClientPrint('godmode ON\n');
@@ -439,8 +449,8 @@ static function Notarget_f() {
 	}
 	if (PR.globals_float[PR.globalvars.deathmatch] != 0)
 		return;
-	(untyped SV).player.v_float[PR.entvars.flags] ^= (untyped SV).fl.notarget;
-	if (((untyped SV).player.v_float[PR.entvars.flags] & (untyped SV).fl.notarget) == 0)
+	SV.player.flags = SV.player.flags ^ SV.fl.notarget;
+	if ((SV.player.flags & SV.fl.notarget) == 0)
 		Host.ClientPrint('notarget OFF\n');
 	else
 		Host.ClientPrint('notarget ON\n');
@@ -453,14 +463,14 @@ static function Noclip_f() {
 	}
 	if (PR.globals_float[PR.globalvars.deathmatch] != 0)
 		return;
-	if ((untyped SV).player.v_float[PR.entvars.movetype] != (untyped SV).movetype.noclip) {
+	if (SV.player.v_float[PR.entvars.movetype] != MoveType.noclip) {
 		Host.noclip_anglehack = true;
-		(untyped SV).player.v_float[PR.entvars.movetype] = (untyped SV).movetype.noclip;
+		SV.player.v_float[PR.entvars.movetype] = MoveType.noclip;
 		Host.ClientPrint('noclip ON\n');
 		return;
 	}
 	Host.noclip_anglehack = false;
-	(untyped SV).player.v_float[PR.entvars.movetype] = (untyped SV).movetype.walk;
+	SV.player.v_float[PR.entvars.movetype] = MoveType.walk;
 	Host.ClientPrint('noclip OFF\n');
 }
 
@@ -471,12 +481,12 @@ static function Fly_f() {
 	}
 	if (PR.globals_float[PR.globalvars.deathmatch] != 0)
 		return;
-	if ((untyped SV).player.v_float[PR.entvars.movetype] != (untyped SV).movetype.fly) {
-		(untyped SV).player.v_float[PR.entvars.movetype] = (untyped SV).movetype.fly;
+	if (SV.player.v_float[PR.entvars.movetype] != MoveType.fly) {
+		SV.player.v_float[PR.entvars.movetype] = MoveType.fly;
 		Host.ClientPrint('flymode ON\n');
 		return;
 	}
-	(untyped SV).player.v_float[PR.entvars.movetype] = (untyped SV).movetype.walk;
+	SV.player.v_float[PR.entvars.movetype] = MoveType.walk;
 	Host.ClientPrint('flymode OFF\n');
 }
 
@@ -486,11 +496,11 @@ static function Ping_f() {
 		return;
 	}
 	Host.ClientPrint('Client ping times:\n');
-	for (i in 0...(untyped SV).svs.maxclients) {
-		var client = (untyped SV).svs.clients[i];
+	for (i in 0...SV.svs.maxclients) {
+		var client = SV.svs.clients[i];
 		if (client.active != true)
 			continue;
-		var total = 0;
+		var total = 0.0;
 		for (j in 0...16)
 			total += client.ping_times[j];
 		var total = (total * 62.5).toFixed(0);
@@ -500,7 +510,7 @@ static function Ping_f() {
 			total = '  ' + total;
 		else if (total.length == 3)
 			total = ' ' + total;
-		Host.ClientPrint(total + ' ' + (untyped SV).GetClientName(client) + '\n');
+		Host.ClientPrint(total + ' ' + SV.GetClientName(client) + '\n');
 	}
 }
 
@@ -516,9 +526,9 @@ static function Map_f() {
 	Host.ShutdownServer(false);
 	Key.dest.value = Key.dest.game;
 	SCR.BeginLoadingPlaque();
-	(untyped SV).svs.serverflags = 0;
-	(untyped SV).SpawnServer(Cmd.argv[1]);
-	if ((untyped SV).server.active != true)
+	SV.svs.serverflags = 0;
+	SV.SpawnServer(Cmd.argv[1]);
+	if (SV.server.active != true)
 		return;
 	CL.cls.spawnparms = '';
 	for (i in 2...Cmd.argv.length)
@@ -531,17 +541,17 @@ static function Changelevel_f() {
 		Console.Print('changelevel <levelname> : continue game on a new level\n');
 		return;
 	}
-	if (((untyped SV).server.active != true) || (CL.cls.demoplayback)) {
+	if ((SV.server.active != true) || (CL.cls.demoplayback)) {
 		Console.Print('Only the server may changelevel\n');
 		return;
 	}
-	(untyped SV).SaveSpawnparms();
-	(untyped SV).SpawnServer(Cmd.argv[1]);
+	SV.SaveSpawnparms();
+	SV.SpawnServer(Cmd.argv[1]);
 }
 
 static function Restart_f() {
-	if ((CL.cls.demoplayback != true) && ((untyped SV).server.active) && (Cmd.client != true))
-		(untyped SV).SpawnServer(PR.GetString(PR.globals_int[PR.globalvars.mapname]));
+	if ((CL.cls.demoplayback != true) && (SV.server.active) && (Cmd.client != true))
+		SV.SpawnServer(PR.GetString(PR.globals_int[PR.globalvars.mapname]));
 }
 
 static function Reconnect_f() {
@@ -584,7 +594,7 @@ static function SavegameComment() {
 static function Savegame_f() {
 	if (Cmd.client)
 		return;
-	if ((untyped SV).server.active != true) {
+	if (SV.server.active != true) {
 		Console.Print('Not playing a local game.\n');
 		return;
 	}
@@ -592,7 +602,7 @@ static function Savegame_f() {
 		Console.Print('Can\'t save in intermission.\n');
 		return;
 	}
-	if ((untyped SV).svs.maxclients != 1) {
+	if (SV.svs.maxclients != 1) {
 		Console.Print('Can\'t save multiplayer games.\n');
 		return;
 	}
@@ -604,7 +614,7 @@ static function Savegame_f() {
 		Console.Print('Relative pathnames are not allowed.\n');
 		return;
 	}
-	var client = (untyped SV).svs.clients[0];
+	var client = SV.svs.clients[0];
 	if (client.active) {
 		if (client.edict.v_float[PR.entvars.health] <= 0.0) {
 			Console.Print('Can\'t savegame with a dead player\n');
@@ -614,10 +624,10 @@ static function Savegame_f() {
 	var f = ['5\n' + Host.SavegameComment() + '\n'];
 	for (i in 0...16)
 		f[f.length] = client.spawn_parms[i].toFixed(6) + '\n';
-	f[f.length] = Host.current_skill + '\n' + PR.GetString(PR.globals_int[PR.globalvars.mapname]) + '\n' + (untyped SV).server.time.toFixed(6) + '\n';
+	f[f.length] = Host.current_skill + '\n' + PR.GetString(PR.globals_int[PR.globalvars.mapname]) + '\n' + SV.server.time.toFixed(6) + '\n';
 	for (i in 0...64) {
-		if ((untyped SV).server.lightstyles[i].length != 0)
-			f[f.length] = (untyped SV).server.lightstyles[i] + '\n';
+		if (SV.server.lightstyles[i].length != 0)
+			f[f.length] = SV.server.lightstyles[i] + '\n';
 		else
 			f[f.length] = 'm\n';
 	}
@@ -632,8 +642,8 @@ static function Savegame_f() {
 		f[f.length] = '"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR.globals, def.ofs) + '"\n';
 	}
 	f[f.length] = '}\n';
-	for (i in 0...(untyped SV).server.num_edicts) {
-		var ed = (untyped SV).server.edicts[i];
+	for (i in 0...SV.server.num_edicts) {
+		var ed = SV.server.edicts[i];
 		if (ed.free) {
 			f[f.length] = '{\n}\n';
 			continue;
@@ -697,16 +707,16 @@ static function Loadgame_f() {
 
 	var time = Std.parseFloat(f[20]);
 	CL.Disconnect();
-	(untyped SV).SpawnServer(f[19]);
-	if ((untyped SV).server.active != true) {
+	SV.SpawnServer(f[19]);
+	if (SV.server.active != true) {
 		Console.Print('Couldn\'t load map\n');
 		return;
 	}
-	(untyped SV).server.paused = true;
-	(untyped SV).server.loadgame = true;
+	SV.server.paused = true;
+	SV.server.loadgame = true;
 
 	for (i in 0...64)
-		(untyped SV).server.lightstyles[i] = f[21 + i];
+		SV.server.lightstyles[i] = f[21 + i];
 
 	if (f[85] != '{')
 		Sys.Error('First token isn\'t a brace');
@@ -737,18 +747,18 @@ static function Loadgame_f() {
 			break;
 		if (COM.token.charCodeAt(0) != 123)
 			Sys.Error('Host.Loadgame_f: found ' + COM.token + ' when expecting {');
-		var ent:Edict = (untyped SV).server.edicts[entnum++];
+		var ent:Edict = SV.server.edicts[entnum++];
 		for (j in 0...PR.entityfields)
 			ent.v_int[j] = 0;
 		ent.free = false;
 		data = ED.ParseEdict(data, ent);
 		if (ent.free != true)
-			(untyped SV).LinkEdict(ent);
+			SV.LinkEdict(ent, false);
 	}
-	(untyped SV).server.num_edicts = entnum;
+	SV.server.num_edicts = entnum;
 
-	(untyped SV).server.time = time;
-	var client = (untyped SV).svs.clients[0];
+	SV.server.time = time;
+	var client = SV.svs.clients[0];
 	client.spawn_parms = [];
 	for (i in 0...16)
 		client.spawn_parms[i] = spawn_parms[i];
@@ -775,11 +785,11 @@ static function Name_f() {
 		return;
 	}
 
-	var name = (untyped SV).GetClientName(Host.client);
+	var name = SV.GetClientName(Host.client);
 	if ((name.length != 0) && (name != 'unconnected') && (name != newName))
 		Console.Print(name + ' renamed to ' + newName + '\n');
-	(untyped SV).SetClientName(Host.client, newName);
-	var msg = (untyped SV).server.reliable_datagram;
+	SV.SetClientName(Host.client, newName);
+	var msg = SV.server.reliable_datagram;
 	MSG.WriteByte(msg, SVC.updatename);
 	MSG.WriteByte(msg, Host.client.num);
 	MSG.WriteString(msg, newName);
@@ -801,13 +811,13 @@ static function Say(teamonly) {
 	var p = Cmd.args;
 	if (p.charCodeAt(0) == 34)
 		p = p.substring(1, p.length - 1);
-	var text = String.fromCharCode(1)+ (untyped SV).GetClientName(save) + ': ';
+	var text = String.fromCharCode(1)+ SV.GetClientName(save) + ': ';
 	var i = 62 - text.length;
 	if (p.length > i)
 		p = p.substring(0, i);
 	text += p + '\n';
-	for (i in 0...(untyped SV).svs.maxclients) {
-		var client:HClient = (untyped SV).svs.clients[i];
+	for (i in 0...SV.svs.maxclients) {
+		var client:HClient = SV.svs.clients[i];
 		if ((client.active != true) || (client.spawned != true))
 			continue;
 		if ((Host.teamplay.value != 0) && (teamonly) && (client.edict.v_float[PR.entvars.team] != save.edict.v_float[PR.entvars.team]))
@@ -830,7 +840,7 @@ static function Tell_f() {
 	}
 	if (Cmd.argv.length <= 2)
 		return;
-	var text = (untyped SV).GetClientName(Host.client) + ': ';
+	var text = SV.GetClientName(Host.client) + ': ';
 	var p = Cmd.args;
 	if (p.charCodeAt(0) == 34)
 		p = p.substring(1, p.length - 1);
@@ -839,11 +849,11 @@ static function Tell_f() {
 		 p = p.substring(0, i);
 	text += p + '\n';
 	var save = Host.client;
-	for (i in 0...(untyped SV).svs.maxclients) {
-		var client:HClient = (untyped SV).svs.clients[i];
+	for (i in 0...SV.svs.maxclients) {
+		var client:HClient = SV.svs.clients[i];
 		if ((client.active != true) || (client.spawned != true))
 			continue;
-		if ((untyped SV).GetClientName(client).toLowerCase() != Cmd.argv[1].toLowerCase())
+		if (SV.GetClientName(client).toLowerCase() != Cmd.argv[1].toLowerCase())
 			continue;
 		Host.client = client;
 		Host.ClientPrint(text);
@@ -881,7 +891,7 @@ static function Color_f() {
 
 	Host.client.colors = playercolor;
 	Host.client.edict.v_float[PR.entvars.team] = bottom + 1;
-	var msg = (untyped SV).server.reliable_datagram;
+	var msg = SV.server.reliable_datagram;
 	MSG.WriteByte(msg, SVC.updatecolors);
 	MSG.WriteByte(msg, Host.client.num);
 	MSG.WriteByte(msg, playercolor);
@@ -892,12 +902,12 @@ static function Kill_f() {
 		Cmd.ForwardToServer();
 		return;
 	}
-	if ((untyped SV).player.v_float[PR.entvars.health] <= 0.0) {
+	if (SV.player.v_float[PR.entvars.health] <= 0.0) {
 		Host.ClientPrint('Can\'t suicide -- allready dead!\n');
 		return;
 	}
-	PR.globals_float[PR.globalvars.time] = (untyped SV).server.time;
-	PR.globals_int[PR.globalvars.self] = (untyped SV).player.num;
+	PR.globals_float[PR.globalvars.time] = SV.server.time;
+	PR.globals_int[PR.globalvars.self] = SV.player.num;
 	PR.ExecuteProgram(PR.globals_int[PR.globalvars.ClientKill]);
 }
 
@@ -910,10 +920,10 @@ static function Pause_f() {
 		Host.ClientPrint('Pause not allowed.\n');
 		return;
 	}
-	(untyped SV).server.paused = !(untyped SV).server.paused;
-	Host.BroadcastPrint((untyped SV).GetClientName(Host.client) + ((untyped SV).server.paused ? ' paused the game\n' : ' unpaused the game\n'));
-	MSG.WriteByte((untyped SV).server.reliable_datagram, SVC.setpause);
-	MSG.WriteByte((untyped SV).server.reliable_datagram, (untyped SV).server.paused ? 1 : 0);
+	SV.server.paused = !SV.server.paused;
+	Host.BroadcastPrint(SV.GetClientName(Host.client) + (SV.server.paused ? ' paused the game\n' : ' unpaused the game\n'));
+	MSG.WriteByte(SV.server.reliable_datagram, SVC.setpause);
+	MSG.WriteByte(SV.server.reliable_datagram, SV.server.paused ? 1 : 0);
 }
 
 static function PreSpawn_f() {
@@ -926,7 +936,7 @@ static function PreSpawn_f() {
 		Console.Print('prespawn not valid -- allready spawned\n');
 		return;
 	}
-	SZ.Write(client.message, new Uint8Array((untyped SV).server.signon.data), (untyped SV).server.signon.cursize);
+	SZ.Write(client.message, new Uint8Array(SV.server.signon.data), SV.server.signon.cursize);
 	MSG.WriteByte(client.message, SVC.signonnum);
 	MSG.WriteByte(client.message, 2);
 	client.sendsignon = true;
@@ -944,8 +954,8 @@ static function Spawn_f() {
 	}
 
 	var ent = client.edict;
-	if ((untyped SV).server.loadgame)
-		(untyped SV).server.paused = false;
+	if (SV.server.loadgame)
+		SV.server.paused = false;
 	else {
 		for (i in 0...PR.entityfields)
 			ent.v_int[i] = 0;
@@ -954,23 +964,23 @@ static function Spawn_f() {
 		ent.v_int[PR.entvars.netname] = PR.netnames + (client.num << 5);
 		for (i in 0...16)
 			PR.globals_float[PR.globalvars.parms + i] = client.spawn_parms[i];
-		PR.globals_float[PR.globalvars.time] = (untyped SV).server.time;
+		PR.globals_float[PR.globalvars.time] = SV.server.time;
 		PR.globals_int[PR.globalvars.self] = ent.num;
 		PR.ExecuteProgram(PR.globals_int[PR.globalvars.ClientConnect]);
-		if ((Sys.FloatTime() - client.netconnection.connecttime) <= (untyped SV).server.time)
-			Sys.Print((untyped SV).GetClientName(client) + ' entered the game\n');
+		if ((Sys.FloatTime() - client.netconnection.connecttime) <= SV.server.time)
+			Sys.Print(SV.GetClientName(client) + ' entered the game\n');
 		PR.ExecuteProgram(PR.globals_int[PR.globalvars.PutClientInServer]);
 	}
 
 	var message = client.message;
 	message.cursize = 0;
 	MSG.WriteByte(message, SVC.time);
-	MSG.WriteFloat(message, (untyped SV).server.time);
-	for (i in 0...(untyped SV).svs.maxclients) {
-		client = (untyped SV).svs.clients[i];
+	MSG.WriteFloat(message, SV.server.time);
+	for (i in 0...SV.svs.maxclients) {
+		client = SV.svs.clients[i];
 		MSG.WriteByte(message, SVC.updatename);
 		MSG.WriteByte(message, i);
-		MSG.WriteString(message, (untyped SV).GetClientName(client));
+		MSG.WriteString(message, SV.GetClientName(client));
 		MSG.WriteByte(message, SVC.updatefrags);
 		MSG.WriteByte(message, i);
 		MSG.WriteShort(message, client.old_frags);
@@ -981,7 +991,7 @@ static function Spawn_f() {
 	for (i in 0...64) {
 		MSG.WriteByte(message, SVC.lightstyle);
 		MSG.WriteByte(message, i);
-		MSG.WriteString(message, (untyped SV).server.lightstyles[i]);
+		MSG.WriteString(message, SV.server.lightstyles[i]);
 	}
 	MSG.WriteByte(message, SVC.updatestat);
 	MSG.WriteByte(message, Def.stat.totalsecrets);
@@ -999,7 +1009,7 @@ static function Spawn_f() {
 	MSG.WriteAngle(message, ent.v_float[PR.entvars.angles]);
 	MSG.WriteAngle(message, ent.v_float[PR.entvars.angles1]);
 	MSG.WriteAngle(message, 0.0);
-	(untyped SV).WriteClientdataToMessage(ent, message);
+	SV.WriteClientdataToMessage(ent, message);
 	MSG.WriteByte(message, SVC.signonnum);
 	MSG.WriteByte(message, 3);
 	Host.client.sendsignon = true;
@@ -1015,7 +1025,7 @@ static function Begin_f() {
 
 static function Kick_f() {
 	if (Cmd.client != true) {
-		if ((untyped SV).server.active != true) {
+		if (SV.server.active != true) {
 			Cmd.ForwardToServer();
 			return;
 		}
@@ -1026,26 +1036,26 @@ static function Kick_f() {
 	var i, byNumber;
 	if ((Cmd.argv.length >= 3) && (Cmd.argv[1] == '#')) {
 		i = Q.atoi(Cmd.argv[2]) - 1;
-		if ((i < 0) || (i >= (untyped SV).svs.maxclients))
+		if ((i < 0) || (i >= SV.svs.maxclients))
 			return;
-		if ((untyped SV).svs.clients[i].active != true)
+		if (SV.svs.clients[i].active != true)
 			return;
-		Host.client = (untyped SV).svs.clients[i];
+		Host.client = SV.svs.clients[i];
 		byNumber = true;
 	} else {
 		i = 0;
-		while (i < (untyped SV).svs.maxclients) {
-			Host.client = (untyped SV).svs.clients[i];
+		while (i < SV.svs.maxclients) {
+			Host.client = SV.svs.clients[i];
 			if (Host.client.active != true) {
 				i++;
 				continue;
 			}
-			if ((untyped SV).GetClientName(Host.client).toLowerCase() == Cmd.argv[1].toLowerCase())
+			if (SV.GetClientName(Host.client).toLowerCase() == Cmd.argv[1].toLowerCase())
 				break;
 			i++;
 		}
 	}
-	if (i >= (untyped SV).svs.maxclients) {
+	if (i >= SV.svs.maxclients) {
 		Host.client = save;
 		return;
 	}
@@ -1057,7 +1067,7 @@ static function Kick_f() {
 	else {
 		if (Host.client == save)
 			return;
-		who = (untyped SV).GetClientName(save);
+		who = SV.GetClientName(save);
 	}
 	var message;
 	if (Cmd.argv.length >= 3)
@@ -1096,27 +1106,27 @@ static function Give_f() {
 	if (Cmd.argv.length <= 1)
 		return;
 	var t = Cmd.argv[1].charCodeAt(0);
-	var ent = (untyped SV).player;
+	var ent = SV.player;
 
 	if ((t >= 48) && (t <= 57)) {
 		if (COM.hipnotic != true) {
 			if (t >= 50)
-				ent.v_float[PR.entvars.items] |= Def.it.shotgun << (t - 50);
+				ent.items |= Def.it.shotgun << (t - 50);
 			return;
 		}
 		if (t == 54) {
 			if (Cmd.argv[1].charCodeAt(1) == 97)
-				ent.v_float[PR.entvars.items] |= Def.hit.proximity_gun;
+				ent.items |= Def.hit.proximity_gun;
 			else
-				ent.v_float[PR.entvars.items] |= Def.it.grenade_launcher;
+				ent.items |= Def.it.grenade_launcher;
 			return;
 		}
 		if (t == 57)
-			ent.v_float[PR.entvars.items] |= Def.hit.laser_cannon;
+			ent.items |= Def.hit.laser_cannon;
 		else if (t == 48)
-			ent.v_float[PR.entvars.items] |= Def.hit.mjolnir;
+			ent.items |= Def.hit.mjolnir;
 		else if (t >= 50)
-			ent.v_float[PR.entvars.items] |= Def.it.shotgun << (t - 50);
+			ent.items |= Def.it.shotgun << (t - 50);
 		return;
 	}
 	var v = Q.atoi(Cmd.argv[2]);
@@ -1191,9 +1201,9 @@ static function Give_f() {
 }
 
 static function FindViewthing():Edict {
-	if ((untyped SV).server.active) {
-		for (i in 0...(untyped SV).server.num_edicts) {
-			var e:Edict = (untyped SV).server.edicts[i];
+	if (SV.server.active) {
+		for (i in 0...SV.server.num_edicts) {
+			var e:Edict = SV.server.edicts[i];
 			if (PR.GetString(e.v_int[PR.entvars.classname]) == 'viewthing')
 				return e;
 		}

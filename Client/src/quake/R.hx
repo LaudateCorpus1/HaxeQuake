@@ -1336,7 +1336,7 @@ class R {
     }
 
     static function ReadPointFile_f() {
-        if ((untyped SV).server.active != true)
+        if (SV.server.active != true)
             return;
         var name = 'maps/' + PR.GetString(PR.globals_int[PR.globalvars.mapname]) + '.pts';
         var f = COM.LoadTextFile(name);
@@ -1599,7 +1599,7 @@ class R {
         gl.enable(RenderingContext.BLEND);
 
         var frametime = CL.state.time - CL.state.oldtime;
-        var grav = frametime * (untyped SV).gravity.value * 0.05;
+        var grav = frametime * SV.gravity.value * 0.05;
         var dvel = frametime * 4.0;
 
         for (i in 0...R.numparticles) {

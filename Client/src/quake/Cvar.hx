@@ -46,7 +46,7 @@ class Cvar {
             var changed = (v.string != value);
             v.string = value;
             v.value = Q.atof(value);
-            if (v.server && changed && (untyped SV).server.active)
+            if (v.server && changed && SV.server.active)
                 Host.BroadcastPrint('"' + v.name + '" changed to "' + v.string + '"\n');
             return;
         }

@@ -17,13 +17,13 @@ class PF {
 
     static function error() {
         Console.Print('====SERVER ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
-        ED.Print((untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]]);
+        ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
         Host.Error('Program error');
     }
 
     static function objerror() {
         Console.Print('====OBJECT ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
-        ED.Print((untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]]);
+        ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
         Host.Error('Program error');
     }
 
@@ -38,11 +38,11 @@ class PF {
     }
 
     static function setorigin() {
-        var e = (untyped SV).server.edicts[PR.globals_int[4]];
+        var e = SV.server.edicts[PR.globals_int[4]];
         e.v_float[PR.entvars.origin] = PR.globals_float[7];
         e.v_float[PR.entvars.origin1] = PR.globals_float[8];
         e.v_float[PR.entvars.origin2] = PR.globals_float[9];
-        (untyped SV).LinkEdict(e);
+        SV.LinkEdict(e, false);
     }
 
     static function SetMinMaxSize(e:Edict, min:Vec, max:Vec):Void {
@@ -53,30 +53,31 @@ class PF {
         e.v_float[PR.entvars.size] = max[0] - min[0];
         e.v_float[PR.entvars.size1] = max[1] - min[1];
         e.v_float[PR.entvars.size2] = max[2] - min[2];
-        (untyped SV).LinkEdict(e);
+        SV.LinkEdict(e, false);
     }
 
     static function setsize() {
-        SetMinMaxSize((untyped SV).server.edicts[PR.globals_int[4]],
+        SetMinMaxSize(SV.server.edicts[PR.globals_int[4]],
             [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
             [PR.globals_float[10], PR.globals_float[11], PR.globals_float[12]]);
     }
 
     static function setmodel() {
-        var e:Edict = (untyped SV).server.edicts[PR.globals_int[4]];
+        var e:Edict = SV.server.edicts[PR.globals_int[4]];
         var m = PR.GetString(PR.globals_int[7]);
         var i = 0;
-        while (i < (untyped SV).server.model_precache.length) {
-            if ((untyped SV).server.model_precache[i] == m)
+        while (i < SV.server.model_precache.length) {
+            trace(SV.server.model_precache[i], m);
+            if (SV.server.model_precache[i] == m)
                 break;
             i++;
         }
-        if (i == (untyped SV).server.model_precache.length)
+        if (i == SV.server.model_precache.length)
             PR.RunError('no precache: ' + m + '\n');
 
         e.v_int[PR.entvars.model] = PR.globals_int[7];
         e.v_float[PR.entvars.modelindex] = i;
-        var mod = (untyped SV).server.models[i];
+        var mod = SV.server.models[i];
         if (mod != null)
             SetMinMaxSize(e, mod.mins, mod.maxs);
         else
@@ -89,22 +90,22 @@ class PF {
 
     static function sprint() {
         var entnum = PR.globals_int[4];
-        if ((entnum <= 0) || (entnum > (untyped SV).svs.maxclients)) {
+        if ((entnum <= 0) || (entnum > SV.svs.maxclients)) {
             Console.Print('tried to sprint to a non-client\n');
             return;
         }
-        var client = (untyped SV).svs.clients[entnum - 1];
+        var client = SV.svs.clients[entnum - 1];
         MSG.WriteByte(client.message, SVC.print);
         MSG.WriteString(client.message, VarString(1));
     }
 
     static function centerprint() {
         var entnum = PR.globals_int[4];
-        if ((entnum <= 0) || (entnum > (untyped SV).svs.maxclients)) {
+        if ((entnum <= 0) || (entnum > SV.svs.maxclients)) {
             Console.Print('tried to sprint to a non-client\n');
             return;
         }
-        var client = (untyped SV).svs.clients[entnum - 1];
+        var client = SV.svs.clients[entnum - 1];
         MSG.WriteByte(client.message, SVC.centerprint);
         MSG.WriteString(client.message, VarString(1));
     }
@@ -160,7 +161,7 @@ class PF {
     }
 
     static function particle() {
-        (untyped SV).StartParticle([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
+        SV.StartParticle([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
             [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
             Std.int(PR.globals_float[10]), Std.int(PR.globals_float[13]));
     }
@@ -168,16 +169,16 @@ class PF {
     static function ambientsound() {
         var samp = PR.GetString(PR.globals_int[7]);
         var i = 0;
-        while (i < (untyped SV).server.sound_precache.length) {
-            if ((untyped SV).server.sound_precache[i] == samp)
+        while (i < SV.server.sound_precache.length) {
+            if (SV.server.sound_precache[i] == samp)
                 break;
             i++;
         }
-        if (i == (untyped SV).server.sound_precache.length) {
+        if (i == SV.server.sound_precache.length) {
             Console.Print('no precache: ' + samp + '\n');
             return;
         }
-        var signon = (untyped SV).server.signon;
+        var signon = SV.server.signon;
         MSG.WriteByte(signon, SVC.spawnstaticsound);
         MSG.WriteCoord(signon, PR.globals_float[4]);
         MSG.WriteCoord(signon, PR.globals_float[5]);
@@ -188,7 +189,7 @@ class PF {
     }
 
     static function sound() {
-        (untyped SV).StartSound((untyped SV).server.edicts[PR.globals_int[4]],
+        SV.StartSound(SV.server.edicts[PR.globals_int[4]],
             Std.int(PR.globals_float[7]),
             PR.GetString(PR.globals_int[10]),
             Std.int(PR.globals_float[13] * 255),
@@ -200,9 +201,9 @@ class PF {
     }
 
     static function traceline() {
-        var trace = (untyped SV).Move([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
+        var trace = SV.Move([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
             Vec.origin, Vec.origin, [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
-            Std.int(PR.globals_float[10]), (untyped SV).server.edicts[PR.globals_int[13]]);
+            Std.int(PR.globals_float[10]), SV.server.edicts[PR.globals_int[13]]);
         PR.globals_float[PR.globalvars.trace_allsolid] = (trace.allsolid) ? 1.0 : 0.0;
         PR.globals_float[PR.globalvars.trace_startsolid] = (trace.startsolid) ? 1.0 : 0.0;
         PR.globals_float[PR.globalvars.trace_fraction] = trace.fraction;
@@ -222,23 +223,23 @@ class PF {
     static function newcheckclient(check:Int):Int {
         if (check <= 0)
             check = 1;
-        else if (check > (untyped SV).svs.maxclients)
-            check = (untyped SV).svs.maxclients;
+        else if (check > SV.svs.maxclients)
+            check = SV.svs.maxclients;
         var i = 1;
-        if (check != (untyped SV).svs.maxclients)
+        if (check != SV.svs.maxclients)
             i += check;
         var ent;
         while (true) {
-            if (i == (untyped SV).svs.maxclients + 1)
+            if (i == SV.svs.maxclients + 1)
                 i = 1;
-            ent = (untyped SV).server.edicts[i];
+            ent = SV.server.edicts[i];
             if (i == check)
                 break;
             if (ent.free) {
                 i++;
                 continue;
             }
-            if ((ent.v_float[PR.entvars.health] <= 0.0) || ((Std.int(ent.v_float[PR.entvars.flags]) & (untyped SV).fl.notarget) != 0)) {
+            if ((ent.v_float[PR.entvars.health] <= 0.0) || ((ent.flags & SV.fl.notarget) != 0)) {
                 i++;
                 continue;
             }
@@ -248,28 +249,28 @@ class PF {
                 ent.v_float[PR.entvars.origin] + ent.v_float[PR.entvars.view_ofs],
                 ent.v_float[PR.entvars.origin1] + ent.v_float[PR.entvars.view_ofs1],
                 ent.v_float[PR.entvars.origin2] + ent.v_float[PR.entvars.view_ofs2]
-            ], (untyped SV).server.worldmodel), (untyped SV).server.worldmodel);
+            ], SV.server.worldmodel), SV.server.worldmodel);
         return i;
     }
 
     static var checkpvs:Array<Int>;
 
     static function checkclient() {
-        if (((untyped SV).server.time - (untyped SV).server.lastchecktime) >= 0.1) {
-            (untyped SV).server.lastcheck = newcheckclient((untyped SV).server.lastcheck);
-            (untyped SV).server.lastchecktime = (untyped SV).server.time;
+        if ((SV.server.time - SV.server.lastchecktime) >= 0.1) {
+            SV.server.lastcheck = newcheckclient(SV.server.lastcheck);
+            SV.server.lastchecktime = SV.server.time;
         }
-        var ent = (untyped SV).server.edicts[(untyped SV).server.lastcheck];
+        var ent = SV.server.edicts[SV.server.lastcheck];
         if ((ent.free) || (ent.v_float[PR.entvars.health] <= 0.0)) {
             PR.globals_int[1] = 0;
             return;
         }
-        var self = (untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]];
+        var self = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
         var l = (untyped Mod).PointInLeaf([
                 self.v_float[PR.entvars.origin] + self.v_float[PR.entvars.view_ofs],
                 self.v_float[PR.entvars.origin1] + self.v_float[PR.entvars.view_ofs1],
                 self.v_float[PR.entvars.origin2] + self.v_float[PR.entvars.view_ofs2]
-            ], (untyped SV).server.worldmodel).num - 1;
+            ], SV.server.worldmodel).num - 1;
         if ((l < 0) || ((checkpvs[l >> 3] & (1 << (l & 7))) == 0)) {
             PR.globals_int[1] = 0;
             return;
@@ -279,9 +280,9 @@ class PF {
 
     static function stuffcmd() {
         var entnum = PR.globals_int[4];
-        if ((entnum <= 0) || (entnum > (untyped SV).svs.maxclients))
+        if ((entnum <= 0) || (entnum > SV.svs.maxclients))
             PR.RunError('Parm 0 not a client');
-        var client = (untyped SV).svs.clients[entnum - 1];
+        var client = SV.svs.clients[entnum - 1];
         MSG.WriteByte(client.message, SVC.stufftext);
         MSG.WriteString(client.message, PR.GetString(PR.globals_int[7]));
     }
@@ -303,11 +304,11 @@ class PF {
         var chain = 0;
         var org = [PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]], eorg = [];
         var rad = PR.globals_float[7];
-        for (i in 1...(untyped SV).server.num_edicts) {
-            var ent = (untyped SV).server.edicts[i];
+        for (i in 1...SV.server.num_edicts) {
+            var ent = SV.server.edicts[i];
             if (ent.free)
                 continue;
-            if (ent.v_float[PR.entvars.solid] == (untyped SV).solid.not)
+            if (ent.v_float[PR.entvars.solid] == SV.solid.not)
                 continue;
             eorg[0] = org[0] - (ent.v_float[PR.entvars.origin] + (ent.v_float[PR.entvars.mins] + ent.v_float[PR.entvars.maxs]) * 0.5);
             eorg[1] = org[1] - (ent.v_float[PR.entvars.origin1] + (ent.v_float[PR.entvars.mins1] + ent.v_float[PR.entvars.maxs1]) * 0.5);
@@ -349,15 +350,15 @@ class PF {
     }
 
     static function Remove() {
-        ED.Free((untyped SV).server.edicts[PR.globals_int[4]]);
+        ED.Free(SV.server.edicts[PR.globals_int[4]]);
     }
 
     static function Find() {
         var e = PR.globals_int[4];
         var f = PR.globals_int[7];
         var s = PR.GetString(PR.globals_int[10]);
-        for (e in (e + 1)...(untyped SV).server.num_edicts) {
-            var ed = (untyped SV).server.edicts[e];
+        for (e in (e + 1)...SV.server.num_edicts) {
+            var ed = SV.server.edicts[e];
             if (ed.free)
                 continue;
             if (PR.GetString(ed.v_int[f]) == s) {
@@ -369,17 +370,17 @@ class PF {
     }
 
     static function MoveToGoal() {
-        var ent = (untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]];
-        if ((ent.v_float[PR.entvars.flags] & ((untyped SV).fl.onground + (untyped SV).fl.fly + (untyped SV).fl.swim)) == 0) {
+        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
             PR.globals_float[1] = 0.0;
             return;
         }
-        var goal = (untyped SV).server.edicts[ent.v_int[PR.entvars.goalentity]];
+        var goal = SV.server.edicts[ent.v_int[PR.entvars.goalentity]];
         var dist = PR.globals_float[4];
-        if ((ent.v_int[PR.entvars.enemy] != 0) && ((untyped SV).CloseEnough(ent, goal, dist)))
+        if ((ent.v_int[PR.entvars.enemy] != 0) && (SV.CloseEnough(ent, goal, dist)))
             return;
-        if ((Math.random() >= 0.75) || ((untyped SV).StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist) != true))
-            (untyped SV).NewChaseDir(ent, goal, dist);
+        if ((Math.random() >= 0.75) || (SV.StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist) != true))
+            SV.NewChaseDir(ent, goal, dist);
     }
 
     static function precache_file() {
@@ -391,28 +392,28 @@ class PF {
         PR.globals_int[1] = PR.globals_int[4];
         PR.CheckEmptyString(s);
         var i = 0;
-        while (i < (untyped SV).server.sound_precache.length) {
-            if ((untyped SV).server.sound_precache[i] == s)
+        while (i < SV.server.sound_precache.length) {
+            if (SV.server.sound_precache[i] == s)
                 return;
             i++;
         }
-        (untyped SV).server.sound_precache[i] = s;
+        SV.server.sound_precache[i] = s;
     }
 
     static function precache_model() {
-        if ((untyped SV).server.loading != true)
+        if (SV.server.loading != true)
             PR.RunError('Precache_*: Precache can only be done in spawn functions');
         var s = PR.GetString(PR.globals_int[4]);
         PR.globals_int[1] = PR.globals_int[4];
         PR.CheckEmptyString(s);
         var i = 0;
-        while (i < (untyped SV).server.model_precache.length) {
-            if ((untyped SV).server.model_precache[i] == s)
+        while (i < SV.server.model_precache.length) {
+            if (SV.server.model_precache[i] == s)
                 return;
             i++;
         }
-        (untyped SV).server.model_precache[i] = s;
-        (untyped SV).server.models[i] = (untyped Mod).ForName(s, true);
+        SV.server.model_precache[i] = s;
+        SV.server.models[i] = (untyped Mod).ForName(s, true);
     }
 
     static function coredump() {
@@ -428,26 +429,26 @@ class PF {
     }
 
     static function eprint() {
-        ED.Print((untyped SV).server.edicts[Std.int(PR.globals_float[4])]);
+        ED.Print(SV.server.edicts[Std.int(PR.globals_float[4])]);
     }
 
     static function walkmove() {
-        var ent = (untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]];
-        if ((ent.v_float[PR.entvars.flags] & ((untyped SV).fl.onground + (untyped SV).fl.fly + (untyped SV).fl.swim)) == 0) {
+        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
             PR.globals_float[1] = 0.0;
             return;
         }
         var yaw = PR.globals_float[4] * Math.PI / 180.0;
         var dist = PR.globals_float[7];
         var oldf = PR.xfunction;
-        PR.globals_float[1] = (untyped SV).movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], true);
+        PR.globals_float[1] = SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], true).toInt();
         PR.xfunction = oldf;
         PR.globals_int[PR.globalvars.self] = ent.num;
     }
 
     static function droptofloor() {
-        var ent = (untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]];
-        var trace = (untyped SV).Move(ED.Vector(ent, PR.entvars.origin),
+        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        var trace = SV.Move(ED.Vector(ent, PR.entvars.origin),
             ED.Vector(ent, PR.entvars.mins), ED.Vector(ent, PR.entvars.maxs),
             [ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] - 256.0], 0, ent);
         if ((trace.fraction == 1.0) || (trace.allsolid)) {
@@ -455,8 +456,8 @@ class PF {
             return;
         }
         ED.SetVector(ent, PR.entvars.origin, trace.endpos);
-        (untyped SV).LinkEdict(ent);
-        ent.v_float[PR.entvars.flags] = Std.int(ent.v_float[PR.entvars.flags]) | (untyped SV).fl.onground;
+        SV.LinkEdict(ent, false);
+        ent.flags = ent.flags | SV.fl.onground;
         ent.v_int[PR.entvars.groundentity] = trace.ent.num;
         PR.globals_float[1] = 1.0;
     }
@@ -464,11 +465,11 @@ class PF {
     static function lightstyle() {
         var style = Std.int(PR.globals_float[4]);
         var val = PR.GetString(PR.globals_int[7]);
-        (untyped SV).server.lightstyles[style] = val;
-        if ((untyped SV).server.loading)
+        SV.server.lightstyles[style] = val;
+        if (SV.server.loading)
             return;
-        for (i in 0...(untyped SV).svs.maxclients) {
-            var client = (untyped SV).svs.clients[i];
+        for (i in 0...SV.svs.maxclients) {
+            var client = SV.svs.clients[i];
             if ((client.active != true) && (client.spawned != true))
                 continue;
             MSG.WriteByte(client.message, SVC.lightstyle);
@@ -491,16 +492,16 @@ class PF {
     }
 
     static function checkbottom() {
-        PR.globals_float[1] = (untyped SV).CheckBottom((untyped SV).server.edicts[PR.globals_int[4]]);
+        PR.globals_float[1] = SV.CheckBottom(SV.server.edicts[PR.globals_int[4]]).toInt();
     }
 
     static function pointcontents() {
-        PR.globals_float[1] = (untyped SV).PointContents([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]]);
+        PR.globals_float[1] = SV.PointContents([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]]);
     }
 
     static function nextent() {
-        for (i in (PR.globals_int[4] + 1)...(untyped SV).server.num_edicts) {
-            if ((untyped SV).server.edicts[i].free != true) {
+        for (i in (PR.globals_int[4] + 1)...SV.server.num_edicts) {
+            if (SV.server.edicts[i].free != true) {
                 PR.globals_int[1] = i;
                 return;
             }
@@ -509,13 +510,13 @@ class PF {
     }
 
     static function aim() {
-        var ent = (untyped SV).server.edicts[PR.globals_int[4]];
+        var ent = SV.server.edicts[PR.globals_int[4]];
         var start = [ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] + 20.0];
         var dir = [PR.globals_float[PR.globalvars.v_forward], PR.globals_float[PR.globalvars.v_forward1], PR.globals_float[PR.globalvars.v_forward2]];
         var end = [start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]];
-        var tr = (untyped SV).Move(start, Vec.origin, Vec.origin, end, 0, ent);
+        var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {
-            if ((tr.ent.v_float[PR.entvars.takedamage] == (untyped SV).damage.aim) &&
+            if ((tr.ent.v_float[PR.entvars.takedamage] == SV.damage.aim) &&
                 ((Host.teamplay.value == 0) || (ent.v_float[PR.entvars.team] <= 0) ||
                 (ent.v_float[PR.entvars.team] != tr.ent.v_float[PR.entvars.team]))) {
                 PR.globals_float[1] = dir[0];
@@ -525,11 +526,11 @@ class PF {
             }
         }
         var bestdir = [dir[0], dir[1], dir[2]];
-        var bestdist = (untyped SV).aim.value;
+        var bestdist = SV.aim.value;
         var bestent, end = [];
-        for (i in 1...(untyped SV).server.num_edicts) {
-            var check = (untyped SV).server.edicts[i];
-            if (check.v_float[PR.entvars.takedamage] != (untyped SV).damage.aim)
+        for (i in 1...SV.server.num_edicts) {
+            var check = SV.server.edicts[i];
+            if (check.v_float[PR.entvars.takedamage] != SV.damage.aim)
                 continue;
             if (check == ent)
                 continue;
@@ -545,7 +546,7 @@ class PF {
             var dist = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
             if (dist < bestdist)
                 continue;
-            tr = (untyped SV).Move(start, Vec.origin, Vec.origin, end, 0, ent);
+            tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
             if (tr.ent == check) {
                 bestdist = dist;
                 bestent = check;
@@ -571,7 +572,7 @@ class PF {
     }
 
     static function changeyaw() {
-        var ent = (untyped SV).server.edicts[PR.globals_int[PR.globalvars.self]];
+        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
         var current = Vec.Anglemod(ent.v_float[PR.entvars.angles1]);
         var ideal = ent.v_float[PR.entvars.ideal_yaw];
         if (current == ideal)
@@ -596,16 +597,16 @@ class PF {
     static function WriteDest() {
         switch (Std.int(PR.globals_float[4])) {
             case 0: // broadcast
-                return (untyped SV).server.datagram;
+                return SV.server.datagram;
             case 1: // one
                 var entnum = PR.globals_int[PR.globalvars.msg_entity];
-                if ((entnum <= 0) || (entnum > (untyped SV).svs.maxclients))
+                if ((entnum <= 0) || (entnum > SV.svs.maxclients))
                     PR.RunError('WriteDest: not a client');
-                return (untyped SV).svs.clients[entnum - 1].message;
+                return SV.svs.clients[entnum - 1].message;
             case 2: // all
-                return (untyped SV).server.reliable_datagram;
+                return SV.server.reliable_datagram;
             case 3: // init
-                return (untyped SV).server.signon;
+                return SV.server.signon;
             default:
                 PR.RunError('WriteDest: bad destination');
                 return null;
@@ -622,10 +623,10 @@ class PF {
     static function WriteEntity() {MSG.WriteShort(WriteDest(), PR.globals_int[7]);};
 
     static function makestatic() {
-        var ent:Edict = (untyped SV).server.edicts[PR.globals_int[4]];
-        var message = (untyped SV).server.signon;
+        var ent:Edict = SV.server.edicts[PR.globals_int[4]];
+        var message = SV.server.signon;
         MSG.WriteByte(message, SVC.spawnstatic);
-        MSG.WriteByte(message, (untyped SV).ModelIndex(PR.GetString(ent.v_int[PR.entvars.model])));
+        MSG.WriteByte(message, SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.model])));
         MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.frame]));
         MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.colormap]));
         MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.skin]));
@@ -640,17 +641,17 @@ class PF {
 
     static function setspawnparms() {
         var i = PR.globals_int[4];
-        if ((i <= 0) || (i > (untyped SV).svs.maxclients))
+        if ((i <= 0) || (i > SV.svs.maxclients))
             PR.RunError('Entity is not a client');
-        var spawn_parms = (untyped SV).svs.clients[i - 1].spawn_parms;
+        var spawn_parms = SV.svs.clients[i - 1].spawn_parms;
         for (i in 0...16)
             PR.globals_float[PR.globalvars.parms + i] = spawn_parms[i];
     }
 
     static function changelevel() {
-        if ((untyped SV).svs.changelevel_issued)
+        if (SV.svs.changelevel_issued)
             return;
-        (untyped SV).svs.changelevel_issued = true;
+        SV.svs.changelevel_issued = true;
         Cmd.text += 'changelevel ' + PR.GetString(PR.globals_int[4]) + '\n';
     }
 

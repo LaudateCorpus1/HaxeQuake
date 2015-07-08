@@ -1,5 +1,7 @@
 package quake;
 
+import quake.Mod.MTrace;
+
 @:expose("Chase")
 @:publicFields
 class Chase {
@@ -19,9 +21,10 @@ class Chase {
         var forward:Vec = [];
         var r:Vec = [];
         Vec.AngleVectors(CL.state.viewangles, forward, r);
-        var trace:Dynamic = {plane: {}}
+        var trace = new MTrace();
+        trace.plane = new Plane();
         var org:Vec = R.refdef.vieworg;
-        (untyped SV).RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, [
+        SV.RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, [
             org[0] + 4096.0 * forward[0],
             org[1] + 4096.0 * forward[1],
             org[2] + 4096.0 * forward[2]], trace);

@@ -208,8 +208,8 @@ class NET {
 
 	static function SendToAll(data:MSG):Int {
 		var count = 0, state1 = [], state2 = [];
-		for (i in 0...(untyped SV).svs.maxclients) {
-			Host.client = (untyped SV).svs.clients[i];
+		for (i in 0...SV.svs.maxclients) {
+			Host.client = SV.svs.clients[i];
 			if (Host.client.netconnection == null)
 				continue;
 			if (Host.client.active != true) {
@@ -227,8 +227,8 @@ class NET {
 		var start = Sys.FloatTime();
 		while (count != 0) {
 			count = 0;
-			for (i in 0...(untyped SV).svs.maxclients) {
-				Host.client = (untyped SV).svs.clients[i];
+			for (i in 0...SV.svs.maxclients) {
+				Host.client = SV.svs.clients[i];
 				if (state1[i] != true) {
 					if (CanSendMessage(Host.client.netconnection)) {
 						state1[i] = true;

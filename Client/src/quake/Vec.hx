@@ -150,7 +150,7 @@ abstract Vec(Array<Float>) from Array<Float> {
         v2[2] = v1[2];
     }
 
-    static function CrossProduct(v1:Vec, v2:Vec):Vec {
+    public static function CrossProduct(v1:Vec, v2:Vec):Vec {
         return [
             v1[1] * v2[2] - v1[2] * v2[1],
             v1[2] * v2[0] - v1[0] * v2[2],

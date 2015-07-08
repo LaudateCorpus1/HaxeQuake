@@ -67,7 +67,6 @@ class PF {
         var m = PR.GetString(PR.globals_int[7]);
         var i = 0;
         while (i < SV.server.model_precache.length) {
-            trace(SV.server.model_precache[i], m);
             if (SV.server.model_precache[i] == m)
                 break;
             i++;

@@ -12,7 +12,7 @@ class Plane {
 
 @:expose("Vec")
 abstract Vec(Array<Float>) from Array<Float> {
-    static var origin:Vec = [0.0, 0.0, 0.0];
+    public static var origin:Vec = [0.0, 0.0, 0.0];
 
     @:arrayAccess inline function get(i:Int):Float return this[i];
     @:arrayAccess inline function set(i:Int, v:Float):Float return this[i] = v;

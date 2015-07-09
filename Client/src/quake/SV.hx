@@ -7,14 +7,7 @@ import js.html.Uint8Array;
 import quake.CL.ClientCmd;
 import quake.ED.Edict;
 import quake.Host.HClient;
-import quake.Mod.MAreaNode;
-import quake.Mod.MClipNode;
-import quake.Mod.MHull;
-import quake.Mod.MLink;
-import quake.Mod.MModel;
-import quake.Mod.MMoveClip;
-import quake.Mod.MNode;
-import quake.Mod.MTrace;
+import quake.Mod;
 import quake.R.REntityState;
 import quake.Protocol;
 import quake.PR.EntVarOfs;
@@ -613,7 +606,7 @@ class SV {
         }
 
         for (i in 1...SV.server.num_edicts)
-            SV.server.edicts[i].v_float[EntVarOfs.effects] = Std.int(SV.server.edicts[i].v_float[EntVarOfs.effects]) & (~Mod.effects.muzzleflash >>> 0);
+            SV.server.edicts[i].v_float[EntVarOfs.effects] = Std.int(SV.server.edicts[i].v_float[EntVarOfs.effects]) & (~ModelEffect.muzzleflash >>> 0);
     }
 
     static function ModelIndex(name:String):Int {

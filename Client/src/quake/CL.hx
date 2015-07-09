@@ -5,6 +5,7 @@ import js.html.DataView;
 import js.html.Uint8Array;
 import js.html.XMLHttpRequest;
 import quake.Mod.MModel;
+import quake.Mod.ModelEffect;
 import quake.NET.INETSocket;
 import quake.Protocol;
 import quake.R.REntity;
@@ -876,9 +877,9 @@ class CL {
 
             if ((ent.model.flags & Mod.flags.rotate) != 0)
                 ent.angles[1] = bobjrotate;
-            if ((ent.effects & Mod.effects.brightfield) != 0)
+            if ((ent.effects & ModelEffect.brightfield) != 0)
                 R.EntityParticles(ent);
-            if ((ent.effects & Mod.effects.muzzleflash) != 0) {
+            if ((ent.effects & ModelEffect.muzzleflash) != 0) {
                 dl = CL.AllocDlight(i);
                 var fv = [];
                 Vec.AngleVectors(ent.angles, fv);
@@ -891,13 +892,13 @@ class CL {
                 dl.minlight = 32.0;
                 dl.die = CL.state.time + 0.1;
             }
-            if ((ent.effects & Mod.effects.brightlight) != 0) {
+            if ((ent.effects & ModelEffect.brightlight) != 0) {
                 dl = CL.AllocDlight(i);
                 dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
                 dl.radius = 400.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
-            if ((ent.effects & Mod.effects.dimlight) != 0) {
+            if ((ent.effects & ModelEffect.dimlight) != 0) {
                 dl = CL.AllocDlight(i);
                 dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
                 dl.radius = 200.0 + Math.random() * 32.0;

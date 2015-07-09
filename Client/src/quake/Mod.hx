@@ -285,16 +285,15 @@ class MLink {
     public function new() {}
 }
 
+@:enum abstract ModelEffect(Int) to Int {
+    var brightfield = 1;
+    var muzzleflash = 2;
+    var brightlight = 4;
+    var dimlight = 8;
+}
 
 @:publicFields
 class Mod {
-
-    static var effects = {
-        brightfield: 1,
-        muzzleflash: 2,
-        brightlight: 4,
-        dimlight: 8
-    }
 
     static var flags = {
         rocket: 1,

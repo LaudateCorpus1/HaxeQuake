@@ -1049,8 +1049,8 @@ quake_CL.RelinkEntities = function() {
 			}
 		}
 		if((ent.model.flags & quake_Mod.flags.rotate) != 0) ent.angles[1] = bobjrotate;
-		if((ent.effects & quake_Mod.effects.brightfield) != 0) quake_R.EntityParticles(ent);
-		if((ent.effects & quake_Mod.effects.muzzleflash) != 0) {
+		if((ent.effects & 1) != 0) quake_R.EntityParticles(ent);
+		if((ent.effects & 2) != 0) {
 			dl = quake_CL.AllocDlight(i1);
 			var fv = [];
 			quake__$Vec_Vec_$Impl_$.AngleVectors(ent.angles,fv);
@@ -1059,13 +1059,13 @@ quake_CL.RelinkEntities = function() {
 			dl.minlight = 32.0;
 			dl.die = quake_CL.state.time + 0.1;
 		}
-		if((ent.effects & quake_Mod.effects.brightlight) != 0) {
+		if((ent.effects & 4) != 0) {
 			dl = quake_CL.AllocDlight(i1);
 			dl.origin = [ent.origin[0],ent.origin[1],ent.origin[2] + 16.0];
 			dl.radius = 400.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
-		if((ent.effects & quake_Mod.effects.dimlight) != 0) {
+		if((ent.effects & 8) != 0) {
 			dl = quake_CL.AllocDlight(i1);
 			dl.origin = [ent.origin[0],ent.origin[1],ent.origin[2] + 16.0];
 			dl.radius = 200.0 + Math.random() * 32.0;
@@ -9391,7 +9391,7 @@ quake_SV.SendClientMessages = function() {
 	var _g2 = quake_SV.server.num_edicts;
 	while(_g11 < _g2) {
 		var i1 = _g11++;
-		quake_SV.server.edicts[i1].v_float[32] = (quake_SV.server.edicts[i1].v_float[32] | 0) & ~quake_Mod.effects.muzzleflash >>> 0;
+		quake_SV.server.edicts[i1].v_float[32] = (quake_SV.server.edicts[i1].v_float[32] | 0) & ~2 >>> 0;
 	}
 };
 quake_SV.ModelIndex = function(name) {
@@ -14036,7 +14036,6 @@ quake_M.bindnames = [["+attack","attack"],["impulse 10","change weapon"],["+jump
 quake_M.keys_cursor = 0;
 quake_M.num_help_pages = 6;
 quake_M.quitMessage = [["  Are you gonna quit","  this game just like","   everything else?",""],[" Milord, methinks that","   thou art a lowly"," quitter. Is this true?",""],[" Do I need to bust your","  face open for trying","        to quit?",""],[" Man, I oughta smack you","   for trying to quit!","     Press Y to get","      smacked out."],[" Press Y to quit like a","   big loser in life.","  Press N to stay proud","    and successful!"],["   If you press Y to","  quit, I will summon","  Satan all over your","      hard drive!"],["  Um, Asmodeus dislikes"," his children trying to"," quit. Press Y to return","   to your Tinkertoys."],["  If you quit now, I'll","  throw a blanket-party","   for you next time!",""]];
-quake_Mod.effects = { brightfield : 1, muzzleflash : 2, brightlight : 4, dimlight : 8};
 quake_Mod.flags = { rocket : 1, grenade : 2, gib : 4, rotate : 8, tracer : 16, zomgib : 32, tracer2 : 64, tracer3 : 128};
 quake_Mod.version = { brush : 29, sprite : 1, alias : 6};
 quake_Mod.known = [];

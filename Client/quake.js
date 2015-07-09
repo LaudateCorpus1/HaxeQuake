@@ -10844,15 +10844,16 @@ quake_R.AnimateLight = function() {
 };
 quake_R.RenderDlights = function() {
 	if(quake_R.flashblend.value == 0) return;
-	++quake_R.dlightframecount;
+	quake_R.dlightframecount++;
 	quake_GL.gl.enable(3042);
 	var program = quake_GL.UseProgram("dlight");
 	quake_GL.gl.bindBuffer(34962,quake_R.dlightvecs);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,0,0);
 	var _g = 0;
-	while(_g < 32) {
-		var i = _g++;
-		var l = quake_CL.dlights[i];
+	var _g1 = quake_CL.dlights;
+	while(_g < _g1.length) {
+		var l = _g1[_g];
+		++_g;
 		if(l.die < quake_CL.state.time || l.radius == 0.0) continue;
 		var tmp;
 		var v = [l.origin[0] - quake_R.refdef.vieworg[0],l.origin[1] - quake_R.refdef.vieworg[1],l.origin[2] - quake_R.refdef.vieworg[2]];

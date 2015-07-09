@@ -163,16 +163,15 @@ class R {
     }
 
     static function RenderDlights():Void {
-        if (R.flashblend.value == 0)
+        if (flashblend.value == 0)
             return;
-        ++R.dlightframecount;
+        dlightframecount++;
         gl.enable(RenderingContext.BLEND);
         var program = GL.UseProgram('dlight');
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.dlightvecs);
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, dlightvecs);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 0, 0);
-        for (i in 0...32) {
-            var l:DLight = CL.dlights[i];
-            if ((l.die < CL.state.time) || (l.radius == 0.0))
+        for (l in CL.dlights) {
+            if (l.die < CL.state.time || l.radius == 0.0)
                 continue;
             if (Vec.Length([l.origin[0] - R.refdef.vieworg[0], l.origin[1] - R.refdef.vieworg[1], l.origin[2] - R.refdef.vieworg[2]]) < (l.radius * 0.35)) {
                 var a = l.radius * 0.0003;

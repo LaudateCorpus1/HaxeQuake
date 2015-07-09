@@ -1235,7 +1235,7 @@ class Host {
         var ent = Host.FindViewthing();
         if (ent == null)
             return;
-        var m:MModel = CL.state.model_precache[Std.int(ent.v_float[EntVarOfs.modelindex])];
+        var m = CL.state.model_precache[Std.int(ent.v_float[EntVarOfs.modelindex])];
         var f = Q.atoi(Cmd.argv[1]);
         if (f >= m.frames.length)
             f = m.frames.length - 1;
@@ -1246,7 +1246,7 @@ class Host {
         var ent = Host.FindViewthing();
         if (ent == null)
             return;
-        var m:MModel = CL.state.model_precache[Std.int(ent.v_float[EntVarOfs.modelindex])];
+        var m = CL.state.model_precache[Std.int(ent.v_float[EntVarOfs.modelindex])];
         var f = Std.int(ent.v_float[EntVarOfs.frame]) + 1;
         if (f >= m.frames.length)
             f = m.frames.length - 1;
@@ -1258,7 +1258,7 @@ class Host {
         var ent = Host.FindViewthing();
         if (ent == null)
             return;
-        var m:MModel = CL.state.model_precache[Std.int(ent.v_float[EntVarOfs.modelindex])];
+        var m = CL.state.model_precache[Std.int(ent.v_float[EntVarOfs.modelindex])];
         var f = Std.int(ent.v_float[EntVarOfs.frame]) - 1;
         if (f < 0)
             f = 0;

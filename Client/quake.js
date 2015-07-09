@@ -10772,19 +10772,16 @@ quake_SV.ClipToLinks = function(node,clip) {
 	if(clip.boxmins[node.axis] < node.dist) quake_SV.ClipToLinks(node.children[1],clip);
 };
 quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
-	var tmp;
-	var c = new quake_MMoveClip();
-	c.trace = quake_SV.ClipMoveToEntity(quake_SV.server.edicts[0],start,mins,maxs,end);
-	c.start = start;
-	c.end = end;
-	c.mins = mins;
-	c.maxs = maxs;
-	c.type = type;
-	c.passedict = passedict;
-	c.boxmins = [];
-	c.boxmaxs = [];
-	tmp = c;
-	var clip = tmp;
+	var clip = new quake_MMoveClip();
+	clip.trace = quake_SV.ClipMoveToEntity(quake_SV.server.edicts[0],start,mins,maxs,end);
+	clip.start = start;
+	clip.end = end;
+	clip.mins = mins;
+	clip.maxs = maxs;
+	clip.type = type;
+	clip.passedict = passedict;
+	clip.boxmins = [];
+	clip.boxmaxs = [];
 	if(type == 2) {
 		clip.mins2 = [-15.0,-15.0,-15.0];
 		clip.maxs2 = [15.0,15.0,15.0];

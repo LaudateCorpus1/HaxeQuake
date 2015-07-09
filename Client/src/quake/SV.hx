@@ -2338,19 +2338,16 @@ class SV {
     }
 
     static function Move(start:Vec, mins:Vec, maxs:Vec, end:Vec, type:Int, passedict:Edict):MTrace {
-        var clip = {
-            var c = new MMoveClip();
-            c.trace = SV.ClipMoveToEntity(SV.server.edicts[0], start, mins, maxs, end);
-            c.start = start;
-            c.end = end;
-            c.mins = mins;
-            c.maxs = maxs;
-            c.type = type;
-            c.passedict = passedict;
-            c.boxmins = [];
-            c.boxmaxs = [];
-            c;
-        };
+        var clip = new MMoveClip();
+        clip.trace = SV.ClipMoveToEntity(SV.server.edicts[0], start, mins, maxs, end);
+        clip.start = start;
+        clip.end = end;
+        clip.mins = mins;
+        clip.maxs = maxs;
+        clip.type = type;
+        clip.passedict = passedict;
+        clip.boxmins = [];
+        clip.boxmaxs = [];
         if (type == ClipType.missile) {
             clip.mins2 = [-15.0, -15.0, -15.0];
             clip.maxs2 = [15.0, 15.0, 15.0];

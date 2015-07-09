@@ -91,7 +91,7 @@ class Host {
         SV.svs.maxclients = SV.svs.maxclientslimit = 1;
         CL.cls.state = CL.active.disconnected;
         SV.svs.clients = [new HClient()];
-        Cvar.SetValue('deathmatch', 0);
+        Host.deathmatch.setValue(0);
     }
 
     static function InitLocal() {
@@ -703,7 +703,7 @@ class Host {
             spawn_parms[i] = Std.parseFloat(f[2 + i]);
 
         Host.current_skill = Std.int(Std.parseFloat(f[18]) + 0.1);
-        Cvar.SetValue('skill', Host.current_skill);
+        Host.skill.setValue(Host.current_skill);
 
         var time = Std.parseFloat(f[20]);
         CL.Disconnect();
@@ -883,7 +883,7 @@ class Host {
         var playercolor = (top << 4) + bottom;
 
         if (!Cmd.client) {
-            Cvar.SetValue('_cl_color', playercolor);
+            CL.color.setValue(playercolor);
             if (CL.cls.state == CL.active.connected)
                 Cmd.ForwardToServer();
             return;

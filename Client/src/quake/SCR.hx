@@ -170,12 +170,12 @@ class SCR {
 	}
 
 	static function SizeUp_f():Void {
-		Cvar.SetValue('viewsize', SCR.viewsize.value + 10);
+		viewsize.setValue(viewsize.value + 10);
 		SCR.recalc_refdef = true;
 	}
 
 	static function SizeDown_f():Void {
-		Cvar.SetValue('viewsize', SCR.viewsize.value - 10);
+		viewsize.setValue(viewsize.value - 10);
 		SCR.recalc_refdef = true;
 	}
 

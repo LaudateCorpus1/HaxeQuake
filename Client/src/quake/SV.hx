@@ -681,13 +681,13 @@ class SV {
         }
 
         if (Host.coop.value != 0)
-            Cvar.SetValue('deathmatch', 0);
+            Host.deathmatch.setValue(0);
         Host.current_skill = Math.floor(Host.skill.value + 0.5);
         if (Host.current_skill < 0)
             Host.current_skill = 0;
         else if (Host.current_skill > 3)
             Host.current_skill = 3;
-        Cvar.SetValue('skill', Host.current_skill);
+        Host.skill.setValue(Host.current_skill);
 
         Console.DPrint('Clearing memory\n');
         Mod.ClearAll();

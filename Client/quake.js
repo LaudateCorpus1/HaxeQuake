@@ -281,7 +281,7 @@ quake_CDAudio.CD_f = function() {
 quake_CDAudio.Update = function() {
 	if(!quake_CDAudio.initialized || !quake_CDAudio.enabled) return;
 	if(quake_S.bgmvolume.value == quake_CDAudio.cdvolume) return;
-	if(quake_S.bgmvolume.value < 0.0) quake_Cvar.SetValue("bgmvolume",0.0); else if(quake_S.bgmvolume.value > 1.0) quake_Cvar.SetValue("bgmvolume",1.0);
+	if(quake_S.bgmvolume.value < 0.0) quake_S.bgmvolume.setValue(0.0); else if(quake_S.bgmvolume.value > 1.0) quake_S.bgmvolume.setValue(1.0);
 	quake_CDAudio.cdvolume = quake_S.bgmvolume.value;
 	if(quake_CDAudio.cd != null) quake_CDAudio.cd.volume = quake_CDAudio.cdvolume;
 };
@@ -2452,9 +2452,6 @@ quake_Cvar.Set = function(name,value) {
 	var v = tmp;
 	if(v == null) quake_Console.Print("Cvar.Set: variable " + name + " not found\n"); else v.set(value);
 };
-quake_Cvar.SetValue = function(name,value) {
-	quake_Cvar.Set(name,value.toFixed(6));
-};
 quake_Cvar.RegisterVariable = function(name,value,archive,server) {
 	if(server == null) server = false;
 	if(archive == null) archive = false;
@@ -2503,6 +2500,9 @@ quake_Cvar.prototype = {
 		this.string = s;
 		this.value = quake_Q.atof(s);
 		if(this.server && changed && quake_SV.server.active) quake_Host.BroadcastPrint("\"" + this.name + "\" changed to \"" + this.string + "\"\n");
+	}
+	,setValue: function(value) {
+		this.set(value.toFixed(6));
 	}
 };
 var quake_DLight = function() {
@@ -3388,7 +3388,7 @@ quake_Host.FindMaxClients = function() {
 	quake_SV.svs.maxclients = quake_SV.svs.maxclientslimit = 1;
 	quake_CL.cls.state = quake_CL.active.disconnected;
 	quake_SV.svs.clients = [new quake_HClient()];
-	quake_Cvar.SetValue("deathmatch",0);
+	quake_Host.deathmatch.setValue(0);
 };
 quake_Host.InitLocal = function() {
 	quake_Host.InitCommands();
@@ -3921,7 +3921,7 @@ quake_Host.Loadgame_f = function() {
 	var x = parseFloat(f1[18]) + 0.1;
 	tmp = x | 0;
 	quake_Host.current_skill = tmp;
-	quake_Cvar.SetValue("skill",quake_Host.current_skill);
+	quake_Host.skill.setValue(quake_Host.current_skill);
 	var time = parseFloat(f1[20]);
 	quake_CL.Disconnect();
 	quake_SV.SpawnServer(f1[19]);
@@ -4078,7 +4078,7 @@ quake_Host.Color_f = function() {
 	if(bottom >= 14) bottom = 13;
 	var playercolor = (top << 4) + bottom;
 	if(!quake_Cmd.client) {
-		quake_Cvar.SetValue("_cl_color",playercolor);
+		quake_CL.color.setValue(playercolor);
 		if(quake_CL.cls.state == quake_CL.active.connected) quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -5217,45 +5217,45 @@ quake_M.AdjustSliders = function(dir) {
 	case 3:
 		quake_SCR.viewsize.value += dir * 10;
 		if(quake_SCR.viewsize.value < 30) quake_SCR.viewsize.value = 30; else if(quake_SCR.viewsize.value > 120) quake_SCR.viewsize.value = 120;
-		quake_Cvar.SetValue("viewsize",quake_SCR.viewsize.value);
+		quake_SCR.viewsize.setValue(quake_SCR.viewsize.value);
 		return;
 	case 4:
 		quake_V.gamma.value -= dir * 0.05;
 		if(quake_V.gamma.value < 0.5) quake_V.gamma.value = 0.5; else if(quake_V.gamma.value > 1.0) quake_V.gamma.value = 1.0;
-		quake_Cvar.SetValue("gamma",quake_V.gamma.value);
+		quake_V.gamma.setValue(quake_V.gamma.value);
 		return;
 	case 5:
 		quake_CL.sensitivity.value += dir * 0.5;
 		if(quake_CL.sensitivity.value < 1.0) quake_CL.sensitivity.value = 1.0; else if(quake_CL.sensitivity.value > 11.0) quake_CL.sensitivity.value = 11.0;
-		quake_Cvar.SetValue("sensitivity",quake_CL.sensitivity.value);
+		quake_CL.sensitivity.setValue(quake_CL.sensitivity.value);
 		return;
 	case 6:
 		quake_S.bgmvolume.value += dir * 0.1;
 		if(quake_S.bgmvolume.value < 0.0) quake_S.bgmvolume.value = 0.0; else if(quake_S.bgmvolume.value > 1.0) quake_S.bgmvolume.value = 1.0;
-		quake_Cvar.SetValue("bgmvolume",quake_S.bgmvolume.value);
+		quake_S.bgmvolume.setValue(quake_S.bgmvolume.value);
 		return;
 	case 7:
 		quake_S.volume.value += dir * 0.1;
 		if(quake_S.volume.value < 0.0) quake_S.volume.value = 0.0; else if(quake_S.volume.value > 1.0) quake_S.volume.value = 1.0;
-		quake_Cvar.SetValue("volume",quake_S.volume.value);
+		quake_S.volume.setValue(quake_S.volume.value);
 		return;
 	case 8:
 		if(quake_CL.forwardspeed.value > 200.0) {
-			quake_Cvar.SetValue("cl_forwardspeed",200.0);
-			quake_Cvar.SetValue("cl_backspeed",200.0);
+			quake_CL.forwardspeed.setValue(200);
+			quake_CL.backspeed.setValue(200);
 			return;
 		}
-		quake_Cvar.SetValue("cl_forwardspeed",400.0);
-		quake_Cvar.SetValue("cl_backspeed",400.0);
+		quake_CL.forwardspeed.setValue(400);
+		quake_CL.backspeed.setValue(400);
 		return;
 	case 9:
-		quake_Cvar.SetValue("m_pitch",-quake_CL.m_pitch.value);
+		quake_CL.m_pitch.setValue(-quake_CL.m_pitch.value);
 		return;
 	case 10:
-		quake_Cvar.SetValue("lookspring",quake_CL.lookspring.value != 0?0:1);
+		quake_CL.lookspring.setValue(quake_CL.lookspring.value != 0?0:1);
 		return;
 	case 11:
-		quake_Cvar.SetValue("lookstrafe",quake_CL.lookstrafe.value != 0?0:1);
+		quake_CL.lookstrafe.setValue(quake_CL.lookstrafe.value != 0?0:1);
 		break;
 	}
 };
@@ -8483,7 +8483,7 @@ quake_S.Update = function(origin,forward,right,up) {
 	quake_S.listener_up[0] = up[0];
 	quake_S.listener_up[1] = up[1];
 	quake_S.listener_up[2] = up[2];
-	if(quake_S.volume.value < 0.0) quake_Cvar.SetValue("volume",0.0); else if(quake_S.volume.value > 1.0) quake_Cvar.SetValue("volume",1.0);
+	if(quake_S.volume.value < 0.0) quake_S.volume.setValue(0.0); else if(quake_S.volume.value > 1.0) quake_S.volume.setValue(1.0);
 	quake_S.UpdateAmbientSounds();
 	quake_S.UpdateDynamicSounds();
 	quake_S.UpdateStaticSounds();
@@ -8849,11 +8849,11 @@ quake_SCR.CalcRefdef = function() {
 	}
 };
 quake_SCR.SizeUp_f = function() {
-	quake_Cvar.SetValue("viewsize",quake_SCR.viewsize.value + 10);
+	quake_SCR.viewsize.setValue(quake_SCR.viewsize.value + 10);
 	quake_SCR.recalc_refdef = true;
 };
 quake_SCR.SizeDown_f = function() {
-	quake_Cvar.SetValue("viewsize",quake_SCR.viewsize.value - 10);
+	quake_SCR.viewsize.setValue(quake_SCR.viewsize.value - 10);
 	quake_SCR.recalc_refdef = true;
 };
 quake_SCR.Init = function() {
@@ -9459,10 +9459,10 @@ quake_SV.SpawnServer = function(server) {
 		quake_NET.SendToAll(quake_SV.reconnect);
 		quake_Cmd.ExecuteString("reconnect\n");
 	}
-	if(quake_Host.coop.value != 0) quake_Cvar.SetValue("deathmatch",0);
+	if(quake_Host.coop.value != 0) quake_Host.deathmatch.setValue(0);
 	quake_Host.current_skill = Math.floor(quake_Host.skill.value + 0.5);
 	if(quake_Host.current_skill < 0) quake_Host.current_skill = 0; else if(quake_Host.current_skill > 3) quake_Host.current_skill = 3;
-	quake_Cvar.SetValue("skill",quake_Host.current_skill);
+	quake_Host.skill.setValue(quake_Host.current_skill);
 	quake_Console.DPrint("Clearing memory\n");
 	quake_Mod.ClearAll();
 	quake_PR.LoadProgs();
@@ -11277,7 +11277,7 @@ quake_R.Perspective = function() {
 	var sr = Math.sin(viewangles_2);
 	var cr = Math.cos(viewangles_2);
 	var viewMatrix = [cr * cy + sr * sp * sy,cp * sy,-sr * cy + cr * sp * sy,cr * -sy + sr * sp * cy,cp * cy,-sr * -sy + cr * sp * cy,sr * cp,-sp,cr * cp];
-	if(quake_V.gamma.value < 0.5) quake_Cvar.SetValue("gamma",0.5); else if(quake_V.gamma.value > 1.0) quake_Cvar.SetValue("gamma",1.0);
+	if(quake_V.gamma.value < 0.5) quake_V.gamma.setValue(0.5); else if(quake_V.gamma.value > 1.0) quake_V.gamma.setValue(1.0);
 	quake_GL.UnbindProgram();
 	var _g = 0;
 	var _g1 = quake_GL.programs;

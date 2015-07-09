@@ -96,9 +96,9 @@ class CDAudio {
         if (S.bgmvolume.value == CDAudio.cdvolume)
             return;
         if (S.bgmvolume.value < 0.0)
-            Cvar.SetValue('bgmvolume', 0.0);
+            S.bgmvolume.setValue(0.0);
         else if (S.bgmvolume.value > 1.0)
-            Cvar.SetValue('bgmvolume', 1.0);
+            S.bgmvolume.setValue(1.0);
         CDAudio.cdvolume = S.bgmvolume.value;
         if (CDAudio.cd != null)
             CDAudio.cd.volume = CDAudio.cdvolume;

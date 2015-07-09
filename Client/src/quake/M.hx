@@ -545,7 +545,7 @@ class M {
 				SCR.viewsize.value = 30;
 			else if (SCR.viewsize.value > 120)
 				SCR.viewsize.value = 120;
-			Cvar.SetValue('viewsize', SCR.viewsize.value);
+			SCR.viewsize.setValue(SCR.viewsize.value);
 			return;
 		case 4: // gamma
 			V.gamma.value -= dir * 0.05;
@@ -553,7 +553,7 @@ class M {
 				V.gamma.value = 0.5;
 			else if (V.gamma.value > 1.0)
 				V.gamma.value = 1.0;
-			Cvar.SetValue('gamma', V.gamma.value);
+			V.gamma.setValue(V.gamma.value);
 			return;
 		case 5: // mouse speed
 			CL.sensitivity.value += dir * 0.5;
@@ -561,7 +561,7 @@ class M {
 				CL.sensitivity.value = 1.0;
 			else if (CL.sensitivity.value > 11.0)
 				CL.sensitivity.value = 11.0;
-			Cvar.SetValue('sensitivity', CL.sensitivity.value);
+			CL.sensitivity.setValue(CL.sensitivity.value);
 			return;
 		case 6: // music volume
 			S.bgmvolume.value += dir * 0.1;
@@ -569,7 +569,7 @@ class M {
 				S.bgmvolume.value = 0.0;
 			else if (S.bgmvolume.value > 1.0)
 				S.bgmvolume.value = 1.0;
-			Cvar.SetValue('bgmvolume', S.bgmvolume.value);
+			S.bgmvolume.setValue(S.bgmvolume.value);
 			return;
 		case 7: // sfx volume
 			S.volume.value += dir * 0.1;
@@ -577,25 +577,25 @@ class M {
 				S.volume.value = 0.0;
 			else if (S.volume.value > 1.0)
 				S.volume.value = 1.0;
-			Cvar.SetValue('volume', S.volume.value);
+			S.volume.setValue(S.volume.value);
 			return;
 		case 8: // allways run
 			if (CL.forwardspeed.value > 200.0) {
-				Cvar.SetValue('cl_forwardspeed', 200.0);
-				Cvar.SetValue('cl_backspeed', 200.0);
+				CL.forwardspeed.setValue(200);
+				CL.backspeed.setValue(200);
 				return;
 			}
-			Cvar.SetValue('cl_forwardspeed', 400.0);
-			Cvar.SetValue('cl_backspeed', 400.0);
+			CL.forwardspeed.setValue(400);
+			CL.backspeed.setValue(400);
 			return;
 		case 9: // invert mouse
-			Cvar.SetValue('m_pitch', -CL.m_pitch.value);
+			CL.m_pitch.setValue(-CL.m_pitch.value);
 			return;
 		case 10: // lookspring
-			Cvar.SetValue('lookspring', (CL.lookspring.value != 0) ? 0 : 1);
+			CL.lookspring.setValue((CL.lookspring.value != 0) ? 0 : 1);
 			return;
 		case 11: // lookstrafe
-			Cvar.SetValue('lookstrafe', (CL.lookstrafe.value != 0) ? 0 : 1);
+			CL.lookstrafe.setValue((CL.lookstrafe.value != 0) ? 0 : 1);
 		}
 	}
 

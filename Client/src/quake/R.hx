@@ -836,9 +836,9 @@ class R {
         ];
 
         if (V.gamma.value < 0.5)
-            Cvar.SetValue('gamma', 0.5);
+            V.gamma.setValue(0.5);
         else if (V.gamma.value > 1.0)
-            Cvar.SetValue('gamma', 1.0);
+            V.gamma.setValue(1.0);
 
         GL.UnbindProgram();
         for (program in GL.programs) {

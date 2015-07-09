@@ -456,9 +456,9 @@ class S {
 		S.listener_up[2] = up[2];
 
 		if (S.volume.value < 0.0)
-			Cvar.SetValue('volume', 0.0);
+			S.volume.setValue(0.0);
 		else if (S.volume.value > 1.0)
-			Cvar.SetValue('volume', 1.0);
+			S.volume.setValue(1.0);
 
 		S.UpdateAmbientSounds();
 		S.UpdateDynamicSounds();

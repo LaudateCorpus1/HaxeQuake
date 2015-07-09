@@ -55,10 +55,6 @@ class Cvar {
             v.set(value);
     }
 
-    public static function SetValue(name:String, value:Float):Void {
-        Set(name, value.toFixed(6));
-    }
-
     public static function RegisterVariable(name:String, value:String, archive = false, server = false):Cvar {
         if (vars.exists(name)) {
             Console.Print('Can\'t register variable ' + name + ', already defined\n');

@@ -1839,7 +1839,7 @@ class R {
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
         gl.vertexAttribPointer(program.aTexCoord, 4, RenderingContext.FLOAT, false, 44, 12);
         gl.vertexAttribPointer(program.aLightStyle, 4, RenderingContext.FLOAT, false, 44, 28);
-        if ((R.fullbright.value != 0) || (clmodel.lightdata == null))
+        if (R.fullbright.value != 0 || clmodel.lightdata == null)
             GL.Bind(program.tLightmap, R.fullbright_texture);
         else
             GL.Bind(program.tLightmap, R.lightmap_texture);

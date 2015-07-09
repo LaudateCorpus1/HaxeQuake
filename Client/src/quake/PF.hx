@@ -474,7 +474,7 @@ class PF {
             return;
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
-            if ((!client.active) && (!client.spawned))
+            if (!client.active && !client.spawned)
                 continue;
             client.message.WriteByte(SVC.lightstyle);
             client.message.WriteByte(style);

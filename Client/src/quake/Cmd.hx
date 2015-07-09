@@ -178,7 +178,7 @@ class Cmd {
     }
 
     static function ForwardToServer() {
-        if (CL.cls.state != CL.active.connected) {
+        if (CL.cls.state != connected) {
             Console.Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
             return;
         }

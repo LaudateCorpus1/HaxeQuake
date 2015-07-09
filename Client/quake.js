@@ -484,7 +484,7 @@ quake_CL.StopPlayback = function() {
 	if(!quake_CL.cls.demoplayback) return;
 	quake_CL.cls.demoplayback = false;
 	quake_CL.cls.demofile = null;
-	quake_CL.cls.state = quake_CL.active.disconnected;
+	quake_CL.cls.state = 0;
 	if(quake_CL.cls.timedemo) quake_CL.FinishTimeDemo();
 };
 quake_CL.WriteDemoMessage = function() {
@@ -569,7 +569,7 @@ quake_CL.Record_f = function() {
 		quake_Console.Print("Relative pathnames are not allowed.\n");
 		return;
 	}
-	if(c == 2 && quake_CL.cls.state == quake_CL.active.connected) {
+	if(c == 2 && quake_CL.cls.state == 2) {
 		quake_Console.Print("Can not record - already connected to server\nClient demo recording must be started before connecting\n");
 		return;
 	}
@@ -612,7 +612,7 @@ quake_CL.PlayDemo_f = function() {
 	var demofile1 = new Uint8Array(demofile);
 	quake_CL.cls.demosize = demofile1.length;
 	quake_CL.cls.demoplayback = true;
-	quake_CL.cls.state = quake_CL.active.connected;
+	quake_CL.cls.state = 2;
 	quake_CL.cls.forcetrack = 0;
 	var i = 0;
 	var neg = false;
@@ -777,7 +777,7 @@ quake_CL.Rcon_f = function() {
 		return;
 	}
 	var to;
-	if(quake_CL.cls.state == quake_CL.active.connected && quake_CL.cls.netcon != null) {
+	if(quake_CL.cls.state == 2 && quake_CL.cls.netcon != null) {
 		if(quake_NET.drivers[quake_CL.cls.netcon.driver] == quake_NET_$WEBS) to = quake_CL.cls.netcon.address.substring(5);
 	}
 	if(to == null) {
@@ -843,7 +843,7 @@ quake_CL.ClearState = function() {
 };
 quake_CL.Disconnect = function() {
 	quake_S.StopAllSounds();
-	if(quake_CL.cls.demoplayback) quake_CL.StopPlayback(); else if(quake_CL.cls.state == quake_CL.active.connected) {
+	if(quake_CL.cls.demoplayback) quake_CL.StopPlayback(); else if(quake_CL.cls.state == 2) {
 		if(quake_CL.cls.demorecording) quake_CL.Stop_f();
 		quake_Console.DPrint("Sending clc_disconnect\n");
 		quake_CL.cls.message.cursize = 0;
@@ -851,7 +851,7 @@ quake_CL.Disconnect = function() {
 		quake_NET.SendUnreliableMessage(quake_CL.cls.netcon,quake_CL.cls.message);
 		quake_CL.cls.message.cursize = 0;
 		quake_NET.Close(quake_CL.cls.netcon);
-		quake_CL.cls.state = quake_CL.active.disconnected;
+		quake_CL.cls.state = 0;
 		if(quake_SV.server.active) quake_Host.ShutdownServer(false);
 	}
 	quake_CL.cls.demoplayback = quake_CL.cls.timedemo = false;
@@ -861,7 +861,7 @@ quake_CL.Connect = function(sock) {
 	quake_CL.cls.netcon = sock;
 	quake_Console.DPrint("CL.Connect: connected to " + quake_CL.host + "\n");
 	quake_CL.cls.demonum = -1;
-	quake_CL.cls.state = quake_CL.active.connected;
+	quake_CL.cls.state = 2;
 	quake_CL.cls.signon = 0;
 };
 quake_CL.EstablishConnection = function(host) {
@@ -1091,14 +1091,14 @@ quake_CL.ReadFromServer = function() {
 		if(ret == 0) break;
 		quake_CL.state.last_received_message = quake_Host.realtime;
 		quake_CL.ParseServerMessage();
-		if(quake_CL.cls.state != quake_CL.active.connected) break;
+		if(quake_CL.cls.state != 2) break;
 	}
 	if(quake_CL.shownet.value != 0) quake_Console.Print("\n");
 	quake_CL.RelinkEntities();
 	quake_CL.UpdateTEnts();
 };
 quake_CL.SendCmd = function() {
-	if(quake_CL.cls.state != quake_CL.active.connected) return;
+	if(quake_CL.cls.state != 2) return;
 	if(quake_CL.cls.signon == 4) {
 		quake_CL.BaseMove();
 		quake_IN.Move();
@@ -2277,7 +2277,7 @@ quake_Cmd.ExecuteString = function(text,client) {
 	if(!quake_Cvar.Command()) quake_Console.Print("Unknown command \"" + name + "\"\n");
 };
 quake_Cmd.ForwardToServer = function() {
-	if(quake_CL.cls.state != quake_CL.active.connected) {
+	if(quake_CL.cls.state != 2) {
 		quake_Console.Print("Can't \"" + quake_Cmd.argv[0] + "\", not connected\n");
 		return;
 	}
@@ -2297,7 +2297,7 @@ quake_Console.__name__ = true;
 quake_Console.ToggleConsole_f = function() {
 	quake_SCR.EndLoadingPlaque();
 	if(quake_Key.dest.value == quake_Key.dest.console) {
-		if(quake_CL.cls.state != quake_CL.active.connected) {
+		if(quake_CL.cls.state != 2) {
 			quake_M.Menu_Main_f();
 			return;
 		}
@@ -3385,7 +3385,7 @@ quake_Host.Error = function(error) {
 };
 quake_Host.FindMaxClients = function() {
 	quake_SV.svs.maxclients = quake_SV.svs.maxclientslimit = 1;
-	quake_CL.cls.state = quake_CL.active.disconnected;
+	quake_CL.cls.state = 0;
 	quake_SV.svs.clients = [new quake_HClient()];
 	quake_Host.deathmatch.setValue(0);
 };
@@ -3465,7 +3465,7 @@ quake_Host.DropClient = function(crash) {
 quake_Host.ShutdownServer = function(crash) {
 	if(!quake_SV.server.active) return;
 	quake_SV.server.active = false;
-	if(quake_CL.cls.state == quake_CL.active.connected) quake_CL.Disconnect();
+	if(quake_CL.cls.state == 2) quake_CL.Disconnect();
 	var start = quake_Sys.FloatTime();
 	var count = 0;
 	while(true) {
@@ -3515,7 +3515,7 @@ quake_Host._Frame = function() {
 	quake_Host.frametime = quake_Host.realtime - quake_Host.oldrealtime;
 	quake_Host.oldrealtime = quake_Host.realtime;
 	if(quake_Host.framerate.value > 0) quake_Host.frametime = quake_Host.framerate.value; else if(quake_Host.frametime > 0.1) quake_Host.frametime = 0.1; else if(quake_Host.frametime < 0.001) quake_Host.frametime = 0.001;
-	if(quake_CL.cls.state == quake_CL.active.connecting) {
+	if(quake_CL.cls.state == 1) {
 		quake_NET.CheckForResend();
 		quake_SCR.UpdateScreen();
 		return;
@@ -3529,7 +3529,7 @@ quake_Host._Frame = function() {
 	quake_Cmd.Execute();
 	quake_CL.SendCmd();
 	if(quake_SV.server.active) quake_Host.ServerFrame();
-	if(quake_CL.cls.state == quake_CL.active.connected) quake_CL.ReadFromServer();
+	if(quake_CL.cls.state == 2) quake_CL.ReadFromServer();
 	if(quake_Host.speeds.value != 0) time1 = quake_Sys.FloatTime();
 	quake_SCR.UpdateScreen();
 	if(quake_Host.speeds.value != 0) time2 = quake_Sys.FloatTime();
@@ -3991,7 +3991,7 @@ quake_Host.Name_f = function() {
 	if(quake_Cmd.argv.length == 2) newName = quake_Cmd.argv[1].substring(0,15); else newName = quake_Cmd.args.substring(0,15);
 	if(!quake_Cmd.client) {
 		quake_CL.$name.set(newName);
-		if(quake_CL.cls.state == quake_CL.active.connected) quake_Cmd.ForwardToServer();
+		if(quake_CL.cls.state == 2) quake_Cmd.ForwardToServer();
 		return;
 	}
 	var name = quake_SV.GetClientName(quake_Host.client);
@@ -4078,7 +4078,7 @@ quake_Host.Color_f = function() {
 	var playercolor = (top << 4) + bottom;
 	if(!quake_Cmd.client) {
 		quake_CL.color.setValue(playercolor);
-		if(quake_CL.cls.state == quake_CL.active.connected) quake_Cmd.ForwardToServer();
+		if(quake_CL.cls.state == 2) quake_Cmd.ForwardToServer();
 		return;
 	}
 	quake_Host.client.colors = playercolor;
@@ -4763,7 +4763,7 @@ quake_Key.Init = function() {
 };
 quake_Key.Event = function(key,down) {
 	if(down == null) down = false;
-	if(quake_CL.cls.state == quake_CL.active.connecting) return;
+	if(quake_CL.cls.state == 1) return;
 	if(down) {
 		if(key != 127 && key != 255 && quake_Key.down[key]) return;
 		if(key >= 200 && quake_Key.bindings[key] == null) quake_Console.Print(quake_Key.KeynumToString(key) + " is unbound, hit F4 to set.\n");
@@ -4889,7 +4889,7 @@ quake_M.Main_Key = function(k) {
 		quake_Key.dest.value = quake_Key.dest.game;
 		quake_M.state = 0;
 		quake_CL.cls.demonum = quake_M.save_demonum;
-		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != quake_CL.active.connected) quake_CL.NextDemo();
+		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != 2) quake_CL.NextDemo();
 		break;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
@@ -6737,7 +6737,7 @@ quake_NET.Connect = function(host) {
 		if(!dfunc.initialized) continue;
 		var ret = dfunc.Connect(host);
 		if(ret == 0) {
-			quake_CL.cls.state = quake_CL.active.connecting;
+			quake_CL.cls.state = 1;
 			quake_Console.Print("trying...\n");
 			quake_NET.start_time = quake_NET.time;
 			quake_NET.reps = 0;
@@ -6758,7 +6758,7 @@ quake_NET.CheckForResend = function() {
 	} else if(quake_NET.reps == 3) {
 		if(quake_NET.time - quake_NET.start_time >= 10.0) {
 			quake_NET.Close(quake_NET.newsocket);
-			quake_CL.cls.state = quake_CL.active.disconnected;
+			quake_CL.cls.state = 0;
 			quake_Console.Print("No Response\n");
 			quake_Host.Error("NET.CheckForResend: connect failed\n");
 		}
@@ -6770,7 +6770,7 @@ quake_NET.CheckForResend = function() {
 	} else if(ret == -1) {
 		quake_NET.newsocket.disconnected = false;
 		quake_NET.Close(quake_NET.newsocket);
-		quake_CL.cls.state = quake_CL.active.disconnected;
+		quake_CL.cls.state = 0;
 		quake_Console.Print("Network Error\n");
 		quake_Host.Error("NET.CheckForResend: connect failed\n");
 	}
@@ -8912,7 +8912,7 @@ quake_SCR.ScreenShot_f = function() {
 };
 quake_SCR.BeginLoadingPlaque = function() {
 	quake_S.StopAllSounds();
-	if(quake_CL.cls.state != quake_CL.active.connected || quake_CL.cls.signon != 4) return;
+	if(quake_CL.cls.state != 2 || quake_CL.cls.signon != 4) return;
 	quake_SCR.centertime_off = 0.0;
 	quake_SCR.con_current = 0;
 	quake_SCR.disabled_for_loading = true;
@@ -8957,7 +8957,7 @@ quake_SCR.UpdateScreen = function() {
 	quake_GL.Set2D();
 	if(quake_R.dowarp) quake_R.WarpScreen();
 	if(!quake_Console.forcedup) quake_R.PolyBlend();
-	if(quake_CL.cls.state == quake_CL.active.connecting) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest.value == quake_Key.dest.game) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest.value == quake_Key.dest.game) {
+	if(quake_CL.cls.state == 1) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest.value == quake_Key.dest.game) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest.value == quake_Key.dest.game) {
 		quake_Sbar.FinaleOverlay();
 		quake_SCR.DrawCenterString();
 	} else if(quake_CL.state.intermission == 3 && quake_Key.dest.value == quake_Key.dest.game) quake_SCR.DrawCenterString(); else {
@@ -13942,7 +13942,6 @@ Array.__name__ = true;
 Date.__name__ = ["Date"];
 var __map_reserved = {}
 quake_CDAudio.known = [];
-quake_CL.active = { disconnected : 0, connecting : 1, connected : 2};
 quake_CL.kbutton = { mlook : 0, klook : 1, left : 2, right : 3, forward : 4, back : 5, lookup : 6, lookdown : 7, moveleft : 8, moveright : 9, strafe : 10, speed : 11, 'use' : 12, jump : 13, attack : 14, moveup : 15, movedown : 16, num : 17};
 quake_CL.kbuttons = [];
 quake_CL.sendmovebuf = new quake_MSG(16);

@@ -23,7 +23,7 @@ private class Beam {
 
 @:publicFields
 private class ClientStatic {
-    var state:Int;
+    var state:ClientActive;
     var spawnparms:String;
     var demorecording:Bool;
     var demoplayback:Bool;
@@ -43,7 +43,7 @@ private class ClientStatic {
     var forcetrack:Int;
     
     function new() {
-        this.state = 0;
+        this.state = disconnected;
         this.spawnparms = '';
         this.demonum = 0;
         this.message = new MSG(8192);
@@ -133,6 +133,11 @@ private class ClientState {
     public static inline var numtotal = 4;
 }
 
+@:enum abstract ClientActive(Int) {
+    var disconnected = 0;
+    var connecting = 1;
+    var connected = 2;
+}
 
 @:publicFields
 class CL {
@@ -159,12 +164,6 @@ class CL {
     static var rcon_password:Cvar;
     static var rcon_address:Cvar;
 
-    static var active = {
-        disconnected: 0,
-        connecting: 1,
-        connected: 2
-    }
-
     // demo
 
     static function StopPlayback() {
@@ -172,7 +171,7 @@ class CL {
             return;
         CL.cls.demoplayback = false;
         CL.cls.demofile = null;
-        CL.cls.state = CL.active.disconnected;
+        CL.cls.state = disconnected;
         if (CL.cls.timedemo)
             CL.FinishTimeDemo();
     }
@@ -273,7 +272,7 @@ class CL {
             Console.Print('Relative pathnames are not allowed.\n');
             return;
         }
-        if ((c == 2) && (CL.cls.state == CL.active.connected)) {
+        if ((c == 2) && (CL.cls.state == connected)) {
             Console.Print('Can not record - already connected to server\nClient demo recording must be started before connecting\n');
             return;
         }
@@ -317,7 +316,7 @@ class CL {
         var demofile = new Uint8Array(demofile);
         CL.cls.demosize = demofile.length;
         CL.cls.demoplayback = true;
-        CL.cls.state = CL.active.connected;
+        CL.cls.state = connected;
         CL.cls.forcetrack = 0;
         var i = 0, neg = false;
         while (i < demofile.length) {
@@ -587,7 +586,7 @@ class CL {
             return;
         }
         var to;
-        if ((CL.cls.state == CL.active.connected) && (CL.cls.netcon != null)) {
+        if ((CL.cls.state == connected) && (CL.cls.netcon != null)) {
             if (NET.drivers[CL.cls.netcon.driver] == NET_WEBS)
                 to = CL.cls.netcon.address.substring(5);
         }
@@ -656,7 +655,7 @@ class CL {
         S.StopAllSounds();
         if (CL.cls.demoplayback)
             CL.StopPlayback();
-        else if (CL.cls.state == CL.active.connected) {
+        else if (CL.cls.state == connected) {
             if (CL.cls.demorecording)
                 CL.Stop_f();
             Console.DPrint('Sending clc_disconnect\n');
@@ -665,7 +664,7 @@ class CL {
             NET.SendUnreliableMessage(CL.cls.netcon, CL.cls.message);
             CL.cls.message.cursize = 0;
             NET.Close(CL.cls.netcon);
-            CL.cls.state = CL.active.disconnected;
+            CL.cls.state = disconnected;
             if (SV.server.active)
                 Host.ShutdownServer(false);
         }
@@ -679,7 +678,7 @@ class CL {
         CL.cls.netcon = sock;
         Console.DPrint('CL.Connect: connected to ' + CL.host + '\n');
         CL.cls.demonum = -1;
-        CL.cls.state = CL.active.connected;
+        CL.cls.state = connected;
         CL.cls.signon = 0;
     }
 
@@ -941,7 +940,7 @@ class CL {
                 break;
             CL.state.last_received_message = Host.realtime;
             CL.ParseServerMessage();
-            if (CL.cls.state != CL.active.connected)
+            if (CL.cls.state != connected)
                 break;
         }
         if (CL.shownet.value != 0)
@@ -951,7 +950,7 @@ class CL {
     }
 
     static function SendCmd() {
-        if (CL.cls.state != CL.active.connected)
+        if (CL.cls.state != connected)
             return;
 
         if (CL.cls.signon == 4) {

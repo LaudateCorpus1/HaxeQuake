@@ -339,7 +339,7 @@ class Key {
 	}
 
 	static function Event(key:KeyCode, down = false):Void {
-		if (CL.cls.state == CL.active.connecting)
+		if (CL.cls.state == connecting)
 			return;
 		if (down) {
 			if ((key != KeyCode.backspace) && (key != KeyCode.pause) && (Key.down[key]))

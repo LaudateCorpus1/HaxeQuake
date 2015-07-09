@@ -163,7 +163,7 @@ class M {
 				Key.dest.value = Key.dest.game;
 				state = none;
 				CL.cls.demonum = save_demonum;
-				if (CL.cls.demonum != -1 && !CL.cls.demoplayback && CL.cls.state != CL.active.connected)
+				if (CL.cls.demonum != -1 && !CL.cls.demoplayback && CL.cls.state != connected)
 					CL.NextDemo();
 			case KeyCode.downarrow:
 				S.LocalSound(sfx_menu1);

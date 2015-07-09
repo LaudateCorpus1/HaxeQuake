@@ -257,7 +257,7 @@ class SCR {
 
 	static function BeginLoadingPlaque() {
 		S.StopAllSounds();
-		if ((CL.cls.state != CL.active.connected) || (CL.cls.signon != 4))
+		if ((CL.cls.state != connected) || (CL.cls.signon != 4))
 			return;
 		SCR.centertime_off = 0.0;
 		SCR.con_current = 0;
@@ -316,7 +316,7 @@ class SCR {
 		if (!Console.forcedup)
 			R.PolyBlend();
 
-		if (CL.cls.state == CL.active.connecting)
+		if (CL.cls.state == connecting)
 			SCR.DrawConsole();
 		else if ((CL.state.intermission == 1) && (Key.dest.value == Key.dest.game))
 			Sbar.IntermissionOverlay();

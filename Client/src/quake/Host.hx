@@ -89,7 +89,7 @@ class Host {
 
     static function FindMaxClients() {
         SV.svs.maxclients = SV.svs.maxclientslimit = 1;
-        CL.cls.state = CL.active.disconnected;
+        CL.cls.state = disconnected;
         SV.svs.clients = [new HClient()];
         Host.deathmatch.setValue(0);
     }
@@ -173,7 +173,7 @@ class Host {
         if (!SV.server.active)
             return;
         SV.server.active = false;
-        if (CL.cls.state == CL.active.connected)
+        if (CL.cls.state == connected)
             CL.Disconnect();
         var start = Sys.FloatTime(), count = 0;
         do
@@ -239,7 +239,7 @@ class Host {
                 Host.frametime = 0.001;
         }
 
-        if (CL.cls.state == CL.active.connecting) {
+        if (CL.cls.state == connecting) {
             NET.CheckForResend();
             SCR.UpdateScreen();
             return;
@@ -253,7 +253,7 @@ class Host {
         if (SV.server.active)
             Host.ServerFrame();
 
-        if (CL.cls.state == CL.active.connected)
+        if (CL.cls.state == connected)
             CL.ReadFromServer();
 
         if (Host.speeds.value != 0)
@@ -780,7 +780,7 @@ class Host {
 
         if (!Cmd.client) {
             CL.name.set(newName);
-            if (CL.cls.state == CL.active.connected)
+            if (CL.cls.state == connected)
                 Cmd.ForwardToServer();
             return;
         }
@@ -884,7 +884,7 @@ class Host {
 
         if (!Cmd.client) {
             CL.color.setValue(playercolor);
-            if (CL.cls.state == CL.active.connected)
+            if (CL.cls.state == connected)
                 Cmd.ForwardToServer();
             return;
         }

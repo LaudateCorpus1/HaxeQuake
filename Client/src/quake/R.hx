@@ -231,7 +231,7 @@ class R {
                     var ent = CL.visedicts[j];
                     if (ent.model == null)
                         continue;
-                    if ((ent.model.type != brush) || (ent.model.submodel != true))
+                    if (ent.model.type != brush || !ent.model.submodel)
                         continue;
                     R.MarkLights(l, bit, CL.state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
                 }
@@ -252,7 +252,7 @@ class R {
         for (i in 0...1024) {
             if ((start == null) && (R.lightmap_modified[i]))
                 start = i;
-            else if ((start != null) && (R.lightmap_modified[i] != true)) {
+            else if (start != null && !R.lightmap_modified[i]) {
                 gl.texSubImage2D(RenderingContext.TEXTURE_2D, 0, 0, start, 1024, i - start, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE,
                     R.dlightmaps.subarray(start << 10, i << 10));
                 start = null;
@@ -327,7 +327,7 @@ class R {
             }
             return r >> 8;
         }
-        return R.RecursiveLightPoint(node.children[side != true ? 1 : 0], mid, end);
+        return R.RecursiveLightPoint(node.children[side ? 0 : 1], mid, end);
     }
 
     static function LightPoint(p:Vec):Int {
@@ -971,7 +971,7 @@ class R {
         verts = 0;
         for (i in 0...m.textures.length) {
             var texture = m.textures[i];
-            if (texture.turbulent != true)
+            if (!texture.turbulent)
                 continue;
             var chain = [i, verts, 0];
             for (j in 0...m.numfaces) {
@@ -1338,7 +1338,7 @@ class R {
     }
 
     static function ReadPointFile_f() {
-        if (SV.server.active != true)
+        if (!SV.server.active)
             return;
         var name = 'maps/' + PR.GetString(PR.globals_int[PR.globalvars.mapname]) + '.pts';
         var f = COM.LoadTextFile(name);
@@ -2036,12 +2036,12 @@ class R {
             else
                 vec = R.currentmodel.vertexes[R.currentmodel.edges[-index][1]];
             var vert = [vec[0], vec[1], vec[2]];
-            if (fa.sky != true) {
+            if (!fa.sky) {
                 var s = Vec.DotProduct(vec, texinfo.vecs[0]) + texinfo.vecs[0][3];
                 var t = Vec.DotProduct(vec, texinfo.vecs[1]) + texinfo.vecs[1][3];
                 vert[3] = s / texture.width;
                 vert[4] = t / texture.height;
-                if (fa.turbulent != true) {
+                if (!fa.turbulent) {
                     vert[5] = (s - fa.texturemins[0] + (fa.light_s << 4) + 8.0) / 16384.0;
                     vert[6] = (t - fa.texturemins[1] + (fa.light_t << 4) + 8.0) / 16384.0;
                 }
@@ -2069,7 +2069,7 @@ class R {
             if (R.currentmodel.name.charCodeAt(0) != 42) {
                 for (j in 0...R.currentmodel.faces.length) {
                     var surf = R.currentmodel.faces[j];
-                    if ((surf.sky != true) && (surf.turbulent != true)) {
+                    if (!surf.sky && !surf.turbulent) {
                         R.AllocBlock(surf);
                         if (R.currentmodel.lightdata != null)
                             R.BuildLightMap(surf);

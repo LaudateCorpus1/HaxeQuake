@@ -51,7 +51,7 @@ class NET_Loop {
 	}
 
 	static function CheckNewConnections():INETSocket {
-		if (localconnectpending != true)
+		if (!localconnectpending)
 			return null;
 		localconnectpending = false;
 		server.receiveMessageLength = 0;

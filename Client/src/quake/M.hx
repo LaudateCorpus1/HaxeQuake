@@ -163,7 +163,7 @@ class M {
 				Key.dest.value = Key.dest.game;
 				state = none;
 				CL.cls.demonum = save_demonum;
-				if ((CL.cls.demonum != -1) && (CL.cls.demoplayback != true) && (CL.cls.state != CL.active.connected))
+				if (CL.cls.demonum != -1 && !CL.cls.demoplayback && CL.cls.state != CL.active.connected)
 					CL.NextDemo();
 			case KeyCode.downarrow:
 				S.LocalSound(sfx_menu1);
@@ -228,7 +228,7 @@ class M {
 			switch (singleplayer_cursor) {
 			case 0:
 				if (SV.server.active) {
-					if (window.confirm('Are you sure you want to start a new game?') != true)
+					if (!window.confirm('Are you sure you want to start a new game?'))
 						return;
 					Cmd.text += 'disconnect\n';
 				}
@@ -299,7 +299,7 @@ class M {
 	}
 
 	static function Menu_Save_f() {
-		if ((SV.server.active != true) || (CL.state.intermission != 0) || (SV.svs.maxclients != 1))
+		if ((!SV.server.active) || (CL.state.intermission != 0) || (SV.svs.maxclients != 1))
 			return;
 		entersound = true;
 		state = save;
@@ -327,7 +327,7 @@ class M {
 				Menu_SinglePlayer_f();
 			case KeyCode.enter:
 				S.LocalSound(sfx_menu2);
-				if (loadable[load_cursor] != true)
+				if (!loadable[load_cursor])
 					return;
 				state = none;
 				Key.dest.value = Key.dest.game;
@@ -343,9 +343,9 @@ class M {
 					load_cursor = 0;
 				return;
 			case KeyCode.del:
-				if (removable[load_cursor] != true)
+				if (!removable[load_cursor])
 					return;
-				if (window.confirm('Delete selected game?') != true)
+				if (!window.confirm('Delete selected game?'))
 					return;
 				localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + load_cursor + '.sav');
 				ScanSaves();
@@ -370,9 +370,9 @@ class M {
 				if (++load_cursor >= max_savegames)
 					load_cursor = 0;
 			case KeyCode.del:
-				if (removable[load_cursor] != true)
+				if (!removable[load_cursor])
 					return;
-				if (window.confirm('Delete selected game?') != true)
+				if (!window.confirm('Delete selected game?'))
 					return;
 				localStorage.removeItem('Quake.' + COM.gamedir[0].filename + '/s' + load_cursor + '.sav');
 				ScanSaves();

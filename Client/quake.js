@@ -3418,7 +3418,7 @@ quake_Host.BroadcastPrint = function(string) {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
-		if(client.active != true || client.spawned != true) continue;
+		if(!client.active || !client.spawned) continue;
 		quake_MSG.WriteByte(client.message,8);
 		quake_MSG.WriteString(client.message,string);
 	}
@@ -3463,7 +3463,7 @@ quake_Host.DropClient = function(crash) {
 	}
 };
 quake_Host.ShutdownServer = function(crash) {
-	if(quake_SV.server.active != true) return;
+	if(!quake_SV.server.active) return;
 	quake_SV.server.active = false;
 	if(quake_CL.cls.state == quake_CL.active.connected) quake_CL.Disconnect();
 	var start = quake_Sys.FloatTime();
@@ -3474,7 +3474,7 @@ quake_Host.ShutdownServer = function(crash) {
 		while(_g1 < _g) {
 			var i = _g1++;
 			quake_Host.client = quake_SV.svs.clients[i];
-			if(quake_Host.client.active != true || quake_Host.client.message.cursize == 0) continue;
+			if(!quake_Host.client.active || quake_Host.client.message.cursize == 0) continue;
 			if(quake_NET.CanSendMessage(quake_Host.client.netconnection)) {
 				quake_NET.SendMessage(quake_Host.client.netconnection,quake_Host.client.message);
 				quake_Host.client.message.cursize = 0;
@@ -3506,7 +3506,7 @@ quake_Host.ServerFrame = function() {
 	quake_SV.server.datagram.cursize = 0;
 	quake_SV.CheckForNewClients();
 	quake_SV.RunClients();
-	if(quake_SV.server.paused != true && (quake_SV.svs.maxclients >= 2 || quake_Key.dest.value == quake_Key.dest.game)) quake_SV.Physics();
+	if(!quake_SV.server.paused && (quake_SV.svs.maxclients >= 2 || quake_Key.dest.value == quake_Key.dest.game)) quake_SV.Physics();
 	quake_SV.SendClientMessages();
 };
 quake_Host._Frame = function() {
@@ -3623,8 +3623,8 @@ quake_Host.Quit_f = function() {
 };
 quake_Host.Status_f = function() {
 	var print;
-	if(quake_Cmd.client != true) {
-		if(quake_SV.server.active != true) {
+	if(!quake_Cmd.client) {
+		if(!quake_SV.server.active) {
 			quake_Cmd.ForwardToServer();
 			return;
 		}
@@ -3639,7 +3639,7 @@ quake_Host.Status_f = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
-		if(client.active != true) continue;
+		if(!client.active) continue;
 		var frags = client.edict.v_float[quake_PR.entvars.frags].toFixed(0);
 		if(frags.length == 1) frags = "  " + frags; else if(frags.length == 2) frags = " " + frags;
 		var seconds = quake_NET.time - client.netconnection.connecttime | 0;
@@ -3665,7 +3665,7 @@ quake_Host.Status_f = function() {
 	}
 };
 quake_Host.God_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -3675,7 +3675,7 @@ quake_Host.God_f = function() {
 	if(((quake_SV.player.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.godmode) == 0) quake_Host.ClientPrint("godmode OFF\n"); else quake_Host.ClientPrint("godmode ON\n");
 };
 quake_Host.Notarget_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -3685,7 +3685,7 @@ quake_Host.Notarget_f = function() {
 	if(((quake_SV.player.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.notarget) == 0) quake_Host.ClientPrint("notarget OFF\n"); else quake_Host.ClientPrint("notarget ON\n");
 };
 quake_Host.Noclip_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -3701,7 +3701,7 @@ quake_Host.Noclip_f = function() {
 	quake_Host.ClientPrint("noclip OFF\n");
 };
 quake_Host.Fly_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -3715,7 +3715,7 @@ quake_Host.Fly_f = function() {
 	quake_Host.ClientPrint("flymode OFF\n");
 };
 quake_Host.Ping_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -3725,7 +3725,7 @@ quake_Host.Ping_f = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
-		if(client.active != true) continue;
+		if(!client.active) continue;
 		var total = 0.0;
 		var _g2 = 0;
 		while(_g2 < 16) {
@@ -3750,7 +3750,7 @@ quake_Host.Map_f = function() {
 	quake_SCR.BeginLoadingPlaque();
 	quake_SV.svs.serverflags = 0;
 	quake_SV.SpawnServer(quake_Cmd.argv[1]);
-	if(quake_SV.server.active != true) return;
+	if(!quake_SV.server.active) return;
 	quake_CL.cls.spawnparms = "";
 	var _g1 = 2;
 	var _g = quake_Cmd.argv.length;
@@ -3765,7 +3765,7 @@ quake_Host.Changelevel_f = function() {
 		quake_Console.Print("changelevel <levelname> : continue game on a new level\n");
 		return;
 	}
-	if(quake_SV.server.active != true || quake_CL.cls.demoplayback) {
+	if(!quake_SV.server.active || quake_CL.cls.demoplayback) {
 		quake_Console.Print("Only the server may changelevel\n");
 		return;
 	}
@@ -3773,7 +3773,7 @@ quake_Host.Changelevel_f = function() {
 	quake_SV.SpawnServer(quake_Cmd.argv[1]);
 };
 quake_Host.Restart_f = function() {
-	if(quake_CL.cls.demoplayback != true && quake_SV.server.active && quake_Cmd.client != true) quake_SV.SpawnServer(quake_PR.GetString(quake_PR.globals_int[quake_PR.globalvars.mapname]));
+	if(!quake_CL.cls.demoplayback && quake_SV.server.active && !quake_Cmd.client) quake_SV.SpawnServer(quake_PR.GetString(quake_PR.globals_int[quake_PR.globalvars.mapname]));
 };
 quake_Host.Reconnect_f = function() {
 	quake_SCR.BeginLoadingPlaque();
@@ -3806,7 +3806,7 @@ quake_Host.SavegameComment = function() {
 };
 quake_Host.Savegame_f = function() {
 	if(quake_Cmd.client) return;
-	if(quake_SV.server.active != true) {
+	if(!quake_SV.server.active) {
 		quake_Console.Print("Not playing a local game.\n");
 		return;
 	}
@@ -3924,7 +3924,7 @@ quake_Host.Loadgame_f = function() {
 	var time = parseFloat(f1[20]);
 	quake_CL.Disconnect();
 	quake_SV.SpawnServer(f1[19]);
-	if(quake_SV.server.active != true) {
+	if(!quake_SV.server.active) {
 		quake_Console.Print("Couldn't load map\n");
 		return;
 	}
@@ -3950,7 +3950,7 @@ quake_Host.Loadgame_f = function() {
 			quake_Console.Print("'" + keyname + "' is not a global\n");
 			continue;
 		}
-		if(quake_ED.ParseEpair(quake_PR.globals,key,token[3]) != true) quake_Host.Error("Host.Loadgame_f: parse error");
+		if(!quake_ED.ParseEpair(quake_PR.globals,key,token[3])) quake_Host.Error("Host.Loadgame_f: parse error");
 	}
 	f1[f1.length] = "";
 	var entnum = 0;
@@ -3968,7 +3968,7 @@ quake_Host.Loadgame_f = function() {
 		}
 		ent.free = false;
 		data = quake_ED.ParseEdict(data,ent);
-		if(ent.free != true) quake_SV.LinkEdict(ent,false);
+		if(!ent.free) quake_SV.LinkEdict(ent,false);
 	}
 	quake_SV.server.num_edicts = entnum;
 	quake_SV.server.time = time;
@@ -3989,7 +3989,7 @@ quake_Host.Name_f = function() {
 	}
 	var newName;
 	if(quake_Cmd.argv.length == 2) newName = quake_Cmd.argv[1].substring(0,15); else newName = quake_Cmd.args.substring(0,15);
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cvar.Set("_cl_name",newName);
 		if(quake_CL.cls.state == quake_CL.active.connected) quake_Cmd.ForwardToServer();
 		return;
@@ -4007,7 +4007,7 @@ quake_Host.Version_f = function() {
 	quake_Console.Print(quake_Def.timedate);
 };
 quake_Host.Say = function(teamonly) {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -4024,7 +4024,7 @@ quake_Host.Say = function(teamonly) {
 	while(_g1 < _g) {
 		var i1 = _g1++;
 		var client = quake_SV.svs.clients[i1];
-		if(client.active != true || client.spawned != true) continue;
+		if(!client.active || !client.spawned) continue;
 		if(quake_Host.teamplay.value != 0 && teamonly && client.edict.v_float[quake_PR.entvars.team] != save.edict.v_float[quake_PR.entvars.team]) continue;
 		quake_Host.client = client;
 		quake_Host.ClientPrint(text);
@@ -4036,7 +4036,7 @@ quake_Host.Say_Team_f = function() {
 	quake_Host.Say(true);
 };
 quake_Host.Tell_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -4053,7 +4053,7 @@ quake_Host.Tell_f = function() {
 	while(_g1 < _g) {
 		var i1 = _g1++;
 		var client = quake_SV.svs.clients[i1];
-		if(client.active != true || client.spawned != true) continue;
+		if(!client.active || !client.spawned) continue;
 		if(quake_SV.GetClientName(client).toLowerCase() != quake_Cmd.argv[1].toLowerCase()) continue;
 		quake_Host.client = client;
 		quake_Host.ClientPrint(text);
@@ -4076,7 +4076,7 @@ quake_Host.Color_f = function() {
 	if(top >= 14) top = 13;
 	if(bottom >= 14) bottom = 13;
 	var playercolor = (top << 4) + bottom;
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cvar.SetValue("_cl_color",playercolor);
 		if(quake_CL.cls.state == quake_CL.active.connected) quake_Cmd.ForwardToServer();
 		return;
@@ -4089,7 +4089,7 @@ quake_Host.Color_f = function() {
 	quake_MSG.WriteByte(msg,playercolor);
 };
 quake_Host.Kill_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -4102,7 +4102,7 @@ quake_Host.Kill_f = function() {
 	quake_PR.ExecuteProgram(quake_PR.globals_int[quake_PR.globalvars.ClientKill]);
 };
 quake_Host.Pause_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -4116,7 +4116,7 @@ quake_Host.Pause_f = function() {
 	quake_MSG.WriteByte(quake_SV.server.reliable_datagram,quake_SV.server.paused?1:0);
 };
 quake_Host.PreSpawn_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Console.Print("prespawn is not valid from the console\n");
 		return;
 	}
@@ -4131,7 +4131,7 @@ quake_Host.PreSpawn_f = function() {
 	client.sendsignon = true;
 };
 quake_Host.Spawn_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Console.Print("spawn is not valid from the console\n");
 		return;
 	}
@@ -4210,15 +4210,15 @@ quake_Host.Spawn_f = function() {
 	quake_Host.client.sendsignon = true;
 };
 quake_Host.Begin_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Console.Print("begin is not valid from the console\n");
 		return;
 	}
 	quake_Host.client.spawned = true;
 };
 quake_Host.Kick_f = function() {
-	if(quake_Cmd.client != true) {
-		if(quake_SV.server.active != true) {
+	if(!quake_Cmd.client) {
+		if(!quake_SV.server.active) {
 			quake_Cmd.ForwardToServer();
 			return;
 		}
@@ -4229,14 +4229,14 @@ quake_Host.Kick_f = function() {
 	if(quake_Cmd.argv.length >= 3 && quake_Cmd.argv[1] == "#") {
 		i = quake_Q.atoi(quake_Cmd.argv[2]) - 1;
 		if(i < 0 || i >= quake_SV.svs.maxclients) return;
-		if(quake_SV.svs.clients[i].active != true) return;
+		if(!quake_SV.svs.clients[i].active) return;
 		quake_Host.client = quake_SV.svs.clients[i];
 		byNumber = true;
 	} else {
 		i = 0;
 		while(i < quake_SV.svs.maxclients) {
 			quake_Host.client = quake_SV.svs.clients[i];
-			if(quake_Host.client.active != true) {
+			if(!quake_Host.client.active) {
 				i++;
 				continue;
 			}
@@ -4250,7 +4250,7 @@ quake_Host.Kick_f = function() {
 	}
 	if(quake_Host.client == save) return;
 	var who;
-	if(quake_Cmd.client != true) who = quake_CL.$name.string; else {
+	if(!quake_Cmd.client) who = quake_CL.$name.string; else {
 		if(quake_Host.client == save) return;
 		who = quake_SV.GetClientName(save);
 	}
@@ -4276,7 +4276,7 @@ quake_Host.Kick_f = function() {
 	quake_Host.client = save;
 };
 quake_Host.Give_f = function() {
-	if(quake_Cmd.client != true) {
+	if(!quake_Cmd.client) {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -4285,7 +4285,7 @@ quake_Host.Give_f = function() {
 	var t = HxOverrides.cca(quake_Cmd.argv[1],0);
 	var ent = quake_SV.player;
 	if(t >= 48 && t <= 57) {
-		if(quake_COM.hipnotic != true) {
+		if(!quake_COM.hipnotic) {
 			if(t >= 50) {
 				var v1 = ent.v_float[quake_PR.entvars.items] | 0 | quake_Def.it.shotgun << t - 50;
 				ent.v_float[quake_PR.entvars.items] = v1;
@@ -4319,7 +4319,7 @@ quake_Host.Give_f = function() {
 		ent.v_float[quake_PR.entvars.health] = v;
 		return;
 	}
-	if(quake_COM.rogue != true) {
+	if(!quake_COM.rogue) {
 		if(t != null) switch(t) {
 		case 115:
 			ent.v_float[quake_PR.entvars.ammo_shells] = v;
@@ -4439,7 +4439,7 @@ quake_Host.Startdemos_f = function() {
 		var i = _g1++;
 		quake_CL.cls.demos[i - 1] = quake_Cmd.argv[i];
 	}
-	if(quake_CL.cls.demonum != -1 && quake_CL.cls.demoplayback != true) {
+	if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback) {
 		quake_CL.cls.demonum = 0;
 		if(quake_Host.framecount != 0) quake_CL.NextDemo(); else quake_Host.startdemos = true;
 	} else quake_CL.cls.demonum = -1;
@@ -4450,7 +4450,7 @@ quake_Host.Demos_f = function() {
 	quake_CL.NextDemo();
 };
 quake_Host.Stopdemo_f = function() {
-	if(quake_CL.cls.demoplayback != true) return;
+	if(!quake_CL.cls.demoplayback) return;
 	quake_CL.StopPlayback();
 	quake_CL.Disconnect();
 };
@@ -4889,7 +4889,7 @@ quake_M.Main_Key = function(k) {
 		quake_Key.dest.value = quake_Key.dest.game;
 		quake_M.state = 0;
 		quake_CL.cls.demonum = quake_M.save_demonum;
-		if(quake_CL.cls.demonum != -1 && quake_CL.cls.demoplayback != true && quake_CL.cls.state != quake_CL.active.connected) quake_CL.NextDemo();
+		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != quake_CL.active.connected) quake_CL.NextDemo();
 		break;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
@@ -4953,7 +4953,7 @@ quake_M.SinglePlayer_Key = function(k) {
 		switch(_g) {
 		case 0:
 			if(quake_SV.server.active) {
-				if(window.confirm("Are you sure you want to start a new game?") != true) return;
+				if(!window.confirm("Are you sure you want to start a new game?")) return;
 				quake_Cmd.text += "disconnect\n";
 			}
 			quake_Key.dest.value = quake_Key.dest.game;
@@ -5015,7 +5015,7 @@ quake_M.Menu_Load_f = function() {
 	quake_M.ScanSaves();
 };
 quake_M.Menu_Save_f = function() {
-	if(quake_SV.server.active != true || quake_CL.state.intermission != 0 || quake_SV.svs.maxclients != 1) return;
+	if(!quake_SV.server.active || quake_CL.state.intermission != 0 || quake_SV.svs.maxclients != 1) return;
 	quake_M.entersound = true;
 	quake_M.state = 4;
 	quake_Key.dest.value = quake_Key.dest.menu;
@@ -5048,7 +5048,7 @@ quake_M.Load_Key = function(k) {
 		break;
 	case 13:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(quake_M.loadable[quake_M.load_cursor] != true) return;
+		if(!quake_M.loadable[quake_M.load_cursor]) return;
 		quake_M.state = 0;
 		quake_Key.dest.value = quake_Key.dest.game;
 		quake_SCR.BeginLoadingPlaque();
@@ -5063,8 +5063,8 @@ quake_M.Load_Key = function(k) {
 		if(++quake_M.load_cursor >= quake_M.max_savegames) quake_M.load_cursor = 0;
 		return;
 	case 148:
-		if(quake_M.removable[quake_M.load_cursor] != true) return;
-		if(window.confirm("Delete selected game?") != true) return;
+		if(!quake_M.removable[quake_M.load_cursor]) return;
+		if(!window.confirm("Delete selected game?")) return;
 		quake_M.localStorage.removeItem("Quake." + quake_COM.gamedir[0].filename + "/s" + quake_M.load_cursor + ".sav");
 		quake_M.ScanSaves();
 		break;
@@ -5090,8 +5090,8 @@ quake_M.Save_Key = function(k) {
 		if(++quake_M.load_cursor >= quake_M.max_savegames) quake_M.load_cursor = 0;
 		break;
 	case 148:
-		if(quake_M.removable[quake_M.load_cursor] != true) return;
-		if(window.confirm("Delete selected game?") != true) return;
+		if(!quake_M.removable[quake_M.load_cursor]) return;
+		if(!window.confirm("Delete selected game?")) return;
 		quake_M.localStorage.removeItem("Quake." + quake_COM.gamedir[0].filename + "/s" + quake_M.load_cursor + ".sav");
 		quake_M.ScanSaves();
 		break;
@@ -6734,7 +6734,7 @@ quake_NET.Connect = function(host) {
 		var i = _g1++;
 		quake_NET.driverlevel = i;
 		var dfunc = quake_NET.drivers[quake_NET.driverlevel];
-		if(dfunc.initialized != true) continue;
+		if(!dfunc.initialized) continue;
 		var ret = dfunc.Connect(host);
 		if(ret == 0) {
 			quake_CL.cls.state = quake_CL.active.connecting;
@@ -6783,7 +6783,7 @@ quake_NET.CheckNewConnections = function() {
 		var i = _g1++;
 		quake_NET.driverlevel = i;
 		var dfunc = quake_NET.drivers[quake_NET.driverlevel];
-		if(dfunc.initialized != true) continue;
+		if(!dfunc.initialized) continue;
 		var ret = dfunc.CheckNewConnections();
 		if(ret != null) return ret;
 	}
@@ -6848,7 +6848,7 @@ quake_NET.SendToAll = function(data) {
 		var i = _g1++;
 		quake_Host.client = quake_SV.svs.clients[i];
 		if(quake_Host.client.netconnection == null) continue;
-		if(quake_Host.client.active != true) {
+		if(!quake_Host.client.active) {
 			state1[i] = state2[i] = true;
 			continue;
 		}
@@ -6868,7 +6868,7 @@ quake_NET.SendToAll = function(data) {
 		while(_g11 < _g2) {
 			var i1 = _g11++;
 			quake_Host.client = quake_SV.svs.clients[i1];
-			if(state1[i1] != true) {
+			if(!state1[i1]) {
 				if(quake_NET.CanSendMessage(quake_Host.client.netconnection)) {
 					state1[i1] = true;
 					quake_NET.SendMessage(quake_Host.client.netconnection,data);
@@ -6876,7 +6876,7 @@ quake_NET.SendToAll = function(data) {
 				++count;
 				continue;
 			}
-			if(state2[i1] != true) {
+			if(!state2[i1]) {
 				if(quake_NET.CanSendMessage(quake_Host.client.netconnection)) state2[i1] = true; else quake_NET.GetMessage(quake_Host.client.netconnection);
 				++count;
 			}
@@ -6941,7 +6941,7 @@ quake_NET_$Loop.Connect = function(host) {
 	return quake_NET_$Loop.client;
 };
 quake_NET_$Loop.CheckNewConnections = function() {
-	if(quake_NET_$Loop.localconnectpending != true) return null;
+	if(!quake_NET_$Loop.localconnectpending) return null;
 	quake_NET_$Loop.localconnectpending = false;
 	quake_NET_$Loop.server.receiveMessageLength = 0;
 	quake_NET_$Loop.server.canSend = true;
@@ -9110,7 +9110,7 @@ quake_SV.ConnectClient = function(clientnum) {
 	client.colors = 0;
 	client.ping_times = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
 	client.num_pings = 0;
-	if(quake_SV.server.loadgame != true) client.spawn_parms = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
+	if(!quake_SV.server.loadgame) client.spawn_parms = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
 	client.old_frags = 0;
 	if(quake_SV.server.loadgame) {
 		var _g1 = 0;
@@ -9329,7 +9329,7 @@ quake_SV.UpdateToReliableMessages = function() {
 		while(_g3 < _g2) {
 			var j = _g3++;
 			var client = quake_SV.svs.clients[j];
-			if(client.active != true) continue;
+			if(!client.active) continue;
 			quake_MSG.WriteByte(client.message,14);
 			quake_MSG.WriteByte(client.message,i);
 			quake_MSG.WriteShort(client.message,frags);
@@ -9352,10 +9352,10 @@ quake_SV.SendClientMessages = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var client = quake_Host.client = quake_SV.svs.clients[i];
-		if(client.active != true) continue;
+		if(!client.active) continue;
 		if(client.spawned) {
-			if(quake_SV.SendClientDatagram() != true) continue;
-		} else if(client.sendsignon != true) {
+			if(!quake_SV.SendClientDatagram()) continue;
+		} else if(!client.sendsignon) {
 			if(quake_Host.realtime - client.last_message > 5.0) {
 				if(quake_NET.SendUnreliableMessage(client.netconnection,quake_SV.nop) == -1) quake_Host.DropClient(true);
 				client.last_message = quake_Host.realtime;
@@ -9370,7 +9370,7 @@ quake_SV.SendClientMessages = function() {
 		if(client.dropasap) {
 			if(quake_NET.CanSendMessage(client.netconnection)) quake_Host.DropClient(false);
 		} else if(client.message.cursize != 0) {
-			if(quake_NET.CanSendMessage(client.netconnection) != true) continue;
+			if(!quake_NET.CanSendMessage(client.netconnection)) continue;
 			if(quake_NET.SendMessage(client.netconnection,client.message) == -1) quake_Host.DropClient(true);
 			client.message.cursize = 0;
 			client.last_message = quake_Host.realtime;
@@ -9439,7 +9439,7 @@ quake_SV.SaveSpawnparms = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		quake_Host.client = quake_SV.svs.clients[i];
-		if(quake_Host.client.active != true) continue;
+		if(!quake_Host.client.active) continue;
 		quake_PR.globals_int[quake_PR.globalvars.self] = quake_Host.client.edict.num;
 		quake_PR.ExecuteProgram(quake_PR.globals_int[quake_PR.globalvars.SetChangeParms]);
 		var _g2 = 0;
@@ -9548,7 +9548,7 @@ quake_SV.SpawnServer = function(server) {
 	while(_g13 < _g5) {
 		var i4 = _g13++;
 		quake_Host.client = quake_SV.svs.clients[i4];
-		if(quake_Host.client.active != true) continue;
+		if(!quake_Host.client.active) continue;
 		quake_Host.client.edict.v_int[quake_PR.entvars.netname] = quake_PR.netnames + (i4 << 5);
 		quake_SV.SendServerinfo(quake_Host.client);
 	}
@@ -9657,7 +9657,7 @@ quake_SV.movestep = function(ent,move,relink) {
 	ent.v_float[quake_PR.entvars.origin] = trace.endpos[0];
 	ent.v_float[quake_PR.entvars.origin1] = trace.endpos[1];
 	ent.v_float[quake_PR.entvars.origin2] = trace.endpos[2];
-	if(quake_SV.CheckBottom(ent) != true) {
+	if(!quake_SV.CheckBottom(ent)) {
 		if(((ent.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.partialground) != 0) {
 			if(relink) quake_SV.LinkEdict(ent,true);
 			return true;
@@ -9724,7 +9724,7 @@ quake_SV.NewChaseDir = function(actor,enemy,dist) {
 	}
 	if(turnaround != -1 && quake_SV.StepDirection(actor,turnaround,dist)) return;
 	actor.v_float[quake_PR.entvars.ideal_yaw] = olddir;
-	if(quake_SV.CheckBottom(actor) != true) {
+	if(!quake_SV.CheckBottom(actor)) {
 		var v = actor.v_float[quake_PR.entvars.flags] | 0 | quake_SV.fl.partialground;
 		actor.v_float[quake_PR.entvars.flags] = v;
 	}
@@ -9764,7 +9764,7 @@ quake_SV.RunThink = function(ent) {
 	quake_PR.globals_int[quake_PR.globalvars.self] = ent.num;
 	quake_PR.globals_int[quake_PR.globalvars.other] = 0;
 	quake_PR.ExecuteProgram(ent.v_int[quake_PR.entvars.think]);
-	return ent.free != true;
+	return !ent.free;
 };
 quake_SV.Impact = function(e1,e2) {
 	var old_self = quake_PR.globals_int[quake_PR.globalvars.self];
@@ -9921,7 +9921,7 @@ quake_SV.PushMove = function(pusher,movetime) {
 		if(movetype == 7 || movetype == 0 || movetype == 8) continue;
 		if(((check.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.onground) == 0 || check.v_int[quake_PR.entvars.groundentity] != pusher.num) {
 			if(check.v_float[quake_PR.entvars.absmin] >= maxs_0 || check.v_float[quake_PR.entvars.absmin1] >= maxs_1 || check.v_float[quake_PR.entvars.absmin2] >= maxs_2 || check.v_float[quake_PR.entvars.absmax] <= mins_0 || check.v_float[quake_PR.entvars.absmax1] <= mins_1 || check.v_float[quake_PR.entvars.absmax2] <= mins_2) continue;
-			if(quake_SV.TestEntityPosition(check) != true) continue;
+			if(!quake_SV.TestEntityPosition(check)) continue;
 		}
 		if(movetype != 3) {
 			var v = (check.v_float[quake_PR.entvars.flags] | 0) & ~quake_SV.fl.onground >>> 0;
@@ -9984,7 +9984,7 @@ quake_SV.Physics_Pusher = function(ent) {
 	quake_PR.ExecuteProgram(ent.v_int[quake_PR.entvars.think]);
 };
 quake_SV.CheckStuck = function(ent) {
-	if(quake_SV.TestEntityPosition(ent) != true) {
+	if(!quake_SV.TestEntityPosition(ent)) {
 		ent.v_float[quake_PR.entvars.oldorigin] = ent.v_float[quake_PR.entvars.origin];
 		ent.v_float[quake_PR.entvars.oldorigin1] = ent.v_float[quake_PR.entvars.origin1];
 		ent.v_float[quake_PR.entvars.oldorigin2] = ent.v_float[quake_PR.entvars.origin2];
@@ -9994,7 +9994,7 @@ quake_SV.CheckStuck = function(ent) {
 	ent.v_float[quake_PR.entvars.origin] = ent.v_float[quake_PR.entvars.oldorigin];
 	ent.v_float[quake_PR.entvars.origin1] = ent.v_float[quake_PR.entvars.oldorigin1];
 	ent.v_float[quake_PR.entvars.origin2] = ent.v_float[quake_PR.entvars.oldorigin2];
-	if(quake_SV.TestEntityPosition(ent) != true) {
+	if(!quake_SV.TestEntityPosition(ent)) {
 		quake_Console.DPrint("Unstuck.\n");
 		quake_SV.LinkEdict(ent,true);
 		return;
@@ -10011,7 +10011,7 @@ quake_SV.CheckStuck = function(ent) {
 				ent.v_float[quake_PR.entvars.origin] = org[0] + i;
 				ent.v_float[quake_PR.entvars.origin1] = org[1] + j;
 				ent.v_float[quake_PR.entvars.origin2] = org[2] + z;
-				if(quake_SV.TestEntityPosition(ent) != true) {
+				if(!quake_SV.TestEntityPosition(ent)) {
 					quake_Console.DPrint("Unstuck.\n");
 					quake_SV.LinkEdict(ent,true);
 					return;
@@ -10135,7 +10135,7 @@ quake_SV.WalkMove = function(ent) {
 	quake_ED.SetVector(ent,quake_PR.entvars.velocity,nostepvel);
 };
 quake_SV.Physics_Client = function(ent) {
-	if(quake_SV.svs.clients[ent.num - 1].active != true) return;
+	if(!quake_SV.svs.clients[ent.num - 1].active) return;
 	quake_PR.globals_float[quake_PR.globalvars.time] = quake_SV.server.time;
 	quake_PR.globals_int[quake_PR.globalvars.self] = ent.num;
 	quake_PR.ExecuteProgram(quake_PR.globals_int[quake_PR.globalvars.PlayerPreThink]);
@@ -10147,7 +10147,7 @@ quake_SV.Physics_Client = function(ent) {
 		case 0:
 			break;
 		case 3:
-			if(quake_SV.CheckWater(ent) != true && ((ent.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.waterjump) == 0) quake_SV.AddGravity(ent);
+			if(!quake_SV.CheckWater(ent) && ((ent.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.waterjump) == 0) quake_SV.AddGravity(ent);
 			quake_SV.CheckStuck(ent);
 			quake_SV.WalkMove(ent);
 			break;
@@ -10186,7 +10186,7 @@ quake_SV.CheckWaterTransition = function(ent) {
 	ent.v_float[quake_PR.entvars.waterlevel] = cont;
 };
 quake_SV.Physics_Toss = function(ent) {
-	if(quake_SV.RunThink(ent) != true) return;
+	if(!quake_SV.RunThink(ent)) return;
 	if(((ent.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.onground) != 0) return;
 	quake_SV.CheckVelocity(ent);
 	var movetype = ent.v_float[quake_PR.entvars.movetype];
@@ -10477,13 +10477,13 @@ quake_SV.RunClients = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		quake_Host.client = quake_SV.svs.clients[i];
-		if(quake_Host.client.active != true) continue;
+		if(!quake_Host.client.active) continue;
 		quake_SV.player = quake_Host.client.edict;
-		if(quake_SV.ReadClientMessage() != true) {
+		if(!quake_SV.ReadClientMessage()) {
 			quake_Host.DropClient(false);
 			continue;
 		}
-		if(quake_Host.client.spawned != true) {
+		if(!quake_Host.client.spawned) {
 			quake_Host.client.cmd.forwardmove = 0.0;
 			quake_Host.client.cmd.sidemove = 0.0;
 			quake_Host.client.cmd.upmove = 0.0;
@@ -10684,7 +10684,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	var midf = p1f + (p2f - p1f) * frac;
 	var mid = [p1[0] + frac * (p2[0] - p1[0]),p1[1] + frac * (p2[1] - p1[1]),p1[2] + frac * (p2[2] - p1[2])];
 	var side = t1 < 0.0?1:0;
-	if(quake_SV.RecursiveHullCheck(hull,node.children[side],p1f,midf,p1,mid,trace) != true) return false;
+	if(!quake_SV.RecursiveHullCheck(hull,node.children[side],p1f,midf,p1,mid,trace)) return false;
 	if(quake_SV.HullPointContents(hull,node.children[1 - side],mid) != -2) return quake_SV.RecursiveHullCheck(hull,node.children[1 - side],midf,p2f,mid,p2,trace);
 	if(trace.allsolid) return false;
 	if(side == 0) {
@@ -10929,7 +10929,7 @@ quake_R.PushDlights = function() {
 				var j = _g2++;
 				var ent = quake_CL.visedicts[j];
 				if(ent.model == null) continue;
-				if(ent.model.type != 0 || ent.model.submodel != true) continue;
+				if(ent.model.type != 0 || !ent.model.submodel) continue;
 				quake_R.MarkLights(l,bit,quake_CL.state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
 			}
 		}
@@ -10947,7 +10947,7 @@ quake_R.PushDlights = function() {
 	var _g4 = 0;
 	while(_g4 < 1024) {
 		var i3 = _g4++;
-		if(start == null && quake_R.lightmap_modified[i3]) start = i3; else if(start != null && quake_R.lightmap_modified[i3] != true) {
+		if(start == null && quake_R.lightmap_modified[i3]) start = i3; else if(start != null && !quake_R.lightmap_modified[i3]) {
 			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i3 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,i3 << 10));
 			start = null;
 		}
@@ -11003,7 +11003,7 @@ quake_R.RecursiveLightPoint = function(node,start,end) {
 		}
 		return r >> 8;
 	}
-	return quake_R.RecursiveLightPoint(node.children[side != true?1:0],mid,end);
+	return quake_R.RecursiveLightPoint(node.children[side?0:1],mid,end);
 };
 quake_R.LightPoint = function(p) {
 	if(quake_CL.state.worldmodel.lightdata == null) return 255;
@@ -11410,7 +11410,7 @@ quake_R.MakeBrushModelDisplayLists = function(m) {
 	while(_g11 < _g6) {
 		var i1 = _g11++;
 		var texture1 = m.textures[i1];
-		if(texture1.turbulent != true) continue;
+		if(!texture1.turbulent) continue;
 		var chain1 = [i1,verts,0];
 		var _g31 = 0;
 		var _g21 = m.numfaces;
@@ -11765,7 +11765,7 @@ quake_R.ClearParticles = function() {
 	}
 };
 quake_R.ReadPointFile_f = function() {
-	if(quake_SV.server.active != true) return;
+	if(!quake_SV.server.active) return;
 	var name = "maps/" + quake_PR.GetString(quake_PR.globals_int[quake_PR.globalvars.mapname]) + ".pts";
 	var f = quake_COM.LoadTextFile(name);
 	if(f == null) {
@@ -12399,7 +12399,7 @@ quake_R.BuildSurfaceDisplayList = function(fa) {
 		var vec;
 		if(index > 0) vec = quake_R.currentmodel.vertexes[quake_R.currentmodel.edges[index][0]]; else vec = quake_R.currentmodel.vertexes[quake_R.currentmodel.edges[-index][1]];
 		var vert = [vec[0],vec[1],vec[2]];
-		if(fa.sky != true) {
+		if(!fa.sky) {
 			var tmp;
 			var v2 = texinfo.vecs[0];
 			tmp = vec[0] * v2[0] + vec[1] * v2[1] + vec[2] * v2[2];
@@ -12410,7 +12410,7 @@ quake_R.BuildSurfaceDisplayList = function(fa) {
 			var t = tmp1 + texinfo.vecs[1][3];
 			vert[3] = s / texture.width;
 			vert[4] = t / texture.height;
-			if(fa.turbulent != true) {
+			if(!fa.turbulent) {
 				vert[5] = (s - fa.texturemins[0] + (fa.light_s << 4) + 8.0) / 16384.0;
 				vert[6] = (t - fa.texturemins[1] + (fa.light_t << 4) + 8.0) / 16384.0;
 			}
@@ -12441,7 +12441,7 @@ quake_R.BuildLightmaps = function() {
 			while(_g3 < _g21) {
 				var j = _g3++;
 				var surf = quake_R.currentmodel.faces[j];
-				if(surf.sky != true && surf.turbulent != true) {
+				if(!surf.sky && !surf.turbulent) {
 					quake_R.AllocBlock(surf);
 					if(quake_R.currentmodel.lightdata != null) quake_R.BuildLightMap(surf);
 				}
@@ -12887,7 +12887,7 @@ quake_PF.MoveToGoal = function() {
 	var goal = quake_SV.server.edicts[ent.v_int[quake_PR.entvars.goalentity]];
 	var dist = quake_PR.globals_float[4];
 	if(ent.v_int[quake_PR.entvars.enemy] != 0 && quake_SV.CloseEnough(ent,goal,dist)) return;
-	if(Math.random() >= 0.75 || quake_SV.StepDirection(ent,ent.v_float[quake_PR.entvars.ideal_yaw],dist) != true) quake_SV.NewChaseDir(ent,goal,dist);
+	if(Math.random() >= 0.75 || !quake_SV.StepDirection(ent,ent.v_float[quake_PR.entvars.ideal_yaw],dist)) quake_SV.NewChaseDir(ent,goal,dist);
 };
 quake_PF.precache_file = function() {
 	quake_PR.globals_int[1] = quake_PR.globals_int[4];
@@ -12904,7 +12904,7 @@ quake_PF.precache_sound = function() {
 	quake_SV.server.sound_precache[i] = s;
 };
 quake_PF.precache_model = function() {
-	if(quake_SV.server.loading != true) quake_PR.RunError("Precache_*: Precache can only be done in spawn functions");
+	if(!quake_SV.server.loading) quake_PR.RunError("Precache_*: Precache can only be done in spawn functions");
 	var s = quake_PR.GetString(quake_PR.globals_int[4]);
 	quake_PR.globals_int[1] = quake_PR.globals_int[4];
 	quake_PR.CheckEmptyString(s);
@@ -12968,7 +12968,7 @@ quake_PF.lightstyle = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
-		if(client.active != true && client.spawned != true) continue;
+		if(!client.active && !client.spawned) continue;
 		quake_MSG.WriteByte(client.message,12);
 		quake_MSG.WriteByte(client.message,style);
 		quake_MSG.WriteString(client.message,val);
@@ -12998,7 +12998,7 @@ quake_PF.nextent = function() {
 	var _g = quake_SV.server.num_edicts;
 	while(_g1 < _g) {
 		var i = _g1++;
-		if(quake_SV.server.edicts[i].free != true) {
+		if(!quake_SV.server.edicts[i].free) {
 			quake_PR.globals_int[1] = i;
 			return;
 		}

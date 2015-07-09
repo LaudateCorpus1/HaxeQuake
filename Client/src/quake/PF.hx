@@ -378,7 +378,7 @@ class PF {
         var dist = PR.globals_float[4];
         if ((ent.v_int[PR.entvars.enemy] != 0) && (SV.CloseEnough(ent, goal, dist)))
             return;
-        if ((Math.random() >= 0.75) || (SV.StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist) != true))
+        if ((Math.random() >= 0.75) || !SV.StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist))
             SV.NewChaseDir(ent, goal, dist);
     }
 
@@ -400,7 +400,7 @@ class PF {
     }
 
     static function precache_model() {
-        if (SV.server.loading != true)
+        if (!SV.server.loading)
             PR.RunError('Precache_*: Precache can only be done in spawn functions');
         var s = PR.GetString(PR.globals_int[4]);
         PR.globals_int[1] = PR.globals_int[4];
@@ -469,7 +469,7 @@ class PF {
             return;
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
-            if ((client.active != true) && (client.spawned != true))
+            if ((!client.active) && (!client.spawned))
                 continue;
             MSG.WriteByte(client.message, SVC.lightstyle);
             MSG.WriteByte(client.message, style);
@@ -500,7 +500,7 @@ class PF {
 
     static function nextent() {
         for (i in (PR.globals_int[4] + 1)...SV.server.num_edicts) {
-            if (SV.server.edicts[i].free != true) {
+            if (!SV.server.edicts[i].free) {
                 PR.globals_int[1] = i;
                 return;
             }

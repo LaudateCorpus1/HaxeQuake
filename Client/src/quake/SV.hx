@@ -257,7 +257,7 @@ class SV {
         client.ping_times = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
         client.num_pings = 0;
-        if (SV.server.loadgame != true) {
+        if (!SV.server.loadgame) {
             client.spawn_parms = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
         }
@@ -546,7 +546,7 @@ class SV {
                 continue;
             for (j in 0...SV.svs.maxclients) {
                 var client = SV.svs.clients[j];
-                if (client.active != true)
+                if (!client.active)
                     continue;
                 MSG.WriteByte(client.message, SVC.updatefrags);
                 MSG.WriteByte(client.message, i);
@@ -568,12 +568,12 @@ class SV {
         SV.UpdateToReliableMessages();
         for (i in 0...SV.svs.maxclients) {
             var client = Host.client = SV.svs.clients[i];
-            if (client.active != true)
+            if (!client.active)
                 continue;
             if (client.spawned) {
-                if (SV.SendClientDatagram() != true)
+                if (!SV.SendClientDatagram())
                     continue;
-            } else if (client.sendsignon != true) {
+            } else if (!client.sendsignon) {
                 if ((Host.realtime - client.last_message) > 5.0) {
                     if (NET.SendUnreliableMessage(client.netconnection, SV.nop) == -1)
                         Host.DropClient(true);
@@ -590,7 +590,7 @@ class SV {
                 if (NET.CanSendMessage(client.netconnection))
                     Host.DropClient(false);
             } else if (client.message.cursize != 0) {
-                if (NET.CanSendMessage(client.netconnection) != true)
+                if (!NET.CanSendMessage(client.netconnection))
                     continue;
                 if (NET.SendMessage(client.netconnection, client.message) == -1)
                     Host.DropClient(true);
@@ -657,7 +657,7 @@ class SV {
         SV.svs.serverflags = Std.int(PR.globals_float[PR.globalvars.serverflags]);
         for (i in 0...SV.svs.maxclients) {
             Host.client = SV.svs.clients[i];
-            if (Host.client.active != true)
+            if (!Host.client.active)
                 continue;
             PR.globals_int[PR.globalvars.self] = Host.client.edict.num;
             PR.ExecuteProgram(PR.globals_int[PR.globalvars.SetChangeParms]);
@@ -771,7 +771,7 @@ class SV {
         SV.CreateBaseline();
         for (i in 0...SV.svs.maxclients) {
             Host.client = SV.svs.clients[i];
-            if (Host.client.active != true)
+            if (!Host.client.active)
                 continue;
             Host.client.edict.v_int[PR.entvars.netname] = PR.netnames + (i << 5);
             SV.SendServerinfo(Host.client);
@@ -895,7 +895,7 @@ class SV {
         ent.v_float[PR.entvars.origin] = trace.endpos[0];
         ent.v_float[PR.entvars.origin1] = trace.endpos[1];
         ent.v_float[PR.entvars.origin2] = trace.endpos[2];
-        if (SV.CheckBottom(ent) != true) {
+        if (!SV.CheckBottom(ent)) {
             if ((ent.flags & SV.fl.partialground) != 0) {
                 if (relink)
                     SV.LinkEdict(ent, true);
@@ -985,7 +985,7 @@ class SV {
         if (turnaround != -1 && SV.StepDirection(actor, turnaround, dist))
             return;
         actor.v_float[PR.entvars.ideal_yaw] = olddir;
-        if (SV.CheckBottom(actor) != true)
+        if (!SV.CheckBottom(actor))
             actor.flags = actor.flags | SV.fl.partialground;
     }
 
@@ -1045,7 +1045,7 @@ class SV {
         PR.globals_int[PR.globalvars.self] = ent.num;
         PR.globals_int[PR.globalvars.other] = 0;
         PR.ExecuteProgram(ent.v_int[PR.entvars.think]);
-        return (ent.free != true);
+        return !ent.free;
     }
 
     static function Impact(e1:Edict, e2:Edict):Void {
@@ -1257,7 +1257,7 @@ class SV {
                     || (check.v_float[PR.entvars.absmax1] <= mins[1])
                     || (check.v_float[PR.entvars.absmax2] <= mins[2]))
                     continue;
-                if (SV.TestEntityPosition(check) != true)
+                if (!SV.TestEntityPosition(check))
                     continue;
             }
             if (movetype != MoveType.walk)
@@ -1323,7 +1323,7 @@ class SV {
     }
 
     static function CheckStuck(ent:Edict) {
-        if (SV.TestEntityPosition(ent) != true) {
+        if (!SV.TestEntityPosition(ent)) {
             ent.v_float[PR.entvars.oldorigin] = ent.v_float[PR.entvars.origin];
             ent.v_float[PR.entvars.oldorigin1] = ent.v_float[PR.entvars.origin1];
             ent.v_float[PR.entvars.oldorigin2] = ent.v_float[PR.entvars.origin2];
@@ -1333,7 +1333,7 @@ class SV {
         ent.v_float[PR.entvars.origin] = ent.v_float[PR.entvars.oldorigin];
         ent.v_float[PR.entvars.origin1] = ent.v_float[PR.entvars.oldorigin1];
         ent.v_float[PR.entvars.origin2] = ent.v_float[PR.entvars.oldorigin2];
-        if (SV.TestEntityPosition(ent) != true) {
+        if (!SV.TestEntityPosition(ent)) {
             Console.DPrint('Unstuck.\n');
             SV.LinkEdict(ent, true);
             return;
@@ -1344,7 +1344,7 @@ class SV {
                     ent.v_float[PR.entvars.origin] = org[0] + i;
                     ent.v_float[PR.entvars.origin1] = org[1] + j;
                     ent.v_float[PR.entvars.origin2] = org[2] + z;
-                    if (SV.TestEntityPosition(ent) != true) {
+                    if (!SV.TestEntityPosition(ent)) {
                         Console.DPrint('Unstuck.\n');
                         SV.LinkEdict(ent, true);
                         return;
@@ -1467,7 +1467,7 @@ class SV {
     }
 
     static function Physics_Client(ent:Edict) {
-        if (SV.svs.clients[ent.num - 1].active != true)
+        if (!SV.svs.clients[ent.num - 1].active)
             return;
         PR.globals_float[PR.globalvars.time] = SV.server.time;
         PR.globals_int[PR.globalvars.self] = ent.num;
@@ -1482,7 +1482,7 @@ class SV {
             switch (movetype) {
                 case MoveType.none:
                 case MoveType.walk:
-                    if ((SV.CheckWater(ent) != true) && ((ent.flags & SV.fl.waterjump) == 0))
+                    if (!SV.CheckWater(ent) && (ent.flags & SV.fl.waterjump) == 0)
                         SV.AddGravity(ent);
                     SV.CheckStuck(ent);
                     SV.WalkMove(ent);
@@ -1503,7 +1503,7 @@ class SV {
     }
 
     static function Physics_Noclip(ent:Edict) {
-        if (SV.RunThink(ent) != true)
+        if (!SV.RunThink(ent))
             return;
         ent.v_float[PR.entvars.angles] += Host.frametime * ent.v_float[PR.entvars.avelocity];
         ent.v_float[PR.entvars.angles1] += Host.frametime * ent.v_float[PR.entvars.avelocity1];
@@ -1535,7 +1535,7 @@ class SV {
     }
 
     static function Physics_Toss(ent:Edict) {
-        if (SV.RunThink(ent) != true)
+        if (!SV.RunThink(ent))
             return;
         if ((ent.flags & SV.fl.onground) != 0)
             return;
@@ -1912,14 +1912,14 @@ class SV {
     static function RunClients() {
         for (i in 0...SV.svs.maxclients) {
             Host.client = SV.svs.clients[i];
-            if (Host.client.active != true)
+            if (!Host.client.active)
                 continue;
             SV.player = Host.client.edict;
-            if (SV.ReadClientMessage() != true) {
+            if (!SV.ReadClientMessage()) {
                 Host.DropClient(false);
                 continue;
             }
-            if (Host.client.spawned != true) {
+            if (!Host.client.spawned) {
                 Host.client.cmd.forwardmove = 0.0;
                 Host.client.cmd.sidemove = 0.0;
                 Host.client.cmd.upmove = 0.0;
@@ -2222,7 +2222,7 @@ class SV {
         ];
         var side = t1 < 0.0 ? 1 : 0;
 
-        if (SV.RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace) != true)
+        if (!SV.RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace))
             return false;
 
         if (SV.HullPointContents(hull, node.children[1 - side], mid) != ModContents.solid)

@@ -122,7 +122,7 @@ class Host {
     static function BroadcastPrint(string:String):Void {
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
-            if ((client.active != true) || (client.spawned != true))
+            if ((!client.active) || (!client.spawned))
                 continue;
             MSG.WriteByte(client.message, SVC.print);
             MSG.WriteString(client.message, string);
@@ -170,7 +170,7 @@ class Host {
     static var client:HClient;
 
     static function ShutdownServer(crash) {
-        if (SV.server.active != true)
+        if (!SV.server.active)
             return;
         SV.server.active = false;
         if (CL.cls.state == CL.active.connected)
@@ -180,7 +180,7 @@ class Host {
         {
             for (i in 0...SV.svs.maxclients) {
                 Host.client = SV.svs.clients[i];
-                if ((Host.client.active != true) || (Host.client.message.cursize == 0))
+                if ((!Host.client.active) || (Host.client.message.cursize == 0))
                     continue;
                 if (NET.CanSendMessage(Host.client.netconnection)) {
                     NET.SendMessage(Host.client.netconnection, Host.client.message);
@@ -218,7 +218,7 @@ class Host {
         SV.server.datagram.cursize = 0;
         SV.CheckForNewClients();
         SV.RunClients();
-        if ((SV.server.paused != true) && ((SV.svs.maxclients >= 2) || (Key.dest.value == Key.dest.game)))
+        if (!SV.server.paused && (SV.svs.maxclients >= 2 || Key.dest.value == Key.dest.game))
             SV.Physics();
         SV.SendClientMessages();
     }
@@ -375,8 +375,8 @@ class Host {
 
     static function Status_f() {
         var print;
-        if (Cmd.client != true) {
-            if (SV.server.active != true) {
+        if (!Cmd.client) {
+            if (!SV.server.active) {
                 Cmd.ForwardToServer();
                 return;
             }
@@ -390,7 +390,7 @@ class Host {
         print('players: ' + NET.activeconnections + ' active (' + SV.svs.maxclients + ' max)\n\n');
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
-            if (client.active != true)
+            if (!client.active)
                 continue;
             var frags = client.edict.v_float[PR.entvars.frags].toFixed(0);
             if (frags.length == 1)
@@ -429,7 +429,7 @@ class Host {
     }
 
     static function God_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -443,7 +443,7 @@ class Host {
     }
 
     static function Notarget_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -457,7 +457,7 @@ class Host {
     }
 
     static function Noclip_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -475,7 +475,7 @@ class Host {
     }
 
     static function Fly_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -491,14 +491,14 @@ class Host {
     }
 
     static function Ping_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
         Host.ClientPrint('Client ping times:\n');
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
-            if (client.active != true)
+            if (!client.active)
                 continue;
             var total = 0.0;
             for (j in 0...16)
@@ -528,7 +528,7 @@ class Host {
         SCR.BeginLoadingPlaque();
         SV.svs.serverflags = 0;
         SV.SpawnServer(Cmd.argv[1]);
-        if (SV.server.active != true)
+        if (!SV.server.active)
             return;
         CL.cls.spawnparms = '';
         for (i in 2...Cmd.argv.length)
@@ -541,7 +541,7 @@ class Host {
             Console.Print('changelevel <levelname> : continue game on a new level\n');
             return;
         }
-        if ((SV.server.active != true) || (CL.cls.demoplayback)) {
+        if ((!SV.server.active) || (CL.cls.demoplayback)) {
             Console.Print('Only the server may changelevel\n');
             return;
         }
@@ -550,7 +550,7 @@ class Host {
     }
 
     static function Restart_f() {
-        if ((CL.cls.demoplayback != true) && (SV.server.active) && (Cmd.client != true))
+        if (!CL.cls.demoplayback && SV.server.active && !Cmd.client)
             SV.SpawnServer(PR.GetString(PR.globals_int[PR.globalvars.mapname]));
     }
 
@@ -594,7 +594,7 @@ class Host {
     static function Savegame_f() {
         if (Cmd.client)
             return;
-        if (SV.server.active != true) {
+        if (!SV.server.active) {
             Console.Print('Not playing a local game.\n');
             return;
         }
@@ -708,7 +708,7 @@ class Host {
         var time = Std.parseFloat(f[20]);
         CL.Disconnect();
         SV.SpawnServer(f[19]);
-        if (SV.server.active != true) {
+        if (!SV.server.active) {
             Console.Print('Couldn\'t load map\n');
             return;
         }
@@ -734,7 +734,7 @@ class Host {
                 Console.Print('\'' + keyname + '\' is not a global\n');
                 continue;
             }
-            if (ED.ParseEpair(PR.globals, key, token[3]) != true)
+            if (!ED.ParseEpair(PR.globals, key, token[3]))
                 Host.Error('Host.Loadgame_f: parse error');
         }
 
@@ -752,7 +752,7 @@ class Host {
                 ent.v_int[j] = 0;
             ent.free = false;
             data = ED.ParseEdict(data, ent);
-            if (ent.free != true)
+            if (!ent.free)
                 SV.LinkEdict(ent, false);
         }
         SV.server.num_edicts = entnum;
@@ -778,7 +778,7 @@ class Host {
         else
             newName = Cmd.args.substring(0, 15);
 
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cvar.Set('_cl_name', newName);
             if (CL.cls.state == CL.active.connected)
                 Cmd.ForwardToServer();
@@ -801,7 +801,7 @@ class Host {
     }
 
     static function Say(teamonly) {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -818,7 +818,7 @@ class Host {
         text += p + '\n';
         for (i in 0...SV.svs.maxclients) {
             var client:HClient = SV.svs.clients[i];
-            if ((client.active != true) || (client.spawned != true))
+            if ((!client.active) || (!client.spawned))
                 continue;
             if ((Host.teamplay.value != 0) && (teamonly) && (client.edict.v_float[PR.entvars.team] != save.edict.v_float[PR.entvars.team]))
                 continue;
@@ -834,7 +834,7 @@ class Host {
     }
 
     static function Tell_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -851,7 +851,7 @@ class Host {
         var save = Host.client;
         for (i in 0...SV.svs.maxclients) {
             var client:HClient = SV.svs.clients[i];
-            if ((client.active != true) || (client.spawned != true))
+            if ((!client.active) || (!client.spawned))
                 continue;
             if (SV.GetClientName(client).toLowerCase() != Cmd.argv[1].toLowerCase())
                 continue;
@@ -882,7 +882,7 @@ class Host {
             bottom = 13;
         var playercolor = (top << 4) + bottom;
 
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cvar.SetValue('_cl_color', playercolor);
             if (CL.cls.state == CL.active.connected)
                 Cmd.ForwardToServer();
@@ -898,7 +898,7 @@ class Host {
     }
 
     static function Kill_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -912,7 +912,7 @@ class Host {
     }
 
     static function Pause_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -927,7 +927,7 @@ class Host {
     }
 
     static function PreSpawn_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Console.Print('prespawn is not valid from the console\n');
             return;
         }
@@ -943,7 +943,7 @@ class Host {
     }
 
     static function Spawn_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Console.Print('spawn is not valid from the console\n');
             return;
         }
@@ -1016,7 +1016,7 @@ class Host {
     }
 
     static function Begin_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Console.Print('begin is not valid from the console\n');
             return;
         }
@@ -1024,8 +1024,8 @@ class Host {
     }
 
     static function Kick_f() {
-        if (Cmd.client != true) {
-            if (SV.server.active != true) {
+        if (!Cmd.client) {
+            if (!SV.server.active) {
                 Cmd.ForwardToServer();
                 return;
             }
@@ -1038,7 +1038,7 @@ class Host {
             i = Q.atoi(Cmd.argv[2]) - 1;
             if ((i < 0) || (i >= SV.svs.maxclients))
                 return;
-            if (SV.svs.clients[i].active != true)
+            if (!SV.svs.clients[i].active)
                 return;
             Host.client = SV.svs.clients[i];
             byNumber = true;
@@ -1046,7 +1046,7 @@ class Host {
             i = 0;
             while (i < SV.svs.maxclients) {
                 Host.client = SV.svs.clients[i];
-                if (Host.client.active != true) {
+                if (!Host.client.active) {
                     i++;
                     continue;
                 }
@@ -1062,7 +1062,7 @@ class Host {
         if (Host.client == save)
             return;
         var who;
-        if (Cmd.client != true)
+        if (!Cmd.client)
             who = CL.name.string;
         else {
             if (Host.client == save)
@@ -1097,7 +1097,7 @@ class Host {
     }
 
     static function Give_f() {
-        if (Cmd.client != true) {
+        if (!Cmd.client) {
             Cmd.ForwardToServer();
             return;
         }
@@ -1109,7 +1109,7 @@ class Host {
         var ent = SV.player;
 
         if ((t >= 48) && (t <= 57)) {
-            if (COM.hipnotic != true) {
+            if (!COM.hipnotic) {
                 if (t >= 50)
                     ent.items |= Def.it.shotgun << (t - 50);
                 return;
@@ -1134,7 +1134,7 @@ class Host {
             ent.v_float[PR.entvars.health] = v;
             return;
         }
-        if (COM.rogue != true) {
+        if (!COM.rogue) {
             switch (t) {
             case 115:
                 ent.v_float[PR.entvars.ammo_shells] = v;
@@ -1269,7 +1269,7 @@ class Host {
         CL.cls.demos = [];
         for (i in 1...Cmd.argv.length)
             CL.cls.demos[i - 1] = Cmd.argv[i];
-        if ((CL.cls.demonum != -1) && (CL.cls.demoplayback != true)) {
+        if (CL.cls.demonum != -1 && !CL.cls.demoplayback) {
             CL.cls.demonum = 0;
             if (Host.framecount != 0)
                 CL.NextDemo();
@@ -1288,7 +1288,7 @@ class Host {
     }
 
     static function Stopdemo_f() {
-        if (CL.cls.demoplayback != true)
+        if (!CL.cls.demoplayback)
             return;
         CL.StopPlayback();
         CL.Disconnect();

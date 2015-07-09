@@ -80,7 +80,7 @@ class NET {
 		for (i in 1...drivers.length) {
 			driverlevel = i;
 			var dfunc = drivers[driverlevel];
-			if (dfunc.initialized != true)
+			if (!dfunc.initialized)
 				continue;
 			var ret = dfunc.Connect(host);
 			if ((cast ret) == 0) {
@@ -133,7 +133,7 @@ class NET {
 		for (i in 0...drivers.length) {
 			driverlevel = i;
 			var dfunc = drivers[driverlevel];
-			if (dfunc.initialized != true)
+			if (!dfunc.initialized)
 				continue;
 			var ret = dfunc.CheckNewConnections();
 			if (ret != null)
@@ -212,7 +212,7 @@ class NET {
 			Host.client = SV.svs.clients[i];
 			if (Host.client.netconnection == null)
 				continue;
-			if (Host.client.active != true) {
+			if (!Host.client.active) {
 				state1[i] = state2[i] = true;
 				continue;
 			}
@@ -229,7 +229,7 @@ class NET {
 			count = 0;
 			for (i in 0...SV.svs.maxclients) {
 				Host.client = SV.svs.clients[i];
-				if (state1[i] != true) {
+				if (!state1[i]) {
 					if (CanSendMessage(Host.client.netconnection)) {
 						state1[i] = true;
 						SendMessage(Host.client.netconnection, data);
@@ -239,7 +239,7 @@ class NET {
 					++count;
 					continue;
 				}
-				if (state2[i] != true) {
+				if (!state2[i]) {
 					if (CanSendMessage(Host.client.netconnection))
 						state2[i] = true;
 					else

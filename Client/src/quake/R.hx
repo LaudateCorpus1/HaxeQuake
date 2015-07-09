@@ -869,31 +869,31 @@ class R {
             var pixelRatio = SCR.devicePixelRatio;
             gl.viewport(Std.int(vrect.x * pixelRatio), Std.int((VID.height - vrect.height - vrect.y) * pixelRatio), Std.int(vrect.width * pixelRatio), Std.int(vrect.height * pixelRatio));
         }
-        R.Perspective();
+        Perspective();
         gl.enable(RenderingContext.DEPTH_TEST);
     }
 
     static function RenderScene() {
         if (CL.state.maxclients >= 2)
             fullbright.set("0");
-        R.AnimateLight();
-        Vec.AngleVectors(R.refdef.viewangles, R.vpn, R.vright, R.vup);
-        R.viewleaf = Mod.PointInLeaf(R.refdef.vieworg, CL.state.worldmodel);
+        AnimateLight();
+        Vec.AngleVectors(refdef.viewangles, vpn, vright, vup);
+        viewleaf = Mod.PointInLeaf(refdef.vieworg, CL.state.worldmodel);
         V.SetContentsColor(R.viewleaf.contents);
         V.CalcBlend();
-        R.dowarp = (R.waterwarp.value != 0) && (R.viewleaf.contents <= ModContents.water);
+        dowarp = (R.waterwarp.value != 0) && (viewleaf.contents <= ModContents.water);
 
-        R.SetFrustum();
-        R.SetupGL();
-        R.MarkLeaves();
+        SetFrustum();
+        SetupGL();
+        MarkLeaves();
         gl.enable(RenderingContext.CULL_FACE);
-        R.DrawSkyBox();
-        R.DrawViewModel();
-        R.DrawWorld();
-        R.DrawEntitiesOnList();
+        DrawSkyBox();
+        DrawViewModel();
+        DrawWorld();
+        DrawEntitiesOnList();
         gl.disable(RenderingContext.CULL_FACE);
-        R.RenderDlights();
-        R.DrawParticles();
+        RenderDlights();
+        DrawParticles();
     }
 
     static function RenderView() {

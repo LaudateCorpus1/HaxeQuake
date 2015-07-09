@@ -11463,23 +11463,29 @@ quake_R.MakeWorldModelDisplayLists = function(m) {
 				switch(_g6) {
 				case 4:
 					styles_3 = surf.styles[3] * 0.015625 + 0.0078125;
+					styles_2 = surf.styles[2] * 0.015625 + 0.0078125;
+					styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
+					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
 				case 3:
 					styles_2 = surf.styles[2] * 0.015625 + 0.0078125;
+					styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
+					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
 				case 2:
 					styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
+					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
 				case 1:
 					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
 				}
 				chain[2] += surf.verts.length;
-				var _g7 = 0;
-				var _g61 = surf.verts.length;
-				while(_g7 < _g61) {
-					var l = _g7++;
-					var vert = surf.verts[l];
+				var _g61 = 0;
+				var _g7 = surf.verts;
+				while(_g61 < _g7.length) {
+					var vert = _g7[_g61];
+					++_g61;
 					cmds[cmds.length] = vert[0];
 					cmds[cmds.length] = vert[1];
 					cmds[cmds.length] = vert[2];
@@ -11525,8 +11531,8 @@ quake_R.MakeWorldModelDisplayLists = function(m) {
 				var _g71 = 0;
 				var _g62 = surf1.verts.length;
 				while(_g71 < _g62) {
-					var l1 = _g71++;
-					var vert1 = surf1.verts[l1];
+					var l = _g71++;
+					var vert1 = surf1.verts[l];
 					cmds[cmds.length] = vert1[0];
 					cmds[cmds.length] = vert1[1];
 					cmds[cmds.length] = vert1[2];
@@ -11563,8 +11569,8 @@ quake_R.MakeWorldModelDisplayLists = function(m) {
 				var _g72 = 0;
 				var _g63 = surf2.verts.length;
 				while(_g72 < _g63) {
-					var l2 = _g72++;
-					var vert2 = surf2.verts[l2];
+					var l1 = _g72++;
+					var vert2 = surf2.verts[l1];
 					cmds[cmds.length] = vert2[0];
 					cmds[cmds.length] = vert2[1];
 					cmds[cmds.length] = vert2[2];

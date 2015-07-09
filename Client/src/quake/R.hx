@@ -1032,8 +1032,7 @@ class R {
                             styles[0] = surf.styles[0] * 0.015625 + 0.0078125;
                     }
                     chain[2] += surf.verts.length;
-                    for (l in 0...surf.verts.length) {
-                        var vert = surf.verts[l];
+                    for (vert in surf.verts) {
                         cmds[cmds.length] = vert[0];
                         cmds[cmds.length] = vert[1];
                         cmds[cmds.length] = vert[2];
@@ -1997,9 +1996,11 @@ class R {
 
     static var drawsky:Bool;
 
-    static function AllocBlock(surf) {
-        var w = (surf.extents[0] >> 4) + 1, h = (surf.extents[1] >> 4) + 1;
-        var x, y, best = 1024;
+    static function AllocBlock(surf:MSurface) {
+        var w = (surf.extents[0] >> 4) + 1;
+        var h = (surf.extents[1] >> 4) + 1;
+        var x, y;
+        var best = 1024;
         for (i in 0...(1024 - w)) {
             var best2 = 0;
             var j = 0;

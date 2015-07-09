@@ -3,34 +3,13 @@ package quake;
 import quake.Protocol.CLC;
 
 @:publicFields
-private class Alias {
-    var name:String;
-    var value:String;
-    function new(name, value) {
-        this.name = name;
-        this.value = value;
-    }
-}
-
-@:publicFields
-private class Func {
-    var name:String;
-    var command:Void->Void;
-    function new(name, command) {
-        this.name = name;
-        this.command = command;
-    }
-}
-
-
-@:publicFields
 class Cmd {
-    static var alias = new Array<Alias>();
+    static var functions = new Map<String,Void->Void>();
+    static var alias = new Map<String, String>();
     static var wait = false;
     static var text = "";
     static var args:String;
     static var argv = new Array<String>();
-    static var functions = new Array<Func>();
     static var client:Bool;
 
     static inline function Wait_f() {
@@ -112,22 +91,16 @@ class Cmd {
     static function Alias_f() {
         if (Cmd.argv.length <= 1) {
             Console.Print('Current alias commands:\n');
-            for (a in alias)
-                Console.Print(a.name + ' : ' + a.value + '\n');
+            for (name in alias.keys())
+                Console.Print(name + ' : ' + alias[name] + '\n');
         }
-        var s = Cmd.argv[1], value = '';
-        var i = 0;
-        while (i < Cmd.alias.length) {
-            if (Cmd.alias[i].name == s)
-                break;
-            i++;
-        }
+        var name = Cmd.argv[1], value = '';
         for (j in 2...Cmd.argv.length) {
             value += Cmd.argv[j];
             if (j != Cmd.argv.length - 1)
                 value += ' ';
         }
-        Cmd.alias[i] = new Alias(s, value + '\n');
+        alias[name] = value + '\n';
     }
 
     static function Init() {
@@ -165,21 +138,18 @@ class Cmd {
             Console.Print('Cmd.AddCommand: ' + name + ' already defined as a var\n');
             return;
         }
-        for (f in functions) {
-            if (f.name == name) {
-                Console.Print('Cmd.AddCommand: ' + name + ' already defined\n');
-                return;
-            }
-        }
-        functions.push(new Func(name, command));
+        if (functions.exists(name))
+            Console.Print('Cmd.AddCommand: ' + name + ' already defined\n');
+        else
+            functions[name] = command;
     }
 
     static function CompleteCommand(partial:String):String {
         if (partial.length == 0)
             return null;
-        for (f in functions) {
-            if (f.name.substring(0, partial.length) == partial)
-                return f.name;
+        for (name in functions.keys()) {
+            if (name.substring(0, partial.length) == partial)
+                return name;
         }
         return null;
     }
@@ -190,18 +160,19 @@ class Cmd {
         if (Cmd.argv.length == 0)
             return;
         var name = Cmd.argv[0].toLowerCase();
-        for (f in functions) {
-            if (f.name == name) {
-                f.command();
-                return;
-            }
+
+        var f = functions[name];
+        if (f != null) {
+            f();
+            return;
         }
-        for (a in alias) {
-            if (a.name == name) {
-                Cmd.text = a.value + Cmd.text;
-                return;
-            }
+
+        var a = alias[name];
+        if (a != null) {
+            Cmd.text = a + Cmd.text;
+            return;
         }
+
         if (!Cvar.Command())
             Console.Print('Unknown command "' + name + '"\n');
     }

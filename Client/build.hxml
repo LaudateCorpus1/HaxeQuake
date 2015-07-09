@@ -2,5 +2,4 @@
 --macro include("quake")
 -main quake.Sys
 -D js-es5
--D shallow-expose
 -js quake.js

@@ -12,7 +12,7 @@ private class ConsoleEntry {
     }
 }
 
-@:expose("Con")
+
 @:publicFields
 class Console {
     static var debuglog:Bool;

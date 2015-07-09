@@ -34,7 +34,7 @@ class Edict {
 
 
 
-@:expose("ED")
+
 @:publicFields
 class ED {
 	static function ClearEdict(e:Edict):Void {

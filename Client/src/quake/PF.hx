@@ -4,7 +4,7 @@ import quake.ED.Edict;
 import quake.Protocol.SVC;
 using Tools;
 
-@:expose("PF")
+
 @:publicFields
 class PF {
 

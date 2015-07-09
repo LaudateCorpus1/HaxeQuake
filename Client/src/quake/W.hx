@@ -4,7 +4,7 @@ import js.html.ArrayBuffer;
 import js.html.DataView;
 import js.html.Uint8Array;
 
-@:expose("W")
+
 class W {
 
     static var lumps = new Map<String, ArrayBuffer>();

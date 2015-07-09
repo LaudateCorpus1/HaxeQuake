@@ -2,7 +2,7 @@ package quake;
 
 typedef Matrix = Array<Array<Float>>;
 
-@:expose("Vec")
+
 abstract Vec(Array<Float>) from Array<Float> {
     public static var origin:Vec = [0.0, 0.0, 0.0];
 

@@ -3,7 +3,7 @@ package quake;
 import js.Browser.document;
 import js.html.MouseEvent;
 
-@:expose("IN")
+
 @:publicFields
 class IN {
 

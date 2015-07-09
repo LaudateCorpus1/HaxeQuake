@@ -20,7 +20,7 @@ private class Func {
     }
 }
 
-@:expose("Cmd")
+
 @:publicFields
 class Cmd {
     static var alias = new Array<Alias>();

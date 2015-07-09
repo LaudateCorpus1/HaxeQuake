@@ -53,7 +53,7 @@ private class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
 }
 
 @:publicFields
-@:expose("GL")
+
 class GL {
 	static var gl:RenderingContext;
 	static var rect:Buffer;

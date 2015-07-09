@@ -9,7 +9,7 @@ import js.html.MouseEvent;
 import js.html.WheelEvent;
 import quake.Key.KeyCode;
 
-@:expose("Sys")
+
 @:publicFields
 class Sys {
     static var events = [

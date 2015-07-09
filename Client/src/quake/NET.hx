@@ -40,7 +40,7 @@ private typedef NETDriver = {
 	function CanSendMessage(sock:INETSocket):Bool;
 }
 
-@:expose("NET")
+
 @:publicFields
 class NET {
 	static var activeSockets:Array<INETSocket> = [];

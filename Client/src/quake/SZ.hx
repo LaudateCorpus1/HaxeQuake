@@ -3,7 +3,7 @@ package quake;
 import js.html.ArrayBuffer;
 import js.html.Uint8Array;
 
-@:expose("SZ")
+
 @:publicFields
 class SZ {
 

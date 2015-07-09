@@ -22,7 +22,7 @@ import quake.GL.gl;
 	var quit = 9;
 }
 
-@:expose("M")
+
 @:publicFields
 class M {
 

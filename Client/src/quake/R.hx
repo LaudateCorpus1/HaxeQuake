@@ -79,7 +79,7 @@ class REntityState {
 }
 
 
-@:expose("R")
+
 @:publicFields
 class R {
     static var currententity:REntity;

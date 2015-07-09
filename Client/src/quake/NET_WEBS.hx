@@ -15,7 +15,7 @@ private class WEBSNETSocket extends quake.NET.NETSocket<WebSocket> {
     var receiveMessage:Array<Uint8Array>;
 }
 
-@:expose("WEBS")
+
 @:publicFields
 class NET_WEBS {
 	static var available = false;

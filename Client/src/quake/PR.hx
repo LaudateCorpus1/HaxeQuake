@@ -159,7 +159,7 @@ private class PRStackItem {
 	}
 }
 
-@:expose("PR")
+
 @:publicFields
 class PR {
 

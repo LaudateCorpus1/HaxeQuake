@@ -5,7 +5,7 @@ import js.html.DataView;
 import js.html.Uint8Array;
 import js.html.Int8Array;
 
-@:expose("MSG")
+
 @:publicFields
 class MSG {
 	var data:ArrayBuffer;

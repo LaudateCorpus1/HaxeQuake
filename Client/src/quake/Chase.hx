@@ -2,7 +2,7 @@ package quake;
 
 import quake.Mod.MTrace;
 
-@:expose("Chase")
+
 @:publicFields
 class Chase {
     static var back:Cvar;

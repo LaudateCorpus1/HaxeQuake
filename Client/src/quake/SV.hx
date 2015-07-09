@@ -65,7 +65,7 @@ private class ServerState {
     var bounce = 10;
 }
 
-@:expose("SV")
+
 @:publicFields
 class SV {
 

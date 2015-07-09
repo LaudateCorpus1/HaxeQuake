@@ -34,7 +34,7 @@ private class File {
 	}
 }
 
-@:expose("COM")
+
 @:publicFields
 class COM {
 	static var cmdline:String;

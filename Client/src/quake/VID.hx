@@ -6,7 +6,7 @@ import js.html.CanvasElement;
 import js.html.Uint32Array;
 import js.html.Uint8Array;
 
-@:expose("VID")
+
 @:publicFields
 class VID {
     static var mainwindow:CanvasElement;

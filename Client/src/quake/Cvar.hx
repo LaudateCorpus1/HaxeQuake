@@ -2,7 +2,7 @@ package quake;
 
 using Tools;
 
-@:expose("Cvar")
+
 class Cvar {
     public var name(default,null):String;
     public var string(default,null):String;

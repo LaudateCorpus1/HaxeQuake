@@ -28,7 +28,7 @@ class DrawPic {
 	}
 }
 
-@:expose("Draw")
+
 @:publicFields
 class Draw {
 	static var chars:Uint8Array;

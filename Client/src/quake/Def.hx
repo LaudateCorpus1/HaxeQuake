@@ -1,6 +1,6 @@
 package quake;
 
-@:expose("Def")
+
 @:publicFields
 class Def {
 	static var webquake_version = 48;

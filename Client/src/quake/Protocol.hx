@@ -53,7 +53,7 @@ package quake;
 	var cutscene = 34;
 }
 
-@:expose("Protocol")
+
 @:publicFields
 class Protocol {
 	static var version = 15;

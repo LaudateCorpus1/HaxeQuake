@@ -44,7 +44,7 @@ package quake;
 	@:op(a<=b) static function _(a:KeyCode, b:KeyCode):Bool;
 }
 
-@:expose("Key")
+
 @:publicFields
 class Key {
 

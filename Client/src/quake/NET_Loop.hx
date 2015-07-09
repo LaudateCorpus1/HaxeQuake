@@ -10,7 +10,7 @@ private class LoopNETSocket extends quake.NET.NETSocket<LoopNETSocket> {
     var canSend:Bool;
 }
 
-@:expose("Loop")
+
 @:publicFields
 class NET_Loop {
 	static var localconnectpending = false;

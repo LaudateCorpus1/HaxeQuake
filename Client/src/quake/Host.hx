@@ -38,7 +38,7 @@ class HClient {
 	}
 }
 
-@:expose("Host")
+
 @:publicFields
 class Host {
 

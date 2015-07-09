@@ -46,7 +46,7 @@ private class Channel {
 	}
 }
 
-@:expose("S")
+
 @:publicFields
 class S {
 	static var started = false;

@@ -3,7 +3,7 @@ package quake;
 import js.html.Audio;
 import js.html.XMLHttpRequest;
 
-@:expose("CDAudio")
+
 @:publicFields
 class CDAudio {
     static var initialized:Bool;

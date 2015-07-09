@@ -6,7 +6,7 @@ import js.html.webgl.RenderingContext;
 import quake.Draw.DrawPic;
 import quake.GL.gl;
 
-@:expose("SCR")
+
 @:publicFields
 class SCR {
 	static var con_current = 0;

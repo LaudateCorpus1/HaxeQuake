@@ -124,7 +124,7 @@ private class ClientState {
     function new() {}
 }
 
-@:expose("CL")
+
 @:publicFields
 class CL {
 

@@ -1,6 +1,6 @@
 package quake;
 
-@:expose("V")
+
 @:publicFields
 class V {
 	static var cshift_empty = [130.0, 80.0, 50.0, 0.0];

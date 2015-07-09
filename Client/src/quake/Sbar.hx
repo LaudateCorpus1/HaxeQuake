@@ -2,7 +2,7 @@ package quake;
 
 import quake.Draw.DrawPic;
 
-@:expose("Sbar")
+
 @:publicFields
 class Sbar {
 	static var nums:Array<Array<DrawPic>>;

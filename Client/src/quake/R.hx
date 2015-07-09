@@ -299,13 +299,13 @@ class R {
 
             var tex = CL.state.worldmodel.texinfo[surf.texinfo];
 
-            var s = Vec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3];
-            var t = Vec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3];
+            var s = Std.int(Vec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3]);
+            var t = Std.int(Vec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3]);
             if (s < surf.texturemins[0] || t < surf.texturemins[1])
                 continue;
 
-            var ds = Std.int(s - surf.texturemins[0]);
-            var dt = Std.int(t - surf.texturemins[1]);
+            var ds = s - surf.texturemins[0];
+            var dt = t - surf.texturemins[1];
             if (ds > surf.extents[0] || dt > surf.extents[1])
                 continue;
 

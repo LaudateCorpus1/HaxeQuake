@@ -10970,14 +10970,14 @@ quake_R.RecursiveLightPoint = function(node,start,end) {
 		var tmp;
 		var v2 = tex.vecs[0];
 		tmp = mid[0] * v2[0] + mid[1] * v2[1] + mid[2] * v2[2];
-		var s = tmp + tex.vecs[0][3];
+		var s = tmp + tex.vecs[0][3] | 0;
 		var tmp1;
 		var v21 = tex.vecs[1];
 		tmp1 = mid[0] * v21[0] + mid[1] * v21[1] + mid[2] * v21[2];
-		var t = tmp1 + tex.vecs[1][3];
+		var t = tmp1 + tex.vecs[1][3] | 0;
 		if(s < surf.texturemins[0] || t < surf.texturemins[1]) continue;
-		var ds = s - surf.texturemins[0] | 0;
-		var dt = t - surf.texturemins[1] | 0;
+		var ds = s - surf.texturemins[0];
+		var dt = t - surf.texturemins[1];
 		if(ds > surf.extents[0] || dt > surf.extents[1]) continue;
 		if(surf.lightofs == 0) return 0;
 		ds >>= 4;

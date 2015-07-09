@@ -526,7 +526,7 @@ class CL {
     static function SendMove() {
         var buf = CL.sendmovebuf;
         buf.cursize = 0;
-        MSG.WriteByte(buf, Protocol.clc.move);
+        MSG.WriteByte(buf, CLC.move);
         MSG.WriteFloat(buf, CL.state.mtime[0]);
         MSG.WriteAngle(buf, CL.state.viewangles[0]);
         MSG.WriteAngle(buf, CL.state.viewangles[1]);
@@ -659,7 +659,7 @@ class CL {
                 CL.Stop_f();
             Console.DPrint('Sending clc_disconnect\n');
             CL.cls.message.cursize = 0;
-            MSG.WriteByte(CL.cls.message, Protocol.clc.disconnect);
+            MSG.WriteByte(CL.cls.message, CLC.disconnect);
             NET.SendUnreliableMessage(CL.cls.netcon, CL.cls.message);
             CL.cls.message.cursize = 0;
             NET.Close(CL.cls.netcon);
@@ -696,18 +696,18 @@ class CL {
         Console.DPrint('CL.SignonReply: ' + CL.cls.signon + '\n');
         switch (CL.cls.signon) {
             case 1:
-                MSG.WriteByte(CL.cls.message, Protocol.clc.stringcmd);
+                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
                 MSG.WriteString(CL.cls.message, 'prespawn');
             case 2:
-                MSG.WriteByte(CL.cls.message, Protocol.clc.stringcmd);
+                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
                 MSG.WriteString(CL.cls.message, 'name "' + CL.name.string + '"\n');
-                MSG.WriteByte(CL.cls.message, Protocol.clc.stringcmd);
+                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
                 var col = Std.int(CL.color.value);
                 MSG.WriteString(CL.cls.message, 'color ' + (col >> 4) + ' ' + (col & 15) + '\n');
-                MSG.WriteByte(CL.cls.message, Protocol.clc.stringcmd);
+                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
                 MSG.WriteString(CL.cls.message, 'spawn ' + CL.cls.spawnparms);
             case 3:
-                MSG.WriteByte(CL.cls.message, Protocol.clc.stringcmd);
+                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
                 MSG.WriteString(CL.cls.message, 'begin');
             case 4:
                 SCR.EndLoadingPlaque();
@@ -1101,7 +1101,7 @@ class CL {
             return;
         CL.lastmsg = time;
         Console.Print('--> client to server keepalive\n');
-        MSG.WriteByte(CL.cls.message, Protocol.clc.nop);
+        MSG.WriteByte(CL.cls.message, CLC.nop);
         NET.SendMessage(CL.cls.netcon, CL.cls.message);
         CL.cls.message.cursize = 0;
     }

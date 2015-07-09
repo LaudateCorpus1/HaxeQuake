@@ -132,9 +132,9 @@ class SV {
         SV.nostep = Cvar.RegisterVariable('sv_nostep', '0');
 
         SV.nop = new MSG(4, 1);
-        (new Uint8Array(SV.nop.data))[0] = Protocol.svc.nop;
+        (new Uint8Array(SV.nop.data))[0] = SVC.nop;
         SV.reconnect = new MSG(128);
-        MSG.WriteByte(SV.reconnect, Protocol.svc.stufftext);
+        MSG.WriteByte(SV.reconnect, SVC.stufftext);
         MSG.WriteString(SV.reconnect, 'reconnect\n');
 
         SV.InitBoxHull();
@@ -144,7 +144,7 @@ class SV {
         var datagram = SV.server.datagram;
         if (datagram.cursize >= 1009)
             return;
-        MSG.WriteByte(datagram, Protocol.svc.particle);
+        MSG.WriteByte(datagram, SVC.particle);
         MSG.WriteCoord(datagram, org[0]);
         MSG.WriteCoord(datagram, org[1]);
         MSG.WriteCoord(datagram, org[2]);
@@ -189,7 +189,7 @@ class SV {
         if (attenuation != 1.0)
             field_mask += 2;
 
-        MSG.WriteByte(datagram, Protocol.svc.sound);
+        MSG.WriteByte(datagram, SVC.sound);
         MSG.WriteByte(datagram, field_mask);
         if ((field_mask & 1) != 0)
             MSG.WriteByte(datagram, volume);
@@ -207,9 +207,9 @@ class SV {
 
     static function SendServerinfo(client) {
         var message = client.message;
-        MSG.WriteByte(message, Protocol.svc.print);
+        MSG.WriteByte(message, SVC.print);
         MSG.WriteString(message, String.fromCharCode(2) + '\nVERSION 1.09 SERVER (' + PR.crc + ' CRC)');
-        MSG.WriteByte(message, Protocol.svc.serverinfo);
+        MSG.WriteByte(message, SVC.serverinfo);
         MSG.WriteLong(message, Protocol.version);
         MSG.WriteByte(message, SV.svs.maxclients);
         MSG.WriteByte(message, ((Host.coop.value == 0) && (Host.deathmatch.value != 0)) ? 1 : 0);
@@ -220,12 +220,12 @@ class SV {
         for (i in 1...SV.server.sound_precache.length)
             MSG.WriteString(message, SV.server.sound_precache[i]);
         MSG.WriteByte(message, 0);
-        MSG.WriteByte(message, Protocol.svc.cdtrack);
+        MSG.WriteByte(message, SVC.cdtrack);
         MSG.WriteByte(message, Std.int(SV.server.edicts[0].v_float[PR.entvars.sounds]));
         MSG.WriteByte(message, Std.int(SV.server.edicts[0].v_float[PR.entvars.sounds]));
-        MSG.WriteByte(message, Protocol.svc.setview);
+        MSG.WriteByte(message, SVC.setview);
         MSG.WriteShort(message, client.edict.num);
-        MSG.WriteByte(message, Protocol.svc.signonnum);
+        MSG.WriteByte(message, SVC.signonnum);
         MSG.WriteByte(message, 1);
         client.sendsignon = true;
         client.spawned = false;
@@ -415,7 +415,7 @@ class SV {
     static function WriteClientdataToMessage(ent:Edict, msg:MSG):Void {
         if ((ent.v_float[PR.entvars.dmg_take] != 0.0) || (ent.v_float[PR.entvars.dmg_save] != 0.0)) {
             var other = SV.server.edicts[ent.v_int[PR.entvars.dmg_inflictor]];
-            MSG.WriteByte(msg, Protocol.svc.damage);
+            MSG.WriteByte(msg, SVC.damage);
             MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.dmg_save]));
             MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.dmg_take]));
             MSG.WriteCoord(msg, other.v_float[PR.entvars.origin] + 0.5 * (other.v_float[PR.entvars.mins] + other.v_float[PR.entvars.maxs]));
@@ -428,7 +428,7 @@ class SV {
         SV.SetIdealPitch();
 
         if (ent.v_float[PR.entvars.fixangle] != 0.0) {
-            MSG.WriteByte(msg, Protocol.svc.setangle);
+            MSG.WriteByte(msg, SVC.setangle);
             MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles]);
             MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles1]);
             MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles2]);
@@ -473,7 +473,7 @@ class SV {
         if (ent.v_float[PR.entvars.armorvalue] != 0.0)
             bits += SU.armor;
 
-        MSG.WriteByte(msg, Protocol.svc.clientdata);
+        MSG.WriteByte(msg, SVC.clientdata);
         MSG.WriteShort(msg, bits);
         if ((bits & SU.viewheight) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.view_ofs2]));
@@ -523,7 +523,7 @@ class SV {
         var client = Host.client;
         var msg = SV.clientdatagram;
         msg.cursize = 0;
-        MSG.WriteByte(msg, Protocol.svc.time);
+        MSG.WriteByte(msg, SVC.time);
         MSG.WriteFloat(msg, SV.server.time);
         SV.WriteClientdataToMessage(client.edict, msg);
         SV.WriteEntitiesToClient(client.edict, msg);
@@ -548,7 +548,7 @@ class SV {
                 var client = SV.svs.clients[j];
                 if (client.active != true)
                     continue;
-                MSG.WriteByte(client.message, Protocol.svc.updatefrags);
+                MSG.WriteByte(client.message, SVC.updatefrags);
                 MSG.WriteByte(client.message, i);
                 MSG.WriteShort(client.message, frags);
             }
@@ -638,7 +638,7 @@ class SV {
                 baseline.colormap = 0;
                 baseline.modelindex = SV.ModelIndex(PR.GetString(svent.v_int[PR.entvars.model]));
             }
-            MSG.WriteByte(signon, Protocol.svc.spawnbaseline);
+            MSG.WriteByte(signon, SVC.spawnbaseline);
             MSG.WriteShort(signon, i);
             MSG.WriteByte(signon, baseline.modelindex);
             MSG.WriteByte(signon, baseline.frame);
@@ -1881,9 +1881,9 @@ class SV {
                     ret = 1;
                     break;
                 }
-                if (cmd == Protocol.clc.nop)
+                if (cmd == CLC.nop)
                     continue;
-                if (cmd == Protocol.clc.stringcmd) {
+                if (cmd == CLC.stringcmd) {
                     var s = MSG.ReadString();
                     var i = 0;
                     while (i < cmds.length) {
@@ -1896,9 +1896,9 @@ class SV {
                     }
                     if (i == cmds.length)
                         Console.DPrint(SV.GetClientName(Host.client) + ' tried to ' + s);
-                } else if (cmd == Protocol.clc.disconnect)
+                } else if (cmd == CLC.disconnect)
                     return false;
-                else if (cmd == Protocol.clc.move)
+                else if (cmd == CLC.move)
                     SV.ReadClientMove();
                 else {
                     Sys.Print('SV.ReadClientMessage: unknown command char\n');

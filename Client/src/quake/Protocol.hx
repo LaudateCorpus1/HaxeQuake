@@ -53,6 +53,13 @@ package quake;
 	var cutscene = 34;
 }
 
+@:enum abstract CLC(Int) to Int {
+	var nop = 1;
+	var disconnect = 2;
+	var move = 3;
+	var stringcmd = 4;
+}
+
 @:enum abstract U(Int) to Int {
 	var morebits   = 1 << 0;
 	var origin1    = 1 << 1;
@@ -92,51 +99,7 @@ package quake;
 	@:op(a+b) static function _(a:SU, b:SU):SU;
 }
 
-@:publicFields
 class Protocol {
-	static inline var version = 15;
-	static inline var default_viewheight = 22;
-
-	static var svc = {
-		nop: 1,
-		disconnect: 2,
-		updatestat: 3,
-		version: 4,
-		setview: 5,
-		sound: 6,
-		time: 7,
-		print: 8,
-		stufftext: 9,
-		setangle: 10,
-		serverinfo: 11,
-		lightstyle: 12,
-		updatename: 13,
-		updatefrags: 14,
-		clientdata: 15,
-		stopsound: 16,
-		updatecolors: 17,
-		particle: 18,
-		damage: 19,
-		spawnstatic: 20,
-		spawnbaseline: 22,
-		temp_entity: 23,
-		setpause: 24,
-		signonnum: 25,
-		centerprint: 26,
-		killedmonster: 27,
-		foundsecret: 28,
-		spawnstaticsound: 29,
-		intermission: 30,
-		finale: 31,
-		cdtrack: 32,
-		sellscreen: 33,
-		cutscene: 34
-	};
-
-	static var clc = {
-		nop: 1,
-		disconnect: 2,
-		move: 3,
-		stringcmd: 4
-	};
+	public static inline var version = 15;
+	public static inline var default_viewheight = 22;
 }

@@ -1,5 +1,7 @@
 package quake;
 
+import quake.Protocol.CLC;
+
 @:publicFields
 private class Alias {
     var name:String;
@@ -213,7 +215,7 @@ class Cmd {
         }
         if (CL.cls.demoplayback == true)
             return;
-        var args = String.fromCharCode(Protocol.clc.stringcmd);
+        var args = String.fromCharCode(CLC.stringcmd);
         if (Cmd.argv[0].toLowerCase() != 'cmd')
             args += Cmd.argv[0] + ' ';
         if (Cmd.argv.length >= 2)

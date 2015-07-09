@@ -717,7 +717,7 @@ quake_CL.BaseMove = function() {
 quake_CL.SendMove = function() {
 	var buf = quake_CL.sendmovebuf;
 	buf.cursize = 0;
-	quake_MSG.WriteByte(buf,quake_Protocol.clc.move);
+	quake_MSG.WriteByte(buf,3);
 	quake_MSG.WriteFloat(buf,quake_CL.state.mtime[0]);
 	quake_MSG.WriteAngle(buf,quake_CL.state.viewangles[0]);
 	quake_MSG.WriteAngle(buf,quake_CL.state.viewangles[1]);
@@ -835,7 +835,7 @@ quake_CL.Disconnect = function() {
 		if(quake_CL.cls.demorecording) quake_CL.Stop_f();
 		quake_Console.DPrint("Sending clc_disconnect\n");
 		quake_CL.cls.message.cursize = 0;
-		quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.disconnect);
+		quake_MSG.WriteByte(quake_CL.cls.message,2);
 		quake_NET.SendUnreliableMessage(quake_CL.cls.netcon,quake_CL.cls.message);
 		quake_CL.cls.message.cursize = 0;
 		quake_NET.Close(quake_CL.cls.netcon);
@@ -865,20 +865,20 @@ quake_CL.SignonReply = function() {
 	var _g = quake_CL.cls.signon;
 	switch(_g) {
 	case 1:
-		quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.stringcmd);
+		quake_MSG.WriteByte(quake_CL.cls.message,4);
 		quake_MSG.WriteString(quake_CL.cls.message,"prespawn");
 		break;
 	case 2:
-		quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.stringcmd);
+		quake_MSG.WriteByte(quake_CL.cls.message,4);
 		quake_MSG.WriteString(quake_CL.cls.message,"name \"" + quake_CL.$name.string + "\"\n");
-		quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.stringcmd);
+		quake_MSG.WriteByte(quake_CL.cls.message,4);
 		var col = quake_CL.color.value | 0;
 		quake_MSG.WriteString(quake_CL.cls.message,"color " + (col >> 4) + " " + (col & 15) + "\n");
-		quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.stringcmd);
+		quake_MSG.WriteByte(quake_CL.cls.message,4);
 		quake_MSG.WriteString(quake_CL.cls.message,"spawn " + quake_CL.cls.spawnparms);
 		break;
 	case 3:
-		quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.stringcmd);
+		quake_MSG.WriteByte(quake_CL.cls.message,4);
 		quake_MSG.WriteString(quake_CL.cls.message,"begin");
 		break;
 	case 4:
@@ -1182,7 +1182,7 @@ quake_CL.KeepaliveMessage = function() {
 	if(time - quake_CL.lastmsg < 5.0) return;
 	quake_CL.lastmsg = time;
 	quake_Console.Print("--> client to server keepalive\n");
-	quake_MSG.WriteByte(quake_CL.cls.message,quake_Protocol.clc.nop);
+	quake_MSG.WriteByte(quake_CL.cls.message,1);
 	quake_NET.SendMessage(quake_CL.cls.netcon,quake_CL.cls.message);
 	quake_CL.cls.message.cursize = 0;
 };
@@ -2294,7 +2294,7 @@ quake_Cmd.ForwardToServer = function() {
 		return;
 	}
 	if(quake_CL.cls.demoplayback == true) return;
-	var args = String.fromCharCode(quake_Protocol.clc.stringcmd);
+	var args = String.fromCharCode(4);
 	if(quake_Cmd.argv[0].toLowerCase() != "cmd") args += quake_Cmd.argv[0] + " ";
 	if(quake_Cmd.argv.length >= 2) args += quake_Cmd.args; else args += "\n";
 	quake_MSG.WriteString(quake_CL.cls.message,args);
@@ -9050,16 +9050,16 @@ quake_SV.Init = function() {
 	quake_SV.aim = quake_Cvar.RegisterVariable("sv_aim","0.93");
 	quake_SV.nostep = quake_Cvar.RegisterVariable("sv_nostep","0");
 	quake_SV.nop = new quake_MSG(4,1);
-	new Uint8Array(quake_SV.nop.data)[0] = quake_Protocol.svc.nop;
+	new Uint8Array(quake_SV.nop.data)[0] = 1;
 	quake_SV.reconnect = new quake_MSG(128);
-	quake_MSG.WriteByte(quake_SV.reconnect,quake_Protocol.svc.stufftext);
+	quake_MSG.WriteByte(quake_SV.reconnect,9);
 	quake_MSG.WriteString(quake_SV.reconnect,"reconnect\n");
 	quake_SV.InitBoxHull();
 };
 quake_SV.StartParticle = function(org,dir,color,count) {
 	var datagram = quake_SV.server.datagram;
 	if(datagram.cursize >= 1009) return;
-	quake_MSG.WriteByte(datagram,quake_Protocol.svc.particle);
+	quake_MSG.WriteByte(datagram,18);
 	quake_MSG.WriteCoord(datagram,org[0]);
 	quake_MSG.WriteCoord(datagram,org[1]);
 	quake_MSG.WriteCoord(datagram,org[2]);
@@ -9091,7 +9091,7 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 	var field_mask = 0;
 	if(volume != 255) field_mask += 1;
 	if(attenuation != 1.0) field_mask += 2;
-	quake_MSG.WriteByte(datagram,quake_Protocol.svc.sound);
+	quake_MSG.WriteByte(datagram,6);
 	quake_MSG.WriteByte(datagram,field_mask);
 	if((field_mask & 1) != 0) quake_MSG.WriteByte(datagram,volume);
 	if((field_mask & 2) != 0) quake_MSG.WriteByte(datagram,Math.floor(attenuation * 64.0));
@@ -9103,9 +9103,9 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 };
 quake_SV.SendServerinfo = function(client) {
 	var message = client.message;
-	quake_MSG.WriteByte(message,quake_Protocol.svc.print);
+	quake_MSG.WriteByte(message,8);
 	quake_MSG.WriteString(message,"\x02" + "\nVERSION 1.09 SERVER (" + quake_PR.crc + " CRC)");
-	quake_MSG.WriteByte(message,quake_Protocol.svc.serverinfo);
+	quake_MSG.WriteByte(message,11);
 	quake_MSG.WriteLong(message,15);
 	quake_MSG.WriteByte(message,quake_SV.svs.maxclients);
 	quake_MSG.WriteByte(message,quake_Host.coop.value == 0 && quake_Host.deathmatch.value != 0?1:0);
@@ -9124,12 +9124,12 @@ quake_SV.SendServerinfo = function(client) {
 		quake_MSG.WriteString(message,quake_SV.server.sound_precache[i1]);
 	}
 	quake_MSG.WriteByte(message,0);
-	quake_MSG.WriteByte(message,quake_Protocol.svc.cdtrack);
+	quake_MSG.WriteByte(message,32);
 	quake_MSG.WriteByte(message,quake_SV.server.edicts[0].v_float[quake_PR.entvars.sounds] | 0);
 	quake_MSG.WriteByte(message,quake_SV.server.edicts[0].v_float[quake_PR.entvars.sounds] | 0);
-	quake_MSG.WriteByte(message,quake_Protocol.svc.setview);
+	quake_MSG.WriteByte(message,5);
 	quake_MSG.WriteShort(message,client.edict.num);
-	quake_MSG.WriteByte(message,quake_Protocol.svc.signonnum);
+	quake_MSG.WriteByte(message,25);
 	quake_MSG.WriteByte(message,1);
 	client.sendsignon = true;
 	client.spawned = false;
@@ -9282,7 +9282,7 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	if(ent.v_float[quake_PR.entvars.dmg_take] != 0.0 || ent.v_float[quake_PR.entvars.dmg_save] != 0.0) {
 		var other = quake_SV.server.edicts[ent.v_int[quake_PR.entvars.dmg_inflictor]];
-		quake_MSG.WriteByte(msg,quake_Protocol.svc.damage);
+		quake_MSG.WriteByte(msg,19);
 		quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.dmg_save] | 0);
 		quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.dmg_take] | 0);
 		quake_MSG.WriteCoord(msg,other.v_float[quake_PR.entvars.origin] + 0.5 * (other.v_float[quake_PR.entvars.mins] + other.v_float[quake_PR.entvars.maxs]));
@@ -9293,7 +9293,7 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	}
 	quake_SV.SetIdealPitch();
 	if(ent.v_float[quake_PR.entvars.fixangle] != 0.0) {
-		quake_MSG.WriteByte(msg,quake_Protocol.svc.setangle);
+		quake_MSG.WriteByte(msg,10);
 		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles]);
 		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles1]);
 		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles2]);
@@ -9317,7 +9317,7 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	if(ent.v_float[quake_PR.entvars.velocity2] != 0.0) bits = bits + 128;
 	if(ent.v_float[quake_PR.entvars.weaponframe] != 0.0) bits = bits + 4096;
 	if(ent.v_float[quake_PR.entvars.armorvalue] != 0.0) bits = bits + 8192;
-	quake_MSG.WriteByte(msg,quake_Protocol.svc.clientdata);
+	quake_MSG.WriteByte(msg,15);
 	quake_MSG.WriteShort(msg,bits);
 	if((bits & 1) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.view_ofs2] | 0);
 	if((bits & 2) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.idealpitch] | 0);
@@ -9353,7 +9353,7 @@ quake_SV.SendClientDatagram = function() {
 	var client = quake_Host.client;
 	var msg = quake_SV.clientdatagram;
 	msg.cursize = 0;
-	quake_MSG.WriteByte(msg,quake_Protocol.svc.time);
+	quake_MSG.WriteByte(msg,7);
 	quake_MSG.WriteFloat(msg,quake_SV.server.time);
 	quake_SV.WriteClientdataToMessage(client.edict,msg);
 	quake_SV.WriteEntitiesToClient(client.edict,msg);
@@ -9379,7 +9379,7 @@ quake_SV.UpdateToReliableMessages = function() {
 			var j = _g3++;
 			var client = quake_SV.svs.clients[j];
 			if(client.active != true) continue;
-			quake_MSG.WriteByte(client.message,quake_Protocol.svc.updatefrags);
+			quake_MSG.WriteByte(client.message,14);
 			quake_MSG.WriteByte(client.message,i);
 			quake_MSG.WriteShort(client.message,frags);
 		}
@@ -9467,7 +9467,7 @@ quake_SV.CreateBaseline = function() {
 			baseline.colormap = 0;
 			baseline.modelindex = quake_SV.ModelIndex(quake_PR.GetString(svent.v_int[quake_PR.entvars.model]));
 		}
-		quake_MSG.WriteByte(signon,quake_Protocol.svc.spawnbaseline);
+		quake_MSG.WriteByte(signon,22);
 		quake_MSG.WriteShort(signon,i);
 		quake_MSG.WriteByte(signon,baseline.modelindex);
 		quake_MSG.WriteByte(signon,baseline.frame);
@@ -10515,8 +10515,8 @@ quake_SV.ReadClientMessage = function() {
 				ret = 1;
 				break;
 			}
-			if(cmd == quake_Protocol.clc.nop) continue;
-			if(cmd == quake_Protocol.clc.stringcmd) {
+			if(cmd == 1) continue;
+			if(cmd == 4) {
 				var s = quake_MSG.ReadString();
 				var i = 0;
 				while(i < cmds.length) {
@@ -10528,7 +10528,7 @@ quake_SV.ReadClientMessage = function() {
 					break;
 				}
 				if(i == cmds.length) quake_Console.DPrint(quake_SV.GetClientName(quake_Host.client) + " tried to " + s);
-			} else if(cmd == quake_Protocol.clc.disconnect) return false; else if(cmd == quake_Protocol.clc.move) quake_SV.ReadClientMove(); else {
+			} else if(cmd == 2) return false; else if(cmd == 3) quake_SV.ReadClientMove(); else {
 				quake_Sys.Print("SV.ReadClientMessage: unknown command char\n");
 				return false;
 			}
@@ -10891,8 +10891,6 @@ quake_SZ.Print = function(sb,data) {
 		buf[dest + i] = HxOverrides.cca(data,i);
 	}
 };
-var quake_Protocol = function() { };
-quake_Protocol.__name__ = true;
 var quake_Plane = function() {
 };
 quake_Plane.__name__ = true;
@@ -13256,6 +13254,8 @@ var quake__$PR_PRStatement = function(view,ofs) {
 	this.c = view.getInt16(ofs + 6,true);
 };
 quake__$PR_PRStatement.__name__ = true;
+var quake_Protocol = function() { };
+quake_Protocol.__name__ = true;
 var quake__$R_RParticle = function(t) {
 	this.type = t;
 };
@@ -14167,10 +14167,6 @@ quake_SV.svs = new quake__$SV_ServerStatic();
 quake_SV.fatpvs = [];
 quake_SV.clientdatagram = new quake_MSG(1024);
 quake_SV.move = { normal : 0, nomonsters : 1, missile : 2};
-quake_Protocol.version = 15;
-quake_Protocol.default_viewheight = 22;
-quake_Protocol.svc = { nop : 1, disconnect : 2, updatestat : 3, version : 4, setview : 5, sound : 6, time : 7, print : 8, stufftext : 9, setangle : 10, serverinfo : 11, lightstyle : 12, updatename : 13, updatefrags : 14, clientdata : 15, stopsound : 16, updatecolors : 17, particle : 18, damage : 19, spawnstatic : 20, spawnbaseline : 22, temp_entity : 23, setpause : 24, signonnum : 25, centerprint : 26, killedmonster : 27, foundsecret : 28, spawnstaticsound : 29, intermission : 30, finale : 31, cdtrack : 32, sellscreen : 33, cutscene : 34};
-quake_Protocol.clc = { nop : 1, disconnect : 2, move : 3, stringcmd : 4};
 quake_R.dlightframecount = 0;
 quake_R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 quake_R.visframecount = 0;
@@ -14189,6 +14185,8 @@ quake_R.lightmap_modified = [];
 quake_R.lightmaps = new Uint8Array(new ArrayBuffer(4194304));
 quake_R.dlightmaps = new Uint8Array(new ArrayBuffer(1048576));
 quake_PF.builtin = [quake_PF.Fixme,quake_PF.makevectors,quake_PF.setorigin,quake_PF.setmodel,quake_PF.setsize,quake_PF.Fixme,quake_PF.breakstatement,quake_PF.random,quake_PF.sound,quake_PF.normalize,quake_PF.error,quake_PF.objerror,quake_PF.vlen,quake_PF.vectoyaw,quake_PF.Spawn,quake_PF.Remove,quake_PF.traceline,quake_PF.checkclient,quake_PF.Find,quake_PF.precache_sound,quake_PF.precache_model,quake_PF.stuffcmd,quake_PF.findradius,quake_PF.bprint,quake_PF.sprint,quake_PF.dprint,quake_PF.ftos,quake_PF.vtos,quake_PF.coredump,quake_PF.traceon,quake_PF.traceoff,quake_PF.eprint,quake_PF.walkmove,quake_PF.Fixme,quake_PF.droptofloor,quake_PF.lightstyle,quake_PF.rint,quake_PF.floor,quake_PF.ceil,quake_PF.Fixme,quake_PF.checkbottom,quake_PF.pointcontents,quake_PF.Fixme,quake_PF.fabs,quake_PF.aim,quake_PF.cvar,quake_PF.localcmd,quake_PF.nextent,quake_PF.particle,quake_PF.changeyaw,quake_PF.Fixme,quake_PF.vectoangles,quake_PF.WriteByte,quake_PF.WriteChar,quake_PF.WriteShort,quake_PF.WriteLong,quake_PF.WriteCoord,quake_PF.WriteAngle,quake_PF.WriteString,quake_PF.WriteEntity,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.MoveToGoal,quake_PF.precache_file,quake_PF.makestatic,quake_PF.changelevel,quake_PF.Fixme,quake_PF.cvar_set,quake_PF.centerprint,quake_PF.ambientsound,quake_PF.precache_model,quake_PF.precache_sound,quake_PF.precache_file,quake_PF.setspawnparms];
+quake_Protocol.version = 15;
+quake_Protocol.default_viewheight = 22;
 quake_Sbar.fragsort = [];
 quake_Sbar.showscores = false;
 quake_V.cshift_empty = [130.0,80.0,50.0,0.0];

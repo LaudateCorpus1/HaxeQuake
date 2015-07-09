@@ -789,14 +789,14 @@ class R {
     }
 
     static function SetFrustum() {
-        R.frustum[0].normal = Vec.RotatePointAroundVector(R.vup, R.vpn, -(90.0 - R.refdef.fov_x * 0.5));
-        R.frustum[1].normal = Vec.RotatePointAroundVector(R.vup, R.vpn, 90.0 - R.refdef.fov_x * 0.5);
-        R.frustum[2].normal = Vec.RotatePointAroundVector(R.vright, R.vpn, 90.0 - R.refdef.fov_y * 0.5);
-        R.frustum[3].normal = Vec.RotatePointAroundVector(R.vright, R.vpn, -(90.0 - R.refdef.fov_y * 0.5));
+        frustum[0].normal = Vec.RotatePointAroundVector(vup, vpn, -(90.0 - refdef.fov_x * 0.5));
+        frustum[1].normal = Vec.RotatePointAroundVector(vup, vpn, 90.0 - refdef.fov_x * 0.5);
+        frustum[2].normal = Vec.RotatePointAroundVector(vright, vpn, 90.0 - refdef.fov_y * 0.5);
+        frustum[3].normal = Vec.RotatePointAroundVector(vright, vpn, -(90.0 - refdef.fov_y * 0.5));
         for (i in 0...4) {
-            var out = R.frustum[i];
+            var out = frustum[i];
             out.type = 5;
-            out.dist = Vec.DotProduct(R.refdef.vieworg, out.normal);
+            out.dist = Vec.DotProduct(refdef.vieworg, out.normal);
             out.signbits = 0;
             if (out.normal[0] < 0.0)
                 out.signbits = 1;

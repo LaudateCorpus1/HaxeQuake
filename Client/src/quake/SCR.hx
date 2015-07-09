@@ -207,7 +207,7 @@ class SCR {
 	}
 
 	static function DrawNet() {
-		if (((Host.realtime - CL.state.last_received_message) >= 0.3) && (CL.cls.demoplayback != true))
+		if ((Host.realtime - CL.state.last_received_message) >= 0.3 && !CL.cls.demoplayback)
 			Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, SCR.net);
 	}
 
@@ -313,7 +313,7 @@ class SCR {
 		GL.Set2D();
 		if (R.dowarp)
 			R.WarpScreen();
-		if (Console.forcedup != true)
+		if (!Console.forcedup)
 			R.PolyBlend();
 
 		if (CL.cls.state == CL.active.connecting)

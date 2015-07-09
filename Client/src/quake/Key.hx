@@ -353,7 +353,7 @@ class Key {
 			Key.shift_down = down;
 
 		if (key == KeyCode.escape) {
-			if (down != true)
+			if (!down)
 				return;
 			if (Key.dest.value == Key.dest.message)
 				Key.Message(key);
@@ -366,7 +366,7 @@ class Key {
 
 		var kb;
 
-		if (down != true) {
+		if (!down) {
 			kb = Key.bindings[key];
 			if (kb != null) {
 				if (kb.charCodeAt(0) == 43)
@@ -388,8 +388,8 @@ class Key {
 		}
 
 		if (((Key.dest.value == Key.dest.menu) && ((key == KeyCode.escape) || ((key >= KeyCode.f1) && (key <= KeyCode.f12))))
-			|| ((Key.dest.value == Key.dest.console) && (Key.consolekeys[key] != true))
-			|| ((Key.dest.value == Key.dest.game) && ((Console.forcedup != true) || (Key.consolekeys[key] != true)))) {
+			|| ((Key.dest.value == Key.dest.console) && !Key.consolekeys[key])
+			|| ((Key.dest.value == Key.dest.game) && (!Console.forcedup || !Key.consolekeys[key]))) {
 			kb = Key.bindings[key];
 			if (kb != null) {
 				if (kb.charCodeAt(0) == 43)

@@ -278,20 +278,20 @@ class GL {
 		var vsh = gl.createShader(RenderingContext.VERTEX_SHADER);
 		gl.shaderSource(vsh, shaderSrc.vert);
 		gl.compileShader(vsh);
-		if (gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS) != true)
+		if (!gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS))
 			Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(vsh));
 
 		var fsh = gl.createShader(RenderingContext.FRAGMENT_SHADER);
 		gl.shaderSource(fsh, shaderSrc.frag);
 		gl.compileShader(fsh);
-		if (gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS) != true)
+		if (!gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS))
 			Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(fsh));
 
 		gl.attachShader(program.program, vsh);
 		gl.attachShader(program.program, fsh);
 
 		gl.linkProgram(program.program);
-		if (gl.getProgramParameter(program.program, RenderingContext.LINK_STATUS) != true)
+		if (!gl.getProgramParameter(program.program, RenderingContext.LINK_STATUS))
 			Sys.Error('Error linking program: ' + gl.getProgramInfoLog(program.program));
 
 		gl.useProgram(program.program);

@@ -818,7 +818,7 @@ class PR {
 					ed.v_int[ptr + 2] = PR.globals_int[st.a + 2];
 				case PROp.address:
 					var ed = PR.globals_int[st.a];
-					if ((ed == 0) && (SV.server.loading != true))
+					if (ed == 0 && !SV.server.loading)
 						PR.RunError('assignment to world entity');
 					PR.globals_int[st.c] = ed * PR.edict_size + 96 + (PR.globals_int[st.b] << 2);
 				case PROp.load_f | PROp.load_fld | PROp.load_ent | PROp.load_s | PROp.load_fnc:

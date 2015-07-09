@@ -2142,7 +2142,7 @@ class R {
     }
 
     static function DrawSkyBox() {
-        if (R.drawsky != true)
+        if (!R.drawsky)
             return;
 
         gl.colorMask(false, false, false, false);

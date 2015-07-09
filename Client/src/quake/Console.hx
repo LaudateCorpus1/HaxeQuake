@@ -116,7 +116,7 @@ class Console {
     }
 
     static function DrawInput():Void {
-        if ((Key.dest.value != Key.dest.console) && (forcedup != true))
+        if (Key.dest.value != Key.dest.console && !forcedup)
             return;
         var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1));
         var width = (VID.width >> 3) - 2;

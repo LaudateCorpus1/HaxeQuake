@@ -90,7 +90,7 @@ class V {
 	}
 
 	static function DriftPitch():Void {
-		if ((Host.noclip_anglehack) || (CL.state.onground != true) || (CL.cls.demoplayback)) {
+		if (Host.noclip_anglehack || !CL.state.onground || CL.cls.demoplayback) {
 			CL.state.driftmove = 0.0;
 			CL.state.pitchvel = 0.0;
 			return;
@@ -380,7 +380,7 @@ class V {
 		}
 		if (CL.state.intermission != 0)
 			CalcIntermissionRefdef();
-		else if (CL.state.paused != true)
+		else if (!CL.state.paused)
 			CalcRefdef();
 		R.PushDlights();
 		R.RenderView();

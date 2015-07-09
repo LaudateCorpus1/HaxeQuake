@@ -9,7 +9,7 @@ class SZ {
 
 	static function GetSpace(buf:MSG, length:Int):Int {
 		if ((buf.cursize + length) > buf.data.byteLength) {
-			if (buf.allowoverflow != true)
+			if (!buf.allowoverflow)
 				Sys.Error('SZ.GetSpace: overflow without allowoverflow set');
 			if (length > buf.data.byteLength)
 				Sys.Error('SZ.GetSpace: ' + length + ' is > full buffer size');

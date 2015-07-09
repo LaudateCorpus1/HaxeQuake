@@ -166,7 +166,7 @@ class CL {
     // demo
 
     static function StopPlayback() {
-        if (CL.cls.demoplayback != true)
+        if (!CL.cls.demoplayback)
             return;
         CL.cls.demoplayback = false;
         CL.cls.demofile = null;
@@ -247,14 +247,14 @@ class CL {
     static function Stop_f() {
         if (Cmd.client)
             return;
-        if (CL.cls.demorecording != true) {
+        if (!CL.cls.demorecording) {
             Console.Print('Not recording a demo.\n');
             return;
         }
         NET.message.cursize = 0;
         MSG.WriteByte(NET.message, SVC.disconnect);
         CL.WriteDemoMessage();
-        if (COM.WriteFile(CL.cls.demoname, new Uint8Array(CL.cls.demofile), CL.cls.demoofs) != true)
+        if (!COM.WriteFile(CL.cls.demoname, new Uint8Array(CL.cls.demofile), CL.cls.demoofs))
             Console.Print('ERROR: couldn\'t open.\n');
         CL.cls.demofile = null;
         CL.cls.demorecording = false;
@@ -626,7 +626,7 @@ class CL {
     static var beams:Array<Beam>;
 
     static function ClearState() {
-        if (SV.server.active != true) {
+        if (!SV.server.active) {
             Console.DPrint('Clearing memory\n');
             Mod.ClearAll();
             CL.cls.signon = 0;
@@ -966,7 +966,7 @@ class CL {
         if (CL.cls.message.cursize == 0)
             return;
 
-        if (NET.CanSendMessage(CL.cls.netcon) != true) {
+        if (!NET.CanSendMessage(CL.cls.netcon)) {
             Console.DPrint('CL.SendCmd: can\'t send\n');
             return;
         }

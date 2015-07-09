@@ -464,7 +464,7 @@ quake_MSG.ReadAngle = function() {
 var quake_CL = function() { };
 quake_CL.__name__ = true;
 quake_CL.StopPlayback = function() {
-	if(quake_CL.cls.demoplayback != true) return;
+	if(!quake_CL.cls.demoplayback) return;
 	quake_CL.cls.demoplayback = false;
 	quake_CL.cls.demofile = null;
 	quake_CL.cls.state = quake_CL.active.disconnected;
@@ -530,14 +530,14 @@ quake_CL.GetMessage = function() {
 };
 quake_CL.Stop_f = function() {
 	if(quake_Cmd.client) return;
-	if(quake_CL.cls.demorecording != true) {
+	if(!quake_CL.cls.demorecording) {
 		quake_Console.Print("Not recording a demo.\n");
 		return;
 	}
 	quake_NET.message.cursize = 0;
 	quake_MSG.WriteByte(quake_NET.message,2);
 	quake_CL.WriteDemoMessage();
-	if(quake_COM.WriteFile(quake_CL.cls.demoname,new Uint8Array(quake_CL.cls.demofile),quake_CL.cls.demoofs) != true) quake_Console.Print("ERROR: couldn't open.\n");
+	if(!quake_COM.WriteFile(quake_CL.cls.demoname,new Uint8Array(quake_CL.cls.demofile),quake_CL.cls.demoofs)) quake_Console.Print("ERROR: couldn't open.\n");
 	quake_CL.cls.demofile = null;
 	quake_CL.cls.demorecording = false;
 	quake_Console.Print("Completed demo\n");
@@ -797,7 +797,7 @@ quake_CL.Rcon_f = function() {
 	xhr.send();
 };
 quake_CL.ClearState = function() {
-	if(quake_SV.server.active != true) {
+	if(!quake_SV.server.active) {
 		quake_Console.DPrint("Clearing memory\n");
 		quake_Mod.ClearAll();
 		quake_CL.cls.signon = 0;
@@ -1092,7 +1092,7 @@ quake_CL.SendCmd = function() {
 		return;
 	}
 	if(quake_CL.cls.message.cursize == 0) return;
-	if(quake_NET.CanSendMessage(quake_CL.cls.netcon) != true) {
+	if(!quake_NET.CanSendMessage(quake_CL.cls.netcon)) {
 		quake_Console.DPrint("CL.SendCmd: can't send\n");
 		return;
 	}
@@ -2376,7 +2376,7 @@ quake_Console.DPrint = function(msg) {
 	if(quake_Host.developer.value != 0) quake_Console.Print(msg);
 };
 quake_Console.DrawInput = function() {
-	if(quake_Key.dest.value != quake_Key.dest.console && quake_Console.forcedup != true) return;
+	if(quake_Key.dest.value != quake_Key.dest.console && !quake_Console.forcedup) return;
 	var text = "]" + quake_Key.edit_line + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1));
 	var width = (quake_VID.width >> 3) - 2;
 	if(text.length >= width) text = text.substring(1 + text.length - width);
@@ -2821,7 +2821,7 @@ quake_ED.PrintEdicts = function() {
 	}
 };
 quake_ED.PrintEdict_f = function() {
-	if(quake_SV.server.active != true) return;
+	if(!quake_SV.server.active) return;
 	var i = quake_Q.atoi(quake_Cmd.argv[1]);
 	if(i >= 0 && i < quake_SV.server.num_edicts) quake_ED.Print(quake_SV.server.edicts[i]);
 };
@@ -3224,15 +3224,15 @@ quake_GL.CreateProgram = function(identifier,uniforms,attribs,textures) {
 	var vsh = quake_GL.gl.createShader(35633);
 	quake_GL.gl.shaderSource(vsh,shaderSrc.vert);
 	quake_GL.gl.compileShader(vsh);
-	if(quake_GL.gl.getShaderParameter(vsh,35713) != true) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
+	if(!quake_GL.gl.getShaderParameter(vsh,35713)) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
 	var fsh = quake_GL.gl.createShader(35632);
 	quake_GL.gl.shaderSource(fsh,shaderSrc.frag);
 	quake_GL.gl.compileShader(fsh);
-	if(quake_GL.gl.getShaderParameter(fsh,35713) != true) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
+	if(!quake_GL.gl.getShaderParameter(fsh,35713)) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
 	quake_GL.gl.attachShader(program.program,vsh);
 	quake_GL.gl.attachShader(program.program,fsh);
 	quake_GL.gl.linkProgram(program.program);
-	if(quake_GL.gl.getProgramParameter(program.program,35714) != true) quake_Sys.Error("Error linking program: " + quake_GL.gl.getProgramInfoLog(program.program));
+	if(!quake_GL.gl.getProgramParameter(program.program,35714)) quake_Sys.Error("Error linking program: " + quake_GL.gl.getProgramInfoLog(program.program));
 	quake_GL.gl.useProgram(program.program);
 	var _g = 0;
 	while(_g < uniforms.length) {
@@ -4771,12 +4771,12 @@ quake_Key.Event = function(key,down) {
 	quake_Key.down[key] = down;
 	if(key == 134) quake_Key.shift_down = down;
 	if(key == 27) {
-		if(down != true) return;
+		if(!down) return;
 		if(quake_Key.dest.value == quake_Key.dest.message) quake_Key.Message(key); else if(quake_Key.dest.value == quake_Key.dest.menu) quake_M.Keydown(key); else quake_M.ToggleMenu_f();
 		return;
 	}
 	var kb;
-	if(down != true) {
+	if(!down) {
 		kb = quake_Key.bindings[key];
 		if(kb != null) {
 			if(HxOverrides.cca(kb,0) == 43) quake_Cmd.text += "-" + kb.substring(1) + " " + key + "\n";
@@ -4793,7 +4793,7 @@ quake_Key.Event = function(key,down) {
 		quake_M.ToggleMenu_f();
 		return;
 	}
-	if(quake_Key.dest.value == quake_Key.dest.menu && (key == 27 || key >= 135 && key <= 146) || quake_Key.dest.value == quake_Key.dest.console && quake_Key.consolekeys[key] != true || quake_Key.dest.value == quake_Key.dest.game && (quake_Console.forcedup != true || quake_Key.consolekeys[key] != true)) {
+	if(quake_Key.dest.value == quake_Key.dest.menu && (key == 27 || key >= 135 && key <= 146) || quake_Key.dest.value == quake_Key.dest.console && !quake_Key.consolekeys[key] || quake_Key.dest.value == quake_Key.dest.game && (!quake_Console.forcedup || !quake_Key.consolekeys[key])) {
 		kb = quake_Key.bindings[key];
 		if(kb != null) {
 			if(HxOverrides.cca(kb,0) == 43) quake_Cmd.text += kb + " " + key + "\n"; else quake_Cmd.text += kb + "\n";
@@ -5783,7 +5783,7 @@ quake_Mod.FindName = function(name) {
 	return null;
 };
 quake_Mod.LoadModel = function(mod,crash) {
-	if(mod.needload != true) return mod;
+	if(!mod.needload) return mod;
 	var buf = quake_COM.LoadFile(mod.name);
 	if(buf == null) {
 		if(crash) quake_Sys.Error("Mod.LoadModel: " + mod.name + " not found");
@@ -7537,7 +7537,7 @@ quake_PR.ExecuteProgram = function(fnum) {
 			break;
 		case 30:
 			var ed1 = quake_PR.globals_int[st.a];
-			if(ed1 == 0 && quake_SV.server.loading != true) quake_PR.RunError("assignment to world entity");
+			if(ed1 == 0 && !quake_SV.server.loading) quake_PR.RunError("assignment to world entity");
 			quake_PR.globals_int[st.c] = ed1 * quake_PR.edict_size + 96 + (quake_PR.globals_int[st.b] << 2);
 			break;
 		case 24:case 28:case 27:case 26:case 29:
@@ -8295,7 +8295,7 @@ quake_S.StopAllSounds = function() {
 };
 quake_S.StaticSound = function(sfx,origin,vol,attenuation) {
 	if(quake_S.nosound.value != 0 || sfx == null) return;
-	if(quake_S.LoadSound(sfx) != true) return;
+	if(!quake_S.LoadSound(sfx)) return;
 	if(sfx.cache.loopstart == null) {
 		quake_Console.Print("Sound " + sfx.name + " not looped\n");
 		return;
@@ -8337,7 +8337,7 @@ quake_S.UpdateAmbientSounds = function() {
 			++_g;
 			ch.master_vol = 0.0;
 			if(ch.audio != null) {
-				if(ch.audio.paused != true) ch.audio.pause();
+				if(!ch.audio.paused) ch.audio.pause();
 			}
 		}
 		return;
@@ -8359,7 +8359,7 @@ quake_S.UpdateAmbientSounds = function() {
 			if(ch1.master_vol < vol) ch1.master_vol = vol;
 		}
 		if(ch1.master_vol == 0.0) {
-			if(ch1.audio.paused != true) ch1.audio.pause();
+			if(!ch1.audio.paused) ch1.audio.pause();
 			continue;
 		}
 		if(ch1.master_vol > 1.0) ch1.master_vol = 1.0;
@@ -8449,7 +8449,7 @@ quake_S.UpdateStaticSounds = function() {
 		var volume = (ch3.leftvol + ch3.rightvol) * 0.5;
 		if(volume > 1.0) volume = 1.0;
 		if(volume == 0.0) {
-			if(ch3.audio.paused != true) ch3.audio.pause();
+			if(!ch3.audio.paused) ch3.audio.pause();
 			continue;
 		}
 		ch3.audio.volume = volume * quake_S.volume.value;
@@ -8879,7 +8879,7 @@ quake_SCR.DrawTurtle = function() {
 	if(++quake_SCR.count >= 3) quake_Draw.Pic(quake_R.refdef.vrect.x,quake_R.refdef.vrect.y,quake_SCR.turtle);
 };
 quake_SCR.DrawNet = function() {
-	if(quake_Host.realtime - quake_CL.state.last_received_message >= 0.3 && quake_CL.cls.demoplayback != true) quake_Draw.Pic(quake_R.refdef.vrect.x,quake_R.refdef.vrect.y,quake_SCR.net);
+	if(quake_Host.realtime - quake_CL.state.last_received_message >= 0.3 && !quake_CL.cls.demoplayback) quake_Draw.Pic(quake_R.refdef.vrect.x,quake_R.refdef.vrect.y,quake_SCR.net);
 };
 quake_SCR.DrawPause = function() {
 	if(quake_SCR.showpause.value != 0 && quake_CL.state.paused) quake_Draw.Pic(quake_VID.width - quake_SCR.pause.width >> 1,quake_VID.height - 48 - quake_SCR.pause.height >> 1,quake_SCR.pause);
@@ -8956,7 +8956,7 @@ quake_SCR.UpdateScreen = function() {
 	quake_V.RenderView();
 	quake_GL.Set2D();
 	if(quake_R.dowarp) quake_R.WarpScreen();
-	if(quake_Console.forcedup != true) quake_R.PolyBlend();
+	if(!quake_Console.forcedup) quake_R.PolyBlend();
 	if(quake_CL.cls.state == quake_CL.active.connecting) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest.value == quake_Key.dest.game) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest.value == quake_Key.dest.game) {
 		quake_Sbar.FinaleOverlay();
 		quake_SCR.DrawCenterString();
@@ -10802,7 +10802,7 @@ var quake_SZ = function() { };
 quake_SZ.__name__ = true;
 quake_SZ.GetSpace = function(buf,length) {
 	if(buf.cursize + length > buf.data.byteLength) {
-		if(buf.allowoverflow != true) quake_Sys.Error("SZ.GetSpace: overflow without allowoverflow set");
+		if(!buf.allowoverflow) quake_Sys.Error("SZ.GetSpace: overflow without allowoverflow set");
 		if(length > buf.data.byteLength) quake_Sys.Error("SZ.GetSpace: " + length + " is > full buffer size");
 		buf.overflowed = true;
 		quake_Console.Print("SZ.GetSpace: overflow\n");
@@ -12487,7 +12487,7 @@ quake_R.MakeSky = function() {
 	quake_GL.gl.bufferData(34962,new Float32Array(vecs),35044);
 };
 quake_R.DrawSkyBox = function() {
-	if(quake_R.drawsky != true) return;
+	if(!quake_R.drawsky) return;
 	quake_GL.gl.colorMask(false,false,false,false);
 	var clmodel = quake_CL.state.worldmodel;
 	var program = quake_GL.UseProgram("skyChain");
@@ -13380,7 +13380,7 @@ quake_Sbar.DrawInventory = function() {
 					}
 				} else if(i1 == 3) {
 					if((quake_CL.state.items & quake_Def.it.grenade_launcher) != 0) {
-						if(grenadeflashing != true) quake_Sbar.DrawPic(96,-16,quake_Sbar.h_weapons[flashon][3]);
+						if(!grenadeflashing) quake_Sbar.DrawPic(96,-16,quake_Sbar.h_weapons[flashon][3]);
 					} else quake_Sbar.DrawPic(96,-16,quake_Sbar.h_weapons[flashon][4]);
 				} else quake_Sbar.DrawPic(176 + i1 * 24,-16,quake_Sbar.h_weapons[flashon][i1]);
 			}
@@ -13660,7 +13660,7 @@ quake_V.StopPitchDrift = function() {
 	quake_CL.state.pitchvel = 0.0;
 };
 quake_V.DriftPitch = function() {
-	if(quake_Host.noclip_anglehack || quake_CL.state.onground != true || quake_CL.cls.demoplayback) {
+	if(quake_Host.noclip_anglehack || !quake_CL.state.onground || quake_CL.cls.demoplayback) {
 		quake_CL.state.driftmove = 0.0;
 		quake_CL.state.pitchvel = 0.0;
 		return;
@@ -13890,7 +13890,7 @@ quake_V.RenderView = function() {
 		quake_Cvar.Set("scr_ofsy","0");
 		quake_Cvar.Set("scr_ofsz","0");
 	}
-	if(quake_CL.state.intermission != 0) quake_V.CalcIntermissionRefdef(); else if(quake_CL.state.paused != true) quake_V.CalcRefdef();
+	if(quake_CL.state.intermission != 0) quake_V.CalcIntermissionRefdef(); else if(!quake_CL.state.paused) quake_V.CalcRefdef();
 	quake_R.PushDlights();
 	quake_R.RenderView();
 };

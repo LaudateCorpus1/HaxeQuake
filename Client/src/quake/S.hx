@@ -257,9 +257,9 @@ class S {
 	}
 
 	static function StaticSound(sfx:Sfx, origin:Vec, vol:Float, attenuation:Float):Void {
-		if ((S.nosound.value != 0) || (sfx == null))
+		if (S.nosound.value != 0 || sfx == null)
 			return;
-		if (S.LoadSound(sfx) != true)
+		if (!S.LoadSound(sfx))
 			return;
 		if (sfx.cache.loopstart == null) {
 			Console.Print('Sound ' + sfx.name + ' not looped\n');
@@ -307,7 +307,7 @@ class S {
 			for (ch in S.ambient_channels) {
 				ch.master_vol = 0.0;
 				if (ch.audio != null) {
-					if (ch.audio.paused != true)
+					if (!ch.audio.paused)
 						ch.audio.pause();
 				}
 			}
@@ -334,7 +334,7 @@ class S {
 			}
 
 			if (ch.master_vol == 0.0) {
-				if (ch.audio.paused != true)
+				if (!ch.audio.paused)
 					ch.audio.pause();
 				continue;
 			}
@@ -414,7 +414,7 @@ class S {
 			if (volume > 1.0)
 				volume = 1.0;
 			if (volume == 0.0) {
-				if (ch.audio.paused != true)
+				if (!ch.audio.paused)
 					ch.audio.pause();
 				continue;
 			}

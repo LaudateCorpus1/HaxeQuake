@@ -151,7 +151,7 @@ class ED {
 	}
 
 	static function PrintEdict_f() {
-		if (SV.server.active != true)
+		if (!SV.server.active)
 			return;
 		var i = Q.atoi(Cmd.argv[1]);
 		if ((i >= 0) && (i < SV.server.num_edicts))

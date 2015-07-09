@@ -407,7 +407,7 @@ class Mod {
     static var loadmodel:MModel;
 
     static function LoadModel(mod:MModel, crash:Bool):MModel {
-        if (mod.needload != true)
+        if (!mod.needload)
             return mod;
         var buf = COM.LoadFile(mod.name);
         if (buf == null) {

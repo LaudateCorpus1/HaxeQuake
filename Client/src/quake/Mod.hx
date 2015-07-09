@@ -383,7 +383,7 @@ class Mod {
                 continue;
             if (mod.cmds != null)
                 gl.deleteBuffer(mod.cmds);
-            Mod.known[i].needload = true;
+            Mod.known[i] = new MModel(mod.name);
         }
     }
 

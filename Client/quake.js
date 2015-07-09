@@ -5760,7 +5760,7 @@ quake_Mod.ClearAll = function() {
 		var mod = quake_Mod.known[i];
 		if(mod.type != 0) continue;
 		if(mod.cmds != null) quake_GL.gl.deleteBuffer(mod.cmds);
-		quake_Mod.known[i].needload = true;
+		quake_Mod.known[i] = new quake_MModel(mod.name);
 	}
 };
 quake_Mod.FindName = function(name) {

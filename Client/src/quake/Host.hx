@@ -11,6 +11,7 @@ import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 import quake.Protocol.SVC;
 import quake.SV.MoveType;
+import quake.SV.EntFlag;
 using Tools;
 
 @:publicFields
@@ -437,8 +438,8 @@ class Host {
         }
         if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
-        SV.player.flags = SV.player.flags ^ SV.fl.godmode;
-        if ((SV.player.flags & SV.fl.godmode) == 0)
+        SV.player.flags = SV.player.flags ^ EntFlag.godmode;
+        if ((SV.player.flags & EntFlag.godmode) == 0)
             Host.ClientPrint('godmode OFF\n');
         else
             Host.ClientPrint('godmode ON\n');
@@ -451,8 +452,8 @@ class Host {
         }
         if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
-        SV.player.flags = SV.player.flags ^ SV.fl.notarget;
-        if ((SV.player.flags & SV.fl.notarget) == 0)
+        SV.player.flags = SV.player.flags ^ EntFlag.notarget;
+        if ((SV.player.flags & EntFlag.notarget) == 0)
             Host.ClientPrint('notarget OFF\n');
         else
             Host.ClientPrint('notarget ON\n');

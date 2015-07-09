@@ -10,6 +10,7 @@ import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 import quake.R.REntityState;
 import quake.SV.MoveType;
+import quake.SV.EntFlag;
 
 @:publicFields
 class Edict {
@@ -23,9 +24,9 @@ class Edict {
 	var baseline:REntityState;
 	var area:MLink;
 
-	var flags(get,set):Int;
-	inline function get_flags():Int return Std.int(v_float[EntVarOfs.flags]);
-	inline function set_flags(v:Int):Int return {v_float[EntVarOfs.flags] = v; v;}
+	var flags(get,set):EntFlag;
+	inline function get_flags():EntFlag return cast Std.int(v_float[EntVarOfs.flags]);
+	inline function set_flags(v:EntFlag):EntFlag return {v_float[EntVarOfs.flags] = v; v;}
 
 	var items(get,set):Int;
 	inline function get_items():Int return Std.int(v_float[EntVarOfs.items]);

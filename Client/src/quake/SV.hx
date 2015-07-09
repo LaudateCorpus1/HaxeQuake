@@ -68,6 +68,28 @@ private class ServerState {
     var bounce = 10;
 }
 
+@:enum abstract EntFlag(Int) to Int {
+    var fly = 1;
+    var swim = 2;
+    var conveyor = 4;
+    var client = 8;
+    var inwater = 16;
+    var monster = 32;
+    var godmode = 64;
+    var notarget = 128;
+    var item = 256;
+    var onground = 512;
+    var partialground = 1024;
+    var waterjump = 2048;
+    var jumpreleased = 4096;
+
+    @:op(a+b) static function _(a:EntFlag, b:EntFlag):EntFlag;
+    @:op(a|b) static function _(a:EntFlag, b:EntFlag):EntFlag;
+    @:op(a&b) static function _(a:EntFlag, b:EntFlag):EntFlag;
+    @:op(a^b) static function _(a:EntFlag, b:EntFlag):EntFlag;
+    @:op(~a) static function _(a:EntFlag):EntFlag;
+}
+
 
 @:publicFields
 class SV {
@@ -84,22 +106,6 @@ class SV {
         no: 0,
         yes: 1,
         aim: 2
-    }
-
-    static var fl = {
-        fly: 1,
-        swim: 2,
-        conveyor: 4,
-        client: 8,
-        inwater: 16,
-        monster: 32,
-        godmode: 64,
-        notarget: 128,
-        item: 256,
-        onground: 512,
-        partialground: 1024,
-        waterjump: 2048,
-        jumpreleased: 4096
     }
 
     // main
@@ -452,7 +458,7 @@ class SV {
         } else
             items = Std.int(ent.items) + ((Std.int(PR.globals_float[GlobalVarOfs.serverflags]) << 28) >>> 0);
 
-        if ((ent.flags & SV.fl.onground) != 0)
+        if ((ent.flags & EntFlag.onground) != 0)
             bits += SU.onground;
         if (ent.v_float[EntVarOfs.waterlevel] >= 2.0)
             bits += SU.inwater;
@@ -842,7 +848,7 @@ class SV {
         var neworg = [];
         var mins = ED.Vector(ent, EntVarOfs.mins), maxs = ED.Vector(ent, EntVarOfs.maxs);
         var trace;
-        if ((ent.flags & (SV.fl.swim + SV.fl.fly)) != 0) {
+        if ((ent.flags & (EntFlag.swim + EntFlag.fly)) != 0) {
             var enemy = ent.v_int[EntVarOfs.enemy];
             for (i in 0...2) {
                 neworg[0] = ent.v_float[EntVarOfs.origin] + move[0];
@@ -857,7 +863,7 @@ class SV {
                 }
                 trace = SV.Move(ED.Vector(ent, EntVarOfs.origin), mins, maxs, neworg, 0, ent);
                 if (trace.fraction == 1.0) {
-                    if (((ent.flags & SV.fl.swim) != 0) && (SV.PointContents(trace.endpos) == ModContents.empty))
+                    if (((ent.flags & EntFlag.swim) != 0) && (SV.PointContents(trace.endpos) == ModContents.empty))
                         return false;
                     ent.v_float[EntVarOfs.origin] = trace.endpos[0];
                     ent.v_float[EntVarOfs.origin1] = trace.endpos[1];
@@ -885,20 +891,20 @@ class SV {
                 return false;
         }
         if (trace.fraction == 1.0) {
-            if ((ent.flags & SV.fl.partialground) == 0)
+            if ((ent.flags & EntFlag.partialground) == 0)
                 return false;
             ent.v_float[EntVarOfs.origin] += move[0];
             ent.v_float[EntVarOfs.origin1] += move[1];
             if (relink)
                 SV.LinkEdict(ent, true);
-            ent.flags = ent.flags & (~SV.fl.onground >>> 0);
+            ent.flags = ent.flags & ~EntFlag.onground;
             return true;
         }
         ent.v_float[EntVarOfs.origin] = trace.endpos[0];
         ent.v_float[EntVarOfs.origin1] = trace.endpos[1];
         ent.v_float[EntVarOfs.origin2] = trace.endpos[2];
         if (!SV.CheckBottom(ent)) {
-            if ((ent.flags & SV.fl.partialground) != 0) {
+            if ((ent.flags & EntFlag.partialground) != 0) {
                 if (relink)
                     SV.LinkEdict(ent, true);
                 return true;
@@ -908,7 +914,7 @@ class SV {
             ent.v_float[EntVarOfs.origin2] = oldorg[2];
             return false;
         }
-        ent.flags = ent.flags & (~SV.fl.partialground >>> 0);
+        ent.flags = ent.flags & ~EntFlag.partialground;
         ent.v_int[EntVarOfs.groundentity] = trace.ent.num;
         if (relink)
             SV.LinkEdict(ent, true);
@@ -988,7 +994,7 @@ class SV {
             return;
         actor.v_float[EntVarOfs.ideal_yaw] = olddir;
         if (!SV.CheckBottom(actor))
-            actor.flags = actor.flags | SV.fl.partialground;
+            actor.flags = actor.flags | EntFlag.partialground;
     }
 
     static function CloseEnough(ent:Edict, goal:Edict, dist:Float):Bool {
@@ -1123,7 +1129,7 @@ class SV {
             if (trace.plane.normal[2] > 0.7) {
                 blocked |= 1;
                 if (trace.ent.v_float[EntVarOfs.solid] == SV.solid.bsp) {
-                    ent.flags = ent.flags | SV.fl.onground;
+                    ent.flags = ent.flags | EntFlag.onground;
                     ent.v_int[EntVarOfs.groundentity] = trace.ent.num;
                 }
             } else if (trace.plane.normal[2] == 0.0) {
@@ -1250,7 +1256,7 @@ class SV {
                 || (movetype == MoveType.none)
                 || (movetype == MoveType.noclip))
                 continue;
-            if (((check.flags & SV.fl.onground) == 0) ||
+            if (((check.flags & EntFlag.onground) == 0) ||
                 (check.v_int[EntVarOfs.groundentity] != pusher.num)) {
                 if ((check.v_float[EntVarOfs.absmin] >= maxs[0])
                     || (check.v_float[EntVarOfs.absmin1] >= maxs[1])
@@ -1263,7 +1269,7 @@ class SV {
                     continue;
             }
             if (movetype != MoveType.walk)
-                check.flags = check.flags & (~SV.fl.onground) >>> 0;
+                check.flags = check.flags & ~EntFlag.onground;
             var entorig = ED.Vector(check, EntVarOfs.origin);
             moved[moved.length] = [entorig[0], entorig[1], entorig[2], check];
             pusher.v_float[EntVarOfs.solid] = SV.solid.not;
@@ -1426,7 +1432,7 @@ class SV {
     }
 
     static function WalkMove(ent:Edict) {
-        var oldonground = ent.flags & SV.fl.onground;
+        var oldonground = ent.flags & EntFlag.onground;
         ent.flags = ent.flags ^ oldonground;
         var oldorg = ED.Vector(ent, EntVarOfs.origin);
         var oldvel = ED.Vector(ent, EntVarOfs.velocity);
@@ -1439,7 +1445,7 @@ class SV {
             return;
         if (SV.nostep.value != 0)
             return;
-        if ((SV.player.flags & SV.fl.waterjump) != 0)
+        if ((SV.player.flags & EntFlag.waterjump) != 0)
             return;
         var nosteporg = ED.Vector(ent, EntVarOfs.origin);
         var nostepvel = ED.Vector(ent, EntVarOfs.velocity);
@@ -1459,7 +1465,7 @@ class SV {
         var downtrace = SV.PushEntity(ent, [0.0, 0.0, oldvel[2] * Host.frametime - 18.0]);
         if (downtrace.plane.normal[2] > 0.7) {
             if (ent.v_float[EntVarOfs.solid] == SV.solid.bsp) {
-                ent.flags = ent.flags | SV.fl.onground;
+                ent.flags = ent.flags | EntFlag.onground;
                 ent.v_int[EntVarOfs.groundentity] = downtrace.ent.num;
             }
             return;
@@ -1484,7 +1490,7 @@ class SV {
             switch (movetype) {
                 case MoveType.none:
                 case MoveType.walk:
-                    if (!SV.CheckWater(ent) && (ent.flags & SV.fl.waterjump) == 0)
+                    if (!SV.CheckWater(ent) && (ent.flags & EntFlag.waterjump) == 0)
                         SV.AddGravity(ent);
                     SV.CheckStuck(ent);
                     SV.WalkMove(ent);
@@ -1539,7 +1545,7 @@ class SV {
     static function Physics_Toss(ent:Edict) {
         if (!SV.RunThink(ent))
             return;
-        if ((ent.flags & SV.fl.onground) != 0)
+        if ((ent.flags & EntFlag.onground) != 0)
             return;
         SV.CheckVelocity(ent);
         var movetype = ent.v_float[EntVarOfs.movetype];
@@ -1561,7 +1567,7 @@ class SV {
         ED.SetVector(ent, EntVarOfs.velocity, velocity);
         if (trace.plane.normal[2] > 0.7) {
             if ((ent.v_float[EntVarOfs.velocity2] < 60.0) || (movetype != MoveType.bounce)) {
-                ent.flags = ent.flags | SV.fl.onground;
+                ent.flags = ent.flags | EntFlag.onground;
                 ent.v_int[EntVarOfs.groundentity] = trace.ent.num;
                 ent.v_float[EntVarOfs.velocity] = ent.v_float[EntVarOfs.velocity1] = ent.v_float[EntVarOfs.velocity2] = 0.0;
                 ent.v_float[EntVarOfs.avelocity] = ent.v_float[EntVarOfs.avelocity1] = ent.v_float[EntVarOfs.avelocity2] = 0.0;
@@ -1571,13 +1577,13 @@ class SV {
     }
 
     static function Physics_Step(ent:Edict):Void {
-        if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
+        if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
             var hitsound = (ent.v_float[EntVarOfs.velocity2] < (SV.gravity.value * -0.1));
             SV.AddGravity(ent);
             SV.CheckVelocity(ent);
             SV.FlyMove(ent, Host.frametime);
             SV.LinkEdict(ent, true);
-            if (((ent.flags & SV.fl.onground) != 0) && (hitsound))
+            if (((ent.flags & EntFlag.onground) != 0) && (hitsound))
                 SV.StartSound(ent, 0, 'demon/dland2.wav', 255, 1.0);
         }
         SV.RunThink(ent);
@@ -1625,7 +1631,7 @@ class SV {
 
     static function SetIdealPitch() {
         var ent = SV.player;
-        if ((ent.flags & SV.fl.onground) == 0)
+        if ((ent.flags & EntFlag.onground) == 0)
             return;
         var angleval = ent.v_float[EntVarOfs.angles1] * (Math.PI / 180.0);
         var sinval = Math.sin(angleval);
@@ -1755,7 +1761,7 @@ class SV {
     static function WaterJump() {
         var ent = SV.player;
         if ((SV.server.time > ent.v_float[EntVarOfs.teleport_time]) || (ent.v_float[EntVarOfs.waterlevel] == 0.0)) {
-            ent.flags = ent.flags & (~SV.fl.waterjump >>> 0);
+            ent.flags = ent.flags & ~EntFlag.waterjump;
             ent.v_float[EntVarOfs.teleport_time] = 0.0;
         }
         ent.v_float[EntVarOfs.velocity] = ent.v_float[EntVarOfs.movedir];
@@ -1783,7 +1789,7 @@ class SV {
         }
         if (ent.v_float[EntVarOfs.movetype] == MoveType.noclip)
             ED.SetVector(ent, EntVarOfs.velocity, wishvel);
-        else if ((ent.flags & SV.fl.onground) != 0) {
+        else if ((ent.flags & EntFlag.onground) != 0) {
             SV.UserFriction();
             SV.Accelerate(wishvel, false);
         } else
@@ -1813,7 +1819,7 @@ class SV {
             ent.v_float[EntVarOfs.angles1] = ent.v_float[EntVarOfs.v_angle1] + ent.v_float[EntVarOfs.punchangle1];
         }
 
-        if ((ent.flags & SV.fl.waterjump) != 0)
+        if ((ent.flags & EntFlag.waterjump) != 0)
             SV.WaterJump();
         else if ((ent.v_float[EntVarOfs.waterlevel] >= 2.0) && (ent.v_float[EntVarOfs.movetype] != MoveType.noclip))
             SV.WaterMove();
@@ -2106,7 +2112,7 @@ class SV {
         ent.v_float[EntVarOfs.absmax1] = ent.v_float[EntVarOfs.origin1] + ent.v_float[EntVarOfs.maxs1] + 1.0;
         ent.v_float[EntVarOfs.absmax2] = ent.v_float[EntVarOfs.origin2] + ent.v_float[EntVarOfs.maxs2];
 
-        if ((ent.flags & SV.fl.item) != 0) {
+        if ((ent.flags & EntFlag.item) != 0) {
             ent.v_float[EntVarOfs.absmin] -= 14.0;
             ent.v_float[EntVarOfs.absmin1] -= 14.0;
             ent.v_float[EntVarOfs.absmax] += 14.0;
@@ -2319,7 +2325,7 @@ class SV {
                     continue;
             }
             var trace;
-            if ((touch.flags & SV.fl.monster) != 0)
+            if ((touch.flags & EntFlag.monster) != 0)
                 trace = SV.ClipMoveToEntity(touch, clip.start, clip.mins2, clip.maxs2, clip.end);
             else
                 trace = SV.ClipMoveToEntity(touch, clip.start, clip.mins, clip.maxs, clip.end);

@@ -4,6 +4,7 @@ import quake.ED.Edict;
 import quake.Protocol.SVC;
 import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
+import quake.SV.EntFlag;
 using Tools;
 
 
@@ -240,7 +241,7 @@ class PF {
                 i++;
                 continue;
             }
-            if ((ent.v_float[EntVarOfs.health] <= 0.0) || ((ent.flags & SV.fl.notarget) != 0)) {
+            if ((ent.v_float[EntVarOfs.health] <= 0.0) || ((ent.flags & EntFlag.notarget) != 0)) {
                 i++;
                 continue;
             }
@@ -372,7 +373,7 @@ class PF {
 
     static function MoveToGoal() {
         var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-        if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
+        if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
             PR.globals_float[1] = 0.0;
             return;
         }
@@ -435,7 +436,7 @@ class PF {
 
     static function walkmove() {
         var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-        if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
+        if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
             PR.globals_float[1] = 0.0;
             return;
         }
@@ -458,7 +459,7 @@ class PF {
         }
         ED.SetVector(ent, EntVarOfs.origin, trace.endpos);
         SV.LinkEdict(ent, false);
-        ent.flags = ent.flags | SV.fl.onground;
+        ent.flags = ent.flags | EntFlag.onground;
         ent.v_int[EntVarOfs.groundentity] = trace.ent.num;
         PR.globals_float[1] = 1.0;
     }

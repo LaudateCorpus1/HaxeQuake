@@ -328,7 +328,7 @@ static function Init() {
 	Key.Init();
 	Console.Init();
 	PR.Init();
-	(untyped Mod).Init();
+	Mod.Init();
 	NET.Init();
 	SV.Init();
 	Console.Print(Def.timedate);
@@ -1218,7 +1218,7 @@ static function Viewmodel_f() {
 	var ent = Host.FindViewthing();
 	if (ent == null)
 		return;
-	var m = (untyped Mod).ForName(Cmd.argv[1]);
+	var m = Mod.ForName(Cmd.argv[1], false);
 	if (m == null) {
 		Console.Print('Can\'t load ' + Cmd.argv[1] + '\n');
 		return;
@@ -1329,7 +1329,7 @@ static function InitCommands() {
 	Cmd.AddCommand('viewframe', Host.Viewframe_f);
 	Cmd.AddCommand('viewnext', Host.Viewnext_f);
 	Cmd.AddCommand('viewprev', Host.Viewprev_f);
-	Cmd.AddCommand('mcache', (untyped Mod).Print);
+	Cmd.AddCommand('mcache', Mod.Print);
 }
 
 }

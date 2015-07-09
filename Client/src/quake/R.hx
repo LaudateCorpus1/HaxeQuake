@@ -119,6 +119,8 @@ class R {
     static var oldviewleaf:MLeaf;
     static var viewleaf:MLeaf;
 
+    static var skytexturenum:Int;
+
     // efrag
 
     static function SplitEntityOnNode(node:MNode) {
@@ -229,7 +231,7 @@ class R {
                     var ent = CL.visedicts[j];
                     if (ent.model == null)
                         continue;
-                    if ((ent.model.type != (untyped Mod).type.brush) || (ent.model.submodel != true))
+                    if ((ent.model.type != brush) || (ent.model.submodel != true))
                         continue;
                     R.MarkLights(l, bit, CL.state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
                 }
@@ -685,7 +687,7 @@ class R {
     static function DrawEntitiesOnList() {
         if (R.drawentities.value == 0)
             return;
-        var vis = (R.novis.value != 0) ? (untyped Mod).novis : (untyped Mod).LeafPVS(R.viewleaf, CL.state.worldmodel);
+        var vis = (R.novis.value != 0) ? Mod.novis : Mod.LeafPVS(R.viewleaf, CL.state.worldmodel);
         for (i in 0...CL.state.num_statics) {
             R.currententity = CL.static_entities[i];
             if (R.currententity.model == null)
@@ -726,14 +728,14 @@ class R {
             R.currententity = CL.static_entities[i];
             if (R.currententity.model == null)
                 continue;
-            if (R.currententity.model.type == (untyped Mod).type.sprite)
+            if (R.currententity.model.type == sprite)
                 R.DrawSpriteModel(R.currententity);
         }
         for (i in 0...CL.numvisedicts) {
             R.currententity = CL.visedicts[i];
             if (R.currententity.model == null)
                 continue;
-            if (R.currententity.model.type == (untyped Mod).type.sprite)
+            if (R.currententity.model.type == sprite)
                 R.DrawSpriteModel(R.currententity);
         }
         gl.disable(RenderingContext.BLEND);
@@ -877,10 +879,10 @@ class R {
             Cvar.Set('r_fullbright', '0');
         R.AnimateLight();
         Vec.AngleVectors(R.refdef.viewangles, R.vpn, R.vright, R.vup);
-        R.viewleaf = (untyped Mod).PointInLeaf(R.refdef.vieworg, CL.state.worldmodel);
+        R.viewleaf = Mod.PointInLeaf(R.refdef.vieworg, CL.state.worldmodel);
         V.SetContentsColor(R.viewleaf.contents);
         V.CalcBlend();
-        R.dowarp = (R.waterwarp.value != 0) && (R.viewleaf.contents <= (untyped Mod).contents.water);
+        R.dowarp = (R.waterwarp.value != 0) && (R.viewleaf.contents <= ModContents.water);
 
         R.SetFrustum();
         R.SetupGL();
@@ -1870,7 +1872,7 @@ class R {
     }
 
     static function RecursiveWorldNode(node:MNode):Void {
-        if (node.contents == (untyped Mod).contents.solid)
+        if (node.contents == ModContents.solid)
             return;
         if (node.contents < 0) {
             if (node.markvisframe != R.visframecount)
@@ -1944,7 +1946,7 @@ class R {
             return;
         ++R.visframecount;
         R.oldviewleaf = R.viewleaf;
-        var vis = (R.novis.value != 0) ? (untyped Mod).novis : (untyped Mod).LeafPVS(R.viewleaf, CL.state.worldmodel);
+        var vis = (R.novis.value != 0) ? Mod.novis : Mod.LeafPVS(R.viewleaf, CL.state.worldmodel);
         for (i in 0...CL.state.worldmodel.leafs.length) {
             if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                 continue;
@@ -1962,18 +1964,18 @@ class R {
                 break;
             var p = [R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2]];
             var leaf;
-            if (R.viewleaf.contents <= (untyped Mod).contents.water) {
-                leaf = (untyped Mod).PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0], CL.state.worldmodel);
-                if (leaf.contents <= (untyped Mod).contents.water)
+            if (R.viewleaf.contents <= ModContents.water) {
+                leaf = Mod.PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0], CL.state.worldmodel);
+                if (leaf.contents <= ModContents.water)
                     break;
             } else {
-                leaf = (untyped Mod).PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0], CL.state.worldmodel);
-                if (leaf.contents > (untyped Mod).contents.water)
+                leaf = Mod.PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0], CL.state.worldmodel);
+                if (leaf.contents > ModContents.water)
                     break;
             }
             if (leaf == R.viewleaf)
                 break;
-            vis = (untyped Mod).LeafPVS(leaf, CL.state.worldmodel);
+            vis = Mod.LeafPVS(leaf, CL.state.worldmodel);
             for (i in 0...CL.state.worldmodel.leafs.length) {
                 if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                     continue;
@@ -2062,7 +2064,7 @@ class R {
 
         for (i in 1...CL.state.model_precache.length) {
             R.currentmodel = CL.state.model_precache[i];
-            if (R.currentmodel.type != (untyped Mod).type.brush)
+            if (R.currentmodel.type != brush)
                 continue;
             if (R.currentmodel.name.charCodeAt(0) != 42) {
                 for (j in 0...R.currentmodel.faces.length) {
@@ -2197,7 +2199,7 @@ class R {
         gl.depthFunc(RenderingContext.LESS);
     }
 
-    static function InitSky(src) {
+    static function InitSky(src:Uint8Array) {
         var trans = new ArrayBuffer(65536);
         var trans32 = new Uint32Array(trans);
 

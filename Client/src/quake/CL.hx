@@ -628,7 +628,7 @@ static var beams:Array<Beam>;
 static function ClearState() {
     if (SV.server.active != true) {
         Console.DPrint('Clearing memory\n');
-        (untyped Mod).ClearAll();
+        Mod.ClearAll();
         CL.cls.signon = 0;
     }
 
@@ -873,11 +873,11 @@ static function RelinkEntities() {
             }
         }
 
-        if ((ent.model.flags & (untyped Mod).flags.rotate) != 0)
+        if ((ent.model.flags & Mod.flags.rotate) != 0)
             ent.angles[1] = bobjrotate;
-        if ((ent.effects & (untyped Mod).effects.brightfield) != 0)
+        if ((ent.effects & Mod.effects.brightfield) != 0)
             R.EntityParticles(ent);
-        if ((ent.effects & (untyped Mod).effects.muzzleflash) != 0) {
+        if ((ent.effects & Mod.effects.muzzleflash) != 0) {
             dl = CL.AllocDlight(i);
             var fv = [];
             Vec.AngleVectors(ent.angles, fv);
@@ -890,36 +890,36 @@ static function RelinkEntities() {
             dl.minlight = 32.0;
             dl.die = CL.state.time + 0.1;
         }
-        if ((ent.effects & (untyped Mod).effects.brightlight) != 0) {
+        if ((ent.effects & Mod.effects.brightlight) != 0) {
             dl = CL.AllocDlight(i);
             dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
             dl.radius = 400.0 + Math.random() * 32.0;
             dl.die = CL.state.time + 0.001;
         }
-        if ((ent.effects & (untyped Mod).effects.dimlight) != 0) {
+        if ((ent.effects & Mod.effects.dimlight) != 0) {
             dl = CL.AllocDlight(i);
             dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
             dl.radius = 200.0 + Math.random() * 32.0;
             dl.die = CL.state.time + 0.001;
         }
-        if ((ent.model.flags & (untyped Mod).flags.gib) != 0)
+        if ((ent.model.flags & Mod.flags.gib) != 0)
             R.RocketTrail(oldorg, ent.origin, 2);
-        else if ((ent.model.flags & (untyped Mod).flags.zomgib) != 0)
+        else if ((ent.model.flags & Mod.flags.zomgib) != 0)
             R.RocketTrail(oldorg, ent.origin, 4);
-        else if ((ent.model.flags & (untyped Mod).flags.tracer) != 0)
+        else if ((ent.model.flags & Mod.flags.tracer) != 0)
             R.RocketTrail(oldorg, ent.origin, 3);
-        else if ((ent.model.flags & (untyped Mod).flags.tracer2) != 0)
+        else if ((ent.model.flags & Mod.flags.tracer2) != 0)
             R.RocketTrail(oldorg, ent.origin, 5);
-        else if ((ent.model.flags & (untyped Mod).flags.rocket) != 0) {
+        else if ((ent.model.flags & Mod.flags.rocket) != 0) {
             R.RocketTrail(oldorg, ent.origin, 0);
             dl = CL.AllocDlight(i);
             dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2]];
             dl.radius = 200.0;
             dl.die = CL.state.time + 0.01;
         }
-        else if ((ent.model.flags & (untyped Mod).flags.grenade) != 0)
+        else if ((ent.model.flags & Mod.flags.grenade) != 0)
             R.RocketTrail(oldorg, ent.origin, 1);
-        else if ((ent.model.flags & (untyped Mod).flags.tracer3) != 0)
+        else if ((ent.model.flags & Mod.flags.tracer3) != 0)
             R.RocketTrail(oldorg, ent.origin, 6);
 
         ent.forcelink = false;
@@ -1149,7 +1149,7 @@ static function ParseServerInfo() {
 
     CL.state.model_precache = [];
     for (i in 1...nummodels) {
-        CL.state.model_precache[i] = (untyped Mod).ForName(model_precache[i]);
+        CL.state.model_precache[i] = Mod.ForName(model_precache[i], false);
         if (CL.state.model_precache[i] == null) {
             Console.Print('Model ' + model_precache[i] + ' not found\n');
             return;
@@ -1535,16 +1535,16 @@ static function ParseTEnt() {
 
     switch (type) {
         case lightning1:
-            CL.ParseBeam((untyped Mod).ForName('progs/bolt.mdl', true));
+            CL.ParseBeam(Mod.ForName('progs/bolt.mdl', true));
             return;
         case lightning2:
-            CL.ParseBeam((untyped Mod).ForName('progs/bolt2.mdl', true));
+            CL.ParseBeam(Mod.ForName('progs/bolt2.mdl', true));
             return;
         case lightning3:
-            CL.ParseBeam((untyped Mod).ForName('progs/bolt3.mdl', true));
+            CL.ParseBeam(Mod.ForName('progs/bolt3.mdl', true));
             return;
         case beam:
-            CL.ParseBeam((untyped Mod).ForName('progs/beam.mdl', true));
+            CL.ParseBeam(Mod.ForName('progs/beam.mdl', true));
             return;
         default:
     }

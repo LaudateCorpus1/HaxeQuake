@@ -297,7 +297,7 @@ class SV {
         while (true) {
             if (node.contents < 0) {
                 if (node.contents != ModContents.solid) {
-                    var pvs = (untyped Mod).LeafPVS(node, SV.server.worldmodel);
+                    var pvs = Mod.LeafPVS(cast node, SV.server.worldmodel);
                     for (i in 0...SV.fatbytes)
                         SV.fatpvs[i] |= pvs[i];
                 }
@@ -600,7 +600,7 @@ class SV {
         }
 
         for (i in 1...SV.server.num_edicts)
-            SV.server.edicts[i].v_float[PR.entvars.effects] = Std.int(SV.server.edicts[i].v_float[PR.entvars.effects]) & (~(untyped Mod).effects.muzzleflash >>> 0);
+            SV.server.edicts[i].v_float[PR.entvars.effects] = Std.int(SV.server.edicts[i].v_float[PR.entvars.effects]) & (~Mod.effects.muzzleflash >>> 0);
     }
 
     static function ModelIndex(name:String):Int {
@@ -689,7 +689,7 @@ class SV {
         Cvar.SetValue('skill', Host.current_skill);
 
         Console.DPrint('Clearing memory\n');
-        (untyped Mod).ClearAll();
+        Mod.ClearAll();
 
         PR.LoadProgs();
 
@@ -725,7 +725,7 @@ class SV {
         SV.server.lastcheck = 0;
         SV.server.lastchecktime = 0.0;
         SV.server.modelname = 'maps/' + server + '.bsp';
-        SV.server.worldmodel = (untyped Mod).ForName(SV.server.modelname);
+        SV.server.worldmodel = Mod.ForName(SV.server.modelname, false);
         if (SV.server.worldmodel == null) {
             Console.Print('Couldn\'t spawn server ' + SV.server.modelname + '\n');
             SV.server.active = false;
@@ -741,7 +741,7 @@ class SV {
         SV.server.model_precache = ['', SV.server.modelname];
         for (i in 1...SV.server.worldmodel.submodels.length + 1) {
             SV.server.model_precache[i + 1] = '*' + i;
-            SV.server.models[i + 1] = (untyped Mod).ForName('*' + i);
+            SV.server.models[i + 1] = Mod.ForName('*' + i, false);
         }
 
         SV.server.lightstyles = [];
@@ -1988,7 +1988,7 @@ class SV {
         var model = SV.server.models[Std.int(ent.v_float[PR.entvars.modelindex])];
         if (model == null)
             Sys.Error('MOVETYPE_PUSH with a non bsp model');
-        if (model.type != (untyped Mod).type.brush)
+        if (model.type != brush)
             Sys.Error('MOVETYPE_PUSH with a non bsp model');
         var size = maxs[0] - mins[0];
         var hull;

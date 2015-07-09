@@ -244,7 +244,7 @@ class PF {
             }
             break;
         }
-        checkpvs = (untyped Mod).LeafPVS((untyped Mod).PointInLeaf([
+        checkpvs = Mod.LeafPVS(Mod.PointInLeaf([
                 ent.v_float[PR.entvars.origin] + ent.v_float[PR.entvars.view_ofs],
                 ent.v_float[PR.entvars.origin1] + ent.v_float[PR.entvars.view_ofs1],
                 ent.v_float[PR.entvars.origin2] + ent.v_float[PR.entvars.view_ofs2]
@@ -265,7 +265,7 @@ class PF {
             return;
         }
         var self = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
-        var l = (untyped Mod).PointInLeaf([
+        var l = Mod.PointInLeaf([
                 self.v_float[PR.entvars.origin] + self.v_float[PR.entvars.view_ofs],
                 self.v_float[PR.entvars.origin1] + self.v_float[PR.entvars.view_ofs1],
                 self.v_float[PR.entvars.origin2] + self.v_float[PR.entvars.view_ofs2]
@@ -412,7 +412,7 @@ class PF {
             i++;
         }
         SV.server.model_precache[i] = s;
-        SV.server.models[i] = (untyped Mod).ForName(s, true);
+        SV.server.models[i] = Mod.ForName(s, true);
     }
 
     static function coredump() {

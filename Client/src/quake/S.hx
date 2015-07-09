@@ -560,7 +560,7 @@ class S {
 		var out = new ArrayBuffer(sc.size);
 		view = new DataView(out);
 		view.setUint32(0, 0x46464952, true); // RIFF
-		view.setUint32(4, cast sc.size - 8, true);
+		view.setUint32(4, sc.size - 8, true);
 		view.setUint32(8, 0x45564157, true); // WAVE
 		view.setUint32(12, 0x20746d66, true); // fmt
 		view.setUint32(16, 16, true);

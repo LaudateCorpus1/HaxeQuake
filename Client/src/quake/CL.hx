@@ -252,7 +252,7 @@ class CL {
             return;
         }
         NET.message.cursize = 0;
-        MSG.WriteByte(NET.message, SVC.disconnect);
+        NET.message.WriteByte(SVC.disconnect);
         CL.WriteDemoMessage();
         if (!COM.WriteFile(CL.cls.demoname, new Uint8Array(CL.cls.demofile), CL.cls.demoofs))
             Console.Print('ERROR: couldn\'t open.\n');
@@ -526,14 +526,14 @@ class CL {
     static function SendMove() {
         var buf = CL.sendmovebuf;
         buf.cursize = 0;
-        MSG.WriteByte(buf, CLC.move);
-        MSG.WriteFloat(buf, CL.state.mtime[0]);
-        MSG.WriteAngle(buf, CL.state.viewangles[0]);
-        MSG.WriteAngle(buf, CL.state.viewangles[1]);
-        MSG.WriteAngle(buf, CL.state.viewangles[2]);
-        MSG.WriteShort(buf, Std.int(CL.state.cmd.forwardmove));
-        MSG.WriteShort(buf, Std.int(CL.state.cmd.sidemove));
-        MSG.WriteShort(buf, Std.int(CL.state.cmd.upmove));
+        buf.WriteByte(CLC.move);
+        buf.WriteFloat(CL.state.mtime[0]);
+        buf.WriteAngle(CL.state.viewangles[0]);
+        buf.WriteAngle(CL.state.viewangles[1]);
+        buf.WriteAngle(CL.state.viewangles[2]);
+        buf.WriteShort(Std.int(CL.state.cmd.forwardmove));
+        buf.WriteShort(Std.int(CL.state.cmd.sidemove));
+        buf.WriteShort(Std.int(CL.state.cmd.upmove));
         var bits = 0;
         if ((CL.kbuttons[CL.kbutton.attack].state & 3) != 0)
             bits += 1;
@@ -541,8 +541,8 @@ class CL {
         if ((CL.kbuttons[CL.kbutton.jump].state & 3) != 0)
             bits += 2;
         CL.kbuttons[CL.kbutton.jump].state &= 5;
-        MSG.WriteByte(buf, bits);
-        MSG.WriteByte(buf, CL.impulse);
+        buf.WriteByte(bits);
+        buf.WriteByte(CL.impulse);
         CL.impulse = 0;
         if (CL.cls.demoplayback)
             return;
@@ -659,7 +659,7 @@ class CL {
                 CL.Stop_f();
             Console.DPrint('Sending clc_disconnect\n');
             CL.cls.message.cursize = 0;
-            MSG.WriteByte(CL.cls.message, CLC.disconnect);
+            CL.cls.message.WriteByte(CLC.disconnect);
             NET.SendUnreliableMessage(CL.cls.netcon, CL.cls.message);
             CL.cls.message.cursize = 0;
             NET.Close(CL.cls.netcon);
@@ -696,19 +696,19 @@ class CL {
         Console.DPrint('CL.SignonReply: ' + CL.cls.signon + '\n');
         switch (CL.cls.signon) {
             case 1:
-                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
-                MSG.WriteString(CL.cls.message, 'prespawn');
+                CL.cls.message.WriteByte(CLC.stringcmd);
+                CL.cls.message.WriteString('prespawn');
             case 2:
-                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
-                MSG.WriteString(CL.cls.message, 'name "' + CL.name.string + '"\n');
-                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
+                CL.cls.message.WriteByte(CLC.stringcmd);
+                CL.cls.message.WriteString('name "' + CL.name.string + '"\n');
+                CL.cls.message.WriteByte(CLC.stringcmd);
                 var col = Std.int(CL.color.value);
-                MSG.WriteString(CL.cls.message, 'color ' + (col >> 4) + ' ' + (col & 15) + '\n');
-                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
-                MSG.WriteString(CL.cls.message, 'spawn ' + CL.cls.spawnparms);
+                CL.cls.message.WriteString('color ' + (col >> 4) + ' ' + (col & 15) + '\n');
+                CL.cls.message.WriteByte(CLC.stringcmd);
+                CL.cls.message.WriteString('spawn ' + CL.cls.spawnparms);
             case 3:
-                MSG.WriteByte(CL.cls.message, CLC.stringcmd);
-                MSG.WriteString(CL.cls.message, 'begin');
+                CL.cls.message.WriteByte(CLC.stringcmd);
+                CL.cls.message.WriteString('begin');
             case 4:
                 SCR.EndLoadingPlaque();
         }
@@ -1101,7 +1101,7 @@ class CL {
             return;
         CL.lastmsg = time;
         Console.Print('--> client to server keepalive\n');
-        MSG.WriteByte(CL.cls.message, CLC.nop);
+        CL.cls.message.WriteByte(CLC.nop);
         NET.SendMessage(CL.cls.netcon, CL.cls.message);
         CL.cls.message.cursize = 0;
     }

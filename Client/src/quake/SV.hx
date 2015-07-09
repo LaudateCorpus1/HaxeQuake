@@ -134,8 +134,8 @@ class SV {
         SV.nop = new MSG(4, 1);
         (new Uint8Array(SV.nop.data))[0] = SVC.nop;
         SV.reconnect = new MSG(128);
-        MSG.WriteByte(SV.reconnect, SVC.stufftext);
-        MSG.WriteString(SV.reconnect, 'reconnect\n');
+        SV.reconnect.WriteByte(SVC.stufftext);
+        SV.reconnect.WriteString('reconnect\n');
 
         SV.InitBoxHull();
     }
@@ -144,20 +144,20 @@ class SV {
         var datagram = SV.server.datagram;
         if (datagram.cursize >= 1009)
             return;
-        MSG.WriteByte(datagram, SVC.particle);
-        MSG.WriteCoord(datagram, org[0]);
-        MSG.WriteCoord(datagram, org[1]);
-        MSG.WriteCoord(datagram, org[2]);
+        datagram.WriteByte(SVC.particle);
+        datagram.WriteCoord(org[0]);
+        datagram.WriteCoord(org[1]);
+        datagram.WriteCoord(org[2]);
         for (i in 0...3) {
             var v = Std.int(dir[i] * 16.0);
             if (v > 127)
                 v = 127;
             else if (v < -128)
                 v = -128;
-            MSG.WriteChar(datagram, v);
+            datagram.WriteChar(v);
         }
-        MSG.WriteByte(datagram, count);
-        MSG.WriteByte(datagram, color);
+        datagram.WriteByte(count);
+        datagram.WriteByte(color);
     }
 
     static function StartSound(entity:Edict, channel:Int, sample:String, volume:Int, attenuation:Float):Void {
@@ -189,44 +189,44 @@ class SV {
         if (attenuation != 1.0)
             field_mask += 2;
 
-        MSG.WriteByte(datagram, SVC.sound);
-        MSG.WriteByte(datagram, field_mask);
+        datagram.WriteByte(SVC.sound);
+        datagram.WriteByte(field_mask);
         if ((field_mask & 1) != 0)
-            MSG.WriteByte(datagram, volume);
+            datagram.WriteByte(volume);
         if ((field_mask & 2) != 0)
-            MSG.WriteByte(datagram, Math.floor(attenuation * 64.0));
-        MSG.WriteShort(datagram, (entity.num << 3) + channel);
-        MSG.WriteByte(datagram, i);
-        MSG.WriteCoord(datagram, entity.v_float[PR.entvars.origin] + 0.5 *
+            datagram.WriteByte(Math.floor(attenuation * 64.0));
+        datagram.WriteShort((entity.num << 3) + channel);
+        datagram.WriteByte(i);
+        datagram.WriteCoord(entity.v_float[PR.entvars.origin] + 0.5 *
             (entity.v_float[PR.entvars.mins] + entity.v_float[PR.entvars.maxs]));
-        MSG.WriteCoord(datagram, entity.v_float[PR.entvars.origin1] + 0.5 *
+        datagram.WriteCoord(entity.v_float[PR.entvars.origin1] + 0.5 *
             (entity.v_float[PR.entvars.mins1] + entity.v_float[PR.entvars.maxs1]));
-        MSG.WriteCoord(datagram, entity.v_float[PR.entvars.origin2] + 0.5 *
+        datagram.WriteCoord(entity.v_float[PR.entvars.origin2] + 0.5 *
             (entity.v_float[PR.entvars.mins2] + entity.v_float[PR.entvars.maxs2]));
     }
 
-    static function SendServerinfo(client) {
+    static function SendServerinfo(client:HClient) {
         var message = client.message;
-        MSG.WriteByte(message, SVC.print);
-        MSG.WriteString(message, String.fromCharCode(2) + '\nVERSION 1.09 SERVER (' + PR.crc + ' CRC)');
-        MSG.WriteByte(message, SVC.serverinfo);
-        MSG.WriteLong(message, Protocol.version);
-        MSG.WriteByte(message, SV.svs.maxclients);
-        MSG.WriteByte(message, ((Host.coop.value == 0) && (Host.deathmatch.value != 0)) ? 1 : 0);
-        MSG.WriteString(message, PR.GetString(SV.server.edicts[0].v_int[PR.entvars.message]));
+        message.WriteByte(SVC.print);
+        message.WriteString(String.fromCharCode(2) + '\nVERSION 1.09 SERVER (' + PR.crc + ' CRC)');
+        message.WriteByte(SVC.serverinfo);
+        message.WriteLong(Protocol.version);
+        message.WriteByte(SV.svs.maxclients);
+        message.WriteByte(((Host.coop.value == 0) && (Host.deathmatch.value != 0)) ? 1 : 0);
+        message.WriteString(PR.GetString(SV.server.edicts[0].v_int[PR.entvars.message]));
         for (i in 1...SV.server.model_precache.length)
-            MSG.WriteString(message, SV.server.model_precache[i]);
-        MSG.WriteByte(message, 0);
+            message.WriteString(SV.server.model_precache[i]);
+        message.WriteByte(0);
         for (i in 1...SV.server.sound_precache.length)
-            MSG.WriteString(message, SV.server.sound_precache[i]);
-        MSG.WriteByte(message, 0);
-        MSG.WriteByte(message, SVC.cdtrack);
-        MSG.WriteByte(message, Std.int(SV.server.edicts[0].v_float[PR.entvars.sounds]));
-        MSG.WriteByte(message, Std.int(SV.server.edicts[0].v_float[PR.entvars.sounds]));
-        MSG.WriteByte(message, SVC.setview);
-        MSG.WriteShort(message, client.edict.num);
-        MSG.WriteByte(message, SVC.signonnum);
-        MSG.WriteByte(message, 1);
+            message.WriteString(SV.server.sound_precache[i]);
+        message.WriteByte(0);
+        message.WriteByte(SVC.cdtrack);
+        message.WriteByte(Std.int(SV.server.edicts[0].v_float[PR.entvars.sounds]));
+        message.WriteByte(Std.int(SV.server.edicts[0].v_float[PR.entvars.sounds]));
+        message.WriteByte(SVC.setview);
+        message.WriteShort(client.edict.num);
+        message.WriteByte(SVC.signonnum);
+        message.WriteByte(1);
         client.sendsignon = true;
         client.spawned = false;
     }
@@ -380,47 +380,47 @@ class SV {
             if (bits >= 256)
                 bits += U.morebits;
 
-            MSG.WriteByte(msg, bits + U.signal);
+            msg.WriteByte(bits + U.signal);
             if ((bits & U.morebits) != 0)
-                MSG.WriteByte(msg, bits >> 8);
+                msg.WriteByte(bits >> 8);
             if ((bits & U.longentity) != 0)
-                MSG.WriteShort(msg, e);
+                msg.WriteShort(e);
             else
-                MSG.WriteByte(msg, e);
+                msg.WriteByte(e);
             if ((bits & U.model) != 0)
-                MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.modelindex]));
+                msg.WriteByte(Std.int(ent.v_float[PR.entvars.modelindex]));
             if ((bits & U.frame) != 0)
-                MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.frame]));
+                msg.WriteByte(Std.int(ent.v_float[PR.entvars.frame]));
             if ((bits & U.colormap) != 0)
-                MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.colormap]));
+                msg.WriteByte(Std.int(ent.v_float[PR.entvars.colormap]));
             if ((bits & U.skin) != 0)
-                MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.skin]));
+                msg.WriteByte(Std.int(ent.v_float[PR.entvars.skin]));
             if ((bits & U.effects) != 0)
-                MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.effects]));
+                msg.WriteByte(Std.int(ent.v_float[PR.entvars.effects]));
             if ((bits & U.origin1) != 0)
-                MSG.WriteCoord(msg, Std.int(ent.v_float[PR.entvars.origin]));
+                msg.WriteCoord(Std.int(ent.v_float[PR.entvars.origin]));
             if ((bits & U.angle1) != 0)
-                MSG.WriteAngle(msg, Std.int(ent.v_float[PR.entvars.angles]));
+                msg.WriteAngle(Std.int(ent.v_float[PR.entvars.angles]));
             if ((bits & U.origin2) != 0)
-                MSG.WriteCoord(msg, Std.int(ent.v_float[PR.entvars.origin1]));
+                msg.WriteCoord(Std.int(ent.v_float[PR.entvars.origin1]));
             if ((bits & U.angle2) != 0)
-                MSG.WriteAngle(msg, Std.int(ent.v_float[PR.entvars.angles1]));
+                msg.WriteAngle(Std.int(ent.v_float[PR.entvars.angles1]));
             if ((bits & U.origin3) != 0)
-                MSG.WriteCoord(msg, Std.int(ent.v_float[PR.entvars.origin2]));
+                msg.WriteCoord(Std.int(ent.v_float[PR.entvars.origin2]));
             if ((bits & U.angle3) != 0)
-                MSG.WriteAngle(msg, Std.int(ent.v_float[PR.entvars.angles2]));
+                msg.WriteAngle(Std.int(ent.v_float[PR.entvars.angles2]));
         }
     }
 
     static function WriteClientdataToMessage(ent:Edict, msg:MSG):Void {
         if ((ent.v_float[PR.entvars.dmg_take] != 0.0) || (ent.v_float[PR.entvars.dmg_save] != 0.0)) {
             var other = SV.server.edicts[ent.v_int[PR.entvars.dmg_inflictor]];
-            MSG.WriteByte(msg, SVC.damage);
-            MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.dmg_save]));
-            MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.dmg_take]));
-            MSG.WriteCoord(msg, other.v_float[PR.entvars.origin] + 0.5 * (other.v_float[PR.entvars.mins] + other.v_float[PR.entvars.maxs]));
-            MSG.WriteCoord(msg, other.v_float[PR.entvars.origin1] + 0.5 * (other.v_float[PR.entvars.mins1] + other.v_float[PR.entvars.maxs1]));
-            MSG.WriteCoord(msg, other.v_float[PR.entvars.origin2] + 0.5 * (other.v_float[PR.entvars.mins2] + other.v_float[PR.entvars.maxs2]));
+            msg.WriteByte(SVC.damage);
+            msg.WriteByte(Std.int(ent.v_float[PR.entvars.dmg_save]));
+            msg.WriteByte(Std.int(ent.v_float[PR.entvars.dmg_take]));
+            msg.WriteCoord(other.v_float[PR.entvars.origin] + 0.5 * (other.v_float[PR.entvars.mins] + other.v_float[PR.entvars.maxs]));
+            msg.WriteCoord(other.v_float[PR.entvars.origin1] + 0.5 * (other.v_float[PR.entvars.mins1] + other.v_float[PR.entvars.maxs1]));
+            msg.WriteCoord(other.v_float[PR.entvars.origin2] + 0.5 * (other.v_float[PR.entvars.mins2] + other.v_float[PR.entvars.maxs2]));
             ent.v_float[PR.entvars.dmg_take] = 0.0;
             ent.v_float[PR.entvars.dmg_save] = 0.0;
         }
@@ -428,10 +428,10 @@ class SV {
         SV.SetIdealPitch();
 
         if (ent.v_float[PR.entvars.fixangle] != 0.0) {
-            MSG.WriteByte(msg, SVC.setangle);
-            MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles]);
-            MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles1]);
-            MSG.WriteAngle(msg, ent.v_float[PR.entvars.angles2]);
+            msg.WriteByte(SVC.setangle);
+            msg.WriteAngle(ent.v_float[PR.entvars.angles]);
+            msg.WriteAngle(ent.v_float[PR.entvars.angles1]);
+            msg.WriteAngle(ent.v_float[PR.entvars.angles2]);
             ent.v_float[PR.entvars.fixangle] = 0.0;
         };
 
@@ -473,45 +473,45 @@ class SV {
         if (ent.v_float[PR.entvars.armorvalue] != 0.0)
             bits += SU.armor;
 
-        MSG.WriteByte(msg, SVC.clientdata);
-        MSG.WriteShort(msg, bits);
+        msg.WriteByte(SVC.clientdata);
+        msg.WriteShort(bits);
         if ((bits & SU.viewheight) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.view_ofs2]));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.view_ofs2]));
         if ((bits & SU.idealpitch) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.idealpitch]));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.idealpitch]));
 
         if ((bits & SU.punch1) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.punchangle]));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.punchangle]));
         if ((bits & SU.velocity1) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.velocity] * 0.0625));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.velocity] * 0.0625));
         if ((bits & SU.punch2) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.punchangle1]));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.punchangle1]));
         if ((bits & SU.velocity2) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.velocity1] * 0.0625));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.velocity1] * 0.0625));
         if ((bits & SU.punch3) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.punchangle2]));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.punchangle2]));
         if ((bits & SU.velocity3) != 0)
-            MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.velocity2] * 0.0625));
+            msg.WriteChar(Std.int(ent.v_float[PR.entvars.velocity2] * 0.0625));
 
-        MSG.WriteLong(msg, items);
+        msg.WriteLong(items);
         if ((bits & SU.weaponframe) != 0)
-            MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.weaponframe]));
+            msg.WriteByte(Std.int(ent.v_float[PR.entvars.weaponframe]));
         if ((bits & SU.armor) != 0)
-            MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.armorvalue]));
-        MSG.WriteByte(msg, SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.weaponmodel])));
-        MSG.WriteShort(msg, Std.int(ent.v_float[PR.entvars.health]));
-        MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.currentammo]));
-        MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.ammo_shells]));
-        MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.ammo_nails]));
-        MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.ammo_rockets]));
-        MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.ammo_cells]));
+            msg.WriteByte(Std.int(ent.v_float[PR.entvars.armorvalue]));
+        msg.WriteByte(SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.weaponmodel])));
+        msg.WriteShort(Std.int(ent.v_float[PR.entvars.health]));
+        msg.WriteByte(Std.int(ent.v_float[PR.entvars.currentammo]));
+        msg.WriteByte(Std.int(ent.v_float[PR.entvars.ammo_shells]));
+        msg.WriteByte(Std.int(ent.v_float[PR.entvars.ammo_nails]));
+        msg.WriteByte(Std.int(ent.v_float[PR.entvars.ammo_rockets]));
+        msg.WriteByte(Std.int(ent.v_float[PR.entvars.ammo_cells]));
         if (COM.standard_quake)
-            MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.weapon]));
+            msg.WriteByte(Std.int(ent.v_float[PR.entvars.weapon]));
         else {
             var weapon = Std.int(ent.v_float[PR.entvars.weapon]);
             for (i in 0...32) {
                 if ((weapon & (1 << i)) != 0) {
-                    MSG.WriteByte(msg, i);
+                    msg.WriteByte(i);
                     break;
                 }
             }
@@ -523,8 +523,8 @@ class SV {
         var client = Host.client;
         var msg = SV.clientdatagram;
         msg.cursize = 0;
-        MSG.WriteByte(msg, SVC.time);
-        MSG.WriteFloat(msg, SV.server.time);
+        msg.WriteByte(SVC.time);
+        msg.WriteFloat(SV.server.time);
         SV.WriteClientdataToMessage(client.edict, msg);
         SV.WriteEntitiesToClient(client.edict, msg);
         if ((msg.cursize + SV.server.datagram.cursize) < msg.data.byteLength)
@@ -548,9 +548,9 @@ class SV {
                 var client = SV.svs.clients[j];
                 if (!client.active)
                     continue;
-                MSG.WriteByte(client.message, SVC.updatefrags);
-                MSG.WriteByte(client.message, i);
-                MSG.WriteShort(client.message, frags);
+                client.message.WriteByte(SVC.updatefrags);
+                client.message.WriteByte(i);
+                client.message.WriteShort(frags);
             }
             Host.client.old_frags = frags;
         }
@@ -638,18 +638,18 @@ class SV {
                 baseline.colormap = 0;
                 baseline.modelindex = SV.ModelIndex(PR.GetString(svent.v_int[PR.entvars.model]));
             }
-            MSG.WriteByte(signon, SVC.spawnbaseline);
-            MSG.WriteShort(signon, i);
-            MSG.WriteByte(signon, baseline.modelindex);
-            MSG.WriteByte(signon, baseline.frame);
-            MSG.WriteByte(signon, baseline.colormap);
-            MSG.WriteByte(signon, baseline.skin);
-            MSG.WriteCoord(signon, baseline.origin[0]);
-            MSG.WriteAngle(signon, baseline.angles[0]);
-            MSG.WriteCoord(signon, baseline.origin[1]);
-            MSG.WriteAngle(signon, baseline.angles[1]);
-            MSG.WriteCoord(signon, baseline.origin[2]);
-            MSG.WriteAngle(signon, baseline.angles[2]);
+            signon.WriteByte(SVC.spawnbaseline);
+            signon.WriteShort(i);
+            signon.WriteByte(baseline.modelindex);
+            signon.WriteByte(baseline.frame);
+            signon.WriteByte(baseline.colormap);
+            signon.WriteByte(baseline.skin);
+            signon.WriteCoord(baseline.origin[0]);
+            signon.WriteAngle(baseline.angles[0]);
+            signon.WriteCoord(baseline.origin[1]);
+            signon.WriteAngle(baseline.angles[1]);
+            signon.WriteCoord(baseline.origin[2]);
+            signon.WriteAngle(baseline.angles[2]);
         }
     }
 

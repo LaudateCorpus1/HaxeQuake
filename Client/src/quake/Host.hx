@@ -115,8 +115,8 @@ class Host {
     }
 
     static function ClientPrint(string:String):Void {
-        MSG.WriteByte(Host.client.message, SVC.print);
-        MSG.WriteString(Host.client.message, string);
+        Host.client.message.WriteByte(SVC.print);
+        Host.client.message.WriteString(string);
     }
 
     static function BroadcastPrint(string:String):Void {
@@ -124,8 +124,8 @@ class Host {
             var client = SV.svs.clients[i];
             if ((!client.active) || (!client.spawned))
                 continue;
-            MSG.WriteByte(client.message, SVC.print);
-            MSG.WriteString(client.message, string);
+            client.message.WriteByte(SVC.print);
+            client.message.WriteString(string);
         }
     }
 
@@ -133,7 +133,7 @@ class Host {
         var client = Host.client;
         if (!crash) {
             if (NET.CanSendMessage(client.netconnection)) {
-                MSG.WriteByte(client.message, SVC.disconnect);
+                client.message.WriteByte(SVC.disconnect);
                 NET.SendMessage(client.netconnection, client.message);
             }
             if ((client.edict != null) && (client.spawned)) {
@@ -155,15 +155,15 @@ class Host {
             var client = SV.svs.clients[i];
             if (!client.active)
                 continue;
-            MSG.WriteByte(client.message, SVC.updatename);
-            MSG.WriteByte(client.message, num);
-            MSG.WriteByte(client.message, 0);
-            MSG.WriteByte(client.message, SVC.updatefrags);
-            MSG.WriteByte(client.message, num);
-            MSG.WriteShort(client.message, 0);
-            MSG.WriteByte(client.message, SVC.updatecolors);
-            MSG.WriteByte(client.message, num);
-            MSG.WriteByte(client.message, 0);
+            client.message.WriteByte(SVC.updatename);
+            client.message.WriteByte(num);
+            client.message.WriteByte(0);
+            client.message.WriteByte(SVC.updatefrags);
+            client.message.WriteByte(num);
+            client.message.WriteShort(0);
+            client.message.WriteByte(SVC.updatecolors);
+            client.message.WriteByte(num);
+            client.message.WriteByte(0);
         }
     }
 
@@ -790,9 +790,9 @@ class Host {
             Console.Print(name + ' renamed to ' + newName + '\n');
         SV.SetClientName(Host.client, newName);
         var msg = SV.server.reliable_datagram;
-        MSG.WriteByte(msg, SVC.updatename);
-        MSG.WriteByte(msg, Host.client.num);
-        MSG.WriteString(msg, newName);
+        msg.WriteByte(SVC.updatename);
+        msg.WriteByte(Host.client.num);
+        msg.WriteString(newName);
     }
 
     static function Version_f() {
@@ -892,9 +892,9 @@ class Host {
         Host.client.colors = playercolor;
         Host.client.edict.v_float[PR.entvars.team] = bottom + 1;
         var msg = SV.server.reliable_datagram;
-        MSG.WriteByte(msg, SVC.updatecolors);
-        MSG.WriteByte(msg, Host.client.num);
-        MSG.WriteByte(msg, playercolor);
+        msg.WriteByte(SVC.updatecolors);
+        msg.WriteByte(Host.client.num);
+        msg.WriteByte(playercolor);
     }
 
     static function Kill_f() {
@@ -922,8 +922,8 @@ class Host {
         }
         SV.server.paused = !SV.server.paused;
         Host.BroadcastPrint(SV.GetClientName(Host.client) + (SV.server.paused ? ' paused the game\n' : ' unpaused the game\n'));
-        MSG.WriteByte(SV.server.reliable_datagram, SVC.setpause);
-        MSG.WriteByte(SV.server.reliable_datagram, SV.server.paused ? 1 : 0);
+        SV.server.reliable_datagram.WriteByte(SVC.setpause);
+        SV.server.reliable_datagram.WriteByte(SV.server.paused ? 1 : 0);
     }
 
     static function PreSpawn_f() {
@@ -937,8 +937,8 @@ class Host {
             return;
         }
         SZ.Write(client.message, new Uint8Array(SV.server.signon.data), SV.server.signon.cursize);
-        MSG.WriteByte(client.message, SVC.signonnum);
-        MSG.WriteByte(client.message, 2);
+        client.message.WriteByte(SVC.signonnum);
+        client.message.WriteByte(2);
         client.sendsignon = true;
     }
 
@@ -974,44 +974,44 @@ class Host {
 
         var message = client.message;
         message.cursize = 0;
-        MSG.WriteByte(message, SVC.time);
-        MSG.WriteFloat(message, SV.server.time);
+        message.WriteByte(SVC.time);
+        message.WriteFloat(SV.server.time);
         for (i in 0...SV.svs.maxclients) {
             client = SV.svs.clients[i];
-            MSG.WriteByte(message, SVC.updatename);
-            MSG.WriteByte(message, i);
-            MSG.WriteString(message, SV.GetClientName(client));
-            MSG.WriteByte(message, SVC.updatefrags);
-            MSG.WriteByte(message, i);
-            MSG.WriteShort(message, client.old_frags);
-            MSG.WriteByte(message, SVC.updatecolors);
-            MSG.WriteByte(message, i);
-            MSG.WriteByte(message, client.colors);
+            message.WriteByte(SVC.updatename);
+            message.WriteByte(i);
+            message.WriteString(SV.GetClientName(client));
+            message.WriteByte(SVC.updatefrags);
+            message.WriteByte(i);
+            message.WriteShort(client.old_frags);
+            message.WriteByte(SVC.updatecolors);
+            message.WriteByte(i);
+            message.WriteByte(client.colors);
         }
         for (i in 0...64) {
-            MSG.WriteByte(message, SVC.lightstyle);
-            MSG.WriteByte(message, i);
-            MSG.WriteString(message, SV.server.lightstyles[i]);
+            message.WriteByte(SVC.lightstyle);
+            message.WriteByte(i);
+            message.WriteString(SV.server.lightstyles[i]);
         }
-        MSG.WriteByte(message, SVC.updatestat);
-        MSG.WriteByte(message, Def.stat.totalsecrets);
-        MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.total_secrets]));
-        MSG.WriteByte(message, SVC.updatestat);
-        MSG.WriteByte(message, Def.stat.totalmonsters);
-        MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.total_monsters]));
-        MSG.WriteByte(message, SVC.updatestat);
-        MSG.WriteByte(message, Def.stat.secrets);
-        MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.found_secrets]));
-        MSG.WriteByte(message, SVC.updatestat);
-        MSG.WriteByte(message, Def.stat.monsters);
-        MSG.WriteLong(message, Std.int(PR.globals_float[PR.globalvars.killed_monsters]));
-        MSG.WriteByte(message, SVC.setangle);
-        MSG.WriteAngle(message, ent.v_float[PR.entvars.angles]);
-        MSG.WriteAngle(message, ent.v_float[PR.entvars.angles1]);
-        MSG.WriteAngle(message, 0.0);
+        message.WriteByte(SVC.updatestat);
+        message.WriteByte(Def.stat.totalsecrets);
+        message.WriteLong(Std.int(PR.globals_float[PR.globalvars.total_secrets]));
+        message.WriteByte(SVC.updatestat);
+        message.WriteByte(Def.stat.totalmonsters);
+        message.WriteLong(Std.int(PR.globals_float[PR.globalvars.total_monsters]));
+        message.WriteByte(SVC.updatestat);
+        message.WriteByte(Def.stat.secrets);
+        message.WriteLong(Std.int(PR.globals_float[PR.globalvars.found_secrets]));
+        message.WriteByte(SVC.updatestat);
+        message.WriteByte(Def.stat.monsters);
+        message.WriteLong(Std.int(PR.globals_float[PR.globalvars.killed_monsters]));
+        message.WriteByte(SVC.setangle);
+        message.WriteAngle(ent.v_float[PR.entvars.angles]);
+        message.WriteAngle(ent.v_float[PR.entvars.angles1]);
+        message.WriteAngle(0.0);
         SV.WriteClientdataToMessage(ent, message);
-        MSG.WriteByte(message, SVC.signonnum);
-        MSG.WriteByte(message, 3);
+        message.WriteByte(SVC.signonnum);
+        message.WriteByte(3);
         Host.client.sendsignon = true;
     }
 

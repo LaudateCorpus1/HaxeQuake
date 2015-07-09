@@ -370,31 +370,6 @@ var quake_MSG = function(capacity,size) {
 	this.cursize = size;
 };
 quake_MSG.__name__ = true;
-quake_MSG.WriteChar = function(sb,c) {
-	new DataView(sb.data).setInt8(quake_SZ.GetSpace(sb,1),c);
-};
-quake_MSG.WriteByte = function(sb,c) {
-	new DataView(sb.data).setUint8(quake_SZ.GetSpace(sb,1),c);
-};
-quake_MSG.WriteShort = function(sb,c) {
-	new DataView(sb.data).setInt16(quake_SZ.GetSpace(sb,2),c,true);
-};
-quake_MSG.WriteLong = function(sb,c) {
-	new DataView(sb.data).setInt32(quake_SZ.GetSpace(sb,4),c,true);
-};
-quake_MSG.WriteFloat = function(sb,f) {
-	new DataView(sb.data).setFloat32(quake_SZ.GetSpace(sb,4),f,true);
-};
-quake_MSG.WriteString = function(sb,s) {
-	if(s != null) quake_SZ.Write(sb,new Uint8Array(quake_Q.strmem(s)),s.length);
-	quake_MSG.WriteChar(sb,0);
-};
-quake_MSG.WriteCoord = function(sb,f) {
-	quake_MSG.WriteShort(sb,f * 8 | 0);
-};
-quake_MSG.WriteAngle = function(sb,f) {
-	quake_MSG.WriteByte(sb,(f * 256 / 360 | 0) & 255);
-};
 quake_MSG.BeginReading = function() {
 	quake_MSG.readcount = 0;
 	quake_MSG.badread = false;
@@ -460,6 +435,33 @@ quake_MSG.ReadCoord = function() {
 };
 quake_MSG.ReadAngle = function() {
 	return quake_MSG.ReadChar() * 1.40625;
+};
+quake_MSG.prototype = {
+	WriteChar: function(c) {
+		new DataView(this.data).setInt8(quake_SZ.GetSpace(this,1),c);
+	}
+	,WriteByte: function(c) {
+		new DataView(this.data).setUint8(quake_SZ.GetSpace(this,1),c);
+	}
+	,WriteShort: function(c) {
+		new DataView(this.data).setInt16(quake_SZ.GetSpace(this,2),c,true);
+	}
+	,WriteLong: function(c) {
+		new DataView(this.data).setInt32(quake_SZ.GetSpace(this,4),c,true);
+	}
+	,WriteFloat: function(f) {
+		new DataView(this.data).setFloat32(quake_SZ.GetSpace(this,4),f,true);
+	}
+	,WriteString: function(s) {
+		if(s != null) quake_SZ.Write(this,new Uint8Array(quake_Q.strmem(s)),s.length);
+		this.WriteChar(0);
+	}
+	,WriteCoord: function(f) {
+		this.WriteShort(f * 8 | 0);
+	}
+	,WriteAngle: function(f) {
+		this.WriteByte((f * 256 / 360 | 0) & 255);
+	}
 };
 var quake_CL = function() { };
 quake_CL.__name__ = true;
@@ -535,7 +537,7 @@ quake_CL.Stop_f = function() {
 		return;
 	}
 	quake_NET.message.cursize = 0;
-	quake_MSG.WriteByte(quake_NET.message,2);
+	quake_NET.message.WriteByte(2);
 	quake_CL.WriteDemoMessage();
 	if(!quake_COM.WriteFile(quake_CL.cls.demoname,new Uint8Array(quake_CL.cls.demofile),quake_CL.cls.demoofs)) quake_Console.Print("ERROR: couldn't open.\n");
 	quake_CL.cls.demofile = null;
@@ -712,21 +714,21 @@ quake_CL.BaseMove = function() {
 quake_CL.SendMove = function() {
 	var buf = quake_CL.sendmovebuf;
 	buf.cursize = 0;
-	quake_MSG.WriteByte(buf,3);
-	quake_MSG.WriteFloat(buf,quake_CL.state.mtime[0]);
-	quake_MSG.WriteAngle(buf,quake_CL.state.viewangles[0]);
-	quake_MSG.WriteAngle(buf,quake_CL.state.viewangles[1]);
-	quake_MSG.WriteAngle(buf,quake_CL.state.viewangles[2]);
-	quake_MSG.WriteShort(buf,quake_CL.state.cmd.forwardmove | 0);
-	quake_MSG.WriteShort(buf,quake_CL.state.cmd.sidemove | 0);
-	quake_MSG.WriteShort(buf,quake_CL.state.cmd.upmove | 0);
+	buf.WriteByte(3);
+	buf.WriteFloat(quake_CL.state.mtime[0]);
+	buf.WriteAngle(quake_CL.state.viewangles[0]);
+	buf.WriteAngle(quake_CL.state.viewangles[1]);
+	buf.WriteAngle(quake_CL.state.viewangles[2]);
+	buf.WriteShort(quake_CL.state.cmd.forwardmove | 0);
+	buf.WriteShort(quake_CL.state.cmd.sidemove | 0);
+	buf.WriteShort(quake_CL.state.cmd.upmove | 0);
 	var bits = 0;
 	if((quake_CL.kbuttons[quake_CL.kbutton.attack].state & 3) != 0) bits += 1;
 	quake_CL.kbuttons[quake_CL.kbutton.attack].state &= 5;
 	if((quake_CL.kbuttons[quake_CL.kbutton.jump].state & 3) != 0) bits += 2;
 	quake_CL.kbuttons[quake_CL.kbutton.jump].state &= 5;
-	quake_MSG.WriteByte(buf,bits);
-	quake_MSG.WriteByte(buf,quake_CL.impulse);
+	buf.WriteByte(bits);
+	buf.WriteByte(quake_CL.impulse);
 	quake_CL.impulse = 0;
 	if(quake_CL.cls.demoplayback) return;
 	if(++quake_CL.state.movemessages <= 2) return;
@@ -830,7 +832,7 @@ quake_CL.Disconnect = function() {
 		if(quake_CL.cls.demorecording) quake_CL.Stop_f();
 		quake_Console.DPrint("Sending clc_disconnect\n");
 		quake_CL.cls.message.cursize = 0;
-		quake_MSG.WriteByte(quake_CL.cls.message,2);
+		quake_CL.cls.message.WriteByte(2);
 		quake_NET.SendUnreliableMessage(quake_CL.cls.netcon,quake_CL.cls.message);
 		quake_CL.cls.message.cursize = 0;
 		quake_NET.Close(quake_CL.cls.netcon);
@@ -860,21 +862,21 @@ quake_CL.SignonReply = function() {
 	var _g = quake_CL.cls.signon;
 	switch(_g) {
 	case 1:
-		quake_MSG.WriteByte(quake_CL.cls.message,4);
-		quake_MSG.WriteString(quake_CL.cls.message,"prespawn");
+		quake_CL.cls.message.WriteByte(4);
+		quake_CL.cls.message.WriteString("prespawn");
 		break;
 	case 2:
-		quake_MSG.WriteByte(quake_CL.cls.message,4);
-		quake_MSG.WriteString(quake_CL.cls.message,"name \"" + quake_CL.$name.string + "\"\n");
-		quake_MSG.WriteByte(quake_CL.cls.message,4);
+		quake_CL.cls.message.WriteByte(4);
+		quake_CL.cls.message.WriteString("name \"" + quake_CL.$name.string + "\"\n");
+		quake_CL.cls.message.WriteByte(4);
 		var col = quake_CL.color.value | 0;
-		quake_MSG.WriteString(quake_CL.cls.message,"color " + (col >> 4) + " " + (col & 15) + "\n");
-		quake_MSG.WriteByte(quake_CL.cls.message,4);
-		quake_MSG.WriteString(quake_CL.cls.message,"spawn " + quake_CL.cls.spawnparms);
+		quake_CL.cls.message.WriteString("color " + (col >> 4) + " " + (col & 15) + "\n");
+		quake_CL.cls.message.WriteByte(4);
+		quake_CL.cls.message.WriteString("spawn " + quake_CL.cls.spawnparms);
 		break;
 	case 3:
-		quake_MSG.WriteByte(quake_CL.cls.message,4);
-		quake_MSG.WriteString(quake_CL.cls.message,"begin");
+		quake_CL.cls.message.WriteByte(4);
+		quake_CL.cls.message.WriteString("begin");
 		break;
 	case 4:
 		quake_SCR.EndLoadingPlaque();
@@ -1175,7 +1177,7 @@ quake_CL.KeepaliveMessage = function() {
 	if(time - quake_CL.lastmsg < 5.0) return;
 	quake_CL.lastmsg = time;
 	quake_Console.Print("--> client to server keepalive\n");
-	quake_MSG.WriteByte(quake_CL.cls.message,1);
+	quake_CL.cls.message.WriteByte(1);
 	quake_NET.SendMessage(quake_CL.cls.netcon,quake_CL.cls.message);
 	quake_CL.cls.message.cursize = 0;
 };
@@ -2286,7 +2288,7 @@ quake_Cmd.ForwardToServer = function() {
 	var args = String.fromCharCode(4);
 	if(quake_Cmd.argv[0].toLowerCase() != "cmd") args += quake_Cmd.argv[0] + " ";
 	if(quake_Cmd.argv.length >= 2) args += quake_Cmd.args; else args += "\n";
-	quake_MSG.WriteString(quake_CL.cls.message,args);
+	quake_CL.cls.message.WriteString(args);
 };
 var quake__$Console_ConsoleEntry = function(s,t) {
 	this.text = s;
@@ -3410,8 +3412,8 @@ quake_Host.InitLocal = function() {
 	quake_Host.FindMaxClients();
 };
 quake_Host.ClientPrint = function(string) {
-	quake_MSG.WriteByte(quake_Host.client.message,8);
-	quake_MSG.WriteString(quake_Host.client.message,string);
+	quake_Host.client.message.WriteByte(8);
+	quake_Host.client.message.WriteString(string);
 };
 quake_Host.BroadcastPrint = function(string) {
 	var _g1 = 0;
@@ -3420,15 +3422,15 @@ quake_Host.BroadcastPrint = function(string) {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
 		if(!client.active || !client.spawned) continue;
-		quake_MSG.WriteByte(client.message,8);
-		quake_MSG.WriteString(client.message,string);
+		client.message.WriteByte(8);
+		client.message.WriteString(string);
 	}
 };
 quake_Host.DropClient = function(crash) {
 	var client = quake_Host.client;
 	if(!crash) {
 		if(quake_NET.CanSendMessage(client.netconnection)) {
-			quake_MSG.WriteByte(client.message,2);
+			client.message.WriteByte(2);
 			quake_NET.SendMessage(client.netconnection,client.message);
 		}
 		if(client.edict != null && client.spawned) {
@@ -3452,15 +3454,15 @@ quake_Host.DropClient = function(crash) {
 		var i = _g1++;
 		var client1 = quake_SV.svs.clients[i];
 		if(!client1.active) continue;
-		quake_MSG.WriteByte(client1.message,13);
-		quake_MSG.WriteByte(client1.message,num);
-		quake_MSG.WriteByte(client1.message,0);
-		quake_MSG.WriteByte(client1.message,14);
-		quake_MSG.WriteByte(client1.message,num);
-		quake_MSG.WriteShort(client1.message,0);
-		quake_MSG.WriteByte(client1.message,17);
-		quake_MSG.WriteByte(client1.message,num);
-		quake_MSG.WriteByte(client1.message,0);
+		client1.message.WriteByte(13);
+		client1.message.WriteByte(num);
+		client1.message.WriteByte(0);
+		client1.message.WriteByte(14);
+		client1.message.WriteByte(num);
+		client1.message.WriteShort(0);
+		client1.message.WriteByte(17);
+		client1.message.WriteByte(num);
+		client1.message.WriteByte(0);
 	}
 };
 quake_Host.ShutdownServer = function(crash) {
@@ -3999,9 +4001,9 @@ quake_Host.Name_f = function() {
 	if(name.length != 0 && name != "unconnected" && name != newName) quake_Console.Print(name + " renamed to " + newName + "\n");
 	quake_SV.SetClientName(quake_Host.client,newName);
 	var msg = quake_SV.server.reliable_datagram;
-	quake_MSG.WriteByte(msg,13);
-	quake_MSG.WriteByte(msg,quake_Host.client.num);
-	quake_MSG.WriteString(msg,newName);
+	msg.WriteByte(13);
+	msg.WriteByte(quake_Host.client.num);
+	msg.WriteString(newName);
 };
 quake_Host.Version_f = function() {
 	quake_Console.Print("Version 1.09\n");
@@ -4085,9 +4087,9 @@ quake_Host.Color_f = function() {
 	quake_Host.client.colors = playercolor;
 	quake_Host.client.edict.v_float[quake_PR.entvars.team] = bottom + 1;
 	var msg = quake_SV.server.reliable_datagram;
-	quake_MSG.WriteByte(msg,17);
-	quake_MSG.WriteByte(msg,quake_Host.client.num);
-	quake_MSG.WriteByte(msg,playercolor);
+	msg.WriteByte(17);
+	msg.WriteByte(quake_Host.client.num);
+	msg.WriteByte(playercolor);
 };
 quake_Host.Kill_f = function() {
 	if(!quake_Cmd.client) {
@@ -4113,8 +4115,8 @@ quake_Host.Pause_f = function() {
 	}
 	quake_SV.server.paused = !quake_SV.server.paused;
 	quake_Host.BroadcastPrint(quake_SV.GetClientName(quake_Host.client) + (quake_SV.server.paused?" paused the game\n":" unpaused the game\n"));
-	quake_MSG.WriteByte(quake_SV.server.reliable_datagram,24);
-	quake_MSG.WriteByte(quake_SV.server.reliable_datagram,quake_SV.server.paused?1:0);
+	quake_SV.server.reliable_datagram.WriteByte(24);
+	quake_SV.server.reliable_datagram.WriteByte(quake_SV.server.paused?1:0);
 };
 quake_Host.PreSpawn_f = function() {
 	if(!quake_Cmd.client) {
@@ -4127,8 +4129,8 @@ quake_Host.PreSpawn_f = function() {
 		return;
 	}
 	quake_SZ.Write(client.message,new Uint8Array(quake_SV.server.signon.data),quake_SV.server.signon.cursize);
-	quake_MSG.WriteByte(client.message,25);
-	quake_MSG.WriteByte(client.message,2);
+	client.message.WriteByte(25);
+	client.message.WriteByte(2);
 	client.sendsignon = true;
 };
 quake_Host.Spawn_f = function() {
@@ -4165,49 +4167,49 @@ quake_Host.Spawn_f = function() {
 	}
 	var message = client.message;
 	message.cursize = 0;
-	quake_MSG.WriteByte(message,7);
-	quake_MSG.WriteFloat(message,quake_SV.server.time);
+	message.WriteByte(7);
+	message.WriteFloat(quake_SV.server.time);
 	var _g11 = 0;
 	var _g3 = quake_SV.svs.maxclients;
 	while(_g11 < _g3) {
 		var i2 = _g11++;
 		client = quake_SV.svs.clients[i2];
-		quake_MSG.WriteByte(message,13);
-		quake_MSG.WriteByte(message,i2);
-		quake_MSG.WriteString(message,quake_SV.GetClientName(client));
-		quake_MSG.WriteByte(message,14);
-		quake_MSG.WriteByte(message,i2);
-		quake_MSG.WriteShort(message,client.old_frags);
-		quake_MSG.WriteByte(message,17);
-		quake_MSG.WriteByte(message,i2);
-		quake_MSG.WriteByte(message,client.colors);
+		message.WriteByte(13);
+		message.WriteByte(i2);
+		message.WriteString(quake_SV.GetClientName(client));
+		message.WriteByte(14);
+		message.WriteByte(i2);
+		message.WriteShort(client.old_frags);
+		message.WriteByte(17);
+		message.WriteByte(i2);
+		message.WriteByte(client.colors);
 	}
 	var _g4 = 0;
 	while(_g4 < 64) {
 		var i3 = _g4++;
-		quake_MSG.WriteByte(message,12);
-		quake_MSG.WriteByte(message,i3);
-		quake_MSG.WriteString(message,quake_SV.server.lightstyles[i3]);
+		message.WriteByte(12);
+		message.WriteByte(i3);
+		message.WriteString(quake_SV.server.lightstyles[i3]);
 	}
-	quake_MSG.WriteByte(message,3);
-	quake_MSG.WriteByte(message,quake_Def.stat.totalsecrets);
-	quake_MSG.WriteLong(message,quake_PR.globals_float[quake_PR.globalvars.total_secrets] | 0);
-	quake_MSG.WriteByte(message,3);
-	quake_MSG.WriteByte(message,quake_Def.stat.totalmonsters);
-	quake_MSG.WriteLong(message,quake_PR.globals_float[quake_PR.globalvars.total_monsters] | 0);
-	quake_MSG.WriteByte(message,3);
-	quake_MSG.WriteByte(message,quake_Def.stat.secrets);
-	quake_MSG.WriteLong(message,quake_PR.globals_float[quake_PR.globalvars.found_secrets] | 0);
-	quake_MSG.WriteByte(message,3);
-	quake_MSG.WriteByte(message,quake_Def.stat.monsters);
-	quake_MSG.WriteLong(message,quake_PR.globals_float[quake_PR.globalvars.killed_monsters] | 0);
-	quake_MSG.WriteByte(message,10);
-	quake_MSG.WriteAngle(message,ent.v_float[quake_PR.entvars.angles]);
-	quake_MSG.WriteAngle(message,ent.v_float[quake_PR.entvars.angles1]);
-	quake_MSG.WriteAngle(message,0.0);
+	message.WriteByte(3);
+	message.WriteByte(quake_Def.stat.totalsecrets);
+	message.WriteLong(quake_PR.globals_float[quake_PR.globalvars.total_secrets] | 0);
+	message.WriteByte(3);
+	message.WriteByte(quake_Def.stat.totalmonsters);
+	message.WriteLong(quake_PR.globals_float[quake_PR.globalvars.total_monsters] | 0);
+	message.WriteByte(3);
+	message.WriteByte(quake_Def.stat.secrets);
+	message.WriteLong(quake_PR.globals_float[quake_PR.globalvars.found_secrets] | 0);
+	message.WriteByte(3);
+	message.WriteByte(quake_Def.stat.monsters);
+	message.WriteLong(quake_PR.globals_float[quake_PR.globalvars.killed_monsters] | 0);
+	message.WriteByte(10);
+	message.WriteAngle(ent.v_float[quake_PR.entvars.angles]);
+	message.WriteAngle(ent.v_float[quake_PR.entvars.angles1]);
+	message.WriteAngle(0.0);
 	quake_SV.WriteClientdataToMessage(ent,message);
-	quake_MSG.WriteByte(message,25);
-	quake_MSG.WriteByte(message,3);
+	message.WriteByte(25);
+	message.WriteByte(3);
 	quake_Host.client.sendsignon = true;
 };
 quake_Host.Begin_f = function() {
@@ -9004,26 +9006,26 @@ quake_SV.Init = function() {
 	quake_SV.nop = new quake_MSG(4,1);
 	new Uint8Array(quake_SV.nop.data)[0] = 1;
 	quake_SV.reconnect = new quake_MSG(128);
-	quake_MSG.WriteByte(quake_SV.reconnect,9);
-	quake_MSG.WriteString(quake_SV.reconnect,"reconnect\n");
+	quake_SV.reconnect.WriteByte(9);
+	quake_SV.reconnect.WriteString("reconnect\n");
 	quake_SV.InitBoxHull();
 };
 quake_SV.StartParticle = function(org,dir,color,count) {
 	var datagram = quake_SV.server.datagram;
 	if(datagram.cursize >= 1009) return;
-	quake_MSG.WriteByte(datagram,18);
-	quake_MSG.WriteCoord(datagram,org[0]);
-	quake_MSG.WriteCoord(datagram,org[1]);
-	quake_MSG.WriteCoord(datagram,org[2]);
+	datagram.WriteByte(18);
+	datagram.WriteCoord(org[0]);
+	datagram.WriteCoord(org[1]);
+	datagram.WriteCoord(org[2]);
 	var _g = 0;
 	while(_g < 3) {
 		var i = _g++;
 		var v = dir[i] * 16.0 | 0;
 		if(v > 127) v = 127; else if(v < -128) v = -128;
-		quake_MSG.WriteChar(datagram,v);
+		datagram.WriteChar(v);
 	}
-	quake_MSG.WriteByte(datagram,count);
-	quake_MSG.WriteByte(datagram,color);
+	datagram.WriteByte(count);
+	datagram.WriteByte(color);
 };
 quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 	if(volume < 0 || volume > 255) quake_Sys.Error("SV.StartSound: volume = " + volume);
@@ -9043,46 +9045,46 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 	var field_mask = 0;
 	if(volume != 255) field_mask += 1;
 	if(attenuation != 1.0) field_mask += 2;
-	quake_MSG.WriteByte(datagram,6);
-	quake_MSG.WriteByte(datagram,field_mask);
-	if((field_mask & 1) != 0) quake_MSG.WriteByte(datagram,volume);
-	if((field_mask & 2) != 0) quake_MSG.WriteByte(datagram,Math.floor(attenuation * 64.0));
-	quake_MSG.WriteShort(datagram,(entity.num << 3) + channel);
-	quake_MSG.WriteByte(datagram,i);
-	quake_MSG.WriteCoord(datagram,entity.v_float[quake_PR.entvars.origin] + 0.5 * (entity.v_float[quake_PR.entvars.mins] + entity.v_float[quake_PR.entvars.maxs]));
-	quake_MSG.WriteCoord(datagram,entity.v_float[quake_PR.entvars.origin1] + 0.5 * (entity.v_float[quake_PR.entvars.mins1] + entity.v_float[quake_PR.entvars.maxs1]));
-	quake_MSG.WriteCoord(datagram,entity.v_float[quake_PR.entvars.origin2] + 0.5 * (entity.v_float[quake_PR.entvars.mins2] + entity.v_float[quake_PR.entvars.maxs2]));
+	datagram.WriteByte(6);
+	datagram.WriteByte(field_mask);
+	if((field_mask & 1) != 0) datagram.WriteByte(volume);
+	if((field_mask & 2) != 0) datagram.WriteByte(Math.floor(attenuation * 64.0));
+	datagram.WriteShort((entity.num << 3) + channel);
+	datagram.WriteByte(i);
+	datagram.WriteCoord(entity.v_float[quake_PR.entvars.origin] + 0.5 * (entity.v_float[quake_PR.entvars.mins] + entity.v_float[quake_PR.entvars.maxs]));
+	datagram.WriteCoord(entity.v_float[quake_PR.entvars.origin1] + 0.5 * (entity.v_float[quake_PR.entvars.mins1] + entity.v_float[quake_PR.entvars.maxs1]));
+	datagram.WriteCoord(entity.v_float[quake_PR.entvars.origin2] + 0.5 * (entity.v_float[quake_PR.entvars.mins2] + entity.v_float[quake_PR.entvars.maxs2]));
 };
 quake_SV.SendServerinfo = function(client) {
 	var message = client.message;
-	quake_MSG.WriteByte(message,8);
-	quake_MSG.WriteString(message,"\x02" + "\nVERSION 1.09 SERVER (" + quake_PR.crc + " CRC)");
-	quake_MSG.WriteByte(message,11);
-	quake_MSG.WriteLong(message,15);
-	quake_MSG.WriteByte(message,quake_SV.svs.maxclients);
-	quake_MSG.WriteByte(message,quake_Host.coop.value == 0 && quake_Host.deathmatch.value != 0?1:0);
-	quake_MSG.WriteString(message,quake_PR.GetString(quake_SV.server.edicts[0].v_int[quake_PR.entvars.message]));
+	message.WriteByte(8);
+	message.WriteString("\x02" + "\nVERSION 1.09 SERVER (" + quake_PR.crc + " CRC)");
+	message.WriteByte(11);
+	message.WriteLong(15);
+	message.WriteByte(quake_SV.svs.maxclients);
+	message.WriteByte(quake_Host.coop.value == 0 && quake_Host.deathmatch.value != 0?1:0);
+	message.WriteString(quake_PR.GetString(quake_SV.server.edicts[0].v_int[quake_PR.entvars.message]));
 	var _g1 = 1;
 	var _g = quake_SV.server.model_precache.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		quake_MSG.WriteString(message,quake_SV.server.model_precache[i]);
+		message.WriteString(quake_SV.server.model_precache[i]);
 	}
-	quake_MSG.WriteByte(message,0);
+	message.WriteByte(0);
 	var _g11 = 1;
 	var _g2 = quake_SV.server.sound_precache.length;
 	while(_g11 < _g2) {
 		var i1 = _g11++;
-		quake_MSG.WriteString(message,quake_SV.server.sound_precache[i1]);
+		message.WriteString(quake_SV.server.sound_precache[i1]);
 	}
-	quake_MSG.WriteByte(message,0);
-	quake_MSG.WriteByte(message,32);
-	quake_MSG.WriteByte(message,quake_SV.server.edicts[0].v_float[quake_PR.entvars.sounds] | 0);
-	quake_MSG.WriteByte(message,quake_SV.server.edicts[0].v_float[quake_PR.entvars.sounds] | 0);
-	quake_MSG.WriteByte(message,5);
-	quake_MSG.WriteShort(message,client.edict.num);
-	quake_MSG.WriteByte(message,25);
-	quake_MSG.WriteByte(message,1);
+	message.WriteByte(0);
+	message.WriteByte(32);
+	message.WriteByte(quake_SV.server.edicts[0].v_float[quake_PR.entvars.sounds] | 0);
+	message.WriteByte(quake_SV.server.edicts[0].v_float[quake_PR.entvars.sounds] | 0);
+	message.WriteByte(5);
+	message.WriteShort(client.edict.num);
+	message.WriteByte(25);
+	message.WriteByte(1);
 	client.sendsignon = true;
 	client.spawned = false;
 };
@@ -9215,40 +9217,40 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		if(ent.baseline.modelindex != ent.v_float[quake_PR.entvars.modelindex]) bits += 1024;
 		if(e >= 256) bits += 16384;
 		if(bits >= 256) bits += 1;
-		quake_MSG.WriteByte(msg,bits + 128);
-		if((bits & 1) != 0) quake_MSG.WriteByte(msg,bits >> 8);
-		if((bits & 16384) != 0) quake_MSG.WriteShort(msg,e); else quake_MSG.WriteByte(msg,e);
-		if((bits & 1024) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.modelindex] | 0);
-		if((bits & 64) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.frame] | 0);
-		if((bits & 2048) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.colormap] | 0);
-		if((bits & 4096) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.skin] | 0);
-		if((bits & 8192) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.effects] | 0);
-		if((bits & 2) != 0) quake_MSG.WriteCoord(msg,ent.v_float[quake_PR.entvars.origin] | 0);
-		if((bits & 256) != 0) quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles] | 0);
-		if((bits & 4) != 0) quake_MSG.WriteCoord(msg,ent.v_float[quake_PR.entvars.origin1] | 0);
-		if((bits & 16) != 0) quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles1] | 0);
-		if((bits & 8) != 0) quake_MSG.WriteCoord(msg,ent.v_float[quake_PR.entvars.origin2] | 0);
-		if((bits & 512) != 0) quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles2] | 0);
+		msg.WriteByte(bits + 128);
+		if((bits & 1) != 0) msg.WriteByte(bits >> 8);
+		if((bits & 16384) != 0) msg.WriteShort(e); else msg.WriteByte(e);
+		if((bits & 1024) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.modelindex] | 0);
+		if((bits & 64) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.frame] | 0);
+		if((bits & 2048) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.colormap] | 0);
+		if((bits & 4096) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.skin] | 0);
+		if((bits & 8192) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.effects] | 0);
+		if((bits & 2) != 0) msg.WriteCoord(ent.v_float[quake_PR.entvars.origin] | 0);
+		if((bits & 256) != 0) msg.WriteAngle(ent.v_float[quake_PR.entvars.angles] | 0);
+		if((bits & 4) != 0) msg.WriteCoord(ent.v_float[quake_PR.entvars.origin1] | 0);
+		if((bits & 16) != 0) msg.WriteAngle(ent.v_float[quake_PR.entvars.angles1] | 0);
+		if((bits & 8) != 0) msg.WriteCoord(ent.v_float[quake_PR.entvars.origin2] | 0);
+		if((bits & 512) != 0) msg.WriteAngle(ent.v_float[quake_PR.entvars.angles2] | 0);
 	}
 };
 quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	if(ent.v_float[quake_PR.entvars.dmg_take] != 0.0 || ent.v_float[quake_PR.entvars.dmg_save] != 0.0) {
 		var other = quake_SV.server.edicts[ent.v_int[quake_PR.entvars.dmg_inflictor]];
-		quake_MSG.WriteByte(msg,19);
-		quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.dmg_save] | 0);
-		quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.dmg_take] | 0);
-		quake_MSG.WriteCoord(msg,other.v_float[quake_PR.entvars.origin] + 0.5 * (other.v_float[quake_PR.entvars.mins] + other.v_float[quake_PR.entvars.maxs]));
-		quake_MSG.WriteCoord(msg,other.v_float[quake_PR.entvars.origin1] + 0.5 * (other.v_float[quake_PR.entvars.mins1] + other.v_float[quake_PR.entvars.maxs1]));
-		quake_MSG.WriteCoord(msg,other.v_float[quake_PR.entvars.origin2] + 0.5 * (other.v_float[quake_PR.entvars.mins2] + other.v_float[quake_PR.entvars.maxs2]));
+		msg.WriteByte(19);
+		msg.WriteByte(ent.v_float[quake_PR.entvars.dmg_save] | 0);
+		msg.WriteByte(ent.v_float[quake_PR.entvars.dmg_take] | 0);
+		msg.WriteCoord(other.v_float[quake_PR.entvars.origin] + 0.5 * (other.v_float[quake_PR.entvars.mins] + other.v_float[quake_PR.entvars.maxs]));
+		msg.WriteCoord(other.v_float[quake_PR.entvars.origin1] + 0.5 * (other.v_float[quake_PR.entvars.mins1] + other.v_float[quake_PR.entvars.maxs1]));
+		msg.WriteCoord(other.v_float[quake_PR.entvars.origin2] + 0.5 * (other.v_float[quake_PR.entvars.mins2] + other.v_float[quake_PR.entvars.maxs2]));
 		ent.v_float[quake_PR.entvars.dmg_take] = 0.0;
 		ent.v_float[quake_PR.entvars.dmg_save] = 0.0;
 	}
 	quake_SV.SetIdealPitch();
 	if(ent.v_float[quake_PR.entvars.fixangle] != 0.0) {
-		quake_MSG.WriteByte(msg,10);
-		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles]);
-		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles1]);
-		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles2]);
+		msg.WriteByte(10);
+		msg.WriteAngle(ent.v_float[quake_PR.entvars.angles]);
+		msg.WriteAngle(ent.v_float[quake_PR.entvars.angles1]);
+		msg.WriteAngle(ent.v_float[quake_PR.entvars.angles2]);
 		ent.v_float[quake_PR.entvars.fixangle] = 0.0;
 	}
 	var bits = 512 + 16384;
@@ -9269,33 +9271,33 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	if(ent.v_float[quake_PR.entvars.velocity2] != 0.0) bits = bits + 128;
 	if(ent.v_float[quake_PR.entvars.weaponframe] != 0.0) bits = bits + 4096;
 	if(ent.v_float[quake_PR.entvars.armorvalue] != 0.0) bits = bits + 8192;
-	quake_MSG.WriteByte(msg,15);
-	quake_MSG.WriteShort(msg,bits);
-	if((bits & 1) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.view_ofs2] | 0);
-	if((bits & 2) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.idealpitch] | 0);
-	if((bits & 4) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle] | 0);
-	if((bits & 32) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity] * 0.0625 | 0);
-	if((bits & 8) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle1] | 0);
-	if((bits & 64) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity1] * 0.0625 | 0);
-	if((bits & 16) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle2] | 0);
-	if((bits & 128) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity2] * 0.0625 | 0);
-	quake_MSG.WriteLong(msg,items);
-	if((bits & 4096) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.weaponframe] | 0);
-	if((bits & 8192) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.armorvalue] | 0);
-	quake_MSG.WriteByte(msg,quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[quake_PR.entvars.weaponmodel])));
-	quake_MSG.WriteShort(msg,ent.v_float[quake_PR.entvars.health] | 0);
-	quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.currentammo] | 0);
-	quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.ammo_shells] | 0);
-	quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.ammo_nails] | 0);
-	quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.ammo_rockets] | 0);
-	quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.ammo_cells] | 0);
-	if(quake_COM.standard_quake) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.weapon] | 0); else {
+	msg.WriteByte(15);
+	msg.WriteShort(bits);
+	if((bits & 1) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.view_ofs2] | 0);
+	if((bits & 2) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.idealpitch] | 0);
+	if((bits & 4) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.punchangle] | 0);
+	if((bits & 32) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.velocity] * 0.0625 | 0);
+	if((bits & 8) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.punchangle1] | 0);
+	if((bits & 64) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.velocity1] * 0.0625 | 0);
+	if((bits & 16) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.punchangle2] | 0);
+	if((bits & 128) != 0) msg.WriteChar(ent.v_float[quake_PR.entvars.velocity2] * 0.0625 | 0);
+	msg.WriteLong(items);
+	if((bits & 4096) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.weaponframe] | 0);
+	if((bits & 8192) != 0) msg.WriteByte(ent.v_float[quake_PR.entvars.armorvalue] | 0);
+	msg.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[quake_PR.entvars.weaponmodel])));
+	msg.WriteShort(ent.v_float[quake_PR.entvars.health] | 0);
+	msg.WriteByte(ent.v_float[quake_PR.entvars.currentammo] | 0);
+	msg.WriteByte(ent.v_float[quake_PR.entvars.ammo_shells] | 0);
+	msg.WriteByte(ent.v_float[quake_PR.entvars.ammo_nails] | 0);
+	msg.WriteByte(ent.v_float[quake_PR.entvars.ammo_rockets] | 0);
+	msg.WriteByte(ent.v_float[quake_PR.entvars.ammo_cells] | 0);
+	if(quake_COM.standard_quake) msg.WriteByte(ent.v_float[quake_PR.entvars.weapon] | 0); else {
 		var weapon = ent.v_float[quake_PR.entvars.weapon] | 0;
 		var _g = 0;
 		while(_g < 32) {
 			var i = _g++;
 			if((weapon & 1 << i) != 0) {
-				quake_MSG.WriteByte(msg,i);
+				msg.WriteByte(i);
 				break;
 			}
 		}
@@ -9305,8 +9307,8 @@ quake_SV.SendClientDatagram = function() {
 	var client = quake_Host.client;
 	var msg = quake_SV.clientdatagram;
 	msg.cursize = 0;
-	quake_MSG.WriteByte(msg,7);
-	quake_MSG.WriteFloat(msg,quake_SV.server.time);
+	msg.WriteByte(7);
+	msg.WriteFloat(quake_SV.server.time);
 	quake_SV.WriteClientdataToMessage(client.edict,msg);
 	quake_SV.WriteEntitiesToClient(client.edict,msg);
 	if(msg.cursize + quake_SV.server.datagram.cursize < msg.data.byteLength) quake_SZ.Write(msg,new Uint8Array(quake_SV.server.datagram.data),quake_SV.server.datagram.cursize);
@@ -9331,9 +9333,9 @@ quake_SV.UpdateToReliableMessages = function() {
 			var j = _g3++;
 			var client = quake_SV.svs.clients[j];
 			if(!client.active) continue;
-			quake_MSG.WriteByte(client.message,14);
-			quake_MSG.WriteByte(client.message,i);
-			quake_MSG.WriteShort(client.message,frags);
+			client.message.WriteByte(14);
+			client.message.WriteByte(i);
+			client.message.WriteShort(frags);
 		}
 		quake_Host.client.old_frags = frags;
 	}
@@ -9419,18 +9421,18 @@ quake_SV.CreateBaseline = function() {
 			baseline.colormap = 0;
 			baseline.modelindex = quake_SV.ModelIndex(quake_PR.GetString(svent.v_int[quake_PR.entvars.model]));
 		}
-		quake_MSG.WriteByte(signon,22);
-		quake_MSG.WriteShort(signon,i);
-		quake_MSG.WriteByte(signon,baseline.modelindex);
-		quake_MSG.WriteByte(signon,baseline.frame);
-		quake_MSG.WriteByte(signon,baseline.colormap);
-		quake_MSG.WriteByte(signon,baseline.skin);
-		quake_MSG.WriteCoord(signon,baseline.origin[0]);
-		quake_MSG.WriteAngle(signon,baseline.angles[0]);
-		quake_MSG.WriteCoord(signon,baseline.origin[1]);
-		quake_MSG.WriteAngle(signon,baseline.angles[1]);
-		quake_MSG.WriteCoord(signon,baseline.origin[2]);
-		quake_MSG.WriteAngle(signon,baseline.angles[2]);
+		signon.WriteByte(22);
+		signon.WriteShort(i);
+		signon.WriteByte(baseline.modelindex);
+		signon.WriteByte(baseline.frame);
+		signon.WriteByte(baseline.colormap);
+		signon.WriteByte(baseline.skin);
+		signon.WriteCoord(baseline.origin[0]);
+		signon.WriteAngle(baseline.angles[0]);
+		signon.WriteCoord(baseline.origin[1]);
+		signon.WriteAngle(baseline.angles[1]);
+		signon.WriteCoord(baseline.origin[2]);
+		signon.WriteAngle(baseline.angles[2]);
 	}
 };
 quake_SV.SaveSpawnparms = function() {
@@ -10798,23 +10800,6 @@ quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
 	}
 	quake_SV.ClipToLinks(quake_SV.areanodes[0],clip);
 	return clip.trace;
-};
-var quake_SZ = function() { };
-quake_SZ.__name__ = true;
-quake_SZ.GetSpace = function(buf,length) {
-	if(buf.cursize + length > buf.data.byteLength) {
-		if(!buf.allowoverflow) quake_Sys.Error("SZ.GetSpace: overflow without allowoverflow set");
-		if(length > buf.data.byteLength) quake_Sys.Error("SZ.GetSpace: " + length + " is > full buffer size");
-		buf.overflowed = true;
-		quake_Console.Print("SZ.GetSpace: overflow\n");
-		buf.cursize = 0;
-	}
-	var cursize = buf.cursize;
-	buf.cursize += length;
-	return cursize;
-};
-quake_SZ.Write = function(sb,data,length) {
-	new Uint8Array(sb.data,quake_SZ.GetSpace(sb,length),length).set(data.subarray(0,length));
 };
 var quake_Plane = function() {
 };
@@ -12646,8 +12631,8 @@ quake_PF.sprint = function() {
 		return;
 	}
 	var client = quake_SV.svs.clients[entnum - 1];
-	quake_MSG.WriteByte(client.message,8);
-	quake_MSG.WriteString(client.message,quake_PF.VarString(1));
+	client.message.WriteByte(8);
+	client.message.WriteString(quake_PF.VarString(1));
 };
 quake_PF.centerprint = function() {
 	var entnum = quake_PR.globals_int[4];
@@ -12656,8 +12641,8 @@ quake_PF.centerprint = function() {
 		return;
 	}
 	var client = quake_SV.svs.clients[entnum - 1];
-	quake_MSG.WriteByte(client.message,26);
-	quake_MSG.WriteString(client.message,quake_PF.VarString(1));
+	client.message.WriteByte(26);
+	client.message.WriteString(quake_PF.VarString(1));
 };
 quake_PF.normalize = function() {
 	var newvalue = [quake_PR.globals_float[4],quake_PR.globals_float[5],quake_PR.globals_float[6]];
@@ -12724,13 +12709,13 @@ quake_PF.ambientsound = function() {
 		return;
 	}
 	var signon = quake_SV.server.signon;
-	quake_MSG.WriteByte(signon,29);
-	quake_MSG.WriteCoord(signon,quake_PR.globals_float[4]);
-	quake_MSG.WriteCoord(signon,quake_PR.globals_float[5]);
-	quake_MSG.WriteCoord(signon,quake_PR.globals_float[6]);
-	quake_MSG.WriteByte(signon,i);
-	quake_MSG.WriteByte(signon,quake_PR.globals_float[10] * 255 | 0);
-	quake_MSG.WriteByte(signon,quake_PR.globals_float[13] * 64 | 0);
+	signon.WriteByte(29);
+	signon.WriteCoord(quake_PR.globals_float[4]);
+	signon.WriteCoord(quake_PR.globals_float[5]);
+	signon.WriteCoord(quake_PR.globals_float[6]);
+	signon.WriteByte(i);
+	signon.WriteByte(quake_PR.globals_float[10] * 255 | 0);
+	signon.WriteByte(quake_PR.globals_float[13] * 64 | 0);
 };
 quake_PF.sound = function() {
 	quake_SV.StartSound(quake_SV.server.edicts[quake_PR.globals_int[4]],quake_PR.globals_float[7] | 0,quake_PR.GetString(quake_PR.globals_int[10]),quake_PR.globals_float[13] * 255 | 0,quake_PR.globals_float[16]);
@@ -12799,8 +12784,8 @@ quake_PF.stuffcmd = function() {
 	var entnum = quake_PR.globals_int[4];
 	if(entnum <= 0 || entnum > quake_SV.svs.maxclients) quake_PR.RunError("Parm 0 not a client");
 	var client = quake_SV.svs.clients[entnum - 1];
-	quake_MSG.WriteByte(client.message,9);
-	quake_MSG.WriteString(client.message,quake_PR.GetString(quake_PR.globals_int[7]));
+	client.message.WriteByte(9);
+	client.message.WriteString(quake_PR.GetString(quake_PR.globals_int[7]));
 };
 quake_PF.localcmd = function() {
 	quake_Cmd.text += quake_PR.GetString(quake_PR.globals_int[4]);
@@ -12970,9 +12955,9 @@ quake_PF.lightstyle = function() {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
 		if(!client.active && !client.spawned) continue;
-		quake_MSG.WriteByte(client.message,12);
-		quake_MSG.WriteByte(client.message,style);
-		quake_MSG.WriteString(client.message,val);
+		client.message.WriteByte(12);
+		client.message.WriteByte(style);
+		client.message.WriteString(val);
 	}
 };
 quake_PF.rint = function() {
@@ -13107,43 +13092,43 @@ quake_PF.WriteDest = function() {
 	}
 };
 quake_PF.WriteByte = function() {
-	quake_MSG.WriteByte(quake_PF.WriteDest(),quake_PR.globals_float[7] | 0);
+	quake_PF.WriteDest().WriteByte(quake_PR.globals_float[7] | 0);
 };
 quake_PF.WriteChar = function() {
-	quake_MSG.WriteChar(quake_PF.WriteDest(),quake_PR.globals_float[7] | 0);
+	quake_PF.WriteDest().WriteChar(quake_PR.globals_float[7] | 0);
 };
 quake_PF.WriteShort = function() {
-	quake_MSG.WriteShort(quake_PF.WriteDest(),quake_PR.globals_float[7] | 0);
+	quake_PF.WriteDest().WriteShort(quake_PR.globals_float[7] | 0);
 };
 quake_PF.WriteLong = function() {
-	quake_MSG.WriteLong(quake_PF.WriteDest(),quake_PR.globals_float[7] | 0);
+	quake_PF.WriteDest().WriteLong(quake_PR.globals_float[7] | 0);
 };
 quake_PF.WriteAngle = function() {
-	quake_MSG.WriteAngle(quake_PF.WriteDest(),quake_PR.globals_float[7]);
+	quake_PF.WriteDest().WriteAngle(quake_PR.globals_float[7]);
 };
 quake_PF.WriteCoord = function() {
-	quake_MSG.WriteCoord(quake_PF.WriteDest(),quake_PR.globals_float[7]);
+	quake_PF.WriteDest().WriteCoord(quake_PR.globals_float[7]);
 };
 quake_PF.WriteString = function() {
-	quake_MSG.WriteString(quake_PF.WriteDest(),quake_PR.GetString(quake_PR.globals_int[7]));
+	quake_PF.WriteDest().WriteString(quake_PR.GetString(quake_PR.globals_int[7]));
 };
 quake_PF.WriteEntity = function() {
-	quake_MSG.WriteShort(quake_PF.WriteDest(),quake_PR.globals_int[7]);
+	quake_PF.WriteDest().WriteShort(quake_PR.globals_int[7]);
 };
 quake_PF.makestatic = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[4]];
 	var message = quake_SV.server.signon;
-	quake_MSG.WriteByte(message,20);
-	quake_MSG.WriteByte(message,quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[quake_PR.entvars.model])));
-	quake_MSG.WriteByte(message,ent.v_float[quake_PR.entvars.frame] | 0);
-	quake_MSG.WriteByte(message,ent.v_float[quake_PR.entvars.colormap] | 0);
-	quake_MSG.WriteByte(message,ent.v_float[quake_PR.entvars.skin] | 0);
-	quake_MSG.WriteCoord(message,ent.v_float[quake_PR.entvars.origin]);
-	quake_MSG.WriteAngle(message,ent.v_float[quake_PR.entvars.angles]);
-	quake_MSG.WriteCoord(message,ent.v_float[quake_PR.entvars.origin1]);
-	quake_MSG.WriteAngle(message,ent.v_float[quake_PR.entvars.angles1]);
-	quake_MSG.WriteCoord(message,ent.v_float[quake_PR.entvars.origin2]);
-	quake_MSG.WriteAngle(message,ent.v_float[quake_PR.entvars.angles2]);
+	message.WriteByte(20);
+	message.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[quake_PR.entvars.model])));
+	message.WriteByte(ent.v_float[quake_PR.entvars.frame] | 0);
+	message.WriteByte(ent.v_float[quake_PR.entvars.colormap] | 0);
+	message.WriteByte(ent.v_float[quake_PR.entvars.skin] | 0);
+	message.WriteCoord(ent.v_float[quake_PR.entvars.origin]);
+	message.WriteAngle(ent.v_float[quake_PR.entvars.angles]);
+	message.WriteCoord(ent.v_float[quake_PR.entvars.origin1]);
+	message.WriteAngle(ent.v_float[quake_PR.entvars.angles1]);
+	message.WriteCoord(ent.v_float[quake_PR.entvars.origin2]);
+	message.WriteAngle(ent.v_float[quake_PR.entvars.angles2]);
 	quake_ED.Free(ent);
 };
 quake_PF.setspawnparms = function() {
@@ -13222,6 +13207,23 @@ var quake_Sfx = function(n) {
 	this.name = n;
 };
 quake_Sfx.__name__ = true;
+var quake_SZ = function() { };
+quake_SZ.__name__ = true;
+quake_SZ.GetSpace = function(buf,length) {
+	if(buf.cursize + length > buf.data.byteLength) {
+		if(!buf.allowoverflow) quake_Sys.Error("SZ.GetSpace: overflow without allowoverflow set");
+		if(length > buf.data.byteLength) quake_Sys.Error("SZ.GetSpace: " + length + " is > full buffer size");
+		buf.overflowed = true;
+		quake_Console.Print("SZ.GetSpace: overflow\n");
+		buf.cursize = 0;
+	}
+	var cursize = buf.cursize;
+	buf.cursize += length;
+	return cursize;
+};
+quake_SZ.Write = function(sb,data,length) {
+	new Uint8Array(sb.data,quake_SZ.GetSpace(sb,length),length).set(data.subarray(0,length));
+};
 var quake_Sbar = function() { };
 quake_Sbar.__name__ = true;
 quake_Sbar.ShowScores = function() {

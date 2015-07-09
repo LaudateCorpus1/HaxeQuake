@@ -220,6 +220,6 @@ class Cmd {
             args += Cmd.args;
         else
             args += '\n';
-        MSG.WriteString(CL.cls.message, args);
+        CL.cls.message.WriteString(args);
     }
 }

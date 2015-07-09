@@ -94,8 +94,8 @@ class PF {
             return;
         }
         var client = SV.svs.clients[entnum - 1];
-        MSG.WriteByte(client.message, SVC.print);
-        MSG.WriteString(client.message, VarString(1));
+        client.message.WriteByte(SVC.print);
+        client.message.WriteString(VarString(1));
     }
 
     static function centerprint() {
@@ -105,8 +105,8 @@ class PF {
             return;
         }
         var client = SV.svs.clients[entnum - 1];
-        MSG.WriteByte(client.message, SVC.centerprint);
-        MSG.WriteString(client.message, VarString(1));
+        client.message.WriteByte(SVC.centerprint);
+        client.message.WriteString(VarString(1));
     }
 
     static function normalize() {
@@ -178,13 +178,13 @@ class PF {
             return;
         }
         var signon = SV.server.signon;
-        MSG.WriteByte(signon, SVC.spawnstaticsound);
-        MSG.WriteCoord(signon, PR.globals_float[4]);
-        MSG.WriteCoord(signon, PR.globals_float[5]);
-        MSG.WriteCoord(signon, PR.globals_float[6]);
-        MSG.WriteByte(signon, i);
-        MSG.WriteByte(signon, Std.int(PR.globals_float[10] * 255));
-        MSG.WriteByte(signon, Std.int(PR.globals_float[13] * 64));
+        signon.WriteByte(SVC.spawnstaticsound);
+        signon.WriteCoord(PR.globals_float[4]);
+        signon.WriteCoord(PR.globals_float[5]);
+        signon.WriteCoord(PR.globals_float[6]);
+        signon.WriteByte(i);
+        signon.WriteByte(Std.int(PR.globals_float[10] * 255));
+        signon.WriteByte(Std.int(PR.globals_float[13] * 64));
     }
 
     static function sound() {
@@ -282,8 +282,8 @@ class PF {
         if ((entnum <= 0) || (entnum > SV.svs.maxclients))
             PR.RunError('Parm 0 not a client');
         var client = SV.svs.clients[entnum - 1];
-        MSG.WriteByte(client.message, SVC.stufftext);
-        MSG.WriteString(client.message, PR.GetString(PR.globals_int[7]));
+        client.message.WriteByte(SVC.stufftext);
+        client.message.WriteString(PR.GetString(PR.globals_int[7]));
     }
 
     static function localcmd() {
@@ -471,9 +471,9 @@ class PF {
             var client = SV.svs.clients[i];
             if ((!client.active) && (!client.spawned))
                 continue;
-            MSG.WriteByte(client.message, SVC.lightstyle);
-            MSG.WriteByte(client.message, style);
-            MSG.WriteString(client.message, val);
+            client.message.WriteByte(SVC.lightstyle);
+            client.message.WriteByte(style);
+            client.message.WriteString(val);
         }
     }
 
@@ -612,29 +612,29 @@ class PF {
         }
     }
 
-    static function WriteByte() {MSG.WriteByte(WriteDest(), Std.int(PR.globals_float[7]));};
-    static function WriteChar() {MSG.WriteChar(WriteDest(), Std.int(PR.globals_float[7]));};
-    static function WriteShort() {MSG.WriteShort(WriteDest(), Std.int(PR.globals_float[7]));};
-    static function WriteLong() {MSG.WriteLong(WriteDest(), Std.int(PR.globals_float[7]));};
-    static function WriteAngle() {MSG.WriteAngle(WriteDest(), PR.globals_float[7]);};
-    static function WriteCoord() {MSG.WriteCoord(WriteDest(), PR.globals_float[7]);};
-    static function WriteString() {MSG.WriteString(WriteDest(), PR.GetString(PR.globals_int[7]));};
-    static function WriteEntity() {MSG.WriteShort(WriteDest(), PR.globals_int[7]);};
+    static function WriteByte() WriteDest().WriteByte(Std.int(PR.globals_float[7]));
+    static function WriteChar() WriteDest().WriteChar(Std.int(PR.globals_float[7]));
+    static function WriteShort() WriteDest().WriteShort(Std.int(PR.globals_float[7]));
+    static function WriteLong() WriteDest().WriteLong(Std.int(PR.globals_float[7]));
+    static function WriteAngle() WriteDest().WriteAngle(PR.globals_float[7]);
+    static function WriteCoord() WriteDest().WriteCoord(PR.globals_float[7]);
+    static function WriteString() WriteDest().WriteString(PR.GetString(PR.globals_int[7]));
+    static function WriteEntity() WriteDest().WriteShort(PR.globals_int[7]);
 
     static function makestatic() {
         var ent:Edict = SV.server.edicts[PR.globals_int[4]];
         var message = SV.server.signon;
-        MSG.WriteByte(message, SVC.spawnstatic);
-        MSG.WriteByte(message, SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.model])));
-        MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.frame]));
-        MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.colormap]));
-        MSG.WriteByte(message, Std.int(ent.v_float[PR.entvars.skin]));
-        MSG.WriteCoord(message, ent.v_float[PR.entvars.origin]);
-        MSG.WriteAngle(message, ent.v_float[PR.entvars.angles]);
-        MSG.WriteCoord(message, ent.v_float[PR.entvars.origin1]);
-        MSG.WriteAngle(message, ent.v_float[PR.entvars.angles1]);
-        MSG.WriteCoord(message, ent.v_float[PR.entvars.origin2]);
-        MSG.WriteAngle(message, ent.v_float[PR.entvars.angles2]);
+        message.WriteByte(SVC.spawnstatic);
+        message.WriteByte(SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.model])));
+        message.WriteByte(Std.int(ent.v_float[PR.entvars.frame]));
+        message.WriteByte(Std.int(ent.v_float[PR.entvars.colormap]));
+        message.WriteByte(Std.int(ent.v_float[PR.entvars.skin]));
+        message.WriteCoord(ent.v_float[PR.entvars.origin]);
+        message.WriteAngle(ent.v_float[PR.entvars.angles]);
+        message.WriteCoord(ent.v_float[PR.entvars.origin1]);
+        message.WriteAngle(ent.v_float[PR.entvars.angles1]);
+        message.WriteCoord(ent.v_float[PR.entvars.origin2]);
+        message.WriteAngle(ent.v_float[PR.entvars.angles2]);
         ED.Free(ent);
     }
 

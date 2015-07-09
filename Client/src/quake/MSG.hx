@@ -21,38 +21,38 @@ class MSG {
 	static var badread:Bool;
 	static var readcount:Int;
 
-	static function WriteChar(sb:MSG, c:Int):Void {
-		(new DataView(sb.data)).setInt8(SZ.GetSpace(sb, 1), c);
+	function WriteChar(c:Int):Void {
+		(new DataView(data)).setInt8(SZ.GetSpace(this, 1), c);
 	}
 
-	static function WriteByte(sb:MSG, c:Int):Void {
-		(new DataView(sb.data)).setUint8(SZ.GetSpace(sb, 1), c);
+	function WriteByte(c:Int):Void {
+		(new DataView(data)).setUint8(SZ.GetSpace(this, 1), c);
 	}
 
-	static function WriteShort(sb:MSG, c:Int):Void {
-		(new DataView(sb.data)).setInt16(SZ.GetSpace(sb, 2), c, true);
+	function WriteShort(c:Int):Void {
+		(new DataView(data)).setInt16(SZ.GetSpace(this, 2), c, true);
 	}
 
-	static function WriteLong(sb:MSG, c:Int):Void {
-		(new DataView(sb.data)).setInt32(SZ.GetSpace(sb, 4), c, true);
+	function WriteLong(c:Int):Void {
+		(new DataView(data)).setInt32(SZ.GetSpace(this, 4), c, true);
 	}
 
-	static function WriteFloat(sb:MSG, f:Float):Void {
-		(new DataView(sb.data)).setFloat32(SZ.GetSpace(sb, 4), f, true);
+	function WriteFloat(f:Float):Void {
+		(new DataView(data)).setFloat32(SZ.GetSpace(this, 4), f, true);
 	}
 
-	static function WriteString(sb:MSG, s:String):Void {
+	function WriteString(s:String):Void {
 		if (s != null)
-			SZ.Write(sb, new Uint8Array(Q.strmem(s)), s.length);
-		WriteChar(sb, 0);
+			SZ.Write(this, new Uint8Array(Q.strmem(s)), s.length);
+		WriteChar(0);
 	}
 
-	static function WriteCoord(sb:MSG, f:Float):Void {
-		WriteShort(sb, Std.int(f * 8));
+	function WriteCoord(f:Float):Void {
+		WriteShort(Std.int(f * 8));
 	}
 
-	static function WriteAngle(sb:MSG, f:Float):Void {
-		WriteByte(sb, Std.int(f * 256 / 360) & 255);
+	function WriteAngle(f:Float):Void {
+		WriteByte(Std.int(f * 256 / 360) & 255);
 	}
 
 	static function BeginReading():Void {

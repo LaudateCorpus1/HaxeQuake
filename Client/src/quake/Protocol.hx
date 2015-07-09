@@ -73,28 +73,29 @@ package quake;
 }
 
 
+@:enum abstract SU(Int) to Int {
+	var viewheight  = 1 << 0;
+	var idealpitch  = 1 << 1;
+	var punch1      = 1 << 2;
+	var punch2      = 1 << 3;
+	var punch3      = 1 << 4;
+	var velocity1   = 1 << 5;
+	var velocity2   = 1 << 6;
+	var velocity3   = 1 << 7;
+	var items       = 1 << 9;
+	var onground    = 1 << 10;
+	var inwater     = 1 << 11;
+	var weaponframe = 1 << 12;
+	var armor       = 1 << 13;
+	var weapon      = 1 << 14;
+
+	@:op(a+b) static function _(a:SU, b:SU):SU;
+}
+
 @:publicFields
 class Protocol {
-	static var version = 15;
-
-	static var su = {
-		viewheight: 1,
-		idealpitch: 1 << 1,
-		punch1: 1 << 2,
-		punch2: 1 << 3,
-		punch3: 1 << 4,
-		velocity1: 1 << 5,
-		velocity2: 1 << 6,
-		velocity3: 1 << 7,
-		items: 1 << 9,
-		onground: 1 << 10,
-		inwater: 1 << 11,
-		weaponframe: 1 << 12,
-		armor: 1 << 13,
-		weapon: 1 << 14
-	};
-
-	static var default_viewheight = 22;
+	static inline var version = 15;
+	static inline var default_viewheight = 22;
 
 	static var svc = {
 		nop: 1,

@@ -1190,8 +1190,8 @@ quake_CL.ParseServerInfo = function() {
 	quake_Console.DPrint("Serverinfo packet received.\n");
 	quake_CL.ClearState();
 	var i = quake_MSG.ReadLong();
-	if(i != quake_Protocol.version) {
-		quake_Console.Print("Server returned version " + i + ", not " + quake_Protocol.version + "\n");
+	if(i != 15) {
+		quake_Console.Print("Server returned version " + i + ", not " + 15 + "\n");
 		return;
 	}
 	quake_CL.state.maxclients = quake_MSG.ReadByte();
@@ -1347,17 +1347,17 @@ quake_CL.ParseBaseline = function(ent) {
 	ent.baseline.angles[2] = v5;
 };
 quake_CL.ParseClientdata = function(bits) {
-	if((bits & quake_Protocol.su.viewheight) != 0) quake_CL.state.viewheight = quake_MSG.ReadChar(); else quake_CL.state.viewheight = quake_Protocol.default_viewheight;
-	if((bits & quake_Protocol.su.idealpitch) != 0) quake_CL.state.idealpitch = quake_MSG.ReadChar(); else quake_CL.state.idealpitch = 0.0;
+	if((bits & 1) != 0) quake_CL.state.viewheight = quake_MSG.ReadChar(); else quake_CL.state.viewheight = 22;
+	if((bits & 2) != 0) quake_CL.state.idealpitch = quake_MSG.ReadChar(); else quake_CL.state.idealpitch = 0.0;
 	quake_CL.state.mvelocity[1] = [quake_CL.state.mvelocity[0][0],quake_CL.state.mvelocity[0][1],quake_CL.state.mvelocity[0][2]];
 	var _g = 0;
 	while(_g < 3) {
 		var i1 = _g++;
-		if((bits & quake_Protocol.su.punch1 << i1) != 0) {
+		if((bits & 4 << i1) != 0) {
 			var v = quake_MSG.ReadChar();
 			quake_CL.state.punchangle[i1] = v;
 		} else quake_CL.state.punchangle[i1] = 0.0;
-		if((bits & quake_Protocol.su.velocity1 << i1) != 0) {
+		if((bits & 32 << i1) != 0) {
 			var v1 = quake_MSG.ReadChar() * 16.0;
 			quake_CL.state.mvelocity[0][i1] = v1;
 		} else quake_CL.state.mvelocity[0][i1] = 0.0;
@@ -1371,11 +1371,11 @@ quake_CL.ParseClientdata = function(bits) {
 		}
 		quake_CL.state.items = i;
 	}
-	quake_CL.state.onground = (bits & quake_Protocol.su.onground) != 0;
-	quake_CL.state.inwater = (bits & quake_Protocol.su.inwater) != 0;
-	if((bits & quake_Protocol.su.weaponframe) != 0) quake_CL.state.stats[quake_Def.stat.weaponframe] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.weaponframe] = 0;
-	if((bits & quake_Protocol.su.armor) != 0) quake_CL.state.stats[quake_Def.stat.armor] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.armor] = 0;
-	if((bits & quake_Protocol.su.weapon) != 0) quake_CL.state.stats[quake_Def.stat.weapon] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.weapon] = 0;
+	quake_CL.state.onground = (bits & 1024) != 0;
+	quake_CL.state.inwater = (bits & 2048) != 0;
+	if((bits & 4096) != 0) quake_CL.state.stats[quake_Def.stat.weaponframe] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.weaponframe] = 0;
+	if((bits & 8192) != 0) quake_CL.state.stats[quake_Def.stat.armor] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.armor] = 0;
+	if((bits & 16384) != 0) quake_CL.state.stats[quake_Def.stat.weapon] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.weapon] = 0;
 	quake_CL.state.stats[quake_Def.stat.health] = quake_MSG.ReadShort();
 	quake_CL.state.stats[quake_Def.stat.ammo] = quake_MSG.ReadByte();
 	quake_CL.state.stats[quake_Def.stat.shells] = quake_MSG.ReadByte();
@@ -1442,7 +1442,7 @@ quake_CL.ParseServerMessage = function() {
 			break;
 		case 4:
 			var i = quake_MSG.ReadLong();
-			if(i != quake_Protocol.version) quake_Host.Error("CL.ParseServerMessage: Server is protocol " + i + " instead of " + quake_Protocol.version + "\n");
+			if(i != 15) quake_Host.Error("CL.ParseServerMessage: Server is protocol " + i + " instead of " + 15 + "\n");
 			continue;
 			break;
 		case 2:
@@ -9106,7 +9106,7 @@ quake_SV.SendServerinfo = function(client) {
 	quake_MSG.WriteByte(message,quake_Protocol.svc.print);
 	quake_MSG.WriteString(message,"\x02" + "\nVERSION 1.09 SERVER (" + quake_PR.crc + " CRC)");
 	quake_MSG.WriteByte(message,quake_Protocol.svc.serverinfo);
-	quake_MSG.WriteLong(message,quake_Protocol.version);
+	quake_MSG.WriteLong(message,15);
 	quake_MSG.WriteByte(message,quake_SV.svs.maxclients);
 	quake_MSG.WriteByte(message,quake_Host.coop.value == 0 && quake_Host.deathmatch.value != 0?1:0);
 	quake_MSG.WriteString(message,quake_PR.GetString(quake_SV.server.edicts[0].v_int[quake_PR.entvars.message]));
@@ -9299,37 +9299,37 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 		quake_MSG.WriteAngle(msg,ent.v_float[quake_PR.entvars.angles2]);
 		ent.v_float[quake_PR.entvars.fixangle] = 0.0;
 	}
-	var bits = quake_Protocol.su.items + quake_Protocol.su.weapon;
-	if(ent.v_float[quake_PR.entvars.view_ofs2] != quake_Protocol.default_viewheight) bits += quake_Protocol.su.viewheight;
-	if(ent.v_float[quake_PR.entvars.idealpitch] != 0.0) bits += quake_Protocol.su.idealpitch;
+	var bits = 512 + 16384;
+	if(ent.v_float[quake_PR.entvars.view_ofs2] != 22) bits = bits + 1;
+	if(ent.v_float[quake_PR.entvars.idealpitch] != 0.0) bits = bits + 2;
 	var val = quake_PR.entvars.items2;
 	var items;
 	if(val != null) {
 		if(ent.v_float[val] != 0.0) items = (ent.v_float[quake_PR.entvars.items] | 0 | 0) + ((ent.v_float[val] | 0) << 23 >>> 0); else items = (ent.v_float[quake_PR.entvars.items] | 0 | 0) + ((quake_PR.globals_float[quake_PR.globalvars.serverflags] | 0) << 28 >>> 0);
 	} else items = (ent.v_float[quake_PR.entvars.items] | 0 | 0) + ((quake_PR.globals_float[quake_PR.globalvars.serverflags] | 0) << 28 >>> 0);
-	if(((ent.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.onground) != 0) bits += quake_Protocol.su.onground;
-	if(ent.v_float[quake_PR.entvars.waterlevel] >= 2.0) bits += quake_Protocol.su.inwater;
-	if(ent.v_float[quake_PR.entvars.punchangle] != 0.0) bits += quake_Protocol.su.punch1;
-	if(ent.v_float[quake_PR.entvars.velocity] != 0.0) bits += quake_Protocol.su.velocity1;
-	if(ent.v_float[quake_PR.entvars.punchangle1] != 0.0) bits += quake_Protocol.su.punch2;
-	if(ent.v_float[quake_PR.entvars.velocity1] != 0.0) bits += quake_Protocol.su.velocity2;
-	if(ent.v_float[quake_PR.entvars.punchangle2] != 0.0) bits += quake_Protocol.su.punch3;
-	if(ent.v_float[quake_PR.entvars.velocity2] != 0.0) bits += quake_Protocol.su.velocity3;
-	if(ent.v_float[quake_PR.entvars.weaponframe] != 0.0) bits += quake_Protocol.su.weaponframe;
-	if(ent.v_float[quake_PR.entvars.armorvalue] != 0.0) bits += quake_Protocol.su.armor;
+	if(((ent.v_float[quake_PR.entvars.flags] | 0) & quake_SV.fl.onground) != 0) bits = bits + 1024;
+	if(ent.v_float[quake_PR.entvars.waterlevel] >= 2.0) bits = bits + 2048;
+	if(ent.v_float[quake_PR.entvars.punchangle] != 0.0) bits = bits + 4;
+	if(ent.v_float[quake_PR.entvars.velocity] != 0.0) bits = bits + 32;
+	if(ent.v_float[quake_PR.entvars.punchangle1] != 0.0) bits = bits + 8;
+	if(ent.v_float[quake_PR.entvars.velocity1] != 0.0) bits = bits + 64;
+	if(ent.v_float[quake_PR.entvars.punchangle2] != 0.0) bits = bits + 16;
+	if(ent.v_float[quake_PR.entvars.velocity2] != 0.0) bits = bits + 128;
+	if(ent.v_float[quake_PR.entvars.weaponframe] != 0.0) bits = bits + 4096;
+	if(ent.v_float[quake_PR.entvars.armorvalue] != 0.0) bits = bits + 8192;
 	quake_MSG.WriteByte(msg,quake_Protocol.svc.clientdata);
 	quake_MSG.WriteShort(msg,bits);
-	if((bits & quake_Protocol.su.viewheight) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.view_ofs2] | 0);
-	if((bits & quake_Protocol.su.idealpitch) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.idealpitch] | 0);
-	if((bits & quake_Protocol.su.punch1) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle] | 0);
-	if((bits & quake_Protocol.su.velocity1) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity] * 0.0625 | 0);
-	if((bits & quake_Protocol.su.punch2) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle1] | 0);
-	if((bits & quake_Protocol.su.velocity2) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity1] * 0.0625 | 0);
-	if((bits & quake_Protocol.su.punch3) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle2] | 0);
-	if((bits & quake_Protocol.su.velocity3) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity2] * 0.0625 | 0);
+	if((bits & 1) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.view_ofs2] | 0);
+	if((bits & 2) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.idealpitch] | 0);
+	if((bits & 4) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle] | 0);
+	if((bits & 32) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity] * 0.0625 | 0);
+	if((bits & 8) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle1] | 0);
+	if((bits & 64) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity1] * 0.0625 | 0);
+	if((bits & 16) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.punchangle2] | 0);
+	if((bits & 128) != 0) quake_MSG.WriteChar(msg,ent.v_float[quake_PR.entvars.velocity2] * 0.0625 | 0);
 	quake_MSG.WriteLong(msg,items);
-	if((bits & quake_Protocol.su.weaponframe) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.weaponframe] | 0);
-	if((bits & quake_Protocol.su.armor) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.armorvalue] | 0);
+	if((bits & 4096) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.weaponframe] | 0);
+	if((bits & 8192) != 0) quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.armorvalue] | 0);
 	quake_MSG.WriteByte(msg,quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[quake_PR.entvars.weaponmodel])));
 	quake_MSG.WriteShort(msg,ent.v_float[quake_PR.entvars.health] | 0);
 	quake_MSG.WriteByte(msg,ent.v_float[quake_PR.entvars.currentammo] | 0);
@@ -14168,7 +14168,6 @@ quake_SV.fatpvs = [];
 quake_SV.clientdatagram = new quake_MSG(1024);
 quake_SV.move = { normal : 0, nomonsters : 1, missile : 2};
 quake_Protocol.version = 15;
-quake_Protocol.su = { viewheight : 1, idealpitch : 2, punch1 : 4, punch2 : 8, punch3 : 16, velocity1 : 32, velocity2 : 64, velocity3 : 128, items : 512, onground : 1024, inwater : 2048, weaponframe : 4096, armor : 8192, weapon : 16384};
 quake_Protocol.default_viewheight = 22;
 quake_Protocol.svc = { nop : 1, disconnect : 2, updatestat : 3, version : 4, setview : 5, sound : 6, time : 7, print : 8, stufftext : 9, setangle : 10, serverinfo : 11, lightstyle : 12, updatename : 13, updatefrags : 14, clientdata : 15, stopsound : 16, updatecolors : 17, particle : 18, damage : 19, spawnstatic : 20, spawnbaseline : 22, temp_entity : 23, setpause : 24, signonnum : 25, centerprint : 26, killedmonster : 27, foundsecret : 28, spawnstaticsound : 29, intermission : 30, finale : 31, cdtrack : 32, sellscreen : 33, cutscene : 34};
 quake_Protocol.clc = { nop : 1, disconnect : 2, move : 3, stringcmd : 4};

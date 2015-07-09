@@ -1233,16 +1233,16 @@ class CL {
     }
 
     static function ParseClientdata(bits) {
-        CL.state.viewheight = ((bits & Protocol.su.viewheight) != 0) ? MSG.ReadChar() : Protocol.default_viewheight;
-        CL.state.idealpitch = ((bits & Protocol.su.idealpitch) != 0) ? MSG.ReadChar() : 0.0;
+        CL.state.viewheight = ((bits & SU.viewheight) != 0) ? MSG.ReadChar() : Protocol.default_viewheight;
+        CL.state.idealpitch = ((bits & SU.idealpitch) != 0) ? MSG.ReadChar() : 0.0;
 
         CL.state.mvelocity[1] = [CL.state.mvelocity[0][0], CL.state.mvelocity[0][1], CL.state.mvelocity[0][2]];
         for (i in 0...3) {
-            if ((bits & (Protocol.su.punch1 << i)) != 0)
+            if ((bits & (SU.punch1 << i)) != 0)
                 CL.state.punchangle[i] = MSG.ReadChar();
             else
                 CL.state.punchangle[i] = 0.0;
-            if ((bits & (Protocol.su.velocity1 << i)) != 0)
+            if ((bits & (SU.velocity1 << i)) != 0)
                 CL.state.mvelocity[0][i] = MSG.ReadChar() * 16.0;
             else
                 CL.state.mvelocity[0][i] = 0.0;
@@ -1257,12 +1257,12 @@ class CL {
             CL.state.items = i;
         }
 
-        CL.state.onground = (bits & Protocol.su.onground) != 0;
-        CL.state.inwater = (bits & Protocol.su.inwater) != 0;
+        CL.state.onground = (bits & SU.onground) != 0;
+        CL.state.inwater = (bits & SU.inwater) != 0;
 
-        CL.state.stats[Def.stat.weaponframe] = ((bits & Protocol.su.weaponframe) != 0) ? MSG.ReadByte() : 0;
-        CL.state.stats[Def.stat.armor] = ((bits & Protocol.su.armor) != 0) ? MSG.ReadByte() : 0;
-        CL.state.stats[Def.stat.weapon] = ((bits & Protocol.su.weapon) != 0) ? MSG.ReadByte() : 0;
+        CL.state.stats[Def.stat.weaponframe] = ((bits & SU.weaponframe) != 0) ? MSG.ReadByte() : 0;
+        CL.state.stats[Def.stat.armor] = ((bits & SU.armor) != 0) ? MSG.ReadByte() : 0;
+        CL.state.stats[Def.stat.weapon] = ((bits & SU.weapon) != 0) ? MSG.ReadByte() : 0;
         CL.state.stats[Def.stat.health] = MSG.ReadShort();
         CL.state.stats[Def.stat.ammo] = MSG.ReadByte();
         CL.state.stats[Def.stat.shells] = MSG.ReadByte();

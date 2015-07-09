@@ -435,11 +435,11 @@ class SV {
             ent.v_float[PR.entvars.fixangle] = 0.0;
         };
 
-        var bits = Protocol.su.items + Protocol.su.weapon;
+        var bits = SU.items + SU.weapon;
         if (ent.v_float[PR.entvars.view_ofs2] != Protocol.default_viewheight)
-            bits += Protocol.su.viewheight;
+            bits += SU.viewheight;
         if (ent.v_float[PR.entvars.idealpitch] != 0.0)
-            bits += Protocol.su.idealpitch;
+            bits += SU.idealpitch;
 
         var val = PR.entvars.items2, items;
         if (val != null) {
@@ -451,52 +451,52 @@ class SV {
             items = Std.int(ent.items) + ((Std.int(PR.globals_float[PR.globalvars.serverflags]) << 28) >>> 0);
 
         if ((ent.flags & SV.fl.onground) != 0)
-            bits += Protocol.su.onground;
+            bits += SU.onground;
         if (ent.v_float[PR.entvars.waterlevel] >= 2.0)
-            bits += Protocol.su.inwater;
+            bits += SU.inwater;
 
         if (ent.v_float[PR.entvars.punchangle] != 0.0)
-            bits += Protocol.su.punch1;
+            bits += SU.punch1;
         if (ent.v_float[PR.entvars.velocity] != 0.0)
-            bits += Protocol.su.velocity1;
+            bits += SU.velocity1;
         if (ent.v_float[PR.entvars.punchangle1] != 0.0)
-            bits += Protocol.su.punch2;
+            bits += SU.punch2;
         if (ent.v_float[PR.entvars.velocity1] != 0.0)
-            bits += Protocol.su.velocity2;
+            bits += SU.velocity2;
         if (ent.v_float[PR.entvars.punchangle2] != 0.0)
-            bits += Protocol.su.punch3;
+            bits += SU.punch3;
         if (ent.v_float[PR.entvars.velocity2] != 0.0)
-            bits += Protocol.su.velocity3;
+            bits += SU.velocity3;
 
         if (ent.v_float[PR.entvars.weaponframe] != 0.0)
-            bits += Protocol.su.weaponframe;
+            bits += SU.weaponframe;
         if (ent.v_float[PR.entvars.armorvalue] != 0.0)
-            bits += Protocol.su.armor;
+            bits += SU.armor;
 
         MSG.WriteByte(msg, Protocol.svc.clientdata);
         MSG.WriteShort(msg, bits);
-        if ((bits & Protocol.su.viewheight) != 0)
+        if ((bits & SU.viewheight) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.view_ofs2]));
-        if ((bits & Protocol.su.idealpitch) != 0)
+        if ((bits & SU.idealpitch) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.idealpitch]));
 
-        if ((bits & Protocol.su.punch1) != 0)
+        if ((bits & SU.punch1) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.punchangle]));
-        if ((bits & Protocol.su.velocity1) != 0)
+        if ((bits & SU.velocity1) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.velocity] * 0.0625));
-        if ((bits & Protocol.su.punch2) != 0)
+        if ((bits & SU.punch2) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.punchangle1]));
-        if ((bits & Protocol.su.velocity2) != 0)
+        if ((bits & SU.velocity2) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.velocity1] * 0.0625));
-        if ((bits & Protocol.su.punch3) != 0)
+        if ((bits & SU.punch3) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.punchangle2]));
-        if ((bits & Protocol.su.velocity3) != 0)
+        if ((bits & SU.velocity3) != 0)
             MSG.WriteChar(msg, Std.int(ent.v_float[PR.entvars.velocity2] * 0.0625));
 
         MSG.WriteLong(msg, items);
-        if ((bits & Protocol.su.weaponframe) != 0)
+        if ((bits & SU.weaponframe) != 0)
             MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.weaponframe]));
-        if ((bits & Protocol.su.armor) != 0)
+        if ((bits & SU.armor) != 0)
             MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.armorvalue]));
         MSG.WriteByte(msg, SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.weaponmodel])));
         MSG.WriteShort(msg, Std.int(ent.v_float[PR.entvars.health]));

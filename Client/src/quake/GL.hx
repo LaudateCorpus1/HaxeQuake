@@ -55,7 +55,7 @@ private class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
 @:publicFields
 @:expose("GL")
 class GL {
-	@:expose("gl") static var gl:RenderingContext;
+	static var gl:RenderingContext;
 	static var rect:Buffer;
 	static var picmip:Cvar;
 	static var textures:Array<GLTexture> = [];
@@ -351,8 +351,6 @@ class GL {
 		];
 	}
 
-	static inline function setGlobalGL() untyped __js__("gl = {0}", gl);
-
 	static function Init() {
 		VID.mainwindow = cast document.getElementById('mainwindow');
 		try {
@@ -362,8 +360,6 @@ class GL {
 		} catch (e:Dynamic) {}
 		if (gl == null)
 			Sys.Error('Unable to initialize WebGL. Your browser may not support it.');
-
-		setGlobalGL();
 
 		maxtexturesize = gl.getParameter(RenderingContext.MAX_TEXTURE_SIZE);
 

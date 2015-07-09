@@ -28,7 +28,7 @@ class Console {
         SCR.EndLoadingPlaque();
         if (Key.dest.value == Key.dest.console) {
             if (CL.cls.state != CL.active.connected) {
-                (untyped M).Menu_Main_f();
+                M.Menu_Main_f();
                 return;
             }
             Key.dest.value = Key.dest.game;

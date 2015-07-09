@@ -53,8 +53,8 @@ class Sys {
             window.clearInterval(frame);
         for (e in events)
             Reflect.setField(window, e, null);
-        if (untyped Host.initialized)
-            untyped Host.Shutdown();
+        if (Host.initialized)
+            Host.Shutdown();
         document.body.style.cursor = 'auto';
         var i = Console.text.length - 25;
         if (i < 0)

@@ -358,9 +358,9 @@ class Key {
 			if (Key.dest.value == Key.dest.message)
 				Key.Message(key);
 			else if (Key.dest.value == Key.dest.menu)
-				(untyped M).Keydown(key);
+				M.Keydown(key);
 			else
-				(untyped M).ToggleMenu_f();
+				M.ToggleMenu_f();
 			return;
 		}
 
@@ -383,7 +383,7 @@ class Key {
 		}
 
 		if ((CL.cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest.value == Key.dest.game)) {
-			(untyped M).ToggleMenu_f();
+			M.ToggleMenu_f();
 			return;
 		}
 
@@ -406,7 +406,7 @@ class Key {
 		if (Key.dest.value == Key.dest.message)
 			Key.Message(key);
 		else if (Key.dest.value == Key.dest.menu)
-			(untyped M).Keydown(key);
+			M.Keydown(key);
 		else
 			Key.ProcessConsole(key);
 	}

@@ -63,7 +63,7 @@ class Cmd {
 
     static function StuffCmds_f() {
         var s = false, build = '';
-        for (arg in (untyped COM.argv : Array<String>)) {
+        for (arg in COM.argv) {
             var c = arg.charCodeAt(0);
             if (s == true) {
                 if (c == 43) {
@@ -154,7 +154,7 @@ class Cmd {
             text = COM.Parse(text);
             if (text == null)
                 return;
-            argv.push(untyped COM.token);
+            argv.push(COM.token);
         }
     }
 

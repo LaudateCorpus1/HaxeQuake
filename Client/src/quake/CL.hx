@@ -633,25 +633,25 @@ class CL {
         if (!SV.server.active) {
             Console.DPrint('Clearing memory\n');
             Mod.ClearAll();
-            CL.cls.signon = 0;
+            cls.signon = 0;
         }
 
-        CL.state = new ClientState();
-        CL.cls.message.cursize = 0;
+        state = new ClientState();
+        cls.message.cursize = 0;
 
-        CL.entities = [];
+        entities = [];
 
-        CL.dlights = [];
+        dlights = [];
         for (i in 0...32)
-            CL.dlights[i] = new DLight();
+            dlights.push(new DLight());
 
-        CL.lightstyle = [];
+        lightstyle = [];
         for (i in 0...64)
-            CL.lightstyle[i] = '';
+            lightstyle.push("");
 
-        CL.beams = [];
+        beams = [];
         for (i in 0...24)
-            CL.beams[i] = new Beam();
+            beams.push(new Beam());
     }
 
     static function Disconnect() {

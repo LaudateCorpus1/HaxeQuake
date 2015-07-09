@@ -825,20 +825,20 @@ quake_CL.ClearState = function() {
 	quake_CL.dlights = [];
 	var _g = 0;
 	while(_g < 32) {
-		var i = _g++;
-		quake_CL.dlights[i] = new quake_DLight();
+		_g++;
+		quake_CL.dlights.push(new quake_DLight());
 	}
 	quake_CL.lightstyle = [];
 	var _g1 = 0;
 	while(_g1 < 64) {
-		var i1 = _g1++;
-		quake_CL.lightstyle[i1] = "";
+		_g1++;
+		quake_CL.lightstyle.push("");
 	}
 	quake_CL.beams = [];
 	var _g2 = 0;
 	while(_g2 < 24) {
-		var i2 = _g2++;
-		quake_CL.beams[i2] = new quake__$CL_Beam();
+		_g2++;
+		quake_CL.beams.push(new quake__$CL_Beam());
 	}
 };
 quake_CL.Disconnect = function() {

@@ -1888,7 +1888,7 @@ class R {
     }
 
     static function DrawWorld() {
-        var clmodel:MModel = CL.state.worldmodel;
+        var clmodel = CL.state.worldmodel;
         R.currententity = CL.entities[0];
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
 

@@ -56,7 +56,7 @@ class REntity {
     var skinnum = 0;
     var msgtime = 0.0;
     var forcelink:Bool;
-    var effects = 0;
+    var effects = EntEffect.no;
     var update_type = 0;
     var visframe = 0;
     var dlightframe = 0;
@@ -75,7 +75,7 @@ class REntityState {
     var frame = 0;
     var colormap = 0;
     var skin = 0;
-    var effects = 0;
+    var effects = EntEffect.no;
     function new() {}
 }
 

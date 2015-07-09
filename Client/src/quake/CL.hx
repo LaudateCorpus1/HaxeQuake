@@ -5,6 +5,7 @@ import js.html.DataView;
 import js.html.Uint8Array;
 import js.html.XMLHttpRequest;
 import quake.Mod.MModel;
+import quake.Mod.EntEffect;
 import quake.Mod.ModelEffect;
 import quake.NET.INETSocket;
 import quake.Protocol;
@@ -875,11 +876,11 @@ class CL {
                 }
             }
 
-            if ((ent.model.flags & Mod.flags.rotate) != 0)
+            if ((ent.model.flags & ModelEffect.rotate) != 0)
                 ent.angles[1] = bobjrotate;
-            if ((ent.effects & ModelEffect.brightfield) != 0)
+            if ((ent.effects & EntEffect.brightfield) != 0)
                 R.EntityParticles(ent);
-            if ((ent.effects & ModelEffect.muzzleflash) != 0) {
+            if ((ent.effects & EntEffect.muzzleflash) != 0) {
                 dl = CL.AllocDlight(i);
                 var fv = [];
                 Vec.AngleVectors(ent.angles, fv);
@@ -892,36 +893,36 @@ class CL {
                 dl.minlight = 32.0;
                 dl.die = CL.state.time + 0.1;
             }
-            if ((ent.effects & ModelEffect.brightlight) != 0) {
+            if ((ent.effects & EntEffect.brightlight) != 0) {
                 dl = CL.AllocDlight(i);
                 dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
                 dl.radius = 400.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
-            if ((ent.effects & ModelEffect.dimlight) != 0) {
+            if ((ent.effects & EntEffect.dimlight) != 0) {
                 dl = CL.AllocDlight(i);
                 dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
                 dl.radius = 200.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
-            if ((ent.model.flags & Mod.flags.gib) != 0)
+            if ((ent.model.flags & ModelEffect.gib) != 0)
                 R.RocketTrail(oldorg, ent.origin, 2);
-            else if ((ent.model.flags & Mod.flags.zomgib) != 0)
+            else if ((ent.model.flags & ModelEffect.zomgib) != 0)
                 R.RocketTrail(oldorg, ent.origin, 4);
-            else if ((ent.model.flags & Mod.flags.tracer) != 0)
+            else if ((ent.model.flags & ModelEffect.tracer) != 0)
                 R.RocketTrail(oldorg, ent.origin, 3);
-            else if ((ent.model.flags & Mod.flags.tracer2) != 0)
+            else if ((ent.model.flags & ModelEffect.tracer2) != 0)
                 R.RocketTrail(oldorg, ent.origin, 5);
-            else if ((ent.model.flags & Mod.flags.rocket) != 0) {
+            else if ((ent.model.flags & ModelEffect.rocket) != 0) {
                 R.RocketTrail(oldorg, ent.origin, 0);
                 dl = CL.AllocDlight(i);
                 dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2]];
                 dl.radius = 200.0;
                 dl.die = CL.state.time + 0.01;
             }
-            else if ((ent.model.flags & Mod.flags.grenade) != 0)
+            else if ((ent.model.flags & ModelEffect.grenade) != 0)
                 R.RocketTrail(oldorg, ent.origin, 1);
-            else if ((ent.model.flags & Mod.flags.tracer3) != 0)
+            else if ((ent.model.flags & ModelEffect.tracer3) != 0)
                 R.RocketTrail(oldorg, ent.origin, 6);
 
             ent.forcelink = false;
@@ -1053,7 +1054,7 @@ class CL {
         'cutscene'
     ];
 
-    static function EntityNum(num:Int) {
+    static function EntityNum(num:Int):REntity {
         if (num < CL.entities.length)
             return CL.entities[num];
         while (CL.entities.length <= num) {
@@ -1198,7 +1199,7 @@ class CL {
         if (ent.colormap > CL.state.maxclients)
             Sys.Error('i >= cl.maxclients');
         ent.skinnum = ((bits & U.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
-        ent.effects = ((bits & U.effects) != 0) ? MSG.ReadByte() : ent.baseline.effects;
+        ent.effects = ((bits & U.effects) != 0) ? cast MSG.ReadByte() : ent.baseline.effects;
 
         Vec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
         Vec.Copy(ent.msg_angles[0], ent.msg_angles[1]);

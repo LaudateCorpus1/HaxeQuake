@@ -22,7 +22,7 @@ import quake.GL.GLTexture;
 
 @:publicFields
 class MModel {
-    var flags:Int;
+    var flags:ModelEffect;
     var oriented:Bool;
     var numframes:Int;
     var frames:Array<MFrame>;
@@ -285,26 +285,28 @@ class MLink {
     public function new() {}
 }
 
-@:enum abstract ModelEffect(Int) to Int {
+@:enum abstract EntEffect(Int) to Int {
+    var no = 0;
     var brightfield = 1;
     var muzzleflash = 2;
     var brightlight = 4;
     var dimlight = 8;
 }
 
+@:enum abstract ModelEffect(Int) to Int {
+    var rocket = 1;
+    var grenade = 2;
+    var gib = 4;
+    var rotate = 8;
+    var tracer = 16;
+    var zomgib = 32;
+    var tracer2 = 64;
+    var tracer3 = 128;
+}
+
 @:publicFields
 class Mod {
 
-    static var flags = {
-        rocket: 1,
-        grenade: 2,
-        gib: 4,
-        rotate: 8,
-        tracer: 16,
-        zomgib: 32,
-        tracer2: 64,
-        tracer3: 128
-    }
 
     static var version = {brush: 29, sprite: 1, alias: 6};
 
@@ -1196,7 +1198,7 @@ class Mod {
         if (Mod.loadmodel.numframes == 0)
             Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
         Mod.loadmodel.random = model.getUint32(72, true) == 1;
-        Mod.loadmodel.flags = model.getUint32(76, true);
+        Mod.loadmodel.flags = cast model.getUint32(76, true);
         Mod.loadmodel.mins = [-16.0, -16.0, -16.0];
         Mod.loadmodel.maxs = [16.0, 16.0, 16.0];
 

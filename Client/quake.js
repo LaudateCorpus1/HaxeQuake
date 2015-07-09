@@ -1048,7 +1048,7 @@ quake_CL.RelinkEntities = function() {
 				ent.angles[j1] = ent.msg_angles[1][j1] + f * d1;
 			}
 		}
-		if((ent.model.flags & quake_Mod.flags.rotate) != 0) ent.angles[1] = bobjrotate;
+		if((ent.model.flags & 8) != 0) ent.angles[1] = bobjrotate;
 		if((ent.effects & 1) != 0) quake_R.EntityParticles(ent);
 		if((ent.effects & 2) != 0) {
 			dl = quake_CL.AllocDlight(i1);
@@ -1071,13 +1071,13 @@ quake_CL.RelinkEntities = function() {
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
-		if((ent.model.flags & quake_Mod.flags.gib) != 0) quake_R.RocketTrail(oldorg,ent.origin,2); else if((ent.model.flags & quake_Mod.flags.zomgib) != 0) quake_R.RocketTrail(oldorg,ent.origin,4); else if((ent.model.flags & quake_Mod.flags.tracer) != 0) quake_R.RocketTrail(oldorg,ent.origin,3); else if((ent.model.flags & quake_Mod.flags.tracer2) != 0) quake_R.RocketTrail(oldorg,ent.origin,5); else if((ent.model.flags & quake_Mod.flags.rocket) != 0) {
+		if((ent.model.flags & 4) != 0) quake_R.RocketTrail(oldorg,ent.origin,2); else if((ent.model.flags & 32) != 0) quake_R.RocketTrail(oldorg,ent.origin,4); else if((ent.model.flags & 16) != 0) quake_R.RocketTrail(oldorg,ent.origin,3); else if((ent.model.flags & 64) != 0) quake_R.RocketTrail(oldorg,ent.origin,5); else if((ent.model.flags & 1) != 0) {
 			quake_R.RocketTrail(oldorg,ent.origin,0);
 			dl = quake_CL.AllocDlight(i1);
 			dl.origin = [ent.origin[0],ent.origin[1],ent.origin[2]];
 			dl.radius = 200.0;
 			dl.die = quake_CL.state.time + 0.01;
-		} else if((ent.model.flags & quake_Mod.flags.grenade) != 0) quake_R.RocketTrail(oldorg,ent.origin,1); else if((ent.model.flags & quake_Mod.flags.tracer3) != 0) quake_R.RocketTrail(oldorg,ent.origin,6);
+		} else if((ent.model.flags & 2) != 0) quake_R.RocketTrail(oldorg,ent.origin,1); else if((ent.model.flags & 128) != 0) quake_R.RocketTrail(oldorg,ent.origin,6);
 		ent.forcelink = false;
 		if(i1 != quake_CL.state.viewentity || quake_Chase.active.value != 0) quake_CL.visedicts[quake_CL.numvisedicts++] = ent;
 	}
@@ -14036,7 +14036,6 @@ quake_M.bindnames = [["+attack","attack"],["impulse 10","change weapon"],["+jump
 quake_M.keys_cursor = 0;
 quake_M.num_help_pages = 6;
 quake_M.quitMessage = [["  Are you gonna quit","  this game just like","   everything else?",""],[" Milord, methinks that","   thou art a lowly"," quitter. Is this true?",""],[" Do I need to bust your","  face open for trying","        to quit?",""],[" Man, I oughta smack you","   for trying to quit!","     Press Y to get","      smacked out."],[" Press Y to quit like a","   big loser in life.","  Press N to stay proud","    and successful!"],["   If you press Y to","  quit, I will summon","  Satan all over your","      hard drive!"],["  Um, Asmodeus dislikes"," his children trying to"," quit. Press Y to return","   to your Tinkertoys."],["  If you quit now, I'll","  throw a blanket-party","   for you next time!",""]];
-quake_Mod.flags = { rocket : 1, grenade : 2, gib : 4, rotate : 8, tracer : 16, zomgib : 32, tracer2 : 64, tracer3 : 128};
 quake_Mod.version = { brush : 29, sprite : 1, alias : 6};
 quake_Mod.known = [];
 quake_Mod.lump = { entities : 0, planes : 1, textures : 2, vertexes : 3, visibility : 4, nodes : 5, texinfo : 6, faces : 7, lighting : 8, clipnodes : 9, leafs : 10, marksurfaces : 11, edges : 12, surfedges : 13, models : 14};

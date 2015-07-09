@@ -606,7 +606,7 @@ class SV {
         }
 
         for (i in 1...SV.server.num_edicts)
-            SV.server.edicts[i].v_float[EntVarOfs.effects] = Std.int(SV.server.edicts[i].v_float[EntVarOfs.effects]) & (~ModelEffect.muzzleflash >>> 0);
+            SV.server.edicts[i].v_float[EntVarOfs.effects] = Std.int(SV.server.edicts[i].v_float[EntVarOfs.effects]) & (~EntEffect.muzzleflash >>> 0);
     }
 
     static function ModelIndex(name:String):Int {

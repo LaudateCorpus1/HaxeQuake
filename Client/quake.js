@@ -10505,29 +10505,27 @@ quake_SV.RunClients = function() {
 quake_SV.InitBoxHull = function() {
 	quake_SV.box_clipnodes = [];
 	quake_SV.box_planes = [];
-	var tmp;
-	var h = new quake_MHull();
-	h.clipnodes = quake_SV.box_clipnodes;
-	h.planes = quake_SV.box_planes;
-	h.firstclipnode = 0;
-	h.lastclipnode = 5;
-	tmp = h;
-	quake_SV.box_hull = tmp;
+	quake_SV.box_hull = new quake_MHull();
+	quake_SV.box_hull.clipnodes = quake_SV.box_clipnodes;
+	quake_SV.box_hull.planes = quake_SV.box_planes;
+	quake_SV.box_hull.firstclipnode = 0;
+	quake_SV.box_hull.lastclipnode = 5;
 	var _g = 0;
 	while(_g < 6) {
 		var i = _g++;
-		var node = { };
-		quake_SV.box_clipnodes[i] = node;
+		var side = i & 1;
+		var node = new quake_MClipNode();
 		node.planenum = i;
 		node.children = [];
-		node.children[i & 1] = -1;
-		if(i != 5) node.children[1 - (i & 1)] = i + 1; else node.children[1 - (i & 1)] = -2;
-		var plane = { };
-		quake_SV.box_planes[i] = plane;
+		node.children[side] = -1;
+		if(i != 5) node.children[side ^ 1] = i + 1; else node.children[side ^ 1] = -2;
+		quake_SV.box_clipnodes.push(node);
+		var plane = new quake_Plane();
 		plane.type = i >> 1;
 		plane.normal = [0.0,0.0,0.0];
 		plane.normal[i >> 1] = 1.0;
 		plane.dist = 0.0;
+		quake_SV.box_planes.push(plane);
 	}
 };
 quake_SV.HullForEntity = function(ent,mins,maxs,offset) {

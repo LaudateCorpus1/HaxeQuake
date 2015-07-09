@@ -1940,33 +1940,35 @@ class SV {
     static var box_planes:Array<Plane>;
     static var box_hull:MHull;
 
-    static function InitBoxHull() {
-        SV.box_clipnodes = [];
-        SV.box_planes = [];
-        SV.box_hull = {
-            var h = new MHull();
-            h.clipnodes = SV.box_clipnodes;
-            h.planes = SV.box_planes;
-            h.firstclipnode = 0;
-            h.lastclipnode = 5;
-            h;
-        };
+    static function InitBoxHull():Void {
+        box_clipnodes = [];
+        box_planes = [];
+        box_hull = new MHull();
+
+        box_hull.clipnodes = box_clipnodes;
+        box_hull.planes = box_planes;
+        box_hull.firstclipnode = 0;
+        box_hull.lastclipnode = 5;
+
         for (i in 0...6) {
-            var node = cast {};
-            SV.box_clipnodes[i] = node;
+            var side = i & 1;
+
+            var node = new MClipNode();
             node.planenum = i;
             node.children = [];
-            node.children[i & 1] = ModContents.empty;
+            node.children[side] = empty;
             if (i != 5)
-                node.children[1 - (i & 1)] = i + 1;
+                node.children[side ^ 1] = i + 1;
             else
-                node.children[1 - (i & 1)] = ModContents.solid;
-            var plane = cast {};
-            SV.box_planes[i] = plane;
+                node.children[side ^ 1] = solid;
+            box_clipnodes.push(node);
+
+            var plane = new Plane();
             plane.type = i >> 1;
             plane.normal = [0.0, 0.0, 0.0];
             plane.normal[i >> 1] = 1.0;
             plane.dist = 0.0;
+            box_planes.push(plane);
         }
     }
 

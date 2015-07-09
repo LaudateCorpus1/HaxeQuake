@@ -163,87 +163,7 @@ private class PRStackItem {
 @:publicFields
 class PR {
 
-	static var etype = {
-		ev_void: EType.ev_void,
-		ev_string: EType.ev_string,
-		ev_float: EType.ev_float,
-		ev_vector: EType.ev_vector,
-		ev_entity: EType.ev_entity,
-		ev_field: EType.ev_field,
-		ev_function: EType.ev_function,
-		ev_pointer: EType.ev_pointer,
-	}
-
-	static var op = {
-		done: PROp.done,
-		mul_f: PROp.mul_f,
-	    mul_v: PROp.mul_v,
-	    mul_fv: PROp.mul_fv,
-	    mul_vf: PROp.mul_vf,
-		div_f: PROp.div_f,
-		add_f: PROp.add_f,
-	    add_v: PROp.add_v,
-		sub_f: PROp.sub_f,
-	    sub_v: PROp.sub_v,
-		eq_f: PROp.eq_f,
-	    eq_v: PROp.eq_v,
-	    eq_s: PROp.eq_s,
-	    eq_e: PROp.eq_e,
-	    eq_fnc: PROp.eq_fnc,
-		ne_f: PROp.ne_f,
-	    ne_v: PROp.ne_v,
-	    ne_s: PROp.ne_s,
-	    ne_e: PROp.ne_e,
-	    ne_fnc: PROp.ne_fnc,
-		le: PROp.le,
-	    ge: PROp.ge,
-	    lt: PROp.lt,
-	    gt: PROp.gt,
-		load_f: PROp.load_f,
-	    load_v: PROp.load_v,
-	    load_s: PROp.load_s,
-	    load_ent: PROp.load_ent,
-	    load_fld: PROp.load_fld,
-	    load_fnc: PROp.load_fnc,
-		address: PROp.address,
-		store_f: PROp.store_f,
-	    store_v: PROp.store_v,
-	    store_s: PROp.store_s,
-	    store_ent: PROp.store_ent,
-	    store_fld: PROp.store_fld,
-	    store_fnc: PROp.store_fnc,
-		storep_f: PROp.storep_f,
-	    storep_v: PROp.storep_v,
-	    storep_s: PROp.storep_s,
-	    storep_ent: PROp.storep_ent,
-	    storep_fld: PROp.storep_fld,
-	    storep_fnc: PROp.storep_fnc,
-		ret: PROp.ret,
-		not_f: PROp.not_f,
-	    not_v: PROp.not_v,
-	    not_s: PROp.not_s,
-	    not_ent: PROp.not_ent,
-	    not_fnc: PROp.not_fnc,
-		jnz: PROp.jnz,
-	    jz: PROp.jz,
-		call0: PROp.call0,
-	    call1: PROp.call1,
-	    call2: PROp.call2,
-	    call3: PROp.call3,
-	    call4: PROp.call4,
-	    call5: PROp.call5,
-	    call6: PROp.call6,
-	    call7: PROp.call7,
-	    call8: PROp.call8,
-		state: PROp.state,
-		jump: PROp.jump,
-		and: PROp.and,
-	    or: PROp.or,
-		bitand: PROp.bitand,
-	    bitor: PROp.bitor,
-	}
-
-	static var version = 6;
+	static inline var version = 6;
 
 	static var globalvars = {
 		self: 28, // edict
@@ -415,7 +335,7 @@ class PR {
 		items2: null,
 	}
 
-	static var progheader_crc = 5927;
+	static inline var progheader_crc = 5927;
 
 	static var strings:Array<Int>;
 	static var functions:Array<PRFunction>;

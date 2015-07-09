@@ -437,23 +437,38 @@ quake_MSG.ReadAngle = function() {
 	return quake_MSG.ReadChar() * 1.40625;
 };
 quake_MSG.prototype = {
-	WriteChar: function(c) {
-		new DataView(this.data).setInt8(quake_SZ.GetSpace(this,1),c);
+	GetSpace: function(length) {
+		if(this.cursize + length > this.data.byteLength) {
+			if(!this.allowoverflow) quake_Sys.Error("SZ.GetSpace: overflow without allowoverflow set");
+			if(length > this.data.byteLength) quake_Sys.Error("SZ.GetSpace: " + length + " is > full buffer size");
+			this.overflowed = true;
+			quake_Console.Print("SZ.GetSpace: overflow\n");
+			this.cursize = 0;
+		}
+		var oldsize = this.cursize;
+		this.cursize += length;
+		return oldsize;
+	}
+	,Write: function(a,length) {
+		new Uint8Array(this.data,this.GetSpace(length),length).set(a.subarray(0,length));
+	}
+	,WriteChar: function(c) {
+		new DataView(this.data).setInt8(this.GetSpace(1),c);
 	}
 	,WriteByte: function(c) {
-		new DataView(this.data).setUint8(quake_SZ.GetSpace(this,1),c);
+		new DataView(this.data).setUint8(this.GetSpace(1),c);
 	}
 	,WriteShort: function(c) {
-		new DataView(this.data).setInt16(quake_SZ.GetSpace(this,2),c,true);
+		new DataView(this.data).setInt16(this.GetSpace(2),c,true);
 	}
 	,WriteLong: function(c) {
-		new DataView(this.data).setInt32(quake_SZ.GetSpace(this,4),c,true);
+		new DataView(this.data).setInt32(this.GetSpace(4),c,true);
 	}
 	,WriteFloat: function(f) {
-		new DataView(this.data).setFloat32(quake_SZ.GetSpace(this,4),f,true);
+		new DataView(this.data).setFloat32(this.GetSpace(4),f,true);
 	}
 	,WriteString: function(s) {
-		if(s != null) quake_SZ.Write(this,new Uint8Array(quake_Q.strmem(s)),s.length);
+		if(s != null) this.Write(new Uint8Array(quake_Q.strmem(s)),s.length);
 		this.WriteChar(0);
 	}
 	,WriteCoord: function(f) {
@@ -4128,7 +4143,7 @@ quake_Host.PreSpawn_f = function() {
 		quake_Console.Print("prespawn not valid -- allready spawned\n");
 		return;
 	}
-	quake_SZ.Write(client.message,new Uint8Array(quake_SV.server.signon.data),quake_SV.server.signon.cursize);
+	client.message.Write(new Uint8Array(quake_SV.server.signon.data),quake_SV.server.signon.cursize);
 	client.message.WriteByte(25);
 	client.message.WriteByte(2);
 	client.sendsignon = true;
@@ -9311,7 +9326,7 @@ quake_SV.SendClientDatagram = function() {
 	msg.WriteFloat(quake_SV.server.time);
 	quake_SV.WriteClientdataToMessage(client.edict,msg);
 	quake_SV.WriteEntitiesToClient(client.edict,msg);
-	if(msg.cursize + quake_SV.server.datagram.cursize < msg.data.byteLength) quake_SZ.Write(msg,new Uint8Array(quake_SV.server.datagram.data),quake_SV.server.datagram.cursize);
+	if(msg.cursize + quake_SV.server.datagram.cursize < msg.data.byteLength) msg.Write(new Uint8Array(quake_SV.server.datagram.data),quake_SV.server.datagram.cursize);
 	if(quake_NET.SendUnreliableMessage(client.netconnection,msg) == -1) {
 		quake_Host.DropClient(true);
 		return false;
@@ -9344,7 +9359,7 @@ quake_SV.UpdateToReliableMessages = function() {
 	while(_g11 < _g4) {
 		var i1 = _g11++;
 		var client1 = quake_SV.svs.clients[i1];
-		if(client1.active) quake_SZ.Write(client1.message,new Uint8Array(quake_SV.server.reliable_datagram.data),quake_SV.server.reliable_datagram.cursize);
+		if(client1.active) client1.message.Write(new Uint8Array(quake_SV.server.reliable_datagram.data),quake_SV.server.reliable_datagram.cursize);
 	}
 	quake_SV.server.reliable_datagram.cursize = 0;
 };
@@ -13207,23 +13222,6 @@ var quake_Sfx = function(n) {
 	this.name = n;
 };
 quake_Sfx.__name__ = true;
-var quake_SZ = function() { };
-quake_SZ.__name__ = true;
-quake_SZ.GetSpace = function(buf,length) {
-	if(buf.cursize + length > buf.data.byteLength) {
-		if(!buf.allowoverflow) quake_Sys.Error("SZ.GetSpace: overflow without allowoverflow set");
-		if(length > buf.data.byteLength) quake_Sys.Error("SZ.GetSpace: " + length + " is > full buffer size");
-		buf.overflowed = true;
-		quake_Console.Print("SZ.GetSpace: overflow\n");
-		buf.cursize = 0;
-	}
-	var cursize = buf.cursize;
-	buf.cursize += length;
-	return cursize;
-};
-quake_SZ.Write = function(sb,data,length) {
-	new Uint8Array(sb.data,quake_SZ.GetSpace(sb,length),length).set(data.subarray(0,length));
-};
 var quake_Sbar = function() { };
 quake_Sbar.__name__ = true;
 quake_Sbar.ShowScores = function() {

@@ -21,29 +21,48 @@ class MSG {
 	static var badread:Bool;
 	static var readcount:Int;
 
+	function GetSpace(length:Int):Int {
+		if ((cursize + length) > data.byteLength) {
+			if (!allowoverflow)
+				Sys.Error('SZ.GetSpace: overflow without allowoverflow set');
+			if (length > data.byteLength)
+				Sys.Error('SZ.GetSpace: ' + length + ' is > full buffer size');
+			overflowed = true;
+			Console.Print('SZ.GetSpace: overflow\n');
+			cursize = 0;
+		}
+		var oldsize = cursize;
+		cursize += length;
+		return oldsize;
+	}
+
+	function Write(a:Uint8Array, length:Int):Void {
+		(new Uint8Array(data, GetSpace(length), length)).set(a.subarray(0, length));
+	}
+
 	function WriteChar(c:Int):Void {
-		(new DataView(data)).setInt8(SZ.GetSpace(this, 1), c);
+		(new DataView(data)).setInt8(GetSpace(1), c);
 	}
 
 	function WriteByte(c:Int):Void {
-		(new DataView(data)).setUint8(SZ.GetSpace(this, 1), c);
+		(new DataView(data)).setUint8(GetSpace(1), c);
 	}
 
 	function WriteShort(c:Int):Void {
-		(new DataView(data)).setInt16(SZ.GetSpace(this, 2), c, true);
+		(new DataView(data)).setInt16(GetSpace(2), c, true);
 	}
 
 	function WriteLong(c:Int):Void {
-		(new DataView(data)).setInt32(SZ.GetSpace(this, 4), c, true);
+		(new DataView(data)).setInt32(GetSpace(4), c, true);
 	}
 
 	function WriteFloat(f:Float):Void {
-		(new DataView(data)).setFloat32(SZ.GetSpace(this, 4), f, true);
+		(new DataView(data)).setFloat32(GetSpace(4), f, true);
 	}
 
 	function WriteString(s:String):Void {
 		if (s != null)
-			SZ.Write(this, new Uint8Array(Q.strmem(s)), s.length);
+			Write(new Uint8Array(Q.strmem(s)), s.length);
 		WriteChar(0);
 	}
 
@@ -53,6 +72,21 @@ class MSG {
 
 	function WriteAngle(f:Float):Void {
 		WriteByte(Std.int(f * 256 / 360) & 255);
+	}
+
+	function Print(s:String):Void {
+		var buf = new Uint8Array(data);
+		var dest;
+		if (cursize != 0) {
+			if (buf[cursize - 1] == 0)
+				dest = GetSpace(s.length - 1) - 1;
+			else
+				dest = GetSpace(s.length);
+		} else {
+			dest = GetSpace(s.length);
+		}
+		for (i in 0...s.length)
+			buf[dest + i] = s.charCodeAt(i);
 	}
 
 	static function BeginReading():Void {

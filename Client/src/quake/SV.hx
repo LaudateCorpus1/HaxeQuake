@@ -528,7 +528,7 @@ class SV {
         SV.WriteClientdataToMessage(client.edict, msg);
         SV.WriteEntitiesToClient(client.edict, msg);
         if ((msg.cursize + SV.server.datagram.cursize) < msg.data.byteLength)
-            SZ.Write(msg, new Uint8Array(SV.server.datagram.data), SV.server.datagram.cursize);
+            msg.Write(new Uint8Array(SV.server.datagram.data), SV.server.datagram.cursize);
         if (NET.SendUnreliableMessage(client.netconnection, msg) == -1) {
             Host.DropClient(true);
             return false;
@@ -558,7 +558,7 @@ class SV {
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
             if (client.active)
-                SZ.Write(client.message, new Uint8Array(SV.server.reliable_datagram.data), SV.server.reliable_datagram.cursize);
+                client.message.Write(new Uint8Array(SV.server.reliable_datagram.data), SV.server.reliable_datagram.cursize);
         }
 
         SV.server.reliable_datagram.cursize = 0;

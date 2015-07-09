@@ -936,7 +936,7 @@ class Host {
             Console.Print('prespawn not valid -- allready spawned\n');
             return;
         }
-        SZ.Write(client.message, new Uint8Array(SV.server.signon.data), SV.server.signon.cursize);
+        client.message.Write(new Uint8Array(SV.server.signon.data), SV.server.signon.cursize);
         client.message.WriteByte(SVC.signonnum);
         client.message.WriteByte(2);
         client.sendsignon = true;

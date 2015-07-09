@@ -1,5 +1,6 @@
 package quake;
 
+import quake.CL.CShift;
 
 @:publicFields
 class V {
@@ -143,7 +144,7 @@ class V {
 			count = 10.0;
 		CL.state.faceanimtime = CL.state.time + 0.2;
 
-		var cshift = CL.state.cshifts[CL.cshift.damage];
+		var cshift = CL.state.cshifts[CShift.damage];
 		cshift[3] += 3.0 * count;
 		if (cshift[3] < 0.0)
 			cshift[3] = 0.0;
@@ -180,7 +181,7 @@ class V {
 	}
 
 	static function BonusFlash_f():Void {
-		var cshift = CL.state.cshifts[CL.cshift.bonus];
+		var cshift = CL.state.cshifts[CShift.bonus];
 		cshift[0] = 215.0;
 		cshift[1] = 186.0;
 		cshift[2] = 69.0;
@@ -190,18 +191,18 @@ class V {
 	static function SetContentsColor(contents:ModContents):Void {
 		switch (contents) {
 			case empty | solid:
-				CL.state.cshifts[CL.cshift.contents] = V.cshift_empty;
+				CL.state.cshifts[CShift.contents] = V.cshift_empty;
 			case lava:
-				CL.state.cshifts[CL.cshift.contents] = V.cshift_lava;
+				CL.state.cshifts[CShift.contents] = V.cshift_lava;
 			case slime:
-				CL.state.cshifts[CL.cshift.contents] = V.cshift_slime;
+				CL.state.cshifts[CShift.contents] = V.cshift_slime;
 			default:
-				CL.state.cshifts[CL.cshift.contents] = V.cshift_water;
+				CL.state.cshifts[CShift.contents] = V.cshift_water;
 		}
 	}
 
 	static function CalcBlend():Void {
-		var cshift = CL.state.cshifts[CL.cshift.powerup];
+		var cshift = CL.state.cshifts[CShift.powerup];
 		if ((CL.state.items & Def.it.quad) != 0) {
 			cshift[0] = 0.0;
 			cshift[1] = 0.0;
@@ -229,12 +230,12 @@ class V {
 		else
 			cshift[3] = 0.0;
 
-		CL.state.cshifts[CL.cshift.damage][3] -= Host.frametime * 150.0;
-		if (CL.state.cshifts[CL.cshift.damage][3] < 0.0)
-			CL.state.cshifts[CL.cshift.damage][3] = 0.0;
-		CL.state.cshifts[CL.cshift.bonus][3] -= Host.frametime * 100.0;
-		if (CL.state.cshifts[CL.cshift.bonus][3] < 0.0)
-			CL.state.cshifts[CL.cshift.bonus][3] = 0.0;
+		CL.state.cshifts[CShift.damage][3] -= Host.frametime * 150.0;
+		if (CL.state.cshifts[CShift.damage][3] < 0.0)
+			CL.state.cshifts[CShift.damage][3] = 0.0;
+		CL.state.cshifts[CShift.bonus][3] -= Host.frametime * 100.0;
+		if (CL.state.cshifts[CShift.bonus][3] < 0.0)
+			CL.state.cshifts[CShift.bonus][3] = 0.0;
 
 		if (V.cshiftpercent.value == 0) {
 			V.blend[0] = V.blend[1] = V.blend[2] = V.blend[3] = 0.0;
@@ -242,7 +243,7 @@ class V {
 		}
 
 		var r = 0.0, g = 0.0, b = 0.0, a = 0.0;
-		for (i in 0...4) {
+		for (i in 0...CShift.numtotal) {
 			var cshift = CL.state.cshifts[i];
 			var a2 = cshift[3] * V.cshiftpercent.value / 25500.0;
 			if (a2 == 0.0)

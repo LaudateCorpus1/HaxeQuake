@@ -124,6 +124,15 @@ private class ClientState {
     function new() {}
 }
 
+@:enum abstract CShift(Int) to Int {
+    var contents = 0;
+    var damage = 1;
+    var bonus = 2;
+    var powerup = 3;
+
+    public static inline var numtotal = 4;
+}
+
 
 @:publicFields
 class CL {
@@ -149,13 +158,6 @@ class CL {
     static var m_side:Cvar;
     static var rcon_password:Cvar;
     static var rcon_address:Cvar;
-
-    static var cshift = {
-        contents: 0,
-        damage: 1,
-        bonus: 2,
-        powerup: 3
-    }
 
     static var active = {
         disconnected: 0,

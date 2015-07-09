@@ -13683,7 +13683,7 @@ quake_V.ParseDamage = function() {
 	var count = (blood + armor) * 0.5;
 	if(count < 10.0) count = 10.0;
 	quake_CL.state.faceanimtime = quake_CL.state.time + 0.2;
-	var cshift = quake_CL.state.cshifts[quake_CL.cshift.damage];
+	var cshift = quake_CL.state.cshifts[1];
 	cshift[3] += 3.0 * count;
 	if(cshift[3] < 0.0) cshift[3] = 0.0; else if(cshift[3] > 150.0) cshift[3] = 150.0;
 	if(armor > blood) {
@@ -13711,7 +13711,7 @@ quake_V.cshift_f = function() {
 	cshift[3] = quake_Q.atoi(quake_Cmd.argv[4]);
 };
 quake_V.BonusFlash_f = function() {
-	var cshift = quake_CL.state.cshifts[quake_CL.cshift.bonus];
+	var cshift = quake_CL.state.cshifts[2];
 	cshift[0] = 215.0;
 	cshift[1] = 186.0;
 	cshift[2] = 69.0;
@@ -13720,20 +13720,20 @@ quake_V.BonusFlash_f = function() {
 quake_V.SetContentsColor = function(contents) {
 	switch(contents) {
 	case -1:case -2:
-		quake_CL.state.cshifts[quake_CL.cshift.contents] = quake_V.cshift_empty;
+		quake_CL.state.cshifts[0] = quake_V.cshift_empty;
 		break;
 	case -5:
-		quake_CL.state.cshifts[quake_CL.cshift.contents] = quake_V.cshift_lava;
+		quake_CL.state.cshifts[0] = quake_V.cshift_lava;
 		break;
 	case -4:
-		quake_CL.state.cshifts[quake_CL.cshift.contents] = quake_V.cshift_slime;
+		quake_CL.state.cshifts[0] = quake_V.cshift_slime;
 		break;
 	default:
-		quake_CL.state.cshifts[quake_CL.cshift.contents] = quake_V.cshift_water;
+		quake_CL.state.cshifts[0] = quake_V.cshift_water;
 	}
 };
 quake_V.CalcBlend = function() {
-	var cshift = quake_CL.state.cshifts[quake_CL.cshift.powerup];
+	var cshift = quake_CL.state.cshifts[3];
 	if((quake_CL.state.items & quake_Def.it.quad) != 0) {
 		cshift[0] = 0.0;
 		cshift[1] = 0.0;
@@ -13755,10 +13755,10 @@ quake_V.CalcBlend = function() {
 		cshift[2] = 0.0;
 		cshift[3] = 30.0;
 	} else cshift[3] = 0.0;
-	quake_CL.state.cshifts[quake_CL.cshift.damage][3] -= quake_Host.frametime * 150.0;
-	if(quake_CL.state.cshifts[quake_CL.cshift.damage][3] < 0.0) quake_CL.state.cshifts[quake_CL.cshift.damage][3] = 0.0;
-	quake_CL.state.cshifts[quake_CL.cshift.bonus][3] -= quake_Host.frametime * 100.0;
-	if(quake_CL.state.cshifts[quake_CL.cshift.bonus][3] < 0.0) quake_CL.state.cshifts[quake_CL.cshift.bonus][3] = 0.0;
+	quake_CL.state.cshifts[1][3] -= quake_Host.frametime * 150.0;
+	if(quake_CL.state.cshifts[1][3] < 0.0) quake_CL.state.cshifts[1][3] = 0.0;
+	quake_CL.state.cshifts[2][3] -= quake_Host.frametime * 100.0;
+	if(quake_CL.state.cshifts[2][3] < 0.0) quake_CL.state.cshifts[2][3] = 0.0;
 	if(quake_V.cshiftpercent.value == 0) {
 		quake_V.blend[0] = quake_V.blend[1] = quake_V.blend[2] = quake_V.blend[3] = 0.0;
 		return;
@@ -13942,7 +13942,6 @@ Array.__name__ = true;
 Date.__name__ = ["Date"];
 var __map_reserved = {}
 quake_CDAudio.known = [];
-quake_CL.cshift = { contents : 0, damage : 1, bonus : 2, powerup : 3};
 quake_CL.active = { disconnected : 0, connecting : 1, connected : 2};
 quake_CL.kbutton = { mlook : 0, klook : 1, left : 2, right : 3, forward : 4, back : 5, lookup : 6, lookdown : 7, moveleft : 8, moveright : 9, strafe : 10, speed : 11, 'use' : 12, jump : 13, attack : 14, moveup : 15, movedown : 16, num : 17};
 quake_CL.kbuttons = [];

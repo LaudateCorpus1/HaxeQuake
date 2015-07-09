@@ -10,14 +10,14 @@ class Chase {
     static var right:Cvar;
     static var active:Cvar;
 
-    static function Init() {
+    static function Init():Void {
         back = Cvar.RegisterVariable('chase_back', '100');
         up = Cvar.RegisterVariable('chase_up', '16');
         right = Cvar.RegisterVariable('chase_right', '0');
         active = Cvar.RegisterVariable('chase_active', '0');
     }
 
-    static function Update() {
+    static function Update():Void {
         var forward:Vec = [];
         var r:Vec = [];
         Vec.AngleVectors(CL.state.viewangles, forward, r);

@@ -6,6 +6,7 @@ import js.html.Int32Array;
 import quake.Mod.MLink;
 import quake.PR.EType;
 import quake.PR.PRDef;
+import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 import quake.R.REntityState;
 import quake.SV.MoveType;
@@ -23,12 +24,12 @@ class Edict {
 	var area:MLink;
 
 	var flags(get,set):Int;
-	inline function get_flags():Int return Std.int(v_float[PR.entvars.flags]);
-	inline function set_flags(v:Int):Int return {v_float[PR.entvars.flags] = v; v;}
+	inline function get_flags():Int return Std.int(v_float[EntVarOfs.flags]);
+	inline function set_flags(v:Int):Int return {v_float[EntVarOfs.flags] = v; v;}
 
 	var items(get,set):Int;
-	inline function get_items():Int return Std.int(v_float[PR.entvars.items]);
-	inline function set_items(v:Int):Int return {v_float[PR.entvars.items] = v; v;}
+	inline function get_items():Int return Std.int(v_float[EntVarOfs.items]);
+	inline function set_items(v:Int):Int return {v_float[EntVarOfs.items] = v; v;}
 
 	function new() {}
 }
@@ -64,16 +65,16 @@ class ED {
 	static function Free(ed:Edict):Void {
 		SV.UnlinkEdict(ed);
 		ed.free = true;
-		ed.v_int[PR.entvars.model] = 0;
-		ed.v_float[PR.entvars.takedamage] = 0.0;
-		ed.v_float[PR.entvars.modelindex] = 0.0;
-		ed.v_float[PR.entvars.colormap] = 0.0;
-		ed.v_float[PR.entvars.skin] = 0.0;
-		ed.v_float[PR.entvars.frame] = 0.0;
-		SetVector(ed, PR.entvars.origin, Vec.origin);
-		SetVector(ed, PR.entvars.angles, Vec.origin);
-		ed.v_float[PR.entvars.nextthink] = -1.0;
-		ed.v_float[PR.entvars.solid] = 0.0;
+		ed.v_int[EntVarOfs.model] = 0;
+		ed.v_float[EntVarOfs.takedamage] = 0.0;
+		ed.v_float[EntVarOfs.modelindex] = 0.0;
+		ed.v_float[EntVarOfs.colormap] = 0.0;
+		ed.v_float[EntVarOfs.skin] = 0.0;
+		ed.v_float[EntVarOfs.frame] = 0.0;
+		SetVector(ed, EntVarOfs.origin, Vec.origin);
+		SetVector(ed, EntVarOfs.angles, Vec.origin);
+		ed.v_float[EntVarOfs.nextthink] = -1.0;
+		ed.v_float[EntVarOfs.solid] = 0.0;
 		ed.freetime = SV.server.time;
 	}
 
@@ -168,11 +169,11 @@ class ED {
 			if (ent.free)
 				continue;
 			++active;
-			if (ent.v_float[PR.entvars.solid] != 0.0)
+			if (ent.v_float[EntVarOfs.solid] != 0.0)
 				++solid;
-			if (ent.v_int[PR.entvars.model] != 0)
+			if (ent.v_int[EntVarOfs.model] != 0)
 				++models;
-			if (ent.v_float[PR.entvars.movetype] == MoveType.step)
+			if (ent.v_float[EntVarOfs.movetype] == MoveType.step)
 				++step;
 		}
 		var num_edicts = SV.server.num_edicts;
@@ -329,7 +330,7 @@ class ED {
 				ent = Alloc();
 			data = ParseEdict(data, ent);
 
-			var spawnflags = Std.int(ent.v_float[PR.entvars.spawnflags]);
+			var spawnflags = Std.int(ent.v_float[EntVarOfs.spawnflags]);
 			if (Host.deathmatch.value != 0) {
 				if ((spawnflags & 2048) != 0) {
 					Free(ent);
@@ -345,14 +346,14 @@ class ED {
 				continue;
 			}
 
-			if (ent.v_int[PR.entvars.classname] == 0) {
+			if (ent.v_int[EntVarOfs.classname] == 0) {
 				Console.Print('No classname for:\n');
 				Print(ent);
 				Free(ent);
 				continue;
 			}
 
-			var func = FindFunction(PR.GetString(ent.v_int[PR.entvars.classname]));
+			var func = FindFunction(PR.GetString(ent.v_int[EntVarOfs.classname]));
 			if (func == null) {
 				Console.Print('No spawn function for:\n');
 				Print(ent);

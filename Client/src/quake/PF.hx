@@ -2,6 +2,7 @@ package quake;
 
 import quake.ED.Edict;
 import quake.Protocol.SVC;
+import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 using Tools;
 
@@ -40,20 +41,20 @@ class PF {
 
     static function setorigin() {
         var e = SV.server.edicts[PR.globals_int[4]];
-        e.v_float[PR.entvars.origin] = PR.globals_float[7];
-        e.v_float[PR.entvars.origin1] = PR.globals_float[8];
-        e.v_float[PR.entvars.origin2] = PR.globals_float[9];
+        e.v_float[EntVarOfs.origin] = PR.globals_float[7];
+        e.v_float[EntVarOfs.origin1] = PR.globals_float[8];
+        e.v_float[EntVarOfs.origin2] = PR.globals_float[9];
         SV.LinkEdict(e, false);
     }
 
     static function SetMinMaxSize(e:Edict, min:Vec, max:Vec):Void {
         if ((min[0] > max[0]) || (min[1] > max[1]) || (min[2] > max[2]))
             PR.RunError('backwards mins/maxs');
-        ED.SetVector(e, PR.entvars.mins, min);
-        ED.SetVector(e, PR.entvars.maxs, max);
-        e.v_float[PR.entvars.size] = max[0] - min[0];
-        e.v_float[PR.entvars.size1] = max[1] - min[1];
-        e.v_float[PR.entvars.size2] = max[2] - min[2];
+        ED.SetVector(e, EntVarOfs.mins, min);
+        ED.SetVector(e, EntVarOfs.maxs, max);
+        e.v_float[EntVarOfs.size] = max[0] - min[0];
+        e.v_float[EntVarOfs.size1] = max[1] - min[1];
+        e.v_float[EntVarOfs.size2] = max[2] - min[2];
         SV.LinkEdict(e, false);
     }
 
@@ -75,8 +76,8 @@ class PF {
         if (i == SV.server.model_precache.length)
             PR.RunError('no precache: ' + m + '\n');
 
-        e.v_int[PR.entvars.model] = PR.globals_int[7];
-        e.v_float[PR.entvars.modelindex] = i;
+        e.v_int[EntVarOfs.model] = PR.globals_int[7];
+        e.v_float[EntVarOfs.modelindex] = i;
         var mod = SV.server.models[i];
         if (mod != null)
             SetMinMaxSize(e, mod.mins, mod.maxs);
@@ -239,16 +240,16 @@ class PF {
                 i++;
                 continue;
             }
-            if ((ent.v_float[PR.entvars.health] <= 0.0) || ((ent.flags & SV.fl.notarget) != 0)) {
+            if ((ent.v_float[EntVarOfs.health] <= 0.0) || ((ent.flags & SV.fl.notarget) != 0)) {
                 i++;
                 continue;
             }
             break;
         }
         checkpvs = Mod.LeafPVS(Mod.PointInLeaf([
-                ent.v_float[PR.entvars.origin] + ent.v_float[PR.entvars.view_ofs],
-                ent.v_float[PR.entvars.origin1] + ent.v_float[PR.entvars.view_ofs1],
-                ent.v_float[PR.entvars.origin2] + ent.v_float[PR.entvars.view_ofs2]
+                ent.v_float[EntVarOfs.origin] + ent.v_float[EntVarOfs.view_ofs],
+                ent.v_float[EntVarOfs.origin1] + ent.v_float[EntVarOfs.view_ofs1],
+                ent.v_float[EntVarOfs.origin2] + ent.v_float[EntVarOfs.view_ofs2]
             ], SV.server.worldmodel), SV.server.worldmodel);
         return i;
     }
@@ -261,15 +262,15 @@ class PF {
             SV.server.lastchecktime = SV.server.time;
         }
         var ent = SV.server.edicts[SV.server.lastcheck];
-        if ((ent.free) || (ent.v_float[PR.entvars.health] <= 0.0)) {
+        if ((ent.free) || (ent.v_float[EntVarOfs.health] <= 0.0)) {
             PR.globals_int[1] = 0;
             return;
         }
         var self = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         var l = Mod.PointInLeaf([
-                self.v_float[PR.entvars.origin] + self.v_float[PR.entvars.view_ofs],
-                self.v_float[PR.entvars.origin1] + self.v_float[PR.entvars.view_ofs1],
-                self.v_float[PR.entvars.origin2] + self.v_float[PR.entvars.view_ofs2]
+                self.v_float[EntVarOfs.origin] + self.v_float[EntVarOfs.view_ofs],
+                self.v_float[EntVarOfs.origin1] + self.v_float[EntVarOfs.view_ofs1],
+                self.v_float[EntVarOfs.origin2] + self.v_float[EntVarOfs.view_ofs2]
             ], SV.server.worldmodel).num - 1;
         if ((l < 0) || ((checkpvs[l >> 3] & (1 << (l & 7))) == 0)) {
             PR.globals_int[1] = 0;
@@ -308,14 +309,14 @@ class PF {
             var ent = SV.server.edicts[i];
             if (ent.free)
                 continue;
-            if (ent.v_float[PR.entvars.solid] == SV.solid.not)
+            if (ent.v_float[EntVarOfs.solid] == SV.solid.not)
                 continue;
-            eorg[0] = org[0] - (ent.v_float[PR.entvars.origin] + (ent.v_float[PR.entvars.mins] + ent.v_float[PR.entvars.maxs]) * 0.5);
-            eorg[1] = org[1] - (ent.v_float[PR.entvars.origin1] + (ent.v_float[PR.entvars.mins1] + ent.v_float[PR.entvars.maxs1]) * 0.5);
-            eorg[2] = org[2] - (ent.v_float[PR.entvars.origin2] + (ent.v_float[PR.entvars.mins2] + ent.v_float[PR.entvars.maxs2]) * 0.5);
+            eorg[0] = org[0] - (ent.v_float[EntVarOfs.origin] + (ent.v_float[EntVarOfs.mins] + ent.v_float[EntVarOfs.maxs]) * 0.5);
+            eorg[1] = org[1] - (ent.v_float[EntVarOfs.origin1] + (ent.v_float[EntVarOfs.mins1] + ent.v_float[EntVarOfs.maxs1]) * 0.5);
+            eorg[2] = org[2] - (ent.v_float[EntVarOfs.origin2] + (ent.v_float[EntVarOfs.mins2] + ent.v_float[EntVarOfs.maxs2]) * 0.5);
             if (Math.sqrt(eorg[0] * eorg[0] + eorg[1] * eorg[1] + eorg[2] * eorg[2]) > rad)
                 continue;
-            ent.v_int[PR.entvars.chain] = chain;
+            ent.v_int[EntVarOfs.chain] = chain;
             chain = i;
         }
         PR.globals_int[1] = chain;
@@ -375,11 +376,11 @@ class PF {
             PR.globals_float[1] = 0.0;
             return;
         }
-        var goal = SV.server.edicts[ent.v_int[PR.entvars.goalentity]];
+        var goal = SV.server.edicts[ent.v_int[EntVarOfs.goalentity]];
         var dist = PR.globals_float[4];
-        if ((ent.v_int[PR.entvars.enemy] != 0) && (SV.CloseEnough(ent, goal, dist)))
+        if ((ent.v_int[EntVarOfs.enemy] != 0) && (SV.CloseEnough(ent, goal, dist)))
             return;
-        if ((Math.random() >= 0.75) || !SV.StepDirection(ent, ent.v_float[PR.entvars.ideal_yaw], dist))
+        if ((Math.random() >= 0.75) || !SV.StepDirection(ent, ent.v_float[EntVarOfs.ideal_yaw], dist))
             SV.NewChaseDir(ent, goal, dist);
     }
 
@@ -448,17 +449,17 @@ class PF {
 
     static function droptofloor() {
         var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-        var trace = SV.Move(ED.Vector(ent, PR.entvars.origin),
-            ED.Vector(ent, PR.entvars.mins), ED.Vector(ent, PR.entvars.maxs),
-            [ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] - 256.0], 0, ent);
+        var trace = SV.Move(ED.Vector(ent, EntVarOfs.origin),
+            ED.Vector(ent, EntVarOfs.mins), ED.Vector(ent, EntVarOfs.maxs),
+            [ent.v_float[EntVarOfs.origin], ent.v_float[EntVarOfs.origin1], ent.v_float[EntVarOfs.origin2] - 256.0], 0, ent);
         if ((trace.fraction == 1.0) || (trace.allsolid)) {
             PR.globals_float[1] = 0.0;
             return;
         }
-        ED.SetVector(ent, PR.entvars.origin, trace.endpos);
+        ED.SetVector(ent, EntVarOfs.origin, trace.endpos);
         SV.LinkEdict(ent, false);
         ent.flags = ent.flags | SV.fl.onground;
-        ent.v_int[PR.entvars.groundentity] = trace.ent.num;
+        ent.v_int[EntVarOfs.groundentity] = trace.ent.num;
         PR.globals_float[1] = 1.0;
     }
 
@@ -511,14 +512,14 @@ class PF {
 
     static function aim() {
         var ent = SV.server.edicts[PR.globals_int[4]];
-        var start = [ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] + 20.0];
+        var start = [ent.v_float[EntVarOfs.origin], ent.v_float[EntVarOfs.origin1], ent.v_float[EntVarOfs.origin2] + 20.0];
         var dir = [PR.globals_float[GlobalVarOfs.v_forward], PR.globals_float[GlobalVarOfs.v_forward1], PR.globals_float[GlobalVarOfs.v_forward2]];
         var end = [start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]];
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {
-            if ((tr.ent.v_float[PR.entvars.takedamage] == SV.damage.aim) &&
-                ((Host.teamplay.value == 0) || (ent.v_float[PR.entvars.team] <= 0) ||
-                (ent.v_float[PR.entvars.team] != tr.ent.v_float[PR.entvars.team]))) {
+            if ((tr.ent.v_float[EntVarOfs.takedamage] == SV.damage.aim) &&
+                ((Host.teamplay.value == 0) || (ent.v_float[EntVarOfs.team] <= 0) ||
+                (ent.v_float[EntVarOfs.team] != tr.ent.v_float[EntVarOfs.team]))) {
                 PR.globals_float[1] = dir[0];
                 PR.globals_float[2] = dir[1];
                 PR.globals_float[3] = dir[2];
@@ -530,15 +531,15 @@ class PF {
         var bestent, end = [];
         for (i in 1...SV.server.num_edicts) {
             var check = SV.server.edicts[i];
-            if (check.v_float[PR.entvars.takedamage] != SV.damage.aim)
+            if (check.v_float[EntVarOfs.takedamage] != SV.damage.aim)
                 continue;
             if (check == ent)
                 continue;
-            if ((Host.teamplay.value != 0) && (ent.v_float[PR.entvars.team] > 0) && (ent.v_float[PR.entvars.team] == check.v_float[PR.entvars.team]))
+            if ((Host.teamplay.value != 0) && (ent.v_float[EntVarOfs.team] > 0) && (ent.v_float[EntVarOfs.team] == check.v_float[EntVarOfs.team]))
                 continue;
-            end[0] = check.v_float[PR.entvars.origin] + 0.5 * (check.v_float[PR.entvars.mins] + check.v_float[PR.entvars.maxs]);
-            end[1] = check.v_float[PR.entvars.origin1] + 0.5 * (check.v_float[PR.entvars.mins1] + check.v_float[PR.entvars.maxs1]);
-            end[2] = check.v_float[PR.entvars.origin2] + 0.5 * (check.v_float[PR.entvars.mins2] + check.v_float[PR.entvars.maxs2]);
+            end[0] = check.v_float[EntVarOfs.origin] + 0.5 * (check.v_float[EntVarOfs.mins] + check.v_float[EntVarOfs.maxs]);
+            end[1] = check.v_float[EntVarOfs.origin1] + 0.5 * (check.v_float[EntVarOfs.mins1] + check.v_float[EntVarOfs.maxs1]);
+            end[2] = check.v_float[EntVarOfs.origin2] + 0.5 * (check.v_float[EntVarOfs.mins2] + check.v_float[EntVarOfs.maxs2]);
             dir[0] = end[0] - start[0];
             dir[1] = end[1] - start[1];
             dir[2] = end[2] - start[2];
@@ -553,9 +554,9 @@ class PF {
             }
         }
         if (bestent != null) {
-            dir[0] = bestent.v_float[PR.entvars.origin] - ent.v_float[PR.entvars.origin];
-            dir[1] = bestent.v_float[PR.entvars.origin1] - ent.v_float[PR.entvars.origin1];
-            dir[2] = bestent.v_float[PR.entvars.origin2] - ent.v_float[PR.entvars.origin2];
+            dir[0] = bestent.v_float[EntVarOfs.origin] - ent.v_float[EntVarOfs.origin];
+            dir[1] = bestent.v_float[EntVarOfs.origin1] - ent.v_float[EntVarOfs.origin1];
+            dir[2] = bestent.v_float[EntVarOfs.origin2] - ent.v_float[EntVarOfs.origin2];
             var dist = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
             end[0] = bestdir[0] * dist;
             end[1] = bestdir[1] * dist;
@@ -573,8 +574,8 @@ class PF {
 
     static function changeyaw() {
         var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-        var current = Vec.Anglemod(ent.v_float[PR.entvars.angles1]);
-        var ideal = ent.v_float[PR.entvars.ideal_yaw];
+        var current = Vec.Anglemod(ent.v_float[EntVarOfs.angles1]);
+        var ideal = ent.v_float[EntVarOfs.ideal_yaw];
         if (current == ideal)
             return;
         var move = ideal - current;
@@ -584,14 +585,14 @@ class PF {
         }
         else if (move <= -180.0)
             move += 360.0;
-        var speed = ent.v_float[PR.entvars.yaw_speed];
+        var speed = ent.v_float[EntVarOfs.yaw_speed];
         if (move > 0.0) {
             if (move > speed)
                 move = speed;
         }
         else if (move < -speed)
             move = -speed;
-        ent.v_float[PR.entvars.angles1] = Vec.Anglemod(current + move);
+        ent.v_float[EntVarOfs.angles1] = Vec.Anglemod(current + move);
     }
 
     static function WriteDest() {
@@ -626,16 +627,16 @@ class PF {
         var ent:Edict = SV.server.edicts[PR.globals_int[4]];
         var message = SV.server.signon;
         message.WriteByte(SVC.spawnstatic);
-        message.WriteByte(SV.ModelIndex(PR.GetString(ent.v_int[PR.entvars.model])));
-        message.WriteByte(Std.int(ent.v_float[PR.entvars.frame]));
-        message.WriteByte(Std.int(ent.v_float[PR.entvars.colormap]));
-        message.WriteByte(Std.int(ent.v_float[PR.entvars.skin]));
-        message.WriteCoord(ent.v_float[PR.entvars.origin]);
-        message.WriteAngle(ent.v_float[PR.entvars.angles]);
-        message.WriteCoord(ent.v_float[PR.entvars.origin1]);
-        message.WriteAngle(ent.v_float[PR.entvars.angles1]);
-        message.WriteCoord(ent.v_float[PR.entvars.origin2]);
-        message.WriteAngle(ent.v_float[PR.entvars.angles2]);
+        message.WriteByte(SV.ModelIndex(PR.GetString(ent.v_int[EntVarOfs.model])));
+        message.WriteByte(Std.int(ent.v_float[EntVarOfs.frame]));
+        message.WriteByte(Std.int(ent.v_float[EntVarOfs.colormap]));
+        message.WriteByte(Std.int(ent.v_float[EntVarOfs.skin]));
+        message.WriteCoord(ent.v_float[EntVarOfs.origin]);
+        message.WriteAngle(ent.v_float[EntVarOfs.angles]);
+        message.WriteCoord(ent.v_float[EntVarOfs.origin1]);
+        message.WriteAngle(ent.v_float[EntVarOfs.angles1]);
+        message.WriteCoord(ent.v_float[EntVarOfs.origin2]);
+        message.WriteAngle(ent.v_float[EntVarOfs.angles2]);
         ED.Free(ent);
     }
 

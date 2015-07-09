@@ -166,7 +166,7 @@ class R {
             return;
         ++R.dlightframecount;
         gl.enable(RenderingContext.BLEND);
-        var program = GL.UseProgram('Dlight');
+        var program = GL.UseProgram('dlight');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.dlightvecs);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 0, 0);
         for (i in 0...32) {
@@ -372,10 +372,10 @@ class R {
     static function DrawSpriteModel(e:REntity):Void {
         var program;
         if (e.model.oriented) {
-            program = GL.UseProgram('SpriteOriented');
+            program = GL.UseProgram('spriteOriented');
             gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1] - 90.0, e.angles[2]));
         } else
-            program = GL.UseProgram('Sprite');
+            program = GL.UseProgram('sprite');
         var num = e.frame;
         if (num >= e.model.numframes || num < 0) {
             Console.DPrint('R.DrawSpriteModel: no such frame ' + num + '\n');
@@ -586,7 +586,7 @@ class R {
 
         var program;
         if ((e.colormap != 0) && (clmodel.player) && (R.nocolors.value == 0)) {
-            program = GL.UseProgram('Player');
+            program = GL.UseProgram('player');
             var top = (CL.state.scores[e.colormap - 1].colors & 0xf0) + 4;
             var bottom = ((CL.state.scores[e.colormap - 1].colors & 0xf) << 4) + 4;
             if (top <= 127)
@@ -598,7 +598,7 @@ class R {
             gl.uniform3f(program.uTop, top & 0xff, (top >> 8) & 0xff, top >> 16);
             gl.uniform3f(program.uBottom, bottom & 0xff, (bottom >> 8) & 0xff, bottom >> 16);
         } else
-            program = GL.UseProgram('Alias');
+            program = GL.UseProgram('alias');
         gl.uniform3fv(program.uOrigin, cast e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]));
 
@@ -761,7 +761,7 @@ class R {
         var ymax = 4.0 * Math.tan(SCR.fov.value * 0.82 * Math.PI / 360.0);
         R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
         R.perspective[5] = 4.0 / ymax;
-        var program = GL.UseProgram('Alias');
+        var program = GL.UseProgram('alias');
         gl.uniformMatrix4fv(program.uPerspective, false, R.perspective);
 
         R.DrawAliasModel(CL.state.viewent);
@@ -769,7 +769,7 @@ class R {
         ymax = 4.0 * Math.tan(R.refdef.fov_y * Math.PI / 360.0);
         R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
         R.perspective[5] = 4.0 / ymax;
-        program = GL.UseProgram('Alias');
+        program = GL.UseProgram('alias');
         gl.uniformMatrix4fv(program.uPerspective, false, R.perspective);
 
         gl.depthRange(0.0, 1.0);
@@ -780,7 +780,7 @@ class R {
             return;
         if (V.blend[3] == 0.0)
             return;
-        var program = GL.UseProgram('Fill');
+        var program = GL.UseProgram('fill');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
         var vrect = R.refdef.vrect;
@@ -1190,26 +1190,26 @@ class R {
 
         R.InitParticles();
 
-        GL.CreateProgram('Alias',
+        GL.CreateProgram('alias',
             ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight'],
             ['aPoint', 'aLightNormal', 'aTexCoord'],
             ['tTexture']);
-        GL.CreateProgram('Brush',
+        GL.CreateProgram('brush',
             ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'],
             ['aPoint', 'aTexCoord', 'aLightStyle'],
             ['tTexture', 'tLightmap', 'tDlight', 'tLightStyle']);
-        GL.CreateProgram('Dlight', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uRadius', 'uGamma'], ['aPoint'], []);
-        GL.CreateProgram('Player',
+        GL.CreateProgram('dlight', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uRadius', 'uGamma'], ['aPoint'], []);
+        GL.CreateProgram('player',
             ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight', 'uTop', 'uBottom'],
             ['aPoint', 'aLightNormal', 'aTexCoord'],
             ['tTexture', 'tPlayer']);
-        GL.CreateProgram('Sprite', ['uRect', 'uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        GL.CreateProgram('SpriteOriented', ['uRect', 'uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        GL.CreateProgram('Turbulent',
+        GL.CreateProgram('sprite', ['uRect', 'uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
+        GL.CreateProgram('spriteOriented', ['uRect', 'uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
+        GL.CreateProgram('turbulent',
             ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma', 'uTime'],
             ['aPoint', 'aTexCoord'],
             ['tTexture']);
-        GL.CreateProgram('Warp', ['uRect', 'uOrtho', 'uTime'], ['aPoint'], ['tTexture']);
+        GL.CreateProgram('warp', ['uRect', 'uOrtho', 'uTime'], ['aPoint'], ['tTexture']);
 
         R.warpbuffer = gl.createFramebuffer();
         R.warptexture = gl.createTexture();
@@ -1298,7 +1298,7 @@ class R {
         for (i in 0...162)
             R.avelocities[i] = [Math.random() * 2.56, Math.random() * 2.56, Math.random() * 2.56];
 
-        GL.CreateProgram('Particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
+        GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }
 
     static function EntityParticles(ent:REntity) {
@@ -1594,7 +1594,7 @@ class R {
     static var numparticles:Int;
 
     static function DrawParticles() {
-        var program = GL.UseProgram('Particle');
+        var program = GL.UseProgram('particle');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
         gl.depthMask(false);
@@ -1832,7 +1832,7 @@ class R {
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
         var viewMatrix = GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]);
 
-        var program = GL.UseProgram('Brush');
+        var program = GL.UseProgram('brush');
         gl.uniform3fv(program.uOrigin, cast e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
@@ -1854,7 +1854,7 @@ class R {
             gl.drawArrays(RenderingContext.TRIANGLES, chain[1], chain[2]);
         }
 
-        program = GL.UseProgram('Turbulent');
+        program = GL.UseProgram('turbulent');
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -1891,7 +1891,7 @@ class R {
         R.currententity = CL.entities[0];
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
 
-        var program = GL.UseProgram('Brush');
+        var program = GL.UseProgram('brush');
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, GL.identity);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
@@ -1920,7 +1920,7 @@ class R {
             }
         }
 
-        program = GL.UseProgram('Turbulent');
+        program = GL.UseProgram('turbulent');
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, GL.identity);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -2093,7 +2093,7 @@ class R {
         gl.finish();
         gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, null);
         gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, null);
-        var program = GL.UseProgram('Warp');
+        var program = GL.UseProgram('warp');
         var vrect = R.refdef.vrect;
         gl.uniform4f(program.uRect, vrect.x, vrect.y, vrect.width, vrect.height);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -2133,8 +2133,8 @@ class R {
             i += 2;
         }
 
-        GL.CreateProgram('Sky', ['uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uTime'], ['aPoint'], ['tSolid', 'tAlpha']);
-        GL.CreateProgram('SkyChain', ['uViewOrigin', 'uViewAngles', 'uPerspective'], ['aPoint'], []);
+        GL.CreateProgram('sky', ['uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uTime'], ['aPoint'], ['tSolid', 'tAlpha']);
+        GL.CreateProgram('skyChain', ['uViewOrigin', 'uViewAngles', 'uPerspective'], ['aPoint'], []);
 
         R.skyvecs = gl.createBuffer();
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.skyvecs);
@@ -2147,7 +2147,7 @@ class R {
 
         gl.colorMask(false, false, false, false);
         var clmodel:MModel = CL.state.worldmodel;
-        var program = GL.UseProgram('SkyChain');
+        var program = GL.UseProgram('skyChain');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 12, clmodel.skychain);
         for (i in 0...clmodel.leafs.length) {
@@ -2167,7 +2167,7 @@ class R {
         gl.depthMask(false);
         gl.disable(RenderingContext.CULL_FACE);
 
-        program = GL.UseProgram('Sky');
+        program = GL.UseProgram('sky');
         gl.uniform2f(program.uTime, (Host.realtime * 0.125) % 1.0, (Host.realtime * 0.03125) % 1.0);
         GL.Bind(program.tSolid, R.solidskytexture);
         GL.Bind(program.tAlpha, R.alphaskytexture);

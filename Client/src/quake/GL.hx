@@ -269,15 +269,20 @@ class GL {
 	}
 
 	static function CreateProgram(identifier:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>):GLProgram {
+		var shaderSrc = Shaders.shaders[identifier];
+		if (shaderSrc == null)
+			Sys.Error("Shader not found: " + identifier);
+
 		var program = new GLProgram(identifier);
+
 		var vsh = gl.createShader(RenderingContext.VERTEX_SHADER);
-		gl.shaderSource(vsh, (cast document.getElementById('vsh' + identifier) : ScriptElement).text);
+		gl.shaderSource(vsh, shaderSrc.vert);
 		gl.compileShader(vsh);
 		if (gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS) != true)
 			Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(vsh));
 
 		var fsh = gl.createShader(RenderingContext.FRAGMENT_SHADER);
-		gl.shaderSource(fsh, (cast document.getElementById('fsh' + identifier) : ScriptElement).text);
+		gl.shaderSource(fsh, shaderSrc.frag);
 		gl.compileShader(fsh);
 		if (gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS) != true)
 			Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(fsh));

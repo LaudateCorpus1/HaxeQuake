@@ -2583,13 +2583,13 @@ quake_Draw.Init = function() {
 	quake_Draw.loadingElem = window.document.getElementById("loading");
 	quake_Draw.loadingElem.src = quake_Draw.PicToDataURL(quake_Draw.loading);
 	window.document.body.style.backgroundImage = "url(\"" + quake_Draw.PicToDataURL(new quake_DrawPic(quake_W.GetLumpName("BACKTILE"))) + "\")";
-	quake_GL.CreateProgram("Character",["uCharacter","uDest","uOrtho"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("Fill",["uRect","uOrtho","uColor"],["aPoint"],[]);
-	quake_GL.CreateProgram("Pic",["uRect","uOrtho"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("PicTranslate",["uRect","uOrtho","uTop","uBottom"],["aPoint"],["tTexture","tTrans"]);
+	quake_GL.CreateProgram("character",["uCharacter","uDest","uOrtho"],["aPoint"],["tTexture"]);
+	quake_GL.CreateProgram("fill",["uRect","uOrtho","uColor"],["aPoint"],[]);
+	quake_GL.CreateProgram("pic",["uRect","uOrtho"],["aPoint"],["tTexture"]);
+	quake_GL.CreateProgram("picTranslate",["uRect","uOrtho","uTop","uBottom"],["aPoint"],["tTexture","tTrans"]);
 };
 quake_Draw.Character = function(x,y,num) {
-	var program = quake_GL.UseProgram("Character");
+	var program = quake_GL.UseProgram("character");
 	quake_GL.Bind(program.tTexture,quake_Draw.char_texture);
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
@@ -2598,7 +2598,7 @@ quake_Draw.Character = function(x,y,num) {
 	quake_GL.gl.drawArrays(5,0,4);
 };
 quake_Draw.String = function(x,y,str) {
-	var program = quake_GL.UseProgram("Character");
+	var program = quake_GL.UseProgram("character");
 	quake_GL.Bind(program.tTexture,quake_Draw.char_texture);
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
@@ -2614,7 +2614,7 @@ quake_Draw.String = function(x,y,str) {
 	}
 };
 quake_Draw.StringWhite = function(x,y,str) {
-	var program = quake_GL.UseProgram("Character");
+	var program = quake_GL.UseProgram("character");
 	quake_GL.Bind(program.tTexture,quake_Draw.char_texture);
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
@@ -2636,7 +2636,7 @@ quake_Draw.CachePic = function(path) {
 	return new quake_DrawPic(buf);
 };
 quake_Draw.Pic = function(x,y,pic) {
-	var program = quake_GL.UseProgram("Pic");
+	var program = quake_GL.UseProgram("pic");
 	quake_GL.Bind(program.tTexture,pic.texnum);
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
@@ -2644,7 +2644,7 @@ quake_Draw.Pic = function(x,y,pic) {
 	quake_GL.gl.drawArrays(5,0,4);
 };
 quake_Draw.PicTranslate = function(x,y,pic,top,bottom) {
-	var program = quake_GL.UseProgram("PicTranslate");
+	var program = quake_GL.UseProgram("picTranslate");
 	quake_GL.Bind(program.tTexture,pic.texnum);
 	quake_GL.Bind(program.tTrans,pic.translate);
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
@@ -2657,7 +2657,7 @@ quake_Draw.PicTranslate = function(x,y,pic,top,bottom) {
 	quake_GL.gl.drawArrays(5,0,4);
 };
 quake_Draw.ConsoleBackground = function(lines) {
-	var program = quake_GL.UseProgram("Pic");
+	var program = quake_GL.UseProgram("pic");
 	quake_GL.Bind(program.tTexture,quake_Draw.conback.texnum);
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
@@ -2665,7 +2665,7 @@ quake_Draw.ConsoleBackground = function(lines) {
 	quake_GL.gl.drawArrays(5,0,4);
 };
 quake_Draw.Fill = function(x,y,w,h,c) {
-	var program = quake_GL.UseProgram("Fill");
+	var program = quake_GL.UseProgram("fill");
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
 	quake_GL.gl.uniform4f(program.uRect,x,y,w,h);
@@ -2674,7 +2674,7 @@ quake_Draw.Fill = function(x,y,w,h,c) {
 	quake_GL.gl.drawArrays(5,0,4);
 };
 quake_Draw.FadeScreen = function() {
-	var program = quake_GL.UseProgram("Fill");
+	var program = quake_GL.UseProgram("fill");
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
 	quake_GL.gl.uniform4f(program.uRect,0,0,quake_VID.width,quake_VID.height);
@@ -3236,13 +3236,15 @@ quake_GL.LoadPicTexture = function(pic) {
 	return texnum;
 };
 quake_GL.CreateProgram = function(identifier,uniforms,attribs,textures) {
+	var shaderSrc = quake_Shaders.shaders.get(identifier);
+	if(shaderSrc == null) quake_Sys.Error("Shader not found: " + identifier);
 	var program = new quake__$GL_GLProgram(identifier);
 	var vsh = quake_GL.gl.createShader(35633);
-	quake_GL.gl.shaderSource(vsh,window.document.getElementById("vsh" + identifier).text);
+	quake_GL.gl.shaderSource(vsh,shaderSrc.vert);
 	quake_GL.gl.compileShader(vsh);
 	if(quake_GL.gl.getShaderParameter(vsh,35713) != true) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
 	var fsh = quake_GL.gl.createShader(35632);
-	quake_GL.gl.shaderSource(fsh,window.document.getElementById("fsh" + identifier).text);
+	quake_GL.gl.shaderSource(fsh,shaderSrc.frag);
 	quake_GL.gl.compileShader(fsh);
 	if(quake_GL.gl.getShaderParameter(fsh,35713) != true) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
 	quake_GL.gl.attachShader(program.program,vsh);
@@ -10842,7 +10844,7 @@ quake_R.RenderDlights = function() {
 	if(quake_R.flashblend.value == 0) return;
 	++quake_R.dlightframecount;
 	quake_GL.gl.enable(3042);
-	var program = quake_GL.UseProgram("Dlight");
+	var program = quake_GL.UseProgram("dlight");
 	quake_GL.gl.bindBuffer(34962,quake_R.dlightvecs);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,0,0);
 	var _g = 0;
@@ -11015,9 +11017,9 @@ quake_R.CullBox = function(mins,maxs) {
 quake_R.DrawSpriteModel = function(e) {
 	var program;
 	if(e.model.oriented) {
-		program = quake_GL.UseProgram("SpriteOriented");
+		program = quake_GL.UseProgram("spriteOriented");
 		quake_GL.gl.uniformMatrix3fv(program.uAngles,false,quake_GL.RotationMatrix(e.angles[0],e.angles[1] - 90.0,e.angles[2]));
-	} else program = quake_GL.UseProgram("Sprite");
+	} else program = quake_GL.UseProgram("sprite");
 	var num = e.frame;
 	if(num >= e.model.numframes || num < 0) {
 		quake_Console.DPrint("R.DrawSpriteModel: no such frame " + num + "\n");
@@ -11048,7 +11050,7 @@ quake_R.DrawAliasModel = function(e) {
 	if(quake_R.CullBox([e.origin[0] - clmodel.boundingradius,e.origin[1] - clmodel.boundingradius,e.origin[2] - clmodel.boundingradius],[e.origin[0] + clmodel.boundingradius,e.origin[1] + clmodel.boundingradius,e.origin[2] + clmodel.boundingradius])) return;
 	var program;
 	if(e.colormap != 0 && clmodel.player && quake_R.nocolors.value == 0) {
-		program = quake_GL.UseProgram("Player");
+		program = quake_GL.UseProgram("player");
 		var top = (quake_CL.state.scores[e.colormap - 1].colors & 240) + 4;
 		var bottom = ((quake_CL.state.scores[e.colormap - 1].colors & 15) << 4) + 4;
 		if(top <= 127) top += 7;
@@ -11057,7 +11059,7 @@ quake_R.DrawAliasModel = function(e) {
 		bottom = quake_VID.d_8to24table[bottom];
 		quake_GL.gl.uniform3f(program.uTop,top & 255,top >> 8 & 255,top >> 16);
 		quake_GL.gl.uniform3f(program.uBottom,bottom & 255,bottom >> 8 & 255,bottom >> 16);
-	} else program = quake_GL.UseProgram("Alias");
+	} else program = quake_GL.UseProgram("alias");
 	quake_GL.gl.uniform3fv(program.uOrigin,e.origin);
 	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,quake_GL.RotationMatrix(e.angles[0],e.angles[1],e.angles[2]));
 	var ambientlight = quake_R.LightPoint(e.origin);
@@ -11226,20 +11228,20 @@ quake_R.DrawViewModel = function() {
 	var ymax = 4.0 * Math.tan(quake_SCR.fov.value * 0.82 * Math.PI / 360.0);
 	quake_R.perspective[0] = 4.0 / (ymax * quake_R.refdef.vrect.width / quake_R.refdef.vrect.height);
 	quake_R.perspective[5] = 4.0 / ymax;
-	var program = quake_GL.UseProgram("Alias");
+	var program = quake_GL.UseProgram("alias");
 	quake_GL.gl.uniformMatrix4fv(program.uPerspective,false,quake_R.perspective);
 	quake_R.DrawAliasModel(quake_CL.state.viewent);
 	ymax = 4.0 * Math.tan(quake_R.refdef.fov_y * Math.PI / 360.0);
 	quake_R.perspective[0] = 4.0 / (ymax * quake_R.refdef.vrect.width / quake_R.refdef.vrect.height);
 	quake_R.perspective[5] = 4.0 / ymax;
-	program = quake_GL.UseProgram("Alias");
+	program = quake_GL.UseProgram("alias");
 	quake_GL.gl.uniformMatrix4fv(program.uPerspective,false,quake_R.perspective);
 	quake_GL.gl.depthRange(0.0,1.0);
 };
 quake_R.PolyBlend = function() {
 	if(quake_R.polyblend.value == 0) return;
 	if(quake_V.blend[3] == 0.0) return;
-	var program = quake_GL.UseProgram("Fill");
+	var program = quake_GL.UseProgram("fill");
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
 	var vrect = quake_R.refdef.vrect;
@@ -11658,14 +11660,14 @@ quake_R.Init = function() {
 	quake_R.flashblend = quake_Cvar.RegisterVariable("gl_flashblend","0");
 	quake_R.nocolors = quake_Cvar.RegisterVariable("gl_nocolors","0");
 	quake_R.InitParticles();
-	quake_GL.CreateProgram("Alias",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight"],["aPoint","aLightNormal","aTexCoord"],["tTexture"]);
-	quake_GL.CreateProgram("Brush",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint","aTexCoord","aLightStyle"],["tTexture","tLightmap","tDlight","tLightStyle"]);
-	quake_GL.CreateProgram("Dlight",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uRadius","uGamma"],["aPoint"],[]);
-	quake_GL.CreateProgram("Player",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight","uTop","uBottom"],["aPoint","aLightNormal","aTexCoord"],["tTexture","tPlayer"]);
-	quake_GL.CreateProgram("Sprite",["uRect","uOrigin","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("SpriteOriented",["uRect","uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("Turbulent",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma","uTime"],["aPoint","aTexCoord"],["tTexture"]);
-	quake_GL.CreateProgram("Warp",["uRect","uOrtho","uTime"],["aPoint"],["tTexture"]);
+	quake_GL.CreateProgram("alias",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight"],["aPoint","aLightNormal","aTexCoord"],["tTexture"]);
+	quake_GL.CreateProgram("brush",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint","aTexCoord","aLightStyle"],["tTexture","tLightmap","tDlight","tLightStyle"]);
+	quake_GL.CreateProgram("dlight",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uRadius","uGamma"],["aPoint"],[]);
+	quake_GL.CreateProgram("player",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight","uTop","uBottom"],["aPoint","aLightNormal","aTexCoord"],["tTexture","tPlayer"]);
+	quake_GL.CreateProgram("sprite",["uRect","uOrigin","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
+	quake_GL.CreateProgram("spriteOriented",["uRect","uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
+	quake_GL.CreateProgram("turbulent",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma","uTime"],["aPoint","aTexCoord"],["tTexture"]);
+	quake_GL.CreateProgram("warp",["uRect","uOrtho","uTime"],["aPoint"],["tTexture"]);
 	quake_R.warpbuffer = quake_GL.gl.createFramebuffer();
 	quake_R.warptexture = quake_GL.gl.createTexture();
 	quake_GL.Bind(0,quake_R.warptexture);
@@ -11727,7 +11729,7 @@ quake_R.InitParticles = function() {
 		var i1 = _g++;
 		quake_R.avelocities[i1] = [Math.random() * 2.56,Math.random() * 2.56,Math.random() * 2.56];
 	}
-	quake_GL.CreateProgram("Particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
+	quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
 };
 quake_R.EntityParticles = function(ent) {
 	var allocated = quake_R.AllocParticles(162);
@@ -11979,7 +11981,7 @@ quake_R.RocketTrail = function(start,end,type) {
 	} catch( e ) { if( e != "__break__" ) throw e; }
 };
 quake_R.DrawParticles = function() {
-	var program = quake_GL.UseProgram("Particle");
+	var program = quake_GL.UseProgram("particle");
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
 	quake_GL.gl.depthMask(false);
@@ -12201,7 +12203,7 @@ quake_R.DrawBrushModel = function(e) {
 	} else if(quake_R.CullBox([e.origin[0] - clmodel.radius,e.origin[1] - clmodel.radius,e.origin[2] - clmodel.radius],[e.origin[0] + clmodel.radius,e.origin[1] + clmodel.radius,e.origin[2] + clmodel.radius])) return;
 	quake_GL.gl.bindBuffer(34962,clmodel.cmds);
 	var viewMatrix = quake_GL.RotationMatrix(e.angles[0],e.angles[1],e.angles[2]);
-	var program = quake_GL.UseProgram("Brush");
+	var program = quake_GL.UseProgram("brush");
 	quake_GL.gl.uniform3fv(program.uOrigin,e.origin);
 	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,viewMatrix);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,44,0);
@@ -12221,7 +12223,7 @@ quake_R.DrawBrushModel = function(e) {
 		quake_GL.Bind(program.tTexture,texture.texturenum);
 		quake_GL.gl.drawArrays(4,chain[1],chain[2]);
 	}
-	program = quake_GL.UseProgram("Turbulent");
+	program = quake_GL.UseProgram("turbulent");
 	quake_GL.gl.uniform3f(program.uOrigin,0.0,0.0,0.0);
 	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,viewMatrix);
 	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
@@ -12254,7 +12256,7 @@ quake_R.DrawWorld = function() {
 	var clmodel = quake_CL.state.worldmodel;
 	quake_R.currententity = quake_CL.entities[0];
 	quake_GL.gl.bindBuffer(34962,clmodel.cmds);
-	var program = quake_GL.UseProgram("Brush");
+	var program = quake_GL.UseProgram("brush");
 	quake_GL.gl.uniform3f(program.uOrigin,0.0,0.0,0.0);
 	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,quake_GL.identity);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,44,0);
@@ -12280,7 +12282,7 @@ quake_R.DrawWorld = function() {
 			quake_GL.gl.drawArrays(4,cmds[1],cmds[2]);
 		}
 	}
-	program = quake_GL.UseProgram("Turbulent");
+	program = quake_GL.UseProgram("turbulent");
 	quake_GL.gl.uniform3f(program.uOrigin,0.0,0.0,0.0);
 	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,quake_GL.identity);
 	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
@@ -12462,7 +12464,7 @@ quake_R.WarpScreen = function() {
 	quake_GL.gl.finish();
 	quake_GL.gl.bindFramebuffer(36160,null);
 	quake_GL.gl.bindRenderbuffer(36161,null);
-	var program = quake_GL.UseProgram("Warp");
+	var program = quake_GL.UseProgram("warp");
 	var vrect = quake_R.refdef.vrect;
 	quake_GL.gl.uniform4f(program.uRect,vrect.x,vrect.y,vrect.width,vrect.height);
 	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
@@ -12485,8 +12487,8 @@ quake_R.MakeSky = function() {
 		}
 		i += 2;
 	}
-	quake_GL.CreateProgram("Sky",["uViewAngles","uPerspective","uScale","uGamma","uTime"],["aPoint"],["tSolid","tAlpha"]);
-	quake_GL.CreateProgram("SkyChain",["uViewOrigin","uViewAngles","uPerspective"],["aPoint"],[]);
+	quake_GL.CreateProgram("sky",["uViewAngles","uPerspective","uScale","uGamma","uTime"],["aPoint"],["tSolid","tAlpha"]);
+	quake_GL.CreateProgram("skyChain",["uViewOrigin","uViewAngles","uPerspective"],["aPoint"],[]);
 	quake_R.skyvecs = quake_GL.gl.createBuffer();
 	quake_GL.gl.bindBuffer(34962,quake_R.skyvecs);
 	quake_GL.gl.bufferData(34962,new Float32Array(vecs),35044);
@@ -12495,7 +12497,7 @@ quake_R.DrawSkyBox = function() {
 	if(quake_R.drawsky != true) return;
 	quake_GL.gl.colorMask(false,false,false,false);
 	var clmodel = quake_CL.state.worldmodel;
-	var program = quake_GL.UseProgram("SkyChain");
+	var program = quake_GL.UseProgram("skyChain");
 	quake_GL.gl.bindBuffer(34962,clmodel.cmds);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,12,clmodel.skychain);
 	var _g1 = 0;
@@ -12517,7 +12519,7 @@ quake_R.DrawSkyBox = function() {
 	quake_GL.gl.depthFunc(516);
 	quake_GL.gl.depthMask(false);
 	quake_GL.gl.disable(2884);
-	program = quake_GL.UseProgram("Sky");
+	program = quake_GL.UseProgram("sky");
 	quake_GL.gl.uniform2f(program.uTime,quake_Host.realtime * 0.125 % 1.0,quake_Host.realtime * 0.03125 % 1.0);
 	quake_GL.Bind(program.tSolid,quake_R.solidskytexture);
 	quake_GL.Bind(program.tAlpha,quake_R.alphaskytexture);
@@ -13611,6 +13613,8 @@ quake_Sbar.IntermissionOverlay = function() {
 quake_Sbar.FinaleOverlay = function() {
 	quake_Draw.Pic(quake_VID.width - quake_Sbar.finale.width >> 1,16,quake_Sbar.finale);
 };
+var quake_Shaders = function() { };
+quake_Shaders.__name__ = true;
 var quake_V = function() { };
 quake_V.__name__ = true;
 quake_V.CalcRoll = function(angles,velocity) {
@@ -14088,6 +14092,27 @@ quake_R.dlightmaps = new Uint8Array(new ArrayBuffer(1048576));
 quake_PF.builtin = [quake_PF.Fixme,quake_PF.makevectors,quake_PF.setorigin,quake_PF.setmodel,quake_PF.setsize,quake_PF.Fixme,quake_PF.breakstatement,quake_PF.random,quake_PF.sound,quake_PF.normalize,quake_PF.error,quake_PF.objerror,quake_PF.vlen,quake_PF.vectoyaw,quake_PF.Spawn,quake_PF.Remove,quake_PF.traceline,quake_PF.checkclient,quake_PF.Find,quake_PF.precache_sound,quake_PF.precache_model,quake_PF.stuffcmd,quake_PF.findradius,quake_PF.bprint,quake_PF.sprint,quake_PF.dprint,quake_PF.ftos,quake_PF.vtos,quake_PF.coredump,quake_PF.traceon,quake_PF.traceoff,quake_PF.eprint,quake_PF.walkmove,quake_PF.Fixme,quake_PF.droptofloor,quake_PF.lightstyle,quake_PF.rint,quake_PF.floor,quake_PF.ceil,quake_PF.Fixme,quake_PF.checkbottom,quake_PF.pointcontents,quake_PF.Fixme,quake_PF.fabs,quake_PF.aim,quake_PF.cvar,quake_PF.localcmd,quake_PF.nextent,quake_PF.particle,quake_PF.changeyaw,quake_PF.Fixme,quake_PF.vectoangles,quake_PF.WriteByte,quake_PF.WriteChar,quake_PF.WriteShort,quake_PF.WriteLong,quake_PF.WriteCoord,quake_PF.WriteAngle,quake_PF.WriteString,quake_PF.WriteEntity,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.MoveToGoal,quake_PF.precache_file,quake_PF.makestatic,quake_PF.changelevel,quake_PF.Fixme,quake_PF.cvar_set,quake_PF.centerprint,quake_PF.ambientsound,quake_PF.precache_model,quake_PF.precache_sound,quake_PF.precache_file,quake_PF.setspawnparms];
 quake_Sbar.fragsort = [];
 quake_Sbar.showscores = false;
+quake_Shaders.shaders = (function($this) {
+	var $r;
+	var _g = new haxe_ds_StringMap();
+	_g.set("alias",{ vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uLightVec;\nattribute vec3 aPoint;\nattribute vec3 aLightNormal;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint.xyz + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightDot = dot(aLightNormal, uLightVec);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform float uAmbientLight;\nuniform float uShadeLight;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    gl_FragColor = vec4(texture.rgb * mix(1.0, vLightDot * uShadeLight + uAmbientLight, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("sky",{ vert : "uniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uScale;\nattribute vec3 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (aPoint * uScale * 18918.0);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aPoint.xy * uScale.xy * 1.5;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform vec2 uTime;\nuniform sampler2D tSolid;\nuniform sampler2D tAlpha;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec4 alpha = texture2D(tAlpha, vTexCoord + uTime.x);\n    gl_FragColor = vec4(mix(texture2D(tSolid, vTexCoord + uTime.y).rgb, alpha.rgb, alpha.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("pic",{ vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint.xy, 0.0, 1.0);\n    vTexCoord = aPoint;\n}\n", frag : "precision mediump float;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n}\n"});
+	_g.set("picTranslate",{ vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint.xy, 0.0, 1.0);\n    vTexCoord = aPoint;\n}\n", frag : "precision mediump float;\nuniform vec3 uTop;\nuniform vec3 uBottom;\nuniform sampler2D tTexture;\nuniform sampler2D tTrans;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    vec4 trans = texture2D(tTrans, vTexCoord);\n    gl_FragColor = vec4(mix(mix(texture.rgb, uTop * (1.0 / 191.25) * trans.x, trans.y), uBottom * (1.0 / 191.25) * trans.z, trans.w), texture.a);\n}\n"});
+	_g.set("sprite",{ vert : "uniform vec4 uRect;\nuniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec2 point = uRect.xy + uRect.zw * aPoint;\n    vec3 position = vec3(point.x, 0.0, point.y) + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = vec2(aPoint.x, -aPoint.y);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("turbulent",{ vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform float uTime;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = vec4(texture2D(tTexture, vTexCoord + vec2(sin(vTexCoord.t * 3.141593 + uTime), sin(vTexCoord.s * 3.141593 + uTime)) * 0.125).rgb, 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("fill",{ vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint, 0.0, 1.0);\n}\n", frag : "precision mediump float;\nuniform vec4 uColor;\nvoid main(void)\n{\n    gl_FragColor = vec4(uColor.rgb * (1.0 / 255.0), uColor.a);\n}\n"});
+	_g.set("skyChain",{ vert : "uniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (aPoint - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n}\n", frag : "precision mediump float;\nvoid main(void)\n{\n}\n"});
+	_g.set("player",{ vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uLightVec;\nattribute vec3 aPoint;\nattribute vec3 aLightNormal;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint.xyz + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightDot = dot(aLightNormal, uLightVec);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform float uAmbientLight;\nuniform float uShadeLight;\nuniform vec3 uTop;\nuniform vec3 uBottom;\nuniform sampler2D tTexture;\nuniform sampler2D tPlayer;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    vec4 player = texture2D(tPlayer, vTexCoord);\n    gl_FragColor = vec4(\n        mix(mix(texture.rgb, uTop * (1.0 / 191.25) * player.x, player.y), uBottom * (1.0 / 191.25) * player.z, player.w)\n        * mix(1.0, vLightDot * uShadeLight + uAmbientLight, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("spriteOriented",{ vert : "uniform vec4 uRect;\nuniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec2 point = uRect.xy + uRect.zw * aPoint;\n    vec3 position = uViewAngles * (uAngles * vec3(point.x, 0.0, point.y) + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = vec2(aPoint.x, -aPoint.y);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("character",{ vert : "uniform vec2 uCharacter;\nuniform vec2 uDest;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(aPoint * 8.0 + uDest, 0.0, 1.0);\n    vTexCoord = (aPoint + uCharacter) * 0.0625;\n}\n", frag : "precision mediump float;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n}\n"});
+	_g.set("particle",{ vert : "uniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform float uScale;\nattribute vec2 aPoint;\nvarying vec2 vCoord;\nvoid main(void)\n{\n    vec2 point = (aPoint - 0.5) * uScale;\n    vec3 position = vec3(point.x, 0.0, point.y) + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vCoord = vec2(aPoint.x - 0.5, 0.5 - aPoint.y) * 2.0;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform vec3 uColor;\nvarying vec2 vCoord;\nvoid main(void)\n{\n    gl_FragColor = vec4(uColor * (1.0 / 255.0), 1.0 - smoothstep(0.75, 1.0, length(vCoord)));\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"});
+	_g.set("brush",{ vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nattribute vec4 aTexCoord;\nattribute vec4 aLightStyle;\nvarying vec4 vTexCoord;\nvarying vec4 vLightStyle;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightStyle = aLightStyle;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nuniform sampler2D tLightmap;\nuniform sampler2D tDlight;\nuniform sampler2D tLightStyle;\nvarying vec4 vTexCoord;\nvarying vec4 vLightStyle;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord.xy);\n    gl_FragColor = vec4(texture.rgb *\n        mix(1.0, dot(texture2D(tLightmap, vTexCoord.zw), vec4(\n            texture2D(tLightStyle, vec2(vLightStyle.x, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.y, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.z, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.w, 0.0)).a)\n        * 43.828125) + texture2D(tDlight, vTexCoord.zw).a, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}"});
+	_g.set("dlight",{ vert : "uniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform float uRadius;\nattribute vec3 aPoint;\nvarying float vAlpha;\nvoid main(void)\n{\n    vec3 position = aPoint * 0.35 * uRadius + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vAlpha = aPoint.y * -0.2;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nvarying float vAlpha;\nvoid main(void)\n{\n    gl_FragColor = vec4(pow(1.0, uGamma), pow(0.5, uGamma), 0.0, vAlpha);\n}\n"});
+	_g.set("warp",{ vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.x + uRect.z * aPoint.x, uRect.y + uRect.w * aPoint.y, 0.0, 1.0);\n    vTexCoord = vec2(aPoint.x, 1.0 - aPoint.y);\n}\n", frag : "precision mediump float;\nuniform float uTime;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord + vec2(sin(vTexCoord.t * 15.70796 + uTime) * 0.003125, sin(vTexCoord.s * 9.817477 + uTime) * 0.005));\n}\n"});
+	$r = _g;
+	return $r;
+}(this));
 quake_V.cshift_empty = [130.0,80.0,50.0,0.0];
 quake_V.cshift_water = [130.0,80.0,50.0,128.0];
 quake_V.cshift_slime = [0.0,25.0,5.0,150.0];

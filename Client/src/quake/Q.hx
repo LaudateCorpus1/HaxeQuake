@@ -6,9 +6,6 @@ import js.html.Uint8Array;
 
 @:publicFields
 class Q {
-
-    static inline function isNaN(f:Float):Bool return Math.isNaN(f);
-
     static function memstr(src:Uint8Array):String {
         var dest = [];
         for (i in 0...src.length) {

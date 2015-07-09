@@ -1017,11 +1017,11 @@ class SV {
     static function CheckVelocity(ent:Edict) {
         for (i in 0...3) {
             var velocity = ent.v_float[PR.entvars.velocity + i];
-            if (Q.isNaN(velocity)) {
+            if (Math.isNaN(velocity)) {
                 Console.Print('Got a NaN velocity on ' + PR.GetString(ent.v_int[PR.entvars.classname]) + '\n');
                 velocity = 0.0;
             }
-            if (Q.isNaN(ent.v_float[PR.entvars.origin + i])) {
+            if (Math.isNaN(ent.v_float[PR.entvars.origin + i])) {
                 Console.Print('Got a NaN origin on ' + PR.GetString(ent.v_int[PR.entvars.classname]) + '\n');
                 ent.v_float[PR.entvars.origin + i] = 0.0;
             }

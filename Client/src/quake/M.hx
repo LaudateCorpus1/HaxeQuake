@@ -210,37 +210,37 @@ class M {
 
 	static function SinglePlayer_Key(k) {
 		switch (k) {
-		case KeyCode.escape:
-			Menu_Main_f();
-			return;
-		case KeyCode.downarrow:
-			S.LocalSound(sfx_menu1);
-			if (++singleplayer_cursor >= singleplayer_items)
-				singleplayer_cursor = 0;
-			return;
-		case KeyCode.uparrow:
-			S.LocalSound(sfx_menu1);
-			if (--singleplayer_cursor < 0)
-				singleplayer_cursor = singleplayer_items - 1;
-			return;
-		case KeyCode.enter:
-			entersound = true;
-			switch (singleplayer_cursor) {
-			case 0:
-				if (SV.server.active) {
-					if (!window.confirm('Are you sure you want to start a new game?'))
-						return;
-					Cmd.text += 'disconnect\n';
+			case KeyCode.escape:
+				Menu_Main_f();
+
+			case KeyCode.downarrow:
+				S.LocalSound(sfx_menu1);
+				if (++singleplayer_cursor >= singleplayer_items)
+					singleplayer_cursor = 0;
+
+			case KeyCode.uparrow:
+				S.LocalSound(sfx_menu1);
+				if (--singleplayer_cursor < 0)
+					singleplayer_cursor = singleplayer_items - 1;
+
+			case KeyCode.enter:
+				entersound = true;
+				switch (singleplayer_cursor) {
+					case 0:
+						if (SV.server.active) {
+							if (!window.confirm('Are you sure you want to start a new game?'))
+								return;
+							Cmd.text += 'disconnect\n';
+						}
+						Key.dest = game;
+						Cmd.text += 'maxplayers 1\nmap start\n';
+	
+					case 1:
+						Menu_Load_f();
+	
+					case 2:
+						Menu_Save_f();
 				}
-				Key.dest = game;
-				Cmd.text += 'maxplayers 1\nmap start\n';
-				return;
-			case 1:
-				Menu_Load_f();
-				return;
-			case 2:
-				Menu_Save_f();
-			}
 		}
 	}
 

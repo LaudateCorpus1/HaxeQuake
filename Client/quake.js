@@ -4938,15 +4938,15 @@ quake_M.SinglePlayer_Key = function(k) {
 	switch(k) {
 	case 27:
 		quake_M.Menu_Main_f();
-		return;
+		break;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(++quake_M.singleplayer_cursor >= quake_M.singleplayer_items) quake_M.singleplayer_cursor = 0;
-		return;
+		break;
 	case 128:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(--quake_M.singleplayer_cursor < 0) quake_M.singleplayer_cursor = quake_M.singleplayer_items - 1;
-		return;
+		break;
 	case 13:
 		quake_M.entersound = true;
 		var _g = quake_M.singleplayer_cursor;
@@ -4958,10 +4958,10 @@ quake_M.SinglePlayer_Key = function(k) {
 			}
 			quake_Key.dest = 0;
 			quake_Cmd.text += "maxplayers 1\nmap start\n";
-			return;
+			break;
 		case 1:
 			quake_M.Menu_Load_f();
-			return;
+			break;
 		case 2:
 			quake_M.Menu_Save_f();
 			break;

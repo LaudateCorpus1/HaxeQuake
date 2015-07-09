@@ -1,6 +1,7 @@
 package quake;
 
 import quake.CL.CShift;
+import quake.Def.ClientStat;
 
 @:publicFields
 class V {
@@ -302,7 +303,7 @@ class V {
 			}
 			V.dmg_time -= Host.frametime;
 		}
-		if (CL.state.stats[Def.stat.health] <= 0)
+		if (CL.state.stats[ClientStat.health] <= 0)
 			R.refdef.viewangles[2] = 80.0;
 
 		var ipitch = V.idlescale.value * Math.sin(CL.state.time * V.ipitch_cycle.value) * V.ipitch_level.value;
@@ -346,8 +347,8 @@ class V {
 			case 80:
 				view.origin[2] += 0.5;
 		}
-		view.model = CL.state.model_precache[CL.state.stats[Def.stat.weapon]];
-		view.frame = CL.state.stats[Def.stat.weaponframe];
+		view.model = CL.state.model_precache[CL.state.stats[ClientStat.weapon]];
+		view.frame = CL.state.stats[ClientStat.weaponframe];
 
 		R.refdef.viewangles[0] += CL.state.punchangle[0];
 		R.refdef.viewangles[1] += CL.state.punchangle[1];

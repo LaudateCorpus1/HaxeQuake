@@ -13,7 +13,7 @@ import quake.Mod;
 import quake.GL.gl;
 import quake.Mod.MSurface;
 import quake.PR.GlobalVarOfs;
-
+import quake.Def.ClientStat;
 using Tools;
 
 @:publicFields
@@ -752,7 +752,7 @@ class R {
             return;
         if ((CL.state.items & Def.it.invisibility) != 0)
             return;
-        if (CL.state.stats[Def.stat.health] <= 0)
+        if (CL.state.stats[ClientStat.health] <= 0)
             return;
         if (CL.state.viewent.model == null)
             return;

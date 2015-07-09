@@ -11,6 +11,7 @@ import quake.NET.INETSocket;
 import quake.Protocol;
 import quake.R.REntity;
 import quake.S.Sfx;
+import quake.Def.ClientStat;
 using Tools;
 
 @:publicFields
@@ -1263,19 +1264,19 @@ class CL {
         CL.state.onground = (bits & SU.onground) != 0;
         CL.state.inwater = (bits & SU.inwater) != 0;
 
-        CL.state.stats[Def.stat.weaponframe] = ((bits & SU.weaponframe) != 0) ? MSG.ReadByte() : 0;
-        CL.state.stats[Def.stat.armor] = ((bits & SU.armor) != 0) ? MSG.ReadByte() : 0;
-        CL.state.stats[Def.stat.weapon] = ((bits & SU.weapon) != 0) ? MSG.ReadByte() : 0;
-        CL.state.stats[Def.stat.health] = MSG.ReadShort();
-        CL.state.stats[Def.stat.ammo] = MSG.ReadByte();
-        CL.state.stats[Def.stat.shells] = MSG.ReadByte();
-        CL.state.stats[Def.stat.nails] = MSG.ReadByte();
-        CL.state.stats[Def.stat.rockets] = MSG.ReadByte();
-        CL.state.stats[Def.stat.cells] = MSG.ReadByte();
+        CL.state.stats[ClientStat.weaponframe] = ((bits & SU.weaponframe) != 0) ? MSG.ReadByte() : 0;
+        CL.state.stats[ClientStat.armor] = ((bits & SU.armor) != 0) ? MSG.ReadByte() : 0;
+        CL.state.stats[ClientStat.weapon] = ((bits & SU.weapon) != 0) ? MSG.ReadByte() : 0;
+        CL.state.stats[ClientStat.health] = MSG.ReadShort();
+        CL.state.stats[ClientStat.ammo] = MSG.ReadByte();
+        CL.state.stats[ClientStat.shells] = MSG.ReadByte();
+        CL.state.stats[ClientStat.nails] = MSG.ReadByte();
+        CL.state.stats[ClientStat.rockets] = MSG.ReadByte();
+        CL.state.stats[ClientStat.cells] = MSG.ReadByte();
         if (COM.standard_quake)
-            CL.state.stats[Def.stat.activeweapon] = MSG.ReadByte();
+            CL.state.stats[ClientStat.activeweapon] = MSG.ReadByte();
         else
-            CL.state.stats[Def.stat.activeweapon] = 1 << MSG.ReadByte();
+            CL.state.stats[ClientStat.activeweapon] = 1 << MSG.ReadByte();
     }
 
     static function ParseStatic() {
@@ -1436,10 +1437,10 @@ class CL {
                 CL.SignonReply();
                 continue;
             case SVC.killedmonster:
-                ++CL.state.stats[Def.stat.monsters];
+                ++CL.state.stats[ClientStat.monsters];
                 continue;
             case SVC.foundsecret:
-                ++CL.state.stats[Def.stat.secrets];
+                ++CL.state.stats[ClientStat.secrets];
                 continue;
             case SVC.updatestat:
                 var i = MSG.ReadByte();

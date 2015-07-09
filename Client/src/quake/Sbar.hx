@@ -1,7 +1,7 @@
 package quake;
 
 import quake.Draw.DrawPic;
-
+import quake.Def.ClientStat;
 
 @:publicFields
 class Sbar {
@@ -255,15 +255,15 @@ class Sbar {
 		var str;
 
 		Sbar.DrawString(8, 4, 'Monsters:    /');
-		str = Std.string(CL.state.stats[Def.stat.monsters]);
+		str = Std.string(CL.state.stats[ClientStat.monsters]);
 		Sbar.DrawString(104 - (str.length << 3), 4, str);
-		str = Std.string(CL.state.stats[Def.stat.totalmonsters]);
+		str = Std.string(CL.state.stats[ClientStat.totalmonsters]);
 		Sbar.DrawString(144 - (str.length << 3), 4, str);
 
 		Sbar.DrawString(8, 12, 'Secrets :    /');
-		str = Std.string(CL.state.stats[Def.stat.secrets]);
+		str = Std.string(CL.state.stats[ClientStat.secrets]);
 		Sbar.DrawString(104 - (str.length << 3), 12, str);
-		str = Std.string(CL.state.stats[Def.stat.totalsecrets]);
+		str = Std.string(CL.state.stats[ClientStat.totalsecrets]);
 		Sbar.DrawString(144 - (str.length << 3), 12, str);
 
 		var minutes = Math.floor(CL.state.time / 60.0);
@@ -279,7 +279,7 @@ class Sbar {
 
 	static function DrawInventory() {
 		if (COM.rogue)
-			Sbar.DrawPic(0, -24, Sbar.r_invbar[CL.state.stats[Def.stat.activeweapon] >= Def.rit.lava_nailgun ? 0 : 1]);
+			Sbar.DrawPic(0, -24, Sbar.r_invbar[CL.state.stats[ClientStat.activeweapon] >= Def.rit.lava_nailgun ? 0 : 1]);
 		else
 			Sbar.DrawPic(0, -24, Sbar.ibar);
 
@@ -289,7 +289,7 @@ class Sbar {
 				continue;
 			flashon = Math.floor((CL.state.time - CL.state.item_gettime[i]) * 10.0);
 			if (flashon >= 10)
-				flashon = CL.state.stats[Def.stat.activeweapon] == (Def.it.shotgun << i) ? 1 : 0;
+				flashon = CL.state.stats[ClientStat.activeweapon] == (Def.it.shotgun << i) ? 1 : 0;
 			else
 				flashon = (flashon % 5) + 2;
 			Sbar.DrawPic(i * 24, -16, Sbar.weapons[flashon][i]);
@@ -300,7 +300,7 @@ class Sbar {
 				if ((CL.state.items & (1 << Sbar.hipweapons[i])) != 0) {
 					flashon = Math.floor((CL.state.time - CL.state.item_gettime[i]) * 10.0);
 					if (flashon >= 10)
-						flashon = CL.state.stats[Def.stat.activeweapon] == (1 << Sbar.hipweapons[i]) ? 1 : 0;
+						flashon = CL.state.stats[ClientStat.activeweapon] == (1 << Sbar.hipweapons[i]) ? 1 : 0;
 					else
 						flashon = (flashon % 5) + 2;
 
@@ -324,16 +324,16 @@ class Sbar {
 			}
 		}
 		else if (COM.rogue) {
-			if (CL.state.stats[Def.stat.activeweapon] >= Def.rit.lava_nailgun) {
+			if (CL.state.stats[ClientStat.activeweapon] >= Def.rit.lava_nailgun) {
 				for (i in 0...5) {
-					if (CL.state.stats[Def.stat.activeweapon] == (Def.rit.lava_nailgun << i))
+					if (CL.state.stats[ClientStat.activeweapon] == (Def.rit.lava_nailgun << i))
 						Sbar.DrawPic((i + 2) * 24, -16, Sbar.r_weapons[i]);
 				}
 			}
 		}
 
 		for (i in 0...4) {
-			var num = Std.string(CL.state.stats[Def.stat.shells + i]);
+			var num = Std.string(CL.state.stats[ClientStat.shells + i]);
 			switch (num.length) {
 			case 1:
 				Sbar.DrawCharacter(((6 * i + 3) << 3) - 2, -24, num.charCodeAt(0) - 30);
@@ -445,7 +445,7 @@ class Sbar {
 			Sbar.DrawPic(112, 0, Sbar.face_invuln);
 			return;
 		}
-		Sbar.DrawPic(112, 0, Sbar.faces[CL.state.stats[Def.stat.health] >= 100.0 ? 4 : Math.floor(CL.state.stats[Def.stat.health] / 20.0)][CL.state.time <= CL.state.faceanimtime ? 1 : 0]);
+		Sbar.DrawPic(112, 0, Sbar.faces[CL.state.stats[ClientStat.health] >= 100.0 ? 4 : Math.floor(CL.state.stats[ClientStat.health] / 20.0)][CL.state.time <= CL.state.faceanimtime ? 1 : 0]);
 	}
 
 	static function DrawSbar() {
@@ -458,7 +458,7 @@ class Sbar {
 				Sbar.DrawFrags();
 		}
 
-		if ((Sbar.showscores) || (CL.state.stats[Def.stat.health] <= 0)) {
+		if ((Sbar.showscores) || (CL.state.stats[ClientStat.health] <= 0)) {
 			Sbar.DrawPic(0, 0, Sbar.scorebar);
 			Sbar.SoloScoreboard();
 			if (CL.state.gametype == 1)
@@ -486,7 +486,7 @@ class Sbar {
 		}
 		else
 		{
-			Sbar.DrawNum(24, 0, CL.state.stats[Def.stat.armor], 3, CL.state.stats[Def.stat.armor] <= 25 ? 1 : 0);
+			Sbar.DrawNum(24, 0, CL.state.stats[ClientStat.armor], 3, CL.state.stats[ClientStat.armor] <= 25 ? 1 : 0);
 			if ((CL.state.items & it.armor3) != 0)
 				Sbar.DrawPic(0, 0, Sbar.armor[2]);
 			else if ((CL.state.items & it.armor2) != 0)
@@ -497,7 +497,7 @@ class Sbar {
 
 		Sbar.DrawFace();
 
-		Sbar.DrawNum(136, 0, CL.state.stats[Def.stat.health], 3, CL.state.stats[Def.stat.health] <= 25 ? 1 : 0);
+		Sbar.DrawNum(136, 0, CL.state.stats[ClientStat.health], 3, CL.state.stats[ClientStat.health] <= 25 ? 1 : 0);
 
 		if ((CL.state.items & it.shells) != 0)
 			Sbar.DrawPic(224, 0, Sbar.ammo[0]);
@@ -515,7 +515,7 @@ class Sbar {
 			else if ((CL.state.items & Def.rit.multi_rockets) != 0)
 				Sbar.DrawPic(224, 0, Sbar.r_ammo[2]);
 		}
-		Sbar.DrawNum(248, 0, CL.state.stats[Def.stat.ammo], 3, CL.state.stats[Def.stat.ammo] <= 10 ? 1 : 0);
+		Sbar.DrawNum(248, 0, CL.state.stats[ClientStat.ammo], 3, CL.state.stats[ClientStat.ammo] <= 10 ? 1 : 0);
 
 		if ((VID.width >= 512) && (CL.state.gametype == 1))
 			Sbar.MiniDeathmatchOverlay();
@@ -606,13 +606,13 @@ class Sbar {
 		Draw.Pic(246, 64, Sbar.nums[0][Math.floor(num / 10)]);
 		Draw.Pic(266, 64, Sbar.nums[0][Math.floor(num % 10)]);
 
-		Sbar.IntermissionNumber(160, 104, CL.state.stats[Def.stat.secrets]);
+		Sbar.IntermissionNumber(160, 104, CL.state.stats[ClientStat.secrets]);
 		Draw.Pic(232, 104, Sbar.slash);
-		Sbar.IntermissionNumber(240, 104, CL.state.stats[Def.stat.totalsecrets]);
+		Sbar.IntermissionNumber(240, 104, CL.state.stats[ClientStat.totalsecrets]);
 
-		Sbar.IntermissionNumber(160, 144, CL.state.stats[Def.stat.monsters]);
+		Sbar.IntermissionNumber(160, 144, CL.state.stats[ClientStat.monsters]);
 		Draw.Pic(232, 144, Sbar.slash);
-		Sbar.IntermissionNumber(240, 144, CL.state.stats[Def.stat.totalmonsters]);
+		Sbar.IntermissionNumber(240, 144, CL.state.stats[ClientStat.totalmonsters]);
 	}
 
 	static function FinaleOverlay() {

@@ -12,6 +12,7 @@ import quake.PR.GlobalVarOfs;
 import quake.Protocol.SVC;
 import quake.SV.MoveType;
 import quake.SV.EntFlag;
+import quake.Def.ClientStat;
 using Tools;
 
 @:publicFields
@@ -578,13 +579,13 @@ class Host {
             text += '_';
 
         text += 'kills:';
-        var kills = Std.string(CL.state.stats[Def.stat.monsters]);
+        var kills = Std.string(CL.state.stats[ClientStat.monsters]);
         if (kills.length == 2)
             text += '_';
         else if (kills.length == 1)
             text += '__';
         text += kills + '/';
-        kills = Std.string(CL.state.stats[Def.stat.totalmonsters]);
+        kills = Std.string(CL.state.stats[ClientStat.totalmonsters]);
         if (kills.length == 2)
             text += '_';
         else if (kills.length == 1)
@@ -997,16 +998,16 @@ class Host {
             message.WriteString(SV.server.lightstyles[i]);
         }
         message.WriteByte(SVC.updatestat);
-        message.WriteByte(Def.stat.totalsecrets);
+        message.WriteByte(ClientStat.totalsecrets);
         message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.total_secrets]));
         message.WriteByte(SVC.updatestat);
-        message.WriteByte(Def.stat.totalmonsters);
+        message.WriteByte(ClientStat.totalmonsters);
         message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.total_monsters]));
         message.WriteByte(SVC.updatestat);
-        message.WriteByte(Def.stat.secrets);
+        message.WriteByte(ClientStat.secrets);
         message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.found_secrets]));
         message.WriteByte(SVC.updatestat);
-        message.WriteByte(Def.stat.monsters);
+        message.WriteByte(ClientStat.monsters);
         message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.killed_monsters]));
         message.WriteByte(SVC.setangle);
         message.WriteAngle(ent.v_float[EntVarOfs.angles]);

@@ -1377,16 +1377,16 @@ quake_CL.ParseClientdata = function(bits) {
 	}
 	quake_CL.state.onground = (bits & 1024) != 0;
 	quake_CL.state.inwater = (bits & 2048) != 0;
-	quake_CL.state.stats[quake_Def.stat.weaponframe] = (bits & 4096) != 0?quake_MSG.ReadByte():0;
-	quake_CL.state.stats[quake_Def.stat.armor] = (bits & 8192) != 0?quake_MSG.ReadByte():0;
-	quake_CL.state.stats[quake_Def.stat.weapon] = (bits & 16384) != 0?quake_MSG.ReadByte():0;
-	quake_CL.state.stats[quake_Def.stat.health] = quake_MSG.ReadShort();
-	quake_CL.state.stats[quake_Def.stat.ammo] = quake_MSG.ReadByte();
-	quake_CL.state.stats[quake_Def.stat.shells] = quake_MSG.ReadByte();
-	quake_CL.state.stats[quake_Def.stat.nails] = quake_MSG.ReadByte();
-	quake_CL.state.stats[quake_Def.stat.rockets] = quake_MSG.ReadByte();
-	quake_CL.state.stats[quake_Def.stat.cells] = quake_MSG.ReadByte();
-	if(quake_COM.standard_quake) quake_CL.state.stats[quake_Def.stat.activeweapon] = quake_MSG.ReadByte(); else quake_CL.state.stats[quake_Def.stat.activeweapon] = 1 << quake_MSG.ReadByte();
+	quake_CL.state.stats[5] = (bits & 4096) != 0?quake_MSG.ReadByte():0;
+	quake_CL.state.stats[4] = (bits & 8192) != 0?quake_MSG.ReadByte():0;
+	quake_CL.state.stats[2] = (bits & 16384) != 0?quake_MSG.ReadByte():0;
+	quake_CL.state.stats[0] = quake_MSG.ReadShort();
+	quake_CL.state.stats[3] = quake_MSG.ReadByte();
+	quake_CL.state.stats[6] = quake_MSG.ReadByte();
+	quake_CL.state.stats[7] = quake_MSG.ReadByte();
+	quake_CL.state.stats[8] = quake_MSG.ReadByte();
+	quake_CL.state.stats[9] = quake_MSG.ReadByte();
+	if(quake_COM.standard_quake) quake_CL.state.stats[10] = quake_MSG.ReadByte(); else quake_CL.state.stats[10] = 1 << quake_MSG.ReadByte();
 };
 quake_CL.ParseStatic = function() {
 	var ent = new quake_REntity();
@@ -1547,11 +1547,11 @@ quake_CL.ParseServerMessage = function() {
 			continue;
 			break;
 		case 27:
-			++quake_CL.state.stats[quake_Def.stat.monsters];
+			++quake_CL.state.stats[14];
 			continue;
 			break;
 		case 28:
-			++quake_CL.state.stats[quake_Def.stat.secrets];
+			++quake_CL.state.stats[13];
 			continue;
 			break;
 		case 3:
@@ -3796,10 +3796,10 @@ quake_Host.SavegameComment = function() {
 		text += "_";
 	}
 	text += "kills:";
-	var kills = Std.string(quake_CL.state.stats[quake_Def.stat.monsters]);
+	var kills = Std.string(quake_CL.state.stats[14]);
 	if(kills.length == 2) text += "_"; else if(kills.length == 1) text += "__";
 	text += kills + "/";
-	kills = Std.string(quake_CL.state.stats[quake_Def.stat.totalmonsters]);
+	kills = Std.string(quake_CL.state.stats[12]);
 	if(kills.length == 2) text += "_"; else if(kills.length == 1) text += "__";
 	text += kills;
 	return text + "____";
@@ -4189,16 +4189,16 @@ quake_Host.Spawn_f = function() {
 		message.WriteString(quake_SV.server.lightstyles[i3]);
 	}
 	message.WriteByte(3);
-	message.WriteByte(quake_Def.stat.totalsecrets);
+	message.WriteByte(11);
 	message.WriteLong(quake_PR.globals_float[39] | 0);
 	message.WriteByte(3);
-	message.WriteByte(quake_Def.stat.totalmonsters);
+	message.WriteByte(12);
 	message.WriteLong(quake_PR.globals_float[40] | 0);
 	message.WriteByte(3);
-	message.WriteByte(quake_Def.stat.secrets);
+	message.WriteByte(13);
 	message.WriteLong(quake_PR.globals_float[41] | 0);
 	message.WriteByte(3);
-	message.WriteByte(quake_Def.stat.monsters);
+	message.WriteByte(14);
 	message.WriteLong(quake_PR.globals_float[42] | 0);
 	message.WriteByte(10);
 	message.WriteAngle(ent.v_float[19]);
@@ -11209,7 +11209,7 @@ quake_R.DrawViewModel = function() {
 	if(quake_Chase.active.value != 0) return;
 	if(quake_R.drawentities.value == 0) return;
 	if((quake_CL.state.items & quake_Def.it.invisibility) != 0) return;
-	if(quake_CL.state.stats[quake_Def.stat.health] <= 0) return;
+	if(quake_CL.state.stats[0] <= 0) return;
 	if(quake_CL.state.viewent.model == null) return;
 	quake_GL.gl.depthRange(0.0,0.3);
 	var ymax = 4.0 * Math.tan(quake_SCR.fov.value * 0.82 * Math.PI / 360.0);
@@ -13331,14 +13331,14 @@ quake_Sbar.SortFrags = function() {
 quake_Sbar.SoloScoreboard = function() {
 	var str;
 	quake_Sbar.DrawString(8,4,"Monsters:    /");
-	str = Std.string(quake_CL.state.stats[quake_Def.stat.monsters]);
+	str = Std.string(quake_CL.state.stats[14]);
 	quake_Sbar.DrawString(104 - (str.length << 3),4,str);
-	str = Std.string(quake_CL.state.stats[quake_Def.stat.totalmonsters]);
+	str = Std.string(quake_CL.state.stats[12]);
 	quake_Sbar.DrawString(144 - (str.length << 3),4,str);
 	quake_Sbar.DrawString(8,12,"Secrets :    /");
-	str = Std.string(quake_CL.state.stats[quake_Def.stat.secrets]);
+	str = Std.string(quake_CL.state.stats[13]);
 	quake_Sbar.DrawString(104 - (str.length << 3),12,str);
-	str = Std.string(quake_CL.state.stats[quake_Def.stat.totalsecrets]);
+	str = Std.string(quake_CL.state.stats[11]);
 	quake_Sbar.DrawString(144 - (str.length << 3),12,str);
 	var minutes = Math.floor(quake_CL.state.time / 60.0);
 	var seconds = Math.floor(quake_CL.state.time - 60 * minutes);
@@ -13350,14 +13350,14 @@ quake_Sbar.SoloScoreboard = function() {
 	quake_Sbar.DrawString(232 - (quake_CL.state.levelname.length << 2),12,quake_CL.state.levelname);
 };
 quake_Sbar.DrawInventory = function() {
-	if(quake_COM.rogue) quake_Sbar.DrawPic(0,-24,quake_Sbar.r_invbar[quake_CL.state.stats[quake_Def.stat.activeweapon] >= quake_Def.rit.lava_nailgun?0:1]); else quake_Sbar.DrawPic(0,-24,quake_Sbar.ibar);
+	if(quake_COM.rogue) quake_Sbar.DrawPic(0,-24,quake_Sbar.r_invbar[quake_CL.state.stats[10] >= quake_Def.rit.lava_nailgun?0:1]); else quake_Sbar.DrawPic(0,-24,quake_Sbar.ibar);
 	var flashon;
 	var _g = 0;
 	while(_g < 7) {
 		var i = _g++;
 		if((quake_CL.state.items & quake_Def.it.shotgun << i) == 0) continue;
 		flashon = Math.floor((quake_CL.state.time - quake_CL.state.item_gettime[i]) * 10.0);
-		if(flashon >= 10) flashon = quake_CL.state.stats[quake_Def.stat.activeweapon] == quake_Def.it.shotgun << i?1:0; else flashon = flashon % 5 + 2;
+		if(flashon >= 10) flashon = quake_CL.state.stats[10] == quake_Def.it.shotgun << i?1:0; else flashon = flashon % 5 + 2;
 		quake_Sbar.DrawPic(i * 24,-16,quake_Sbar.weapons[flashon][i]);
 	}
 	if(quake_COM.hipnotic) {
@@ -13367,7 +13367,7 @@ quake_Sbar.DrawInventory = function() {
 			var i1 = _g1++;
 			if((quake_CL.state.items & 1 << quake_Sbar.hipweapons[i1]) != 0) {
 				flashon = Math.floor((quake_CL.state.time - quake_CL.state.item_gettime[i1]) * 10.0);
-				if(flashon >= 10) flashon = quake_CL.state.stats[quake_Def.stat.activeweapon] == 1 << quake_Sbar.hipweapons[i1]?1:0; else flashon = flashon % 5 + 2;
+				if(flashon >= 10) flashon = quake_CL.state.stats[10] == 1 << quake_Sbar.hipweapons[i1]?1:0; else flashon = flashon % 5 + 2;
 				if(i1 == 2) {
 					if((quake_CL.state.items & quake_Def.hit.proximity_gun) != 0 && flashon != 0) {
 						grenadeflashing = true;
@@ -13381,18 +13381,18 @@ quake_Sbar.DrawInventory = function() {
 			}
 		}
 	} else if(quake_COM.rogue) {
-		if(quake_CL.state.stats[quake_Def.stat.activeweapon] >= quake_Def.rit.lava_nailgun) {
+		if(quake_CL.state.stats[10] >= quake_Def.rit.lava_nailgun) {
 			var _g2 = 0;
 			while(_g2 < 5) {
 				var i2 = _g2++;
-				if(quake_CL.state.stats[quake_Def.stat.activeweapon] == quake_Def.rit.lava_nailgun << i2) quake_Sbar.DrawPic((i2 + 2) * 24,-16,quake_Sbar.r_weapons[i2]);
+				if(quake_CL.state.stats[10] == quake_Def.rit.lava_nailgun << i2) quake_Sbar.DrawPic((i2 + 2) * 24,-16,quake_Sbar.r_weapons[i2]);
 			}
 		}
 	}
 	var _g3 = 0;
 	while(_g3 < 4) {
 		var i3 = _g3++;
-		var num = Std.string(quake_CL.state.stats[quake_Def.stat.shells + i3]);
+		var num = Std.string(quake_CL.state.stats[6 + i3]);
 		var _g11 = num.length;
 		switch(_g11) {
 		case 1:
@@ -13497,7 +13497,7 @@ quake_Sbar.DrawFace = function() {
 		quake_Sbar.DrawPic(112,0,quake_Sbar.face_invuln);
 		return;
 	}
-	quake_Sbar.DrawPic(112,0,quake_Sbar.faces[quake_CL.state.stats[quake_Def.stat.health] >= 100.0?4:Math.floor(quake_CL.state.stats[quake_Def.stat.health] / 20.0)][quake_CL.state.time <= quake_CL.state.faceanimtime?1:0]);
+	quake_Sbar.DrawPic(112,0,quake_Sbar.faces[quake_CL.state.stats[0] >= 100.0?4:Math.floor(quake_CL.state.stats[0] / 20.0)][quake_CL.state.time <= quake_CL.state.faceanimtime?1:0]);
 };
 quake_Sbar.DrawSbar = function() {
 	if(quake_SCR.con_current >= 200) return;
@@ -13505,7 +13505,7 @@ quake_Sbar.DrawSbar = function() {
 		quake_Sbar.DrawInventory();
 		if(quake_CL.state.maxclients != 1) quake_Sbar.DrawFrags();
 	}
-	if(quake_Sbar.showscores || quake_CL.state.stats[quake_Def.stat.health] <= 0) {
+	if(quake_Sbar.showscores || quake_CL.state.stats[0] <= 0) {
 		quake_Sbar.DrawPic(0,0,quake_Sbar.scorebar);
 		quake_Sbar.SoloScoreboard();
 		if(quake_CL.state.gametype == 1) quake_Sbar.DeathmatchOverlay();
@@ -13522,15 +13522,15 @@ quake_Sbar.DrawSbar = function() {
 		quake_Sbar.DrawNum(24,0,666,3,1);
 		quake_Sbar.DrawPic(0,0,quake_Sbar.disc);
 	} else {
-		quake_Sbar.DrawNum(24,0,quake_CL.state.stats[quake_Def.stat.armor],3,quake_CL.state.stats[quake_Def.stat.armor] <= 25?1:0);
+		quake_Sbar.DrawNum(24,0,quake_CL.state.stats[4],3,quake_CL.state.stats[4] <= 25?1:0);
 		if((quake_CL.state.items & it.armor3) != 0) quake_Sbar.DrawPic(0,0,quake_Sbar.armor[2]); else if((quake_CL.state.items & it.armor2) != 0) quake_Sbar.DrawPic(0,0,quake_Sbar.armor[1]); else if((quake_CL.state.items & it.armor1) != 0) quake_Sbar.DrawPic(0,0,quake_Sbar.armor[0]);
 	}
 	quake_Sbar.DrawFace();
-	quake_Sbar.DrawNum(136,0,quake_CL.state.stats[quake_Def.stat.health],3,quake_CL.state.stats[quake_Def.stat.health] <= 25?1:0);
+	quake_Sbar.DrawNum(136,0,quake_CL.state.stats[0],3,quake_CL.state.stats[0] <= 25?1:0);
 	if((quake_CL.state.items & it.shells) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.ammo[0]); else if((quake_CL.state.items & it.nails) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.ammo[1]); else if((quake_CL.state.items & it.rockets) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.ammo[2]); else if((quake_CL.state.items & it.cells) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.ammo[3]); else if(quake_COM.rogue) {
 		if((quake_CL.state.items & quake_Def.rit.lava_nails) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.r_ammo[0]); else if((quake_CL.state.items & quake_Def.rit.plasma_ammo) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.r_ammo[1]); else if((quake_CL.state.items & quake_Def.rit.multi_rockets) != 0) quake_Sbar.DrawPic(224,0,quake_Sbar.r_ammo[2]);
 	}
-	quake_Sbar.DrawNum(248,0,quake_CL.state.stats[quake_Def.stat.ammo],3,quake_CL.state.stats[quake_Def.stat.ammo] <= 10?1:0);
+	quake_Sbar.DrawNum(248,0,quake_CL.state.stats[3],3,quake_CL.state.stats[3] <= 10?1:0);
 	if(quake_VID.width >= 512 && quake_CL.state.gametype == 1) quake_Sbar.MiniDeathmatchOverlay();
 };
 quake_Sbar.IntermissionNumber = function(x,y,num) {
@@ -13609,12 +13609,12 @@ quake_Sbar.IntermissionOverlay = function() {
 	quake_Draw.Pic(234,64,quake_Sbar.colon);
 	quake_Draw.Pic(246,64,quake_Sbar.nums[0][Math.floor(num / 10)]);
 	quake_Draw.Pic(266,64,quake_Sbar.nums[0][Math.floor(num % 10)]);
-	quake_Sbar.IntermissionNumber(160,104,quake_CL.state.stats[quake_Def.stat.secrets]);
+	quake_Sbar.IntermissionNumber(160,104,quake_CL.state.stats[13]);
 	quake_Draw.Pic(232,104,quake_Sbar.slash);
-	quake_Sbar.IntermissionNumber(240,104,quake_CL.state.stats[quake_Def.stat.totalsecrets]);
-	quake_Sbar.IntermissionNumber(160,144,quake_CL.state.stats[quake_Def.stat.monsters]);
+	quake_Sbar.IntermissionNumber(240,104,quake_CL.state.stats[11]);
+	quake_Sbar.IntermissionNumber(160,144,quake_CL.state.stats[14]);
 	quake_Draw.Pic(232,144,quake_Sbar.slash);
-	quake_Sbar.IntermissionNumber(240,144,quake_CL.state.stats[quake_Def.stat.totalmonsters]);
+	quake_Sbar.IntermissionNumber(240,144,quake_CL.state.stats[12]);
 };
 quake_Sbar.FinaleOverlay = function() {
 	quake_Draw.Pic(quake_VID.width - quake_Sbar.finale.width >> 1,16,quake_Sbar.finale);
@@ -13827,7 +13827,7 @@ quake_V.CalcRefdef = function() {
 		}
 		quake_V.dmg_time -= quake_Host.frametime;
 	}
-	if(quake_CL.state.stats[quake_Def.stat.health] <= 0) quake_R.refdef.viewangles[2] = 80.0;
+	if(quake_CL.state.stats[0] <= 0) quake_R.refdef.viewangles[2] = 80.0;
 	var ipitch = quake_V.idlescale.value * Math.sin(quake_CL.state.time * quake_V.ipitch_cycle.value) * quake_V.ipitch_level.value;
 	var iyaw = quake_V.idlescale.value * Math.sin(quake_CL.state.time * quake_V.iyaw_cycle.value) * quake_V.iyaw_level.value;
 	var iroll = quake_V.idlescale.value * Math.sin(quake_CL.state.time * quake_V.iroll_cycle.value) * quake_V.iroll_level.value;
@@ -13863,8 +13863,8 @@ quake_V.CalcRefdef = function() {
 		view.origin[2] = view.origin[2] + 0.5;
 		break;
 	}
-	view.model = quake_CL.state.model_precache[quake_CL.state.stats[quake_Def.stat.weapon]];
-	view.frame = quake_CL.state.stats[quake_Def.stat.weaponframe];
+	view.model = quake_CL.state.model_precache[quake_CL.state.stats[2]];
+	view.frame = quake_CL.state.stats[5];
 	quake_R.refdef.viewangles[0] += quake_CL.state.punchangle[0];
 	quake_R.refdef.viewangles[1] += quake_CL.state.punchangle[1];
 	quake_R.refdef.viewangles[2] += quake_CL.state.punchangle[2];
@@ -13983,7 +13983,6 @@ quake_Cvar.vars = new haxe_ds_StringMap();
 quake_Def.webquake_version = 48;
 quake_Def.timedate = "Exe: 12:39:20 Aug  7 2014\n";
 quake_Def.max_edicts = 600;
-quake_Def.stat = { health : 0, frags : 1, weapon : 2, ammo : 3, armor : 4, weaponframe : 5, shells : 6, nails : 7, rockets : 8, cells : 9, activeweapon : 10, totalsecrets : 11, totalmonsters : 12, secrets : 13, monsters : 14};
 quake_Def.it = { shotgun : 1, super_shotgun : 2, nailgun : 4, super_nailgun : 8, grenade_launcher : 16, rocket_launcher : 32, lightning : 64, super_lightning : 128, shells : 256, nails : 512, rockets : 1024, cells : 2048, axe : 4096, armor1 : 8192, armor2 : 16384, armor3 : 32768, superhealth : 65536, key1 : 131072, key2 : 262144, invisibility : 524288, invulnerability : 1048576, suit : 2097152, quad : 4194304};
 quake_Def.rit = { shells : 128, nails : 256, rockets : 512, cells : 1024, axe : 2048, lava_nailgun : 4096, lava_super_nailgun : 8192, multi_grenade : 16384, multi_rocket : 32768, plasma_gun : 65536, armor1 : 8388608, armor2 : 16777216, armor3 : 33554432, lava_nails : 67108864, plasma_ammo : 134217728, multi_rockets : 268435456, shield : 536870912, antigrav : 1073741824, superhealth : 2147483648};
 quake_Def.hit = { proximity_gun_bit : 16, mjolnir_bit : 7, laser_cannon_bit : 23, proximity_gun : 65536, mjolnir : 128, laser_cannon : 8388608, wetsuit : 33554432, empathy_shields : 67108864};

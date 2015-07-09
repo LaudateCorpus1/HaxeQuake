@@ -1,28 +1,28 @@
 package quake;
 
+@:enum abstract ClientStat(Int) to Int {
+	var health = 0;
+	var frags = 1;
+	var weapon = 2;
+	var ammo = 3;
+	var armor = 4;
+	var weaponframe = 5;
+	var shells = 6;
+	var nails = 7;
+	var rockets = 8;
+	var cells = 9;
+	var activeweapon = 10;
+	var totalsecrets = 11;
+	var totalmonsters = 12;
+	var secrets = 13;
+	var monsters = 14;
+}
 
 @:publicFields
 class Def {
 	static var webquake_version = 48;
 	static var timedate = 'Exe: 12:39:20 Aug  7 2014\n';
 	static var max_edicts = 600;
-	static var stat = {
-		health: 0,
-		frags: 1,
-		weapon: 2,
-		ammo: 3,
-		armor: 4,
-		weaponframe: 5,
-		shells: 6,
-		nails: 7,
-		rockets: 8,
-		cells: 9,
-		activeweapon: 10,
-		totalsecrets: 11,
-		totalmonsters: 12,
-		secrets: 13,
-		monsters: 14
-	};
 
 	static var it = {
 		shotgun: 1,

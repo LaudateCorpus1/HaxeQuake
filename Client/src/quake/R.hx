@@ -1018,10 +1018,16 @@ class R {
                     switch (surf.styles.length) {
                         case 4:
                             styles[3] = surf.styles[3] * 0.015625 + 0.0078125;
+                            styles[2] = surf.styles[2] * 0.015625 + 0.0078125;
+                            styles[1] = surf.styles[1] * 0.015625 + 0.0078125;
+                            styles[0] = surf.styles[0] * 0.015625 + 0.0078125;
                         case 3:
                             styles[2] = surf.styles[2] * 0.015625 + 0.0078125;
+                            styles[1] = surf.styles[1] * 0.015625 + 0.0078125;
+                            styles[0] = surf.styles[0] * 0.015625 + 0.0078125;
                         case 2:
                             styles[1] = surf.styles[1] * 0.015625 + 0.0078125;
+                            styles[0] = surf.styles[0] * 0.015625 + 0.0078125;
                         case 1:
                             styles[0] = surf.styles[0] * 0.015625 + 0.0078125;
                     }

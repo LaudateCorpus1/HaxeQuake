@@ -90,6 +90,12 @@ private class ServerState {
     @:op(~a) static function _(a:EntFlag):EntFlag;
 }
 
+@:enum abstract DamageType(Int) to Int {
+    var no = 0;
+    var yes = 1;
+    var aim = 2;
+}
+
 
 @:publicFields
 class SV {
@@ -102,11 +108,6 @@ class SV {
         bsp: 4
     }
 
-    static var damage = {
-        no: 0,
-        yes: 1,
-        aim: 2
-    }
 
     // main
 

@@ -5,6 +5,7 @@ import quake.Protocol.SVC;
 import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 import quake.SV.EntFlag;
+import quake.SV.DamageType;
 using Tools;
 
 
@@ -518,7 +519,7 @@ class PF {
         var end = [start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]];
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {
-            if ((tr.ent.v_float[EntVarOfs.takedamage] == SV.damage.aim) &&
+            if ((tr.ent.v_float[EntVarOfs.takedamage] == DamageType.aim) &&
                 ((Host.teamplay.value == 0) || (ent.v_float[EntVarOfs.team] <= 0) ||
                 (ent.v_float[EntVarOfs.team] != tr.ent.v_float[EntVarOfs.team]))) {
                 PR.globals_float[1] = dir[0];
@@ -532,7 +533,7 @@ class PF {
         var bestent, end = [];
         for (i in 1...SV.server.num_edicts) {
             var check = SV.server.edicts[i];
-            if (check.v_float[EntVarOfs.takedamage] != SV.damage.aim)
+            if (check.v_float[EntVarOfs.takedamage] != DamageType.aim)
                 continue;
             if (check == ent)
                 continue;

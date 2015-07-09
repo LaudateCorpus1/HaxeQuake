@@ -13006,7 +13006,7 @@ quake_PF.aim = function() {
 	var tr = quake_SV.Move(start,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,end,0,ent);
 	if(tr.ent != null) {
 		var tmp;
-		if(tr.ent.v_float[59] == quake_SV.damage.aim) {
+		if(tr.ent.v_float[59] == 2) {
 			var tmp1;
 			if(!(quake_Host.teamplay.value == 0)) tmp1 = ent.v_float[78] <= 0; else tmp1 = true;
 			if(!tmp1) tmp = ent.v_float[78] != tr.ent.v_float[78]; else tmp = true;
@@ -13029,7 +13029,7 @@ quake_PF.aim = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var check = quake_SV.server.edicts[i];
-		if(check.v_float[59] != quake_SV.damage.aim) continue;
+		if(check.v_float[59] != 2) continue;
 		if(check == ent) continue;
 		if(quake_Host.teamplay.value != 0 && ent.v_float[78] > 0 && ent.v_float[78] == check.v_float[78]) continue;
 		end1[0] = check.v_float[10] + 0.5 * (check.v_float[33] + check.v_float[36]);
@@ -14069,7 +14069,6 @@ quake_SCR.recalc_refdef = false;
 quake_SCR.screenshot = false;
 quake_SCR.disabled_for_loading = false;
 quake_SV.solid = { not : 0, trigger : 1, bbox : 2, slidebox : 3, bsp : 4};
-quake_SV.damage = { no : 0, yes : 1, aim : 2};
 quake_SV.server = new quake__$SV_ServerState();
 quake_SV.svs = new quake__$SV_ServerStatic();
 quake_SV.fatpvs = [];

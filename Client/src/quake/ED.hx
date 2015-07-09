@@ -6,6 +6,7 @@ import js.html.Int32Array;
 import quake.Mod.MLink;
 import quake.PR.EType;
 import quake.PR.PRDef;
+import quake.PR.GlobalVarOfs;
 import quake.R.REntityState;
 import quake.SV.MoveType;
 
@@ -313,7 +314,7 @@ class ED {
 
 	static function LoadFromFile(data:String):Void {
 		var ent, inhibit = 0;
-		PR.globals_float[PR.globalvars.time] = SV.server.time;
+		PR.globals_float[GlobalVarOfs.time] = SV.server.time;
 
 		while (true) {
 			data = COM.Parse(data);
@@ -359,7 +360,7 @@ class ED {
 				continue;
 			}
 
-			PR.globals_int[PR.globalvars.self] = ent.num;
+			PR.globals_int[GlobalVarOfs.self] = ent.num;
 			PR.ExecuteProgram(func);
 		}
 

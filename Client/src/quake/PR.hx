@@ -160,62 +160,62 @@ private class PRStackItem {
 }
 
 
+@:enum abstract GlobalVarOfs(Int) to Int {
+	var self = 28; // edict
+	var other = 29; // edict
+	var world = 30; // edict
+	var time = 31; // float
+	var frametime = 32; // float
+	var force_retouch = 33; // float
+	var mapname = 34; // string
+	var deathmatch = 35; // float
+	var coop = 36; // float
+	var teamplay = 37; // float
+	var serverflags = 38; // float
+	var total_secrets = 39; // float
+	var total_monsters = 40; // float
+	var found_secrets = 41; // float
+	var killed_monsters = 42; // float
+	var parms = 43; // float[16]
+	var v_forward = 59; // vec3
+	var v_forward1 = 60;
+	var v_forward2 = 61;
+	var v_up = 62; // vec3
+	var v_up1 = 63;
+	var v_up2 = 64;
+	var v_right = 65; // vec3,
+	var v_right1 = 66;
+	var v_right2 = 67;
+	var trace_allsolid = 68; // float
+	var trace_startsolid = 69; // float
+	var trace_fraction = 70; // float
+	var trace_endpos = 71; // vec3
+	var trace_endpos1 = 72;
+	var trace_endpos2 = 73;
+	var trace_plane_normal = 74; // vec3
+	var trace_plane_normal1 = 75;
+	var trace_plane_normal2 = 76;
+	var trace_plane_dist = 77; // float
+	var trace_ent = 78; // edict
+	var trace_inopen = 79; // float
+	var trace_inwater = 80; // float
+	var msg_entity = 81; // edict
+	var main = 82; // func
+	var StartFrame = 83; // func
+	var PlayerPreThink = 84; // func
+	var PlayerPostThink = 85; // func
+	var ClientKill = 86; // func
+	var ClientConnect = 87; // func
+	var PutClientInServer = 88; // func
+	var ClientDisconnect = 89; // func
+	var SetNewParms = 90; // func
+	var SetChangeParms = 91; // func
+}
+
 @:publicFields
 class PR {
 
 	static inline var version = 6;
-
-	static var globalvars = {
-		self: 28, // edict
-		other: 29, // edict
-		world: 30, // edict
-		time: 31, // float
-		frametime: 32, // float
-		force_retouch: 33, // float
-		mapname: 34, // string
-		deathmatch: 35, // float
-		coop: 36, // float
-		teamplay: 37, // float
-		serverflags: 38, // float
-		total_secrets: 39, // float
-		total_monsters: 40, // float
-		found_secrets: 41, // float
-		killed_monsters: 42, // float
-		parms: 43, // float[16]
-		v_forward: 59, // vec3
-		v_forward1: 60,
-		v_forward2: 61,
-		v_up: 62, // vec3
-		v_up1: 63,
-		v_up2: 64,
-		v_right: 65, // vec3,
-		v_right1: 66,
-		v_right2: 67,
-		trace_allsolid: 68, // float
-		trace_startsolid: 69, // float
-		trace_fraction: 70, // float
-		trace_endpos: 71, // vec3
-		trace_endpos1: 72,
-		trace_endpos2: 73,
-		trace_plane_normal: 74, // vec3
-		trace_plane_normal1: 75,
-		trace_plane_normal2: 76,
-		trace_plane_dist: 77, // float
-		trace_ent: 78, // edict
-		trace_inopen: 79, // float
-		trace_inwater: 80, // float
-		msg_entity: 81, // edict
-		main: 82, // func
-		StartFrame: 83, // func
-		PlayerPreThink: 84, // func
-		PlayerPostThink: 85, // func
-		ClientKill: 86, // func
-		ClientConnect: 87, // func
-		PutClientInServer: 88, // func
-		ClientDisconnect: 89, // func
-		SetNewParms: 90, // func
-		SetChangeParms: 91 // func
-	}
 
 	static var entvars = {
 		modelindex: 0, // float
@@ -705,8 +705,8 @@ class PR {
 
 	static function ExecuteProgram(fnum:Int):Void {
 		if ((fnum == 0) || (fnum >= PR.functions.length)) {
-			if (PR.globals_int[PR.globalvars.self] != 0)
-				ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
+			if (PR.globals_int[GlobalVarOfs.self] != 0)
+				ED.Print(SV.server.edicts[PR.globals_int[GlobalVarOfs.self]]);
 			Host.Error('PR.ExecuteProgram: NULL function');
 		}
 		var runaway = 100000;
@@ -858,8 +858,8 @@ class PR {
 					if (PR.depth == exitdepth)
 						return;
 				case PROp.state:
-					var ed:Edict = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
-					ed.v_float[PR.entvars.nextthink] = PR.globals_float[PR.globalvars.time] + 0.1;
+					var ed:Edict = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
+					ed.v_float[PR.entvars.nextthink] = PR.globals_float[GlobalVarOfs.time] + 0.1;
 					ed.v_float[PR.entvars.frame] = PR.globals_float[st.a];
 					ed.v_int[PR.entvars.think] = PR.globals_int[st.b];
 				default:

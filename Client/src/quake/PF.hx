@@ -2,6 +2,7 @@ package quake;
 
 import quake.ED.Edict;
 import quake.Protocol.SVC;
+import quake.PR.GlobalVarOfs;
 using Tools;
 
 
@@ -17,13 +18,13 @@ class PF {
 
     static function error() {
         Console.Print('====SERVER ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
-        ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
+        ED.Print(SV.server.edicts[PR.globals_int[GlobalVarOfs.self]]);
         Host.Error('Program error');
     }
 
     static function objerror() {
         Console.Print('====OBJECT ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
-        ED.Print(SV.server.edicts[PR.globals_int[PR.globalvars.self]]);
+        ED.Print(SV.server.edicts[PR.globals_int[GlobalVarOfs.self]]);
         Host.Error('Program error');
     }
 
@@ -31,9 +32,9 @@ class PF {
         var forward = [], right = [], up = [];
         Vec.AngleVectors([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]], forward, right, up);
         for (i in 0...3) {
-            PR.globals_float[PR.globalvars.v_forward + i] = forward[i];
-            PR.globals_float[PR.globalvars.v_right + i] = right[i];
-            PR.globals_float[PR.globalvars.v_up + i] = up[i];
+            PR.globals_float[GlobalVarOfs.v_forward + i] = forward[i];
+            PR.globals_float[GlobalVarOfs.v_right + i] = right[i];
+            PR.globals_float[GlobalVarOfs.v_up + i] = up[i];
         }
     }
 
@@ -203,20 +204,20 @@ class PF {
         var trace = SV.Move([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
             Vec.origin, Vec.origin, [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
             Std.int(PR.globals_float[10]), SV.server.edicts[PR.globals_int[13]]);
-        PR.globals_float[PR.globalvars.trace_allsolid] = (trace.allsolid) ? 1.0 : 0.0;
-        PR.globals_float[PR.globalvars.trace_startsolid] = (trace.startsolid) ? 1.0 : 0.0;
-        PR.globals_float[PR.globalvars.trace_fraction] = trace.fraction;
-        PR.globals_float[PR.globalvars.trace_inwater] = (trace.inwater) ? 1.0 : 0.0;
-        PR.globals_float[PR.globalvars.trace_inopen] = (trace.inopen) ? 1.0 : 0.0;
-        PR.globals_float[PR.globalvars.trace_endpos] = trace.endpos[0];
-        PR.globals_float[PR.globalvars.trace_endpos1] = trace.endpos[1];
-        PR.globals_float[PR.globalvars.trace_endpos2] = trace.endpos[2];
+        PR.globals_float[GlobalVarOfs.trace_allsolid] = (trace.allsolid) ? 1.0 : 0.0;
+        PR.globals_float[GlobalVarOfs.trace_startsolid] = (trace.startsolid) ? 1.0 : 0.0;
+        PR.globals_float[GlobalVarOfs.trace_fraction] = trace.fraction;
+        PR.globals_float[GlobalVarOfs.trace_inwater] = (trace.inwater) ? 1.0 : 0.0;
+        PR.globals_float[GlobalVarOfs.trace_inopen] = (trace.inopen) ? 1.0 : 0.0;
+        PR.globals_float[GlobalVarOfs.trace_endpos] = trace.endpos[0];
+        PR.globals_float[GlobalVarOfs.trace_endpos1] = trace.endpos[1];
+        PR.globals_float[GlobalVarOfs.trace_endpos2] = trace.endpos[2];
         var plane = trace.plane;
-        PR.globals_float[PR.globalvars.trace_plane_normal] = plane.normal[0];
-        PR.globals_float[PR.globalvars.trace_plane_normal1] = plane.normal[1];
-        PR.globals_float[PR.globalvars.trace_plane_normal2] = plane.normal[2];
-        PR.globals_float[PR.globalvars.trace_plane_dist] = plane.dist;
-        PR.globals_int[PR.globalvars.trace_ent] = (trace.ent != null) ? trace.ent.num : 0;
+        PR.globals_float[GlobalVarOfs.trace_plane_normal] = plane.normal[0];
+        PR.globals_float[GlobalVarOfs.trace_plane_normal1] = plane.normal[1];
+        PR.globals_float[GlobalVarOfs.trace_plane_normal2] = plane.normal[2];
+        PR.globals_float[GlobalVarOfs.trace_plane_dist] = plane.dist;
+        PR.globals_int[GlobalVarOfs.trace_ent] = (trace.ent != null) ? trace.ent.num : 0;
     }
 
     static function newcheckclient(check:Int):Int {
@@ -264,7 +265,7 @@ class PF {
             PR.globals_int[1] = 0;
             return;
         }
-        var self = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        var self = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         var l = Mod.PointInLeaf([
                 self.v_float[PR.entvars.origin] + self.v_float[PR.entvars.view_ofs],
                 self.v_float[PR.entvars.origin1] + self.v_float[PR.entvars.view_ofs1],
@@ -369,7 +370,7 @@ class PF {
     }
 
     static function MoveToGoal() {
-        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
             PR.globals_float[1] = 0.0;
             return;
@@ -432,7 +433,7 @@ class PF {
     }
 
     static function walkmove() {
-        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         if ((ent.flags & (SV.fl.onground + SV.fl.fly + SV.fl.swim)) == 0) {
             PR.globals_float[1] = 0.0;
             return;
@@ -442,11 +443,11 @@ class PF {
         var oldf = PR.xfunction;
         PR.globals_float[1] = SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], true).toInt();
         PR.xfunction = oldf;
-        PR.globals_int[PR.globalvars.self] = ent.num;
+        PR.globals_int[GlobalVarOfs.self] = ent.num;
     }
 
     static function droptofloor() {
-        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         var trace = SV.Move(ED.Vector(ent, PR.entvars.origin),
             ED.Vector(ent, PR.entvars.mins), ED.Vector(ent, PR.entvars.maxs),
             [ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] - 256.0], 0, ent);
@@ -511,7 +512,7 @@ class PF {
     static function aim() {
         var ent = SV.server.edicts[PR.globals_int[4]];
         var start = [ent.v_float[PR.entvars.origin], ent.v_float[PR.entvars.origin1], ent.v_float[PR.entvars.origin2] + 20.0];
-        var dir = [PR.globals_float[PR.globalvars.v_forward], PR.globals_float[PR.globalvars.v_forward1], PR.globals_float[PR.globalvars.v_forward2]];
+        var dir = [PR.globals_float[GlobalVarOfs.v_forward], PR.globals_float[GlobalVarOfs.v_forward1], PR.globals_float[GlobalVarOfs.v_forward2]];
         var end = [start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]];
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {
@@ -571,7 +572,7 @@ class PF {
     }
 
     static function changeyaw() {
-        var ent = SV.server.edicts[PR.globals_int[PR.globalvars.self]];
+        var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         var current = Vec.Anglemod(ent.v_float[PR.entvars.angles1]);
         var ideal = ent.v_float[PR.entvars.ideal_yaw];
         if (current == ideal)
@@ -598,7 +599,7 @@ class PF {
             case 0: // broadcast
                 return SV.server.datagram;
             case 1: // one
-                var entnum = PR.globals_int[PR.globalvars.msg_entity];
+                var entnum = PR.globals_int[GlobalVarOfs.msg_entity];
                 if ((entnum <= 0) || (entnum > SV.svs.maxclients))
                     PR.RunError('WriteDest: not a client');
                 return SV.svs.clients[entnum - 1].message;
@@ -644,7 +645,7 @@ class PF {
             PR.RunError('Entity is not a client');
         var spawn_parms = SV.svs.clients[i - 1].spawn_parms;
         for (i in 0...16)
-            PR.globals_float[PR.globalvars.parms + i] = spawn_parms[i];
+            PR.globals_float[GlobalVarOfs.parms + i] = spawn_parms[i];
     }
 
     static function changelevel() {

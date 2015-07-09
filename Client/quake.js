@@ -2512,11 +2512,13 @@ quake_DLight.__name__ = true;
 var quake_Def = function() { };
 quake_Def.__name__ = true;
 var quake_DrawPic = function(buf) {
-	var view = new DataView(buf,0,8);
-	this.width = view.getUint32(0,true);
-	this.height = view.getUint32(4,true);
-	this.data = new Uint8Array(buf,8,this.width * this.height);
-	this.texnum = quake_GL.LoadPicTexture(this);
+	if(buf != null) {
+		var view = new DataView(buf,0,8);
+		this.width = view.getUint32(0,true);
+		this.height = view.getUint32(4,true);
+		this.data = new Uint8Array(buf,8,this.width * this.height);
+		this.texnum = quake_GL.LoadPicTexture(this);
+	}
 };
 quake_DrawPic.__name__ = true;
 var quake_Draw = function() { };
@@ -2549,7 +2551,7 @@ quake_Draw.Init = function() {
 	quake_GL.gl.texImage2D(3553,0,6408,128,128,0,6408,5121,new Uint8Array(trans));
 	quake_GL.gl.texParameterf(3553,10241,9729);
 	quake_GL.gl.texParameterf(3553,10240,9729);
-	quake_Draw.conback = { };
+	quake_Draw.conback = new quake_DrawPic(null);
 	var cb = quake_COM.LoadFile("gfx/conback.lmp");
 	if(cb == null) quake_Sys.Error("Couldn't load gfx/conback.lmp");
 	quake_Draw.conback.width = 320;

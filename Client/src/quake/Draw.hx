@@ -20,11 +20,13 @@ class DrawPic {
 	var translate:Texture;
 
 	function new(buf:ArrayBuffer) {
-		var view = new DataView(buf, 0, 8);
-		width = view.getUint32(0, true);
-		height = view.getUint32(4, true);
-		data = new Uint8Array(buf, 8, width * height);
-		texnum = GL.LoadPicTexture(this);
+		if (buf != null) {
+			var view = new DataView(buf, 0, 8);
+			width = view.getUint32(0, true);
+			height = view.getUint32(4, true);
+			data = new Uint8Array(buf, 8, width * height);
+			texnum = GL.LoadPicTexture(this);
+		}
 	}
 }
 
@@ -64,7 +66,7 @@ class Draw {
 		gl.texParameterf(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
 		gl.texParameterf(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
 
-		conback = cast {};
+		conback = new DrawPic(null);
 		var cb = COM.LoadFile('gfx/conback.lmp');
 		if (cb == null)
 			Sys.Error('Couldn\'t load gfx/conback.lmp');

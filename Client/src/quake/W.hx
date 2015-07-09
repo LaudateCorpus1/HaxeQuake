@@ -4,12 +4,10 @@ import js.html.ArrayBuffer;
 import js.html.DataView;
 import js.html.Uint8Array;
 
-
 class W {
-
     static var lumps = new Map<String, ArrayBuffer>();
 
-    public static function LoadWadFile(filename:String) {
+    public static function LoadWadFile(filename:String):Void {
         var base = COM.LoadFile(filename);
         if (base == null)
             Sys.Error('W.LoadWadFile: couldn\'t load ' + filename);
@@ -27,7 +25,7 @@ class W {
         }
     }
 
-    public static function GetLumpName(name:String) {
+    public static function GetLumpName(name:String):ArrayBuffer {
         var lump = lumps[name];
         if (lump == null)
             Sys.Error('W.GetLumpName: ' + name + ' not found');

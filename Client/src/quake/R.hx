@@ -1890,7 +1890,7 @@ class R {
     static function DrawWorld() {
         var clmodel:MModel = CL.state.worldmodel;
         R.currententity = CL.entities[0];
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
 
         var program = GL.UseProgram('brush');
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
@@ -1898,7 +1898,7 @@ class R {
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
         gl.vertexAttribPointer(program.aTexCoord, 4, RenderingContext.FLOAT, false, 44, 12);
         gl.vertexAttribPointer(program.aLightStyle, 4, RenderingContext.FLOAT, false, 44, 28);
-        if ((R.fullbright.value != 0) || (clmodel.lightdata == null))
+        if (R.fullbright.value != 0 || clmodel.lightdata == null)
             GL.Bind(program.tLightmap, R.fullbright_texture);
         else
             GL.Bind(program.tLightmap, R.lightmap_texture);
@@ -1907,16 +1907,15 @@ class R {
         else
             GL.Bind(program.tDlight, R.null_texture);
         GL.Bind(program.tLightStyle, R.lightstyle_texture);
-        for (i in 0...clmodel.leafs.length) {
-            var leaf = clmodel.leafs[i];
-            if ((leaf.visframe != R.visframecount) || (leaf.skychain == 0))
+        for (leaf in clmodel.leafs) {
+            if (leaf.visframe != R.visframecount || leaf.skychain == 0)
                 continue;
-            if (R.CullBox(leaf.mins, leaf.maxs))
+            if (CullBox(leaf.mins, leaf.maxs))
                 continue;
             for (j in 0...leaf.skychain) {
                 var cmds = leaf.cmds[j];
                 R.c_brush_verts += cmds[2];
-                GL.Bind(program.tTexture, R.TextureAnimation(clmodel.textures[cmds[0]]).texturenum);
+                GL.Bind(program.tTexture, TextureAnimation(clmodel.textures[cmds[0]]).texturenum);
                 gl.drawArrays(RenderingContext.TRIANGLES, cmds[1], cmds[2]);
             }
         }
@@ -1927,11 +1926,10 @@ class R {
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 20, clmodel.waterchain);
         gl.vertexAttribPointer(program.aTexCoord, 2, RenderingContext.FLOAT, false, 20, clmodel.waterchain + 12);
-        for (i in 0...clmodel.leafs.length) {
-            var leaf = clmodel.leafs[i];
-            if ((leaf.visframe != R.visframecount) || (leaf.waterchain == leaf.cmds.length))
+        for (leaf in clmodel.leafs) {
+            if (leaf.visframe != R.visframecount || leaf.waterchain == leaf.cmds.length)
                 continue;
-            if (R.CullBox(leaf.mins, leaf.maxs))
+            if (CullBox(leaf.mins, leaf.maxs))
                 continue;
             for (j in leaf.waterchain...leaf.cmds.length) {
                 var cmds = leaf.cmds[j];

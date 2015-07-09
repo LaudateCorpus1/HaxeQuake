@@ -12260,11 +12260,11 @@ quake_R.DrawWorld = function() {
 	if(quake_R.fullbright.value != 0 || clmodel.lightdata == null) quake_GL.Bind(program.tLightmap,quake_R.fullbright_texture); else quake_GL.Bind(program.tLightmap,quake_R.lightmap_texture);
 	if(quake_R.flashblend.value == 0) quake_GL.Bind(program.tDlight,quake_R.dlightmap_texture); else quake_GL.Bind(program.tDlight,quake_R.null_texture);
 	quake_GL.Bind(program.tLightStyle,quake_R.lightstyle_texture);
-	var _g1 = 0;
-	var _g = clmodel.leafs.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var leaf = clmodel.leafs[i];
+	var _g = 0;
+	var _g1 = clmodel.leafs;
+	while(_g < _g1.length) {
+		var leaf = _g1[_g];
+		++_g;
 		if(leaf.visframe != quake_R.visframecount || leaf.skychain == 0) continue;
 		if(quake_R.CullBox(leaf.mins,leaf.maxs)) continue;
 		var _g3 = 0;
@@ -12283,11 +12283,11 @@ quake_R.DrawWorld = function() {
 	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,20,clmodel.waterchain);
 	quake_GL.gl.vertexAttribPointer(program.aTexCoord,2,5126,false,20,clmodel.waterchain + 12);
-	var _g11 = 0;
-	var _g4 = clmodel.leafs.length;
-	while(_g11 < _g4) {
-		var i1 = _g11++;
-		var leaf1 = clmodel.leafs[i1];
+	var _g4 = 0;
+	var _g11 = clmodel.leafs;
+	while(_g4 < _g11.length) {
+		var leaf1 = _g11[_g4];
+		++_g4;
 		if(leaf1.visframe != quake_R.visframecount || leaf1.waterchain == leaf1.cmds.length) continue;
 		if(quake_R.CullBox(leaf1.mins,leaf1.maxs)) continue;
 		var _g31 = leaf1.waterchain;

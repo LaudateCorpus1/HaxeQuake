@@ -2144,7 +2144,7 @@ class SV {
             SV.TouchLinks(ent, SV.areanodes[0]);
     }
 
-    static function HullPointContents(hull:MHull, num:Int, p:Vec):Int {
+    static function HullPointContents(hull:MHull, num:Int, p:Vec):ModContents {
         while (num >= 0) {
             if ((num < hull.firstclipnode) || (num > hull.lastclipnode))
                 Sys.Error('SV.HullPointContents: bad node number');
@@ -2163,7 +2163,7 @@ class SV {
         return num;
     }
 
-    static function PointContents(p) {
+    static function PointContents(p:Vec):ModContents {
         var cont = SV.HullPointContents(SV.server.worldmodel.hulls[0], 0, p);
         if ((cont <= ModContents.current_0) && (cont >= ModContents.current_down))
             return ModContents.water;

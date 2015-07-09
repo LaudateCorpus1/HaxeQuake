@@ -1,5 +1,4 @@
 -cp src
---macro include("quake")
 -main quake.Sys
 -D js-es5
 -js quake.js

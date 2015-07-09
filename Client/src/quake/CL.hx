@@ -377,7 +377,7 @@ class CL {
         movedown: 16,
         num: 17
     }
-    static var kbuttons = [];
+    static var kbuttons:Array<{down:Array<Int>, state:Int}> = [];
 
     static function KeyDown() {
         var b:Int = Reflect.field(CL.kbutton, Cmd.argv[0].substring(1));

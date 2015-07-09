@@ -104,6 +104,12 @@ private class ServerState {
     var bsp = 4;
 }
 
+@:enum abstract ClipType(Int) to Int {
+    var normal = 0;
+    var nomonsters = 1;
+    var missile = 2;
+}
+
 @:publicFields
 class SV {
     // main
@@ -1202,11 +1208,11 @@ class SV {
         var nomonsters;
         var solid = ent.v_float[EntVarOfs.solid];
         if (ent.v_float[EntVarOfs.movetype] == MoveType.flymissile)
-            nomonsters = SV.move.missile;
+            nomonsters = ClipType.missile;
         else if ((solid == SolidType.trigger) || (solid == SolidType.not))
-            nomonsters = SV.move.nomonsters
+            nomonsters = ClipType.nomonsters
         else
-            nomonsters = SV.move.normal;
+            nomonsters = ClipType.normal;
         var trace = SV.Move(ED.Vector(ent, EntVarOfs.origin), ED.Vector(ent, EntVarOfs.mins),
             ED.Vector(ent, EntVarOfs.maxs), end, nomonsters, ent);
         ED.SetVector(ent, EntVarOfs.origin, trace.endpos);
@@ -1937,12 +1943,6 @@ class SV {
 
     // world
 
-    static var move = {
-        normal: 0,
-        nomonsters: 1,
-        missile: 2
-    }
-
     static var box_clipnodes:Array<MClipNode>;
     static var box_planes:Array<Plane>;
     static var box_hull:MHull;
@@ -2301,7 +2301,7 @@ class SV {
                 continue;
             if (solid == SolidType.trigger)
                 Sys.Error('Trigger in clipping list');
-            if ((clip.type == SV.move.nomonsters) && (solid != SolidType.bsp))
+            if ((clip.type == ClipType.nomonsters) && (solid != SolidType.bsp))
                 continue;
             if ((clip.boxmins[0] > touch.v_float[EntVarOfs.absmax]) ||
                 (clip.boxmins[1] > touch.v_float[EntVarOfs.absmax1]) ||
@@ -2356,7 +2356,7 @@ class SV {
             c.boxmaxs = [];
             c;
         };
-        if (type == SV.move.missile) {
+        if (type == ClipType.missile) {
             clip.mins2 = [-15.0, -15.0, -15.0];
             clip.maxs2 = [15.0, 15.0, 15.0];
         } else {

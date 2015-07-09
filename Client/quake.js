@@ -9895,7 +9895,7 @@ quake_SV.PushEntity = function(ent,push) {
 	var end = [ent.v_float[10] + push[0],ent.v_float[11] + push[1],ent.v_float[12] + push[2]];
 	var nomonsters;
 	var solid = ent.v_float[9];
-	if(ent.v_float[8] == 9) nomonsters = quake_SV.move.missile; else if(solid == 1 || solid == 0) nomonsters = quake_SV.move.nomonsters; else nomonsters = quake_SV.move.normal;
+	if(ent.v_float[8] == 9) nomonsters = 2; else if(solid == 1 || solid == 0) nomonsters = 1; else nomonsters = 0;
 	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),end,nomonsters,ent);
 	quake_ED.SetVector(ent,10,trace.endpos);
 	quake_SV.LinkEdict(ent,true);
@@ -10751,7 +10751,7 @@ quake_SV.ClipToLinks = function(node,clip) {
 		var solid = touch.v_float[9];
 		if(solid == 0 || touch == clip.passedict) continue;
 		if(solid == 1) quake_Sys.Error("Trigger in clipping list");
-		if(clip.type == quake_SV.move.nomonsters && solid != 4) continue;
+		if(clip.type == 1 && solid != 4) continue;
 		if(clip.boxmins[0] > touch.v_float[4] || clip.boxmins[1] > touch.v_float[5] || clip.boxmins[2] > touch.v_float[6] || clip.boxmaxs[0] < touch.v_float[1] || clip.boxmaxs[1] < touch.v_float[2] || clip.boxmaxs[2] < touch.v_float[3]) continue;
 		if(clip.passedict != null) {
 			if(clip.passedict.v_float[39] != 0.0 && touch.v_float[39] == 0.0) continue;
@@ -10787,7 +10787,7 @@ quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
 	c.boxmaxs = [];
 	tmp = c;
 	var clip = tmp;
-	if(type == quake_SV.move.missile) {
+	if(type == 2) {
 		clip.mins2 = [-15.0,-15.0,-15.0];
 		clip.maxs2 = [15.0,15.0,15.0];
 	} else {
@@ -14072,7 +14072,6 @@ quake_SV.server = new quake__$SV_ServerState();
 quake_SV.svs = new quake__$SV_ServerStatic();
 quake_SV.fatpvs = [];
 quake_SV.clientdatagram = new quake_MSG(1024);
-quake_SV.move = { normal : 0, nomonsters : 1, missile : 2};
 quake_R.dlightframecount = 0;
 quake_R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 quake_R.visframecount = 0;

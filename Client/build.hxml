@@ -1,4 +1,5 @@
 -cp src
 -main quake.Sys
+-dce full
 -D js-es5
 -js quake.js

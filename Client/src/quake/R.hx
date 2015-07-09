@@ -124,18 +124,18 @@ class R {
 
     // efrag
 
-    static function SplitEntityOnNode(node:MNode) {
+    static function SplitEntityOnNode(node:MNode):Void {
         if (node.contents == solid)
             return;
         if (node.contents < 0) {
-            R.currententity.leafs.push(node.num - 1);
+            currententity.leafs.push(node.num - 1);
             return;
         }
-        var sides = Vec.BoxOnPlaneSide(R.emins, R.emaxs, node.plane);
+        var sides = Vec.BoxOnPlaneSide(emins, emaxs, node.plane);
         if ((sides & 1) != 0)
-            R.SplitEntityOnNode(node.children[0]);
+            SplitEntityOnNode(node.children[0]);
         if ((sides & 2) != 0)
-            R.SplitEntityOnNode(node.children[1]);
+            SplitEntityOnNode(node.children[1]);
     }
 
     // light
@@ -145,21 +145,21 @@ class R {
     static var lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 
     static function AnimateLight() {
-        if (R.fullbright.value == 0) {
+        if (fullbright.value == 0) {
             var i = Math.floor(CL.state.time * 10.0);
             for (j in 0...64) {
-                if (CL.lightstyle[j].length == 0) {
-                    R.lightstylevalue[j] = 12;
-                    continue;
-                }
-                R.lightstylevalue[j] = CL.lightstyle[j].charCodeAt(i % CL.lightstyle[j].length) - 97;
+                var style = CL.lightstyle[j];
+                if (style.length == 0)
+                    lightstylevalue[j] = 12;
+                else
+                    lightstylevalue[j] = style.charCodeAt(i % style.length) - 97;
             }
         } else {
             for (j in 0...64)
-                R.lightstylevalue[j] = 12;
+                lightstylevalue[j] = 12;
         }
-        GL.Bind(0, R.lightstyle_texture);
-        gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.ALPHA, 64, 1, 0, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE, R.lightstylevalue);
+        GL.Bind(0, lightstyle_texture);
+        gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.ALPHA, 64, 1, 0, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE, lightstylevalue);
     }
 
     static function RenderDlights():Void {

@@ -10829,11 +10829,8 @@ quake_R.AnimateLight = function() {
 		var _g = 0;
 		while(_g < 64) {
 			var j = _g++;
-			if(quake_CL.lightstyle[j].length == 0) {
-				quake_R.lightstylevalue[j] = 12;
-				continue;
-			}
-			quake_R.lightstylevalue[j] = HxOverrides.cca(quake_CL.lightstyle[j],i % quake_CL.lightstyle[j].length) - 97;
+			var style = quake_CL.lightstyle[j];
+			if(style.length == 0) quake_R.lightstylevalue[j] = 12; else quake_R.lightstylevalue[j] = HxOverrides.cca(style,i % style.length) - 97;
 		}
 	} else {
 		var _g1 = 0;

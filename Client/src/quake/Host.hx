@@ -779,7 +779,7 @@ class Host {
             newName = Cmd.args.substring(0, 15);
 
         if (!Cmd.client) {
-            Cvar.Set('_cl_name', newName);
+            CL.name.set(newName);
             if (CL.cls.state == CL.active.connected)
                 Cmd.ForwardToServer();
             return;

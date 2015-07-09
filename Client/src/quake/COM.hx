@@ -154,7 +154,7 @@ class COM {
 			if (check[i] != pop[i])
 				Sys.Error('Corrupted data file.');
 		}
-		Cvar.Set('registered', '1');
+		registered.set("1");
 		Console.Print('Playing registered version.\n');
 	}
 

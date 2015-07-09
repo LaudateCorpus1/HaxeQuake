@@ -1842,7 +1842,7 @@ quake_COM.CheckRegistered = function() {
 		var i = _g++;
 		if(check[i] != pop[i]) quake_Sys.Error("Corrupted data file.");
 	}
-	quake_Cvar.Set("registered","1");
+	quake_COM.registered.set("1");
 	quake_Console.Print("Playing registered version.\n");
 };
 quake_COM.InitArgv = function(pargv) {
@@ -2450,14 +2450,7 @@ quake_Cvar.Set = function(name,value) {
 	var _this = quake_Cvar.vars;
 	if(__map_reserved[name] != null) tmp = _this.getReserved(name); else tmp = _this.h[name];
 	var v = tmp;
-	if(v == null) {
-		quake_Console.Print("Cvar.Set: variable " + name + " not found\n");
-		return;
-	}
-	var changed = v.string != value;
-	v.string = value;
-	v.value = quake_Q.atof(value);
-	if(v.server && changed && quake_SV.server.active) quake_Host.BroadcastPrint("\"" + name + "\" changed to \"" + v.string + "\"\n");
+	if(v == null) quake_Console.Print("Cvar.Set: variable " + name + " not found\n"); else v.set(value);
 };
 quake_Cvar.SetValue = function(name,value) {
 	quake_Cvar.Set(name,value.toFixed(6));
@@ -2503,6 +2496,14 @@ quake_Cvar.WriteVariables = function() {
 		if(v.archive) f.push(v.name + " \"" + v.string + "\"\n");
 	}
 	return f.join("");
+};
+quake_Cvar.prototype = {
+	set: function(s) {
+		var changed = this.string != s;
+		this.string = s;
+		this.value = quake_Q.atof(s);
+		if(this.server && changed && quake_SV.server.active) quake_Host.BroadcastPrint("\"" + this.name + "\" changed to \"" + this.string + "\"\n");
+	}
 };
 var quake_DLight = function() {
 	this.radius = 0.0;
@@ -3990,7 +3991,7 @@ quake_Host.Name_f = function() {
 	var newName;
 	if(quake_Cmd.argv.length == 2) newName = quake_Cmd.argv[1].substring(0,15); else newName = quake_Cmd.args.substring(0,15);
 	if(!quake_Cmd.client) {
-		quake_Cvar.Set("_cl_name",newName);
+		quake_CL.$name.set(newName);
 		if(quake_CL.cls.state == quake_CL.active.connected) quake_Cmd.ForwardToServer();
 		return;
 	}
@@ -8794,7 +8795,7 @@ quake_SCR.DrawCenterString = function() {
 };
 quake_SCR.CalcRefdef = function() {
 	quake_SCR.recalc_refdef = false;
-	if(quake_SCR.viewsize.value < 30) quake_Cvar.Set("viewsize","30"); else if(quake_SCR.viewsize.value > 120) quake_Cvar.Set("viewsize","120");
+	if(quake_SCR.viewsize.value < 30) quake_SCR.viewsize.set("30"); else if(quake_SCR.viewsize.value > 120) quake_SCR.viewsize.set("120");
 	var size;
 	var full;
 	if(quake_CL.state.intermission != 0) {
@@ -8820,7 +8821,7 @@ quake_SCR.CalcRefdef = function() {
 	if(vrect.height > quake_VID.height - quake_Sbar.lines) vrect.height = quake_VID.height - quake_Sbar.lines;
 	vrect.x = quake_VID.width - vrect.width >> 1;
 	if(full) vrect.y = 0; else vrect.y = quake_VID.height - quake_Sbar.lines - vrect.height >> 1;
-	if(quake_SCR.fov.value < 10) quake_Cvar.Set("fov","10"); else if(quake_SCR.fov.value > 170) quake_Cvar.Set("fov","170");
+	if(quake_SCR.fov.value < 10) quake_SCR.fov.set("10"); else if(quake_SCR.fov.value > 170) quake_SCR.fov.set("170");
 	if(vrect.width * 0.75 <= vrect.height) {
 		quake_R.refdef.fov_x = quake_SCR.fov.value;
 		quake_R.refdef.fov_y = Math.atan(vrect.height / (vrect.width / Math.tan(quake_SCR.fov.value * Math.PI / 360.0))) * 360.0 / Math.PI;
@@ -9450,7 +9451,7 @@ quake_SV.SaveSpawnparms = function() {
 	}
 };
 quake_SV.SpawnServer = function(server) {
-	if(quake_NET.hostname.string.length == 0) quake_Cvar.Set("hostname","UNNAMED");
+	if(quake_NET.hostname.string.length == 0) quake_NET.hostname.set("UNNAMED");
 	quake_SCR.centertime_off = 0.0;
 	quake_Console.DPrint("SpawnServer: " + server + "\n");
 	quake_SV.svs.changelevel_issued = false;
@@ -11304,7 +11305,7 @@ quake_R.SetupGL = function() {
 	quake_GL.gl.enable(2929);
 };
 quake_R.RenderScene = function() {
-	if(quake_CL.state.maxclients >= 2) quake_Cvar.Set("r_fullbright","0");
+	if(quake_CL.state.maxclients >= 2) quake_R.fullbright.set("0");
 	quake_R.AnimateLight();
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_R.refdef.viewangles,quake_R.vpn,quake_R.vright,quake_R.vup);
 	quake_R.viewleaf = quake_Mod.PointInLeaf(quake_R.refdef.vieworg,quake_CL.state.worldmodel);
@@ -13886,9 +13887,9 @@ quake_V.CalcRefdef = function() {
 quake_V.RenderView = function() {
 	if(quake_Console.forcedup) return;
 	if(quake_CL.state.maxclients >= 2) {
-		quake_Cvar.Set("scr_ofsx","0");
-		quake_Cvar.Set("scr_ofsy","0");
-		quake_Cvar.Set("scr_ofsz","0");
+		quake_V.ofsx.set("0");
+		quake_V.ofsy.set("0");
+		quake_V.ofsz.set("0");
 	}
 	if(quake_CL.state.intermission != 0) quake_V.CalcIntermissionRefdef(); else if(!quake_CL.state.paused) quake_V.CalcRefdef();
 	quake_R.PushDlights();

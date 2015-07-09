@@ -876,7 +876,7 @@ class R {
 
     static function RenderScene() {
         if (CL.state.maxclients >= 2)
-            Cvar.Set('r_fullbright', '0');
+            fullbright.set("0");
         R.AnimateLight();
         Vec.AngleVectors(R.refdef.viewangles, R.vpn, R.vright, R.vup);
         R.viewleaf = Mod.PointInLeaf(R.refdef.vieworg, CL.state.worldmodel);

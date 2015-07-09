@@ -374,9 +374,9 @@ class V {
 		if (Console.forcedup)
 			return;
 		if (CL.state.maxclients >= 2) {
-			Cvar.Set('scr_ofsx', '0');
-			Cvar.Set('scr_ofsy', '0');
-			Cvar.Set('scr_ofsz', '0');
+			ofsx.set("0");
+			ofsy.set("0");
+			ofsz.set("0");
 		}
 		if (CL.state.intermission != 0)
 			CalcIntermissionRefdef();

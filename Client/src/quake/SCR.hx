@@ -91,9 +91,9 @@ class SCR {
 		SCR.recalc_refdef = false;
 
 		if (SCR.viewsize.value < 30)
-			Cvar.Set('viewsize', '30');
+			viewsize.set("30");
 		else if (SCR.viewsize.value > 120)
-			Cvar.Set('viewsize', '120');
+			viewsize.set("120");
 
 		var size, full;
 		if (CL.state.intermission != 0) {
@@ -133,9 +133,9 @@ class SCR {
 			vrect.y = (VID.height - Sbar.lines - vrect.height) >> 1;
 
 		if (SCR.fov.value < 10)
-			Cvar.Set('fov', '10');
+			SCR.fov.set("10");
 		else if (SCR.fov.value > 170)
-			Cvar.Set('fov', '170');
+			SCR.fov.set("170");
 		if ((vrect.width * 0.75) <= vrect.height) {
 			R.refdef.fov_x = SCR.fov.value;
 			R.refdef.fov_y = Math.atan(vrect.height / (vrect.width / Math.tan(SCR.fov.value * Math.PI / 360.0))) * 360.0 / Math.PI;

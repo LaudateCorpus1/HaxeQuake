@@ -18,6 +18,18 @@ class Cvar {
         this.value = Q.atof(value);
     }
 
+    public function set(s:String):Void {
+        var changed = (string != s);
+        string = s;
+        value = Q.atof(s);
+        if (server && changed && SV.server.active)
+            Host.BroadcastPrint('"' + name + '" changed to "' + string + '"\n');
+    }
+
+    public function setValue(value:Float):Void {
+        set(value.toFixed(6));
+    }
+
     @:allow(quake.Cmd)
     static var vars = new Map<String,Cvar>();
 
@@ -37,16 +49,10 @@ class Cvar {
 
     public static function Set(name:String, value:String):Void {
         var v = vars[name];
-        if (v == null) {
+        if (v == null)
             Console.Print('Cvar.Set: variable ' + name + ' not found\n');
-            return;
-        }
-
-        var changed = (v.string != value);
-        v.string = value;
-        v.value = Q.atof(value);
-        if (v.server && changed && SV.server.active)
-            Host.BroadcastPrint('"' + name + '" changed to "' + v.string + '"\n');
+        else
+            v.set(value);
     }
 
     public static function SetValue(name:String, value:Float):Void {

@@ -668,7 +668,7 @@ class SV {
 
     static function SpawnServer(server) {
         if (NET.hostname.string.length == 0)
-            Cvar.Set('hostname', 'UNNAMED');
+            NET.hostname.set('UNNAMED');
 
         SCR.centertime_off = 0.0;
 

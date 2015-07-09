@@ -1174,15 +1174,15 @@ class CL {
             CL.SignonReply();
         }
 
-        if ((bits & Protocol.u.morebits) != 0)
+        if ((bits & U.morebits) != 0)
             bits += (MSG.ReadByte() << 8);
 
-        var ent = CL.EntityNum(((bits & Protocol.u.longentity) != 0) ? MSG.ReadShort() : MSG.ReadByte());
+        var ent = CL.EntityNum(((bits & U.longentity) != 0) ? MSG.ReadShort() : MSG.ReadByte());
 
         var forcelink = ent.msgtime != CL.state.mtime[1];
         ent.msgtime = CL.state.mtime[0];
 
-        var model = CL.state.model_precache[((bits & Protocol.u.model) != 0) ? MSG.ReadByte() : ent.baseline.modelindex];
+        var model = CL.state.model_precache[((bits & U.model) != 0) ? MSG.ReadByte() : ent.baseline.modelindex];
         if (model != ent.model) {
             ent.model = model;
             if (model != null)
@@ -1191,23 +1191,23 @@ class CL {
                 forcelink = true;
         }
 
-        ent.frame = ((bits & Protocol.u.frame) != 0) ? MSG.ReadByte() : ent.baseline.frame;
-        ent.colormap = ((bits & Protocol.u.colormap) != 0) ? MSG.ReadByte() : ent.baseline.colormap;
+        ent.frame = ((bits & U.frame) != 0) ? MSG.ReadByte() : ent.baseline.frame;
+        ent.colormap = ((bits & U.colormap) != 0) ? MSG.ReadByte() : ent.baseline.colormap;
         if (ent.colormap > CL.state.maxclients)
             Sys.Error('i >= cl.maxclients');
-        ent.skinnum = ((bits & Protocol.u.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
-        ent.effects = ((bits & Protocol.u.effects) != 0) ? MSG.ReadByte() : ent.baseline.effects;
+        ent.skinnum = ((bits & U.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
+        ent.effects = ((bits & U.effects) != 0) ? MSG.ReadByte() : ent.baseline.effects;
 
         Vec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
         Vec.Copy(ent.msg_angles[0], ent.msg_angles[1]);
-        ent.msg_origins[0][0] = ((bits & Protocol.u.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
-        ent.msg_angles[0][0] = ((bits & Protocol.u.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
-        ent.msg_origins[0][1] = ((bits & Protocol.u.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
-        ent.msg_angles[0][1] = ((bits & Protocol.u.angle2) != 0) ? MSG.ReadAngle() : ent.baseline.angles[1];
-        ent.msg_origins[0][2] = ((bits & Protocol.u.origin3) != 0) ? MSG.ReadCoord() : ent.baseline.origin[2];
-        ent.msg_angles[0][2] = ((bits & Protocol.u.angle3) != 0) ? MSG.ReadAngle() : ent.baseline.angles[2];
+        ent.msg_origins[0][0] = ((bits & U.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
+        ent.msg_angles[0][0] = ((bits & U.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
+        ent.msg_origins[0][1] = ((bits & U.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
+        ent.msg_angles[0][1] = ((bits & U.angle2) != 0) ? MSG.ReadAngle() : ent.baseline.angles[1];
+        ent.msg_origins[0][2] = ((bits & U.origin3) != 0) ? MSG.ReadCoord() : ent.baseline.origin[2];
+        ent.msg_angles[0][2] = ((bits & U.angle3) != 0) ? MSG.ReadAngle() : ent.baseline.angles[2];
 
-        if ((bits & Protocol.u.nolerp) != 0)
+        if ((bits & U.nolerp) != 0)
             ent.forcelink = true;
 
         if (forcelink) {

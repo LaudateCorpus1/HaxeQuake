@@ -53,29 +53,29 @@ package quake;
 	var cutscene = 34;
 }
 
+@:enum abstract U(Int) to Int {
+	var morebits   = 1 << 0;
+	var origin1    = 1 << 1;
+	var origin2    = 1 << 2;
+	var origin3    = 1 << 3;
+	var angle2     = 1 << 4;
+	var nolerp     = 1 << 5;
+	var frame      = 1 << 6;
+	var signal     = 1 << 7;
+
+	var angle1     = 1 << 8;
+	var angle3     = 1 << 9;
+	var model      = 1 << 10;
+	var colormap   = 1 << 11;
+	var skin       = 1 << 12;
+	var effects    = 1 << 13;
+	var longentity = 1 << 14;
+}
+
 
 @:publicFields
 class Protocol {
 	static var version = 15;
-
-	static var u = {
-		morebits: 1,
-		origin1: 1 << 1,
-		origin2: 1 << 2,
-		origin3: 1 << 3,
-		angle2: 1 << 4,
-		nolerp: 1 << 5,
-		frame: 1 << 6,
-		signal: 1 << 7,
-
-		angle1: 1 << 8,
-		angle3: 1 << 9,
-		model: 1 << 10,
-		colormap: 1 << 11,
-		skin: 1 << 12,
-		effects: 1 << 13,
-		longentity: 1 << 14
-	};
 
 	static var su = {
 		viewheight: 1,

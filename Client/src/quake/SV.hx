@@ -16,6 +16,7 @@ import quake.Mod.MMoveClip;
 import quake.Mod.MNode;
 import quake.Mod.MTrace;
 import quake.R.REntityState;
+import quake.Protocol;
 
 @:publicFields
 private class ServerStatic {
@@ -354,59 +355,59 @@ class SV {
             for (i in 0...3) {
                 var miss = ent.v_float[PR.entvars.origin + i] - ent.baseline.origin[i];
                 if ((miss < -0.1) || (miss > 0.1))
-                    bits += Protocol.u.origin1 << i;
+                    bits += U.origin1 << i;
             }
             if (ent.v_float[PR.entvars.angles] != ent.baseline.angles[0])
-                bits += Protocol.u.angle1;
+                bits += U.angle1;
             if (ent.v_float[PR.entvars.angles1] != ent.baseline.angles[1])
-                bits += Protocol.u.angle2;
+                bits += U.angle2;
             if (ent.v_float[PR.entvars.angles2] != ent.baseline.angles[2])
-                bits += Protocol.u.angle3;
+                bits += U.angle3;
             if (ent.v_float[PR.entvars.movetype] == MoveType.step)
-                bits += Protocol.u.nolerp;
+                bits += U.nolerp;
             if (ent.baseline.colormap != ent.v_float[PR.entvars.colormap])
-                bits += Protocol.u.colormap;
+                bits += U.colormap;
             if (ent.baseline.skin != ent.v_float[PR.entvars.skin])
-                bits += Protocol.u.skin;
+                bits += U.skin;
             if (ent.baseline.frame != ent.v_float[PR.entvars.frame])
-                bits += Protocol.u.frame;
+                bits += U.frame;
             if (ent.baseline.effects != ent.v_float[PR.entvars.effects])
-                bits += Protocol.u.effects;
+                bits += U.effects;
             if (ent.baseline.modelindex != ent.v_float[PR.entvars.modelindex])
-                bits += Protocol.u.model;
+                bits += U.model;
             if (e >= 256)
-                bits += Protocol.u.longentity;
+                bits += U.longentity;
             if (bits >= 256)
-                bits += Protocol.u.morebits;
+                bits += U.morebits;
 
-            MSG.WriteByte(msg, bits + Protocol.u.signal);
-            if ((bits & Protocol.u.morebits) != 0)
+            MSG.WriteByte(msg, bits + U.signal);
+            if ((bits & U.morebits) != 0)
                 MSG.WriteByte(msg, bits >> 8);
-            if ((bits & Protocol.u.longentity) != 0)
+            if ((bits & U.longentity) != 0)
                 MSG.WriteShort(msg, e);
             else
                 MSG.WriteByte(msg, e);
-            if ((bits & Protocol.u.model) != 0)
+            if ((bits & U.model) != 0)
                 MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.modelindex]));
-            if ((bits & Protocol.u.frame) != 0)
+            if ((bits & U.frame) != 0)
                 MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.frame]));
-            if ((bits & Protocol.u.colormap) != 0)
+            if ((bits & U.colormap) != 0)
                 MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.colormap]));
-            if ((bits & Protocol.u.skin) != 0)
+            if ((bits & U.skin) != 0)
                 MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.skin]));
-            if ((bits & Protocol.u.effects) != 0)
+            if ((bits & U.effects) != 0)
                 MSG.WriteByte(msg, Std.int(ent.v_float[PR.entvars.effects]));
-            if ((bits & Protocol.u.origin1) != 0)
+            if ((bits & U.origin1) != 0)
                 MSG.WriteCoord(msg, Std.int(ent.v_float[PR.entvars.origin]));
-            if ((bits & Protocol.u.angle1) != 0)
+            if ((bits & U.angle1) != 0)
                 MSG.WriteAngle(msg, Std.int(ent.v_float[PR.entvars.angles]));
-            if ((bits & Protocol.u.origin2) != 0)
+            if ((bits & U.origin2) != 0)
                 MSG.WriteCoord(msg, Std.int(ent.v_float[PR.entvars.origin1]));
-            if ((bits & Protocol.u.angle2) != 0)
+            if ((bits & U.angle2) != 0)
                 MSG.WriteAngle(msg, Std.int(ent.v_float[PR.entvars.angles1]));
-            if ((bits & Protocol.u.origin3) != 0)
+            if ((bits & U.origin3) != 0)
                 MSG.WriteCoord(msg, Std.int(ent.v_float[PR.entvars.origin2]));
-            if ((bits & Protocol.u.angle3) != 0)
+            if ((bits & U.angle3) != 0)
                 MSG.WriteAngle(msg, Std.int(ent.v_float[PR.entvars.angles2]));
         }
     }

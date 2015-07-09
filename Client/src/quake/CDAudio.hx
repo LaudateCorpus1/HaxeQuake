@@ -16,7 +16,7 @@ class CDAudio {
     static function Play(track:Int, looping:Bool):Void {
         if (!initialized || !enabled)
             return;
-        track -= 2;
+        track -= 1;
         if (CDAudio.playTrack == track) {
             if (CDAudio.cd != null) {
                 CDAudio.cd.loop = looping;
@@ -109,8 +109,8 @@ class CDAudio {
         if (COM.CheckParm('-nocdaudio') != null)
             return;
         var xhr = new XMLHttpRequest();
-        for (i in 1...100) {
-            var track = '/media/quake' + (i <= 9 ? '0' : '') + i + '.ogg';
+        for (i in 2...100) {
+            var track = '/music/track' + (i <= 9 ? '0' : '') + i + '.ogg';
             var j = COM.searchpaths.length - 1;
             while (j >= 0) {
                 xhr.open('HEAD', COM.searchpaths[j].filename + track, false);

@@ -210,7 +210,7 @@ var quake_CDAudio = function() { };
 quake_CDAudio.__name__ = true;
 quake_CDAudio.Play = function(track,looping) {
 	if(!quake_CDAudio.initialized || !quake_CDAudio.enabled) return;
-	track -= 2;
+	track -= 1;
 	if(quake_CDAudio.playTrack == track) {
 		if(quake_CDAudio.cd != null) {
 			quake_CDAudio.cd.loop = looping;
@@ -289,10 +289,10 @@ quake_CDAudio.Init = function() {
 	quake_Cmd.AddCommand("cd",quake_CDAudio.CD_f);
 	if(quake_COM.CheckParm("-nocdaudio") != null) return;
 	var xhr = new XMLHttpRequest();
-	var _g = 1;
+	var _g = 2;
 	while(_g < 100) {
 		var i = _g++;
-		var track = "/media/quake" + (i <= 9?"0":"") + i + ".ogg";
+		var track = "/music/track" + (i <= 9?"0":"") + i + ".ogg";
 		var j = quake_COM.searchpaths.length - 1;
 		while(j >= 0) {
 			xhr.open("HEAD",quake_COM.searchpaths[j].filename + track,false);

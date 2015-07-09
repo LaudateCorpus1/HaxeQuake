@@ -18,66 +18,58 @@ class Cvar {
         this.value = Q.atof(value);
     }
 
-    public static var vars:Array<Cvar> = [];
+    @:allow(quake.Cmd)
+    static var vars = new Map<String,Cvar>();
 
-    public static function FindVar(name:String):Cvar {
-        for (v in vars) {
-            if (v.name == name)
-                return v;
-        }
-        return null;
+    public static inline function FindVar(name:String):Cvar {
+        return vars[name];
     }
 
     public static function CompleteVariable(partial:String):String {
         if (partial.length == 0)
             return null;
-        for (v in vars) {
-            if (v.name.substring(0, partial.length) == partial)
-                return v.name;
+        for (name in vars.keys()) {
+            if (name.substring(0, partial.length) == partial)
+                return name;
         }
         return null;
     }
 
     public static function Set(name:String, value:String):Void {
-        for (v in vars)
-        {
-            if (v.name != name)
-                continue;
-            var changed = (v.string != value);
-            v.string = value;
-            v.value = Q.atof(value);
-            if (v.server && changed && SV.server.active)
-                Host.BroadcastPrint('"' + v.name + '" changed to "' + v.string + '"\n');
+        var v = vars[name];
+        if (v == null) {
+            Console.Print('Cvar.Set: variable ' + name + ' not found\n');
             return;
         }
-        Console.Print('Cvar.Set: variable ' + name + ' not found\n');
+
+        var changed = (v.string != value);
+        v.string = value;
+        v.value = Q.atof(value);
+        if (v.server && changed && SV.server.active)
+            Host.BroadcastPrint('"' + name + '" changed to "' + v.string + '"\n');
     }
 
     public static function SetValue(name:String, value:Float):Void {
-        Cvar.Set(name, value.toFixed(6));
+        Set(name, value.toFixed(6));
     }
 
     public static function RegisterVariable(name:String, value:String, archive = false, server = false):Cvar {
-        for (v in vars) {
-            if (v.name == name) {
-                Console.Print('Can\'t register variable ' + name + ', already defined\n');
-                return null;
-            }
+        if (vars.exists(name)) {
+            Console.Print('Can\'t register variable ' + name + ', already defined\n');
+            return null;
         }
-        var v = new Cvar(name, value, archive, server);
-        vars.push(v);
-        return v;
+        return vars[name] = new Cvar(name, value, archive, server);
     }
 
     public static function Command():Bool {
-        var v = Cvar.FindVar(Cmd.argv[0]);
+        var v = FindVar(Cmd.argv[0]);
         if (v == null)
             return false;
         if (Cmd.argv.length <= 1) {
             Console.Print('"' + v.name + '" is "' + v.string + '"\n');
             return true;
         }
-        Cvar.Set(v.name, Cmd.argv[1]);
+        Set(v.name, Cmd.argv[1]);
         return true;
     }
 

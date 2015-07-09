@@ -161,11 +161,9 @@ class Cmd {
     }
 
     static function AddCommand(name:String, command:Void->Void):Void {
-        for (v in Cvar.vars) {
-            if (v.name == name) {
-                Console.Print('Cmd.AddCommand: ' + name + ' already defined as a var\n');
-                return;
-            }
+        if (Cvar.vars.exists(name)) {
+            Console.Print('Cmd.AddCommand: ' + name + ' already defined as a var\n');
+            return;
         }
         for (f in functions) {
             if (f.name == name) {

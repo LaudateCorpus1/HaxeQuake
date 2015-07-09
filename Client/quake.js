@@ -59,6 +59,25 @@ var haxe_ds_IntMap = function() {
 };
 haxe_ds_IntMap.__name__ = true;
 haxe_ds_IntMap.__interfaces__ = [haxe_IMap];
+var haxe_ds__$StringMap_StringMapIterator = function(map,keys) {
+	this.map = map;
+	this.keys = keys;
+	this.index = 0;
+	this.count = keys.length;
+};
+haxe_ds__$StringMap_StringMapIterator.__name__ = true;
+haxe_ds__$StringMap_StringMapIterator.prototype = {
+	hasNext: function() {
+		return this.index < this.count;
+	}
+	,next: function() {
+		var tmp;
+		var _this = this.map;
+		var key = this.keys[this.index++];
+		if(__map_reserved[key] != null) tmp = _this.getReserved(key); else tmp = _this.h[key];
+		return tmp;
+	}
+};
 var haxe_ds_StringMap = function() {
 	this.h = { };
 };
@@ -71,6 +90,10 @@ haxe_ds_StringMap.prototype = {
 	}
 	,getReserved: function(key) {
 		return this.rh == null?null:this.rh["$" + key];
+	}
+	,existsReserved: function(key) {
+		if(this.rh == null) return false;
+		return this.rh.hasOwnProperty("$" + key);
 	}
 	,keys: function() {
 		var tmp;
@@ -2196,21 +2219,18 @@ quake_Cmd.TokenizeString = function(text) {
 	}
 };
 quake_Cmd.AddCommand = function(name,command) {
-	var _g = 0;
-	var _g1 = quake_Cvar.vars;
-	while(_g < _g1.length) {
-		var v = _g1[_g];
-		++_g;
-		if(v.name == name) {
-			quake_Console.Print("Cmd.AddCommand: " + name + " already defined as a var\n");
-			return;
-		}
+	var tmp;
+	var _this = quake_Cvar.vars;
+	if(__map_reserved[name] != null) tmp = _this.existsReserved(name); else tmp = _this.h.hasOwnProperty(name);
+	if(tmp) {
+		quake_Console.Print("Cmd.AddCommand: " + name + " already defined as a var\n");
+		return;
 	}
-	var _g2 = 0;
-	var _g11 = quake_Cmd.functions;
-	while(_g2 < _g11.length) {
-		var f = _g11[_g2];
-		++_g2;
+	var _g = 0;
+	var _g1 = quake_Cmd.functions;
+	while(_g < _g1.length) {
+		var f = _g1[_g];
+		++_g;
 		if(f.name == name) {
 			quake_Console.Print("Cmd.AddCommand: " + name + " already defined\n");
 			return;
@@ -2416,41 +2436,28 @@ var quake_Cvar = function(name,value,archive,server) {
 	this.value = quake_Q.atof(value);
 };
 quake_Cvar.__name__ = true;
-quake_Cvar.FindVar = function(name) {
-	var _g = 0;
-	var _g1 = quake_Cvar.vars;
-	while(_g < _g1.length) {
-		var v = _g1[_g];
-		++_g;
-		if(v.name == name) return v;
-	}
-	return null;
-};
 quake_Cvar.CompleteVariable = function(partial) {
 	if(partial.length == 0) return null;
-	var _g = 0;
-	var _g1 = quake_Cvar.vars;
-	while(_g < _g1.length) {
-		var v = _g1[_g];
-		++_g;
-		if(v.name.substring(0,partial.length) == partial) return v.name;
+	var $it0 = quake_Cvar.vars.keys();
+	while( $it0.hasNext() ) {
+		var name = $it0.next();
+		if(name.substring(0,partial.length) == partial) return name;
 	}
 	return null;
 };
 quake_Cvar.Set = function(name,value) {
-	var _g = 0;
-	var _g1 = quake_Cvar.vars;
-	while(_g < _g1.length) {
-		var v = _g1[_g];
-		++_g;
-		if(v.name != name) continue;
-		var changed = v.string != value;
-		v.string = value;
-		v.value = quake_Q.atof(value);
-		if(v.server && changed && quake_SV.server.active) quake_Host.BroadcastPrint("\"" + v.name + "\" changed to \"" + v.string + "\"\n");
+	var tmp;
+	var _this = quake_Cvar.vars;
+	if(__map_reserved[name] != null) tmp = _this.getReserved(name); else tmp = _this.h[name];
+	var v = tmp;
+	if(v == null) {
+		quake_Console.Print("Cvar.Set: variable " + name + " not found\n");
 		return;
 	}
-	quake_Console.Print("Cvar.Set: variable " + name + " not found\n");
+	var changed = v.string != value;
+	v.string = value;
+	v.value = quake_Q.atof(value);
+	if(v.server && changed && quake_SV.server.active) quake_Host.BroadcastPrint("\"" + name + "\" changed to \"" + v.string + "\"\n");
 };
 quake_Cvar.SetValue = function(name,value) {
 	quake_Cvar.Set(name,value.toFixed(6));
@@ -2458,22 +2465,26 @@ quake_Cvar.SetValue = function(name,value) {
 quake_Cvar.RegisterVariable = function(name,value,archive,server) {
 	if(server == null) server = false;
 	if(archive == null) archive = false;
-	var _g = 0;
-	var _g1 = quake_Cvar.vars;
-	while(_g < _g1.length) {
-		var v1 = _g1[_g];
-		++_g;
-		if(v1.name == name) {
-			quake_Console.Print("Can't register variable " + name + ", already defined\n");
-			return null;
-		}
+	var tmp;
+	var _this = quake_Cvar.vars;
+	if(__map_reserved[name] != null) tmp = _this.existsReserved(name); else tmp = _this.h.hasOwnProperty(name);
+	if(tmp) {
+		quake_Console.Print("Can't register variable " + name + ", already defined\n");
+		return null;
 	}
+	var tmp1;
 	var v = new quake_Cvar(name,value,archive,server);
-	quake_Cvar.vars.push(v);
-	return v;
+	var _this1 = quake_Cvar.vars;
+	if(__map_reserved[name] != null) _this1.setReserved(name,v); else _this1.h[name] = v;
+	tmp1 = v;
+	return tmp1;
 };
 quake_Cvar.Command = function() {
-	var v = quake_Cvar.FindVar(quake_Cmd.argv[0]);
+	var tmp;
+	var _this = quake_Cvar.vars;
+	var key = quake_Cmd.argv[0];
+	if(__map_reserved[key] != null) tmp = _this.getReserved(key); else tmp = _this.h[key];
+	var v = tmp;
 	if(v == null) return false;
 	if(quake_Cmd.argv.length <= 1) {
 		quake_Console.Print("\"" + v.name + "\" is \"" + v.string + "\"\n");
@@ -2484,11 +2495,11 @@ quake_Cvar.Command = function() {
 };
 quake_Cvar.WriteVariables = function() {
 	var f = [];
-	var _g = 0;
-	var _g1 = quake_Cvar.vars;
-	while(_g < _g1.length) {
-		var v = _g1[_g];
-		++_g;
+	var tmp;
+	var _this = quake_Cvar.vars;
+	tmp = new haxe_ds__$StringMap_StringMapIterator(_this,_this.arrayKeys());
+	while( tmp.hasNext() ) {
+		var v = tmp.next();
 		if(v.archive) f.push(v.name + " \"" + v.string + "\"\n");
 	}
 	return f.join("");
@@ -12792,7 +12803,13 @@ quake_PF.localcmd = function() {
 	quake_Cmd.text += quake_PR.GetString(quake_PR.globals_int[4]);
 };
 quake_PF.cvar = function() {
-	var v = quake_Cvar.FindVar(quake_PR.GetString(quake_PR.globals_int[4]));
+	var tmp;
+	var name = quake_PR.GetString(quake_PR.globals_int[4]);
+	var tmp1;
+	var _this = quake_Cvar.vars;
+	if(__map_reserved[name] != null) tmp1 = _this.getReserved(name); else tmp1 = _this.h[name];
+	tmp = tmp1;
+	var v = tmp;
 	quake_PR.globals_float[1] = v != null?v.value:0.0;
 };
 quake_PF.cvar_set = function() {
@@ -13967,7 +13984,7 @@ quake_Cmd.functions = [];
 quake_Console.backscroll = 0;
 quake_Console.current = 0;
 quake_Console.text = [];
-quake_Cvar.vars = [];
+quake_Cvar.vars = new haxe_ds_StringMap();
 quake_Def.webquake_version = 48;
 quake_Def.timedate = "Exe: 12:39:20 Aug  7 2014\n";
 quake_Def.max_edicts = 600;

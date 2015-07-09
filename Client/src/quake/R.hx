@@ -293,20 +293,20 @@ class R {
             return -1;
 
         for (i in 0...node.numfaces) {
-            var surf:MSurface = CL.state.worldmodel.faces[node.firstface + i];
-            if ((surf.sky) || (surf.turbulent))
+            var surf = CL.state.worldmodel.faces[node.firstface + i];
+            if (surf.sky || surf.turbulent)
                 continue;
 
             var tex = CL.state.worldmodel.texinfo[surf.texinfo];
 
             var s = Vec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3];
             var t = Vec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3];
-            if ((s < surf.texturemins[0]) || (t < surf.texturemins[1]))
+            if (s < surf.texturemins[0] || t < surf.texturemins[1])
                 continue;
 
             var ds = Std.int(s - surf.texturemins[0]);
             var dt = Std.int(t - surf.texturemins[1]);
-            if ((ds > surf.extents[0]) || (dt > surf.extents[1]))
+            if (ds > surf.extents[0] || dt > surf.extents[1])
                 continue;
 
             if (surf.lightofs == 0)

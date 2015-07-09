@@ -44,6 +44,12 @@ package quake;
 	@:op(a<=b) static function _(a:KeyCode, b:KeyCode):Bool;
 }
 
+@:enum abstract KeyDest(Int) {
+	var game = 0;
+	var console = 1;
+	var message = 2;
+	var menu = 3;
+}
 
 @:publicFields
 class Key {
@@ -52,14 +58,7 @@ class Key {
 	static var edit_line = '';
 	static var history_line = 1;
 
-	static var dest = {
-		game: 0,
-		console: 1,
-		message: 2,
-		menu: 3,
-		
-		value: 0
-	}
+	static var dest:KeyDest;
 
 	static var bindings:Array<String> = [];
 	static var consolekeys:Array<Bool> = [];
@@ -194,12 +193,12 @@ class Key {
 				Cmd.text += 'say_team "' + Key.chat_buffer + '"\n';
 			else
 				Cmd.text += 'say "' + Key.chat_buffer + '"\n';
-			Key.dest.value = Key.dest.game;
+			Key.dest = game;
 			Key.chat_buffer = '';
 			return;
 		}
 		if (key == KeyCode.escape) {
-			Key.dest.value = Key.dest.game;
+			Key.dest = game;
 			Key.chat_buffer = '';
 			return;
 		}
@@ -355,9 +354,9 @@ class Key {
 		if (key == KeyCode.escape) {
 			if (!down)
 				return;
-			if (Key.dest.value == Key.dest.message)
+			if (Key.dest == message)
 				Key.Message(key);
-			else if (Key.dest.value == Key.dest.menu)
+			else if (Key.dest == menu)
 				M.Keydown(key);
 			else
 				M.ToggleMenu_f();
@@ -382,14 +381,14 @@ class Key {
 			return;
 		}
 
-		if ((CL.cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest.value == Key.dest.game)) {
+		if ((CL.cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest == game)) {
 			M.ToggleMenu_f();
 			return;
 		}
 
-		if (((Key.dest.value == Key.dest.menu) && ((key == KeyCode.escape) || ((key >= KeyCode.f1) && (key <= KeyCode.f12))))
-			|| ((Key.dest.value == Key.dest.console) && !Key.consolekeys[key])
-			|| ((Key.dest.value == Key.dest.game) && (!Console.forcedup || !Key.consolekeys[key]))) {
+		if (((Key.dest == menu) && ((key == KeyCode.escape) || ((key >= KeyCode.f1) && (key <= KeyCode.f12))))
+			|| ((Key.dest == console) && !Key.consolekeys[key])
+			|| ((Key.dest == game) && (!Console.forcedup || !Key.consolekeys[key]))) {
 			kb = Key.bindings[key];
 			if (kb != null) {
 				if (kb.charCodeAt(0) == 43)
@@ -403,9 +402,9 @@ class Key {
 		if (Key.shift_down)
 			key = Key.shift[key];
 
-		if (Key.dest.value == Key.dest.message)
+		if (Key.dest == message)
 			Key.Message(key);
-		else if (Key.dest.value == Key.dest.menu)
+		else if (Key.dest == menu)
 			M.Keydown(key);
 		else
 			Key.ProcessConsole(key);

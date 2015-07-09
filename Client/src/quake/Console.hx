@@ -26,17 +26,17 @@ class Console {
 
     static function ToggleConsole_f():Void {
         SCR.EndLoadingPlaque();
-        if (Key.dest.value == Key.dest.console) {
+        if (Key.dest == console) {
             if (CL.cls.state != connected) {
                 M.Menu_Main_f();
                 return;
             }
-            Key.dest.value = Key.dest.game;
+            Key.dest = game;
             Key.edit_line = '';
             Key.history_line = Key.lines.length;
             return;
         }
-        Key.dest.value = Key.dest.console;
+        Key.dest = console;
     }
 
     static function Clear_f():Void {
@@ -52,12 +52,12 @@ class Console {
     }
 
     static function MessageMode_f():Void {
-        Key.dest.value = Key.dest.message;
+        Key.dest = message;
         Key.team_message = false;
     }
 
     static function MessageMode2_f():Void {
-        Key.dest.value = Key.dest.message;
+        Key.dest = message;
         Key.team_message = true;
     }
 
@@ -116,7 +116,7 @@ class Console {
     }
 
     static function DrawInput():Void {
-        if (Key.dest.value != Key.dest.console && !forcedup)
+        if (Key.dest != console && !forcedup)
             return;
         var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1));
         var width = (VID.width >> 3) - 2;
@@ -134,7 +134,7 @@ class Console {
             Draw.String(8, v, text[i].text.substring(0, width));
             v += 8;
         }
-        if (Key.dest.value == Key.dest.message)
+        if (Key.dest == message)
             Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1)));
     }
 

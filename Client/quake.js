@@ -2296,17 +2296,17 @@ var quake_Console = function() { };
 quake_Console.__name__ = true;
 quake_Console.ToggleConsole_f = function() {
 	quake_SCR.EndLoadingPlaque();
-	if(quake_Key.dest.value == quake_Key.dest.console) {
+	if(quake_Key.dest == 1) {
 		if(quake_CL.cls.state != 2) {
 			quake_M.Menu_Main_f();
 			return;
 		}
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_Key.edit_line = "";
 		quake_Key.history_line = quake_Key.lines.length;
 		return;
 	}
-	quake_Key.dest.value = quake_Key.dest.console;
+	quake_Key.dest = 1;
 };
 quake_Console.Clear_f = function() {
 	quake_Console.backscroll = 0;
@@ -2323,11 +2323,11 @@ quake_Console.ClearNotify = function() {
 	}
 };
 quake_Console.MessageMode_f = function() {
-	quake_Key.dest.value = quake_Key.dest.message;
+	quake_Key.dest = 2;
 	quake_Key.team_message = false;
 };
 quake_Console.MessageMode2_f = function() {
-	quake_Key.dest.value = quake_Key.dest.message;
+	quake_Key.dest = 2;
 	quake_Key.team_message = true;
 };
 quake_Console.Init = function() {
@@ -2375,7 +2375,7 @@ quake_Console.DPrint = function(msg) {
 	if(quake_Host.developer.value != 0) quake_Console.Print(msg);
 };
 quake_Console.DrawInput = function() {
-	if(quake_Key.dest.value != quake_Key.dest.console && !quake_Console.forcedup) return;
+	if(quake_Key.dest != 1 && !quake_Console.forcedup) return;
 	var text = "]" + quake_Key.edit_line + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1));
 	var width = (quake_VID.width >> 3) - 2;
 	if(text.length >= width) text = text.substring(1 + text.length - width);
@@ -2393,7 +2393,7 @@ quake_Console.DrawNotify = function() {
 		quake_Draw.String(8,v,quake_Console.text[i1].text.substring(0,width));
 		v += 8;
 	}
-	if(quake_Key.dest.value == quake_Key.dest.message) quake_Draw.String(8,v,"say: " + quake_Key.chat_buffer + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1)));
+	if(quake_Key.dest == 2) quake_Draw.String(8,v,"say: " + quake_Key.chat_buffer + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1)));
 };
 quake_Console.DrawConsole = function(lines) {
 	if(lines <= 0) return;
@@ -3506,7 +3506,7 @@ quake_Host.ServerFrame = function() {
 	quake_SV.server.datagram.cursize = 0;
 	quake_SV.CheckForNewClients();
 	quake_SV.RunClients();
-	if(!quake_SV.server.paused && (quake_SV.svs.maxclients >= 2 || quake_Key.dest.value == quake_Key.dest.game)) quake_SV.Physics();
+	if(!quake_SV.server.paused && (quake_SV.svs.maxclients >= 2 || quake_Key.dest == 0)) quake_SV.Physics();
 	quake_SV.SendClientMessages();
 };
 quake_Host._Frame = function() {
@@ -3615,7 +3615,7 @@ quake_Host.Shutdown = function() {
 	quake_IN.Shutdown();
 };
 quake_Host.Quit_f = function() {
-	if(quake_Key.dest.value != quake_Key.dest.console) {
+	if(quake_Key.dest != 1) {
 		quake_M.Menu_Quit_f();
 		return;
 	}
@@ -3746,7 +3746,7 @@ quake_Host.Map_f = function() {
 	quake_CL.cls.demonum = -1;
 	quake_CL.Disconnect();
 	quake_Host.ShutdownServer(false);
-	quake_Key.dest.value = quake_Key.dest.game;
+	quake_Key.dest = 0;
 	quake_SCR.BeginLoadingPlaque();
 	quake_SV.svs.serverflags = 0;
 	quake_SV.SpawnServer(quake_Cmd.argv[1]);
@@ -4094,7 +4094,7 @@ quake_Host.Kill_f = function() {
 		return;
 	}
 	if(quake_SV.player.v_float[quake_PR.entvars.health] <= 0.0) {
-		quake_Host.ClientPrint("Can't suicide -- allready dead!\n");
+		quake_Host.ClientPrint("Can't suicide -- already dead!\n");
 		return;
 	}
 	quake_PR.globals_float[quake_PR.globalvars.time] = quake_SV.server.time;
@@ -4122,7 +4122,7 @@ quake_Host.PreSpawn_f = function() {
 	}
 	var client = quake_Host.client;
 	if(client.spawned) {
-		quake_Console.Print("prespawn not valid -- allready spawned\n");
+		quake_Console.Print("prespawn not valid -- already spawned\n");
 		return;
 	}
 	client.message.Write(new Uint8Array(quake_SV.server.signon.data),quake_SV.server.signon.cursize);
@@ -4137,7 +4137,7 @@ quake_Host.Spawn_f = function() {
 	}
 	var client = quake_Host.client;
 	if(client.spawned) {
-		quake_Console.Print("Spawn not valid -- allready spawned\n");
+		quake_Console.Print("Spawn not valid -- already spawned\n");
 		return;
 	}
 	var ent = client.edict;
@@ -4617,12 +4617,12 @@ quake_Key.ProcessConsole = function(key) {
 quake_Key.Message = function(key) {
 	if(key == 13) {
 		if(quake_Key.team_message) quake_Cmd.text += "say_team \"" + quake_Key.chat_buffer + "\"\n"; else quake_Cmd.text += "say \"" + quake_Key.chat_buffer + "\"\n";
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_Key.chat_buffer = "";
 		return;
 	}
 	if(key == 27) {
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_Key.chat_buffer = "";
 		return;
 	}
@@ -4772,7 +4772,7 @@ quake_Key.Event = function(key,down) {
 	if(key == 134) quake_Key.shift_down = down;
 	if(key == 27) {
 		if(!down) return;
-		if(quake_Key.dest.value == quake_Key.dest.message) quake_Key.Message(key); else if(quake_Key.dest.value == quake_Key.dest.menu) quake_M.Keydown(key); else quake_M.ToggleMenu_f();
+		if(quake_Key.dest == 2) quake_Key.Message(key); else if(quake_Key.dest == 3) quake_M.Keydown(key); else quake_M.ToggleMenu_f();
 		return;
 	}
 	var kb;
@@ -4789,11 +4789,11 @@ quake_Key.Event = function(key,down) {
 		}
 		return;
 	}
-	if(quake_CL.cls.demoplayback && quake_Key.consolekeys[key] && quake_Key.dest.value == quake_Key.dest.game) {
+	if(quake_CL.cls.demoplayback && quake_Key.consolekeys[key] && quake_Key.dest == 0) {
 		quake_M.ToggleMenu_f();
 		return;
 	}
-	if(quake_Key.dest.value == quake_Key.dest.menu && (key == 27 || key >= 135 && key <= 146) || quake_Key.dest.value == quake_Key.dest.console && !quake_Key.consolekeys[key] || quake_Key.dest.value == quake_Key.dest.game && (!quake_Console.forcedup || !quake_Key.consolekeys[key])) {
+	if(quake_Key.dest == 3 && (key == 27 || key >= 135 && key <= 146) || quake_Key.dest == 1 && !quake_Key.consolekeys[key] || quake_Key.dest == 0 && (!quake_Console.forcedup || !quake_Key.consolekeys[key])) {
 		kb = quake_Key.bindings[key];
 		if(kb != null) {
 			if(HxOverrides.cca(kb,0) == 43) quake_Cmd.text += kb + " " + key + "\n"; else quake_Cmd.text += kb + "\n";
@@ -4801,7 +4801,7 @@ quake_Key.Event = function(key,down) {
 		return;
 	}
 	if(quake_Key.shift_down) key = quake_Key.shift[key];
-	if(quake_Key.dest.value == quake_Key.dest.message) quake_Key.Message(key); else if(quake_Key.dest.value == quake_Key.dest.menu) quake_M.Keydown(key); else quake_Key.ProcessConsole(key);
+	if(quake_Key.dest == 2) quake_Key.Message(key); else if(quake_Key.dest == 3) quake_M.Keydown(key); else quake_Key.ProcessConsole(key);
 };
 var quake_M = function() { };
 quake_M.__name__ = true;
@@ -4857,23 +4857,23 @@ quake_M.DrawTextBox = function(x,y,width,lines) {
 };
 quake_M.ToggleMenu_f = function() {
 	quake_M.entersound = true;
-	if(quake_Key.dest.value == quake_Key.dest.menu) {
+	if(quake_Key.dest == 3) {
 		if(quake_M.state != 1) {
 			quake_M.Menu_Main_f();
 			return;
 		}
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_M.state = 0;
 		return;
 	}
 	quake_M.Menu_Main_f();
 };
 quake_M.Menu_Main_f = function() {
-	if(quake_Key.dest.value != quake_Key.dest.menu) {
+	if(quake_Key.dest != 3) {
 		quake_M.save_demonum = quake_CL.cls.demonum;
 		quake_CL.cls.demonum = -1;
 	}
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.state = 1;
 	quake_M.entersound = true;
 };
@@ -4886,7 +4886,7 @@ quake_M.Main_Draw = function() {
 quake_M.Main_Key = function(k) {
 	switch(k) {
 	case 27:
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_M.state = 0;
 		quake_CL.cls.demonum = quake_M.save_demonum;
 		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != 2) quake_CL.NextDemo();
@@ -4924,7 +4924,7 @@ quake_M.Main_Key = function(k) {
 	}
 };
 quake_M.Menu_SinglePlayer_f = function() {
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.state = 2;
 	quake_M.entersound = true;
 };
@@ -4956,7 +4956,7 @@ quake_M.SinglePlayer_Key = function(k) {
 				if(!window.confirm("Are you sure you want to start a new game?")) return;
 				quake_Cmd.text += "disconnect\n";
 			}
-			quake_Key.dest.value = quake_Key.dest.game;
+			quake_Key.dest = 0;
 			quake_Cmd.text += "maxplayers 1\nmap start\n";
 			return;
 		case 1:
@@ -5011,14 +5011,14 @@ quake_M.ScanSaves = function() {
 quake_M.Menu_Load_f = function() {
 	quake_M.entersound = true;
 	quake_M.state = 3;
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.ScanSaves();
 };
 quake_M.Menu_Save_f = function() {
 	if(!quake_SV.server.active || quake_CL.state.intermission != 0 || quake_SV.svs.maxclients != 1) return;
 	quake_M.entersound = true;
 	quake_M.state = 4;
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.ScanSaves();
 };
 quake_M.Load_Draw = function() {
@@ -5050,7 +5050,7 @@ quake_M.Load_Key = function(k) {
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(!quake_M.loadable[quake_M.load_cursor]) return;
 		quake_M.state = 0;
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_SCR.BeginLoadingPlaque();
 		quake_Cmd.text += "load s" + quake_M.load_cursor + "\n";
 		break;
@@ -5078,7 +5078,7 @@ quake_M.Save_Key = function(k) {
 		break;
 	case 13:
 		quake_M.state = 0;
-		quake_Key.dest.value = quake_Key.dest.game;
+		quake_Key.dest = 0;
 		quake_Cmd.text += "save s" + quake_M.load_cursor + "\n";
 		break;
 	case 128:case 130:
@@ -5099,7 +5099,7 @@ quake_M.Save_Key = function(k) {
 	}
 };
 quake_M.Menu_MultiPlayer_f = function() {
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.state = 5;
 	quake_M.entersound = true;
 	quake_M.multiplayer_myname = quake_CL.$name.string;
@@ -5159,7 +5159,7 @@ quake_M.MultiPlayer_Key = function(k) {
 		case 0:
 			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 			if(!quake_NET_$WEBS.available) return;
-			quake_Key.dest.value = quake_Key.dest.game;
+			quake_Key.dest = 0;
 			quake_M.state = 0;
 			quake_Cmd.text += "connect \"";
 			if(quake_M.multiplayer_joinname.substring(0,5) != "ws://") quake_Cmd.text += "ws://";
@@ -5205,7 +5205,7 @@ quake_M.MultiPlayer_Key = function(k) {
 	}
 };
 quake_M.Menu_Options_f = function() {
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.state = 6;
 	quake_M.entersound = true;
 };
@@ -5340,7 +5340,7 @@ quake_M.Options_Key = function(k) {
 	}
 };
 quake_M.Menu_Keys_f = function() {
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.state = 7;
 	quake_M.entersound = true;
 };
@@ -5421,7 +5421,7 @@ quake_M.Keys_Key = function(k) {
 	}
 };
 quake_M.Menu_Help_f = function() {
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_Key.dest = 3;
 	quake_M.state = 8;
 	quake_M.entersound = true;
 	quake_M.help_page = 0;
@@ -5450,8 +5450,8 @@ quake_M.Help_Key = function(k) {
 };
 quake_M.Menu_Quit_f = function() {
 	if(quake_M.state == 9) return;
-	quake_M.wasInMenus = quake_Key.dest.value == quake_Key.dest.menu;
-	quake_Key.dest.value = quake_Key.dest.menu;
+	quake_M.wasInMenus = quake_Key.dest == 3;
+	quake_Key.dest = 3;
 	quake_M.quit_prevstate = quake_M.state;
 	quake_M.state = 9;
 	quake_M.entersound = true;
@@ -5477,12 +5477,12 @@ quake_M.Quit_Key = function(k) {
 			quake_M.state = quake_M.quit_prevstate;
 			quake_M.entersound = true;
 		} else {
-			quake_Key.dest.value = quake_Key.dest.game;
+			quake_Key.dest = 0;
 			quake_M.state = 0;
 		}
 		break;
 	case 121:
-		quake_Key.dest.value = quake_Key.dest.console;
+		quake_Key.dest = 1;
 		quake_Host.Quit_f();
 		break;
 	default:
@@ -5549,7 +5549,7 @@ quake_M.Init = function() {
 	quake_M.help_pages = [quake_Draw.CachePic("help0"),quake_Draw.CachePic("help1"),quake_Draw.CachePic("help2"),quake_Draw.CachePic("help3"),quake_Draw.CachePic("help4"),quake_Draw.CachePic("help5")];
 };
 quake_M.DrawMenu = function() {
-	if(quake_M.state == 0 || quake_Key.dest.value != quake_Key.dest.menu) return;
+	if(quake_M.state == 0 || quake_Key.dest != 3) return;
 	if(!quake_M.recursiveDraw) {
 		if(quake_SCR.con_current != 0) quake_Draw.ConsoleBackground(quake_VID.height); else quake_Draw.FadeScreen();
 	} else quake_M.recursiveDraw = false;
@@ -8760,7 +8760,7 @@ quake_SCR.CenterPrint = function(str) {
 };
 quake_SCR.DrawCenterString = function() {
 	quake_SCR.centertime_off -= quake_Host.frametime;
-	if(quake_SCR.centertime_off <= 0.0 && quake_CL.state.intermission == 0 || quake_Key.dest.value != quake_Key.dest.game) return;
+	if(quake_SCR.centertime_off <= 0.0 && quake_CL.state.intermission == 0 || quake_Key.dest != 0) return;
 	var y;
 	if(quake_SCR.centerstring.length <= 4) y = Math.floor(quake_VID.height * 0.35); else y = 48;
 	if(quake_CL.state.intermission != 0) {
@@ -8891,7 +8891,7 @@ quake_SCR.SetUpToDrawConsole = function() {
 		return;
 	}
 	var conlines;
-	if(quake_Key.dest.value == quake_Key.dest.console) conlines = 100; else conlines = 0;
+	if(quake_Key.dest == 1) conlines = 100; else conlines = 0;
 	if(conlines < quake_SCR.con_current) {
 		quake_SCR.con_current -= quake_SCR.conspeed.value * quake_Host.frametime | 0;
 		if(conlines > quake_SCR.con_current) quake_SCR.con_current = conlines;
@@ -8905,7 +8905,7 @@ quake_SCR.DrawConsole = function() {
 		quake_Console.DrawConsole(quake_SCR.con_current);
 		return;
 	}
-	if(quake_Key.dest.value == quake_Key.dest.game || quake_Key.dest.value == quake_Key.dest.message) quake_Console.DrawNotify();
+	if(quake_Key.dest == 0 || quake_Key.dest == 2) quake_Console.DrawNotify();
 };
 quake_SCR.ScreenShot_f = function() {
 	quake_SCR.screenshot = true;
@@ -8957,10 +8957,10 @@ quake_SCR.UpdateScreen = function() {
 	quake_GL.Set2D();
 	if(quake_R.dowarp) quake_R.WarpScreen();
 	if(!quake_Console.forcedup) quake_R.PolyBlend();
-	if(quake_CL.cls.state == 1) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest.value == quake_Key.dest.game) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest.value == quake_Key.dest.game) {
+	if(quake_CL.cls.state == 1) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest == 0) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest == 0) {
 		quake_Sbar.FinaleOverlay();
 		quake_SCR.DrawCenterString();
-	} else if(quake_CL.state.intermission == 3 && quake_Key.dest.value == quake_Key.dest.game) quake_SCR.DrawCenterString(); else {
+	} else if(quake_CL.state.intermission == 3 && quake_Key.dest == 0) quake_SCR.DrawCenterString(); else {
 		if(quake_V.crosshair.value != 0) quake_Draw.Character(quake_R.refdef.vrect.x + (quake_R.refdef.vrect.width >> 1) + quake_V.crossx.value | 0,quake_R.refdef.vrect.y + (quake_R.refdef.vrect.height >> 1) + quake_V.crossy.value | 0,43);
 		quake_SCR.DrawNet();
 		quake_SCR.DrawTurtle();
@@ -13996,7 +13996,6 @@ quake_IN.mouse_avail = false;
 quake_Key.lines = [""];
 quake_Key.edit_line = "";
 quake_Key.history_line = 1;
-quake_Key.dest = { game : 0, console : 1, message : 2, menu : 3, value : 0};
 quake_Key.bindings = [];
 quake_Key.consolekeys = [];
 quake_Key.shift = [];

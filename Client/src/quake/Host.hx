@@ -218,7 +218,7 @@ class Host {
         SV.server.datagram.cursize = 0;
         SV.CheckForNewClients();
         SV.RunClients();
-        if (!SV.server.paused && (SV.svs.maxclients >= 2 || Key.dest.value == Key.dest.game))
+        if (!SV.server.paused && (SV.svs.maxclients >= 2 || Key.dest == game))
             SV.Physics();
         SV.SendClientMessages();
     }
@@ -366,7 +366,7 @@ class Host {
     // Commands
 
     static function Quit_f() {
-        if (Key.dest.value != Key.dest.console) {
+        if (Key.dest != console) {
             M.Menu_Quit_f();
             return;
         }
@@ -524,7 +524,7 @@ class Host {
         CL.cls.demonum = -1;
         CL.Disconnect();
         Host.ShutdownServer(false);
-        Key.dest.value = Key.dest.game;
+        Key.dest = game;
         SCR.BeginLoadingPlaque();
         SV.svs.serverflags = 0;
         SV.SpawnServer(Cmd.argv[1]);
@@ -903,7 +903,7 @@ class Host {
             return;
         }
         if (SV.player.v_float[PR.entvars.health] <= 0.0) {
-            Host.ClientPrint('Can\'t suicide -- allready dead!\n');
+            Host.ClientPrint('Can\'t suicide -- already dead!\n');
             return;
         }
         PR.globals_float[PR.globalvars.time] = SV.server.time;
@@ -933,7 +933,7 @@ class Host {
         }
         var client = Host.client;
         if (client.spawned) {
-            Console.Print('prespawn not valid -- allready spawned\n');
+            Console.Print('prespawn not valid -- already spawned\n');
             return;
         }
         client.message.Write(new Uint8Array(SV.server.signon.data), SV.server.signon.cursize);
@@ -949,7 +949,7 @@ class Host {
         }
         var client = Host.client;
         if (client.spawned) {
-            Console.Print('Spawn not valid -- allready spawned\n');
+            Console.Print('Spawn not valid -- already spawned\n');
             return;
         }
 

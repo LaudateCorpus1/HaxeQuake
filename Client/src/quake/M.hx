@@ -123,12 +123,12 @@ class M {
 
 	static function ToggleMenu_f() {
 		entersound = true;
-		if (Key.dest.value == Key.dest.menu) {
+		if (Key.dest == menu) {
 			if (state != main) {
 				Menu_Main_f();
 				return;
 			}
-			Key.dest.value = Key.dest.game;
+			Key.dest = game;
 			state = none;
 			return;
 		}
@@ -141,11 +141,11 @@ class M {
 	static var main_items = 5;
 
 	static function Menu_Main_f() {
-		if (Key.dest.value != Key.dest.menu) {
+		if (Key.dest != menu) {
 			save_demonum = CL.cls.demonum;
 			CL.cls.demonum = -1;
 		}
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		state = main;
 		entersound = true;
 	}
@@ -160,7 +160,7 @@ class M {
 	static function Main_Key(k:KeyCode):Void {
 		switch (k) {
 			case KeyCode.escape:
-				Key.dest.value = Key.dest.game;
+				Key.dest = game;
 				state = none;
 				CL.cls.demonum = save_demonum;
 				if (CL.cls.demonum != -1 && !CL.cls.demoplayback && CL.cls.state != connected)
@@ -196,7 +196,7 @@ class M {
 	static var singleplayer_items = 3;
 
 	static function Menu_SinglePlayer_f() {
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		state = singleplayer;
 		entersound = true;
 	}
@@ -232,7 +232,7 @@ class M {
 						return;
 					Cmd.text += 'disconnect\n';
 				}
-				Key.dest.value = Key.dest.game;
+				Key.dest = game;
 				Cmd.text += 'maxplayers 1\nmap start\n';
 				return;
 			case 1:
@@ -294,7 +294,7 @@ class M {
 	static function Menu_Load_f() {
 		entersound = true;
 		state = load;
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		ScanSaves();
 	}
 
@@ -303,7 +303,7 @@ class M {
 			return;
 		entersound = true;
 		state = save;
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		ScanSaves();
 	}
 
@@ -330,7 +330,7 @@ class M {
 				if (!loadable[load_cursor])
 					return;
 				state = none;
-				Key.dest.value = Key.dest.game;
+				Key.dest = game;
 				SCR.BeginLoadingPlaque();
 				Cmd.text += 'load s' + load_cursor + '\n';
 			case KeyCode.uparrow | KeyCode.leftarrow:
@@ -359,7 +359,7 @@ class M {
 				Menu_SinglePlayer_f();
 			case KeyCode.enter:
 				state = none;
-				Key.dest.value = Key.dest.game;
+				Key.dest = game;
 				Cmd.text += 'save s' + load_cursor + '\n';
 			case KeyCode.uparrow | KeyCode.leftarrow:
 				S.LocalSound(sfx_menu1);
@@ -393,7 +393,7 @@ class M {
 	static var multiplayer_oldbottom:Int;
 
 	static function Menu_MultiPlayer_f() {
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		state = multiplayer;
 		entersound = true;
 		multiplayer_myname = CL.name.string;
@@ -477,7 +477,7 @@ class M {
 						S.LocalSound(sfx_menu2);
 						if (!NET_WEBS.available)
 							return;
-						Key.dest.value = Key.dest.game;
+						Key.dest = game;
 						state = none;
 						Cmd.text += 'connect "';
 						if (multiplayer_joinname.substring(0, 5) != 'ws://')
@@ -530,7 +530,7 @@ class M {
 	static var options_items = 11;
 
 	static function Menu_Options_f() {
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		state = options;
 		entersound = true;
 	}
@@ -714,7 +714,7 @@ class M {
 	static var keys_cursor = 0;
 
 	static function Menu_Keys_f() {
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		state = keys;
 		entersound = true;
 	}
@@ -807,7 +807,7 @@ class M {
 	static var help_page:Int;
 
 	static function Menu_Help_f() {
-		Key.dest.value = Key.dest.menu;
+		Key.dest = menu;
 		state = help;
 		entersound = true;
 		help_page = 0;
@@ -851,8 +851,8 @@ class M {
 	static function Menu_Quit_f() {
 		if (state == quit)
 			return;
-		wasInMenus = (Key.dest.value == Key.dest.menu);
-		Key.dest.value = Key.dest.menu;
+		wasInMenus = (Key.dest == menu);
+		Key.dest = menu;
 		quit_prevstate = state;
 		state = quit;
 		entersound = true;
@@ -880,11 +880,11 @@ class M {
 					state = quit_prevstate;
 					entersound = true;
 				} else {
-					Key.dest.value = Key.dest.game;
+					Key.dest = game;
 					state = none;
 				}
 			case 121:
-				Key.dest.value = Key.dest.console;
+				Key.dest = console;
 				Host.Quit_f();
 			default:
 		}
@@ -976,7 +976,7 @@ class M {
 	}
 
 	static function DrawMenu() {
-		if (state == none || Key.dest.value != Key.dest.menu)
+		if (state == none || Key.dest != menu)
 			return;
 
 		if (!recursiveDraw) {

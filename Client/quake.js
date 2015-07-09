@@ -9541,7 +9541,7 @@ quake_SV.SpawnServer = function(server) {
 	var ent = quake_SV.server.edicts[0];
 	ent.v_int[29] = quake_PR.NewString(quake_SV.server.modelname,64);
 	ent.v_float[0] = 1.0;
-	ent.v_float[9] = quake_SV.solid.bsp;
+	ent.v_float[9] = 4;
 	ent.v_float[8] = 7;
 	if(quake_Host.coop.value != 0) quake_PR.globals_float[36] = quake_Host.coop.value; else quake_PR.globals_float[35] = quake_Host.deathmatch.value;
 	quake_PR.globals_int[34] = quake_PR.NewString(server,64);
@@ -9780,12 +9780,12 @@ quake_SV.Impact = function(e1,e2) {
 	var old_self = quake_PR.globals_int[28];
 	var old_other = quake_PR.globals_int[29];
 	quake_PR.globals_float[31] = quake_SV.server.time;
-	if(e1.v_int[42] != 0 && e1.v_float[9] != quake_SV.solid.not) {
+	if(e1.v_int[42] != 0 && e1.v_float[9] != 0) {
 		quake_PR.globals_int[28] = e1.num;
 		quake_PR.globals_int[29] = e2.num;
 		quake_PR.ExecuteProgram(e1.v_int[42]);
 	}
-	if(e2.v_int[42] != 0 && e2.v_float[9] != quake_SV.solid.not) {
+	if(e2.v_int[42] != 0 && e2.v_float[9] != 0) {
 		quake_PR.globals_int[28] = e2.num;
 		quake_PR.globals_int[29] = e1.num;
 		quake_PR.ExecuteProgram(e2.v_int[42]);
@@ -9836,7 +9836,7 @@ quake_SV.FlyMove = function(ent,time) {
 		if(trace.ent == null) quake_Sys.Error("SV.FlyMove: !trace.ent");
 		if(trace.plane.normal[2] > 0.7) {
 			blocked |= 1;
-			if(trace.ent.v_float[9] == quake_SV.solid.bsp) {
+			if(trace.ent.v_float[9] == 4) {
 				var v = ent.v_float[76] | 0 | 512;
 				ent.v_float[76] = v;
 				ent.v_int[47] = trace.ent.num;
@@ -9895,7 +9895,7 @@ quake_SV.PushEntity = function(ent,push) {
 	var end = [ent.v_float[10] + push[0],ent.v_float[11] + push[1],ent.v_float[12] + push[2]];
 	var nomonsters;
 	var solid = ent.v_float[9];
-	if(ent.v_float[8] == 9) nomonsters = quake_SV.move.missile; else if(solid == quake_SV.solid.trigger || solid == quake_SV.solid.not) nomonsters = quake_SV.move.nomonsters; else nomonsters = quake_SV.move.normal;
+	if(ent.v_float[8] == 9) nomonsters = quake_SV.move.missile; else if(solid == 1 || solid == 0) nomonsters = quake_SV.move.nomonsters; else nomonsters = quake_SV.move.normal;
 	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),end,nomonsters,ent);
 	quake_ED.SetVector(ent,10,trace.endpos);
 	quake_SV.LinkEdict(ent,true);
@@ -9939,12 +9939,12 @@ quake_SV.PushMove = function(pusher,movetime) {
 		}
 		var entorig = quake_ED.Vector(check,10);
 		moved[moved.length] = [entorig[0],entorig[1],entorig[2],check];
-		pusher.v_float[9] = quake_SV.solid.not;
+		pusher.v_float[9] = 0;
 		quake_SV.PushEntity(check,move);
-		pusher.v_float[9] = quake_SV.solid.bsp;
+		pusher.v_float[9] = 4;
 		if(quake_SV.TestEntityPosition(check)) {
 			if(check.v_float[33] == check.v_float[36]) continue;
-			if(check.v_float[9] == quake_SV.solid.not || check.v_float[9] == quake_SV.solid.trigger) {
+			if(check.v_float[9] == 0 || check.v_float[9] == 1) {
 				check.v_float[33] = check.v_float[36] = 0.0;
 				check.v_float[34] = check.v_float[37] = 0.0;
 				check.v_float[38] = check.v_float[35];
@@ -10134,7 +10134,7 @@ quake_SV.WalkMove = function(ent) {
 	}
 	var downtrace = quake_SV.PushEntity(ent,[0.0,0.0,oldvel[2] * quake_Host.frametime - 18.0]);
 	if(downtrace.plane.normal[2] > 0.7) {
-		if(ent.v_float[9] == quake_SV.solid.bsp) {
+		if(ent.v_float[9] == 4) {
 			var v1 = ent.v_float[76] | 0 | 512;
 			ent.v_float[76] = v1;
 			ent.v_int[47] = downtrace.ent.num;
@@ -10531,7 +10531,7 @@ quake_SV.InitBoxHull = function() {
 	}
 };
 quake_SV.HullForEntity = function(ent,mins,maxs,offset) {
-	if(ent.v_float[9] != quake_SV.solid.bsp) {
+	if(ent.v_float[9] != 4) {
 		quake_SV.box_planes[0].dist = ent.v_float[36] - mins[0];
 		quake_SV.box_planes[1].dist = ent.v_float[33] - maxs[0];
 		quake_SV.box_planes[2].dist = ent.v_float[37] - mins[1];
@@ -10587,7 +10587,7 @@ quake_SV.TouchLinks = function(ent,node) {
 		var touch = l.ent;
 		l = next;
 		if(touch == ent) continue;
-		if(touch.v_int[42] == 0 || touch.v_float[9] != quake_SV.solid.trigger) continue;
+		if(touch.v_int[42] == 0 || touch.v_float[9] != 1) continue;
 		if(ent.v_float[1] > touch.v_float[4] || ent.v_float[2] > touch.v_float[5] || ent.v_float[3] > touch.v_float[6] || ent.v_float[4] < touch.v_float[1] || ent.v_float[5] < touch.v_float[2] || ent.v_float[6] < touch.v_float[3]) continue;
 		var old_self = quake_PR.globals_int[28];
 		var old_other = quake_PR.globals_int[29];
@@ -10633,13 +10633,13 @@ quake_SV.LinkEdict = function(ent,touch_triggers) {
 	}
 	ent.leafnums = [];
 	if(ent.v_float[0] != 0.0) quake_SV.FindTouchedLeafs(ent,quake_SV.server.worldmodel.nodes[0]);
-	if(ent.v_float[9] == quake_SV.solid.not) return;
+	if(ent.v_float[9] == 0) return;
 	var node = quake_SV.areanodes[0];
 	while(true) {
 		if(node.axis == -1) break;
 		if(ent.v_float[1 + node.axis] > node.dist) node = node.children[0]; else if(ent.v_float[4 + node.axis] < node.dist) node = node.children[1]; else break;
 	}
-	var before = ent.v_float[9] == quake_SV.solid.trigger?node.trigger_edicts:node.solid_edicts;
+	var before = ent.v_float[9] == 1?node.trigger_edicts:node.solid_edicts;
 	ent.area.next = before;
 	ent.area.prev = before.prev;
 	ent.area.prev.next = ent.area;
@@ -10749,9 +10749,9 @@ quake_SV.ClipToLinks = function(node,clip) {
 		var touch = l.ent;
 		l = l.next;
 		var solid = touch.v_float[9];
-		if(solid == quake_SV.solid.not || touch == clip.passedict) continue;
-		if(solid == quake_SV.solid.trigger) quake_Sys.Error("Trigger in clipping list");
-		if(clip.type == quake_SV.move.nomonsters && solid != quake_SV.solid.bsp) continue;
+		if(solid == 0 || touch == clip.passedict) continue;
+		if(solid == 1) quake_Sys.Error("Trigger in clipping list");
+		if(clip.type == quake_SV.move.nomonsters && solid != 4) continue;
 		if(clip.boxmins[0] > touch.v_float[4] || clip.boxmins[1] > touch.v_float[5] || clip.boxmins[2] > touch.v_float[6] || clip.boxmaxs[0] < touch.v_float[1] || clip.boxmaxs[1] < touch.v_float[2] || clip.boxmaxs[2] < touch.v_float[3]) continue;
 		if(clip.passedict != null) {
 			if(clip.passedict.v_float[39] != 0.0 && touch.v_float[39] == 0.0) continue;
@@ -12823,7 +12823,7 @@ quake_PF.findradius = function() {
 		var i = _g1++;
 		var ent = quake_SV.server.edicts[i];
 		if(ent.free) continue;
-		if(ent.v_float[9] == quake_SV.solid.not) continue;
+		if(ent.v_float[9] == 0) continue;
 		eorg[0] = org_0 - (ent.v_float[10] + (ent.v_float[33] + ent.v_float[36]) * 0.5);
 		eorg[1] = org_1 - (ent.v_float[11] + (ent.v_float[34] + ent.v_float[37]) * 0.5);
 		eorg[2] = org_2 - (ent.v_float[12] + (ent.v_float[35] + ent.v_float[38]) * 0.5);
@@ -14068,7 +14068,6 @@ quake_SCR.count = 0;
 quake_SCR.recalc_refdef = false;
 quake_SCR.screenshot = false;
 quake_SCR.disabled_for_loading = false;
-quake_SV.solid = { not : 0, trigger : 1, bbox : 2, slidebox : 3, bsp : 4};
 quake_SV.server = new quake__$SV_ServerState();
 quake_SV.svs = new quake__$SV_ServerStatic();
 quake_SV.fatpvs = [];

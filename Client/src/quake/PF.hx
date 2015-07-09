@@ -6,6 +6,7 @@ import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 import quake.SV.EntFlag;
 import quake.SV.DamageType;
+import quake.SV.SolidType;
 using Tools;
 
 
@@ -311,7 +312,7 @@ class PF {
             var ent = SV.server.edicts[i];
             if (ent.free)
                 continue;
-            if (ent.v_float[EntVarOfs.solid] == SV.solid.not)
+            if (ent.v_float[EntVarOfs.solid] == SolidType.not)
                 continue;
             eorg[0] = org[0] - (ent.v_float[EntVarOfs.origin] + (ent.v_float[EntVarOfs.mins] + ent.v_float[EntVarOfs.maxs]) * 0.5);
             eorg[1] = org[1] - (ent.v_float[EntVarOfs.origin1] + (ent.v_float[EntVarOfs.mins1] + ent.v_float[EntVarOfs.maxs1]) * 0.5);

@@ -96,19 +96,16 @@ private class ServerState {
     var aim = 2;
 }
 
+@:enum abstract SolidType(Int) to Int {
+    var not = 0;
+    var trigger = 1;
+    var bbox = 2;
+    var slidebox = 3;
+    var bsp = 4;
+}
 
 @:publicFields
 class SV {
-
-    static var solid = {
-        not: 0,
-        trigger: 1,
-        bbox: 2,
-        slidebox: 3,
-        bsp: 4
-    }
-
-
     // main
 
     static var server = new ServerState();
@@ -761,7 +758,7 @@ class SV {
         var ent = SV.server.edicts[0];
         ent.v_int[EntVarOfs.model] = PR.NewString(SV.server.modelname, 64);
         ent.v_float[EntVarOfs.modelindex] = 1.0;
-        ent.v_float[EntVarOfs.solid] = SV.solid.bsp;
+        ent.v_float[EntVarOfs.solid] = SolidType.bsp;
         ent.v_float[EntVarOfs.movetype] = MoveType.push;
 
         if (Host.coop.value != 0)
@@ -1062,12 +1059,12 @@ class SV {
         var old_other = PR.globals_int[GlobalVarOfs.other];
         PR.globals_float[GlobalVarOfs.time] = SV.server.time;
 
-        if ((e1.v_int[EntVarOfs.touch] != 0) && (e1.v_float[EntVarOfs.solid] != SV.solid.not)) {
+        if ((e1.v_int[EntVarOfs.touch] != 0) && (e1.v_float[EntVarOfs.solid] != SolidType.not)) {
             PR.globals_int[GlobalVarOfs.self] = e1.num;
             PR.globals_int[GlobalVarOfs.other] = e2.num;
             PR.ExecuteProgram(e1.v_int[EntVarOfs.touch]);
         }
-        if ((e2.v_int[EntVarOfs.touch] != 0) && (e2.v_float[EntVarOfs.solid] != SV.solid.not)) {
+        if ((e2.v_int[EntVarOfs.touch] != 0) && (e2.v_float[EntVarOfs.solid] != SolidType.not)) {
             PR.globals_int[GlobalVarOfs.self] = e2.num;
             PR.globals_int[GlobalVarOfs.other] = e1.num;
             PR.ExecuteProgram(e2.v_int[EntVarOfs.touch]);
@@ -1129,7 +1126,7 @@ class SV {
                 Sys.Error('SV.FlyMove: !trace.ent');
             if (trace.plane.normal[2] > 0.7) {
                 blocked |= 1;
-                if (trace.ent.v_float[EntVarOfs.solid] == SV.solid.bsp) {
+                if (trace.ent.v_float[EntVarOfs.solid] == SolidType.bsp) {
                     ent.flags = ent.flags | EntFlag.onground;
                     ent.v_int[EntVarOfs.groundentity] = trace.ent.num;
                 }
@@ -1206,7 +1203,7 @@ class SV {
         var solid = ent.v_float[EntVarOfs.solid];
         if (ent.v_float[EntVarOfs.movetype] == MoveType.flymissile)
             nomonsters = SV.move.missile;
-        else if ((solid == SV.solid.trigger) || (solid == SV.solid.not))
+        else if ((solid == SolidType.trigger) || (solid == SolidType.not))
             nomonsters = SV.move.nomonsters
         else
             nomonsters = SV.move.normal;
@@ -1273,13 +1270,13 @@ class SV {
                 check.flags = check.flags & ~EntFlag.onground;
             var entorig = ED.Vector(check, EntVarOfs.origin);
             moved[moved.length] = [entorig[0], entorig[1], entorig[2], check];
-            pusher.v_float[EntVarOfs.solid] = SV.solid.not;
+            pusher.v_float[EntVarOfs.solid] = SolidType.not;
             SV.PushEntity(check, move);
-            pusher.v_float[EntVarOfs.solid] = SV.solid.bsp;
+            pusher.v_float[EntVarOfs.solid] = SolidType.bsp;
             if (SV.TestEntityPosition(check)) {
                 if (check.v_float[EntVarOfs.mins] == check.v_float[EntVarOfs.maxs])
                     continue;
-                if ((check.v_float[EntVarOfs.solid] == SV.solid.not) || (check.v_float[EntVarOfs.solid] == SV.solid.trigger)) {
+                if ((check.v_float[EntVarOfs.solid] == SolidType.not) || (check.v_float[EntVarOfs.solid] == SolidType.trigger)) {
                     check.v_float[EntVarOfs.mins] = check.v_float[EntVarOfs.maxs] = 0.0;
                     check.v_float[EntVarOfs.mins1] = check.v_float[EntVarOfs.maxs1] = 0.0;
                     check.v_float[EntVarOfs.maxs2] = check.v_float[EntVarOfs.mins2];
@@ -1465,7 +1462,7 @@ class SV {
         }
         var downtrace = SV.PushEntity(ent, [0.0, 0.0, oldvel[2] * Host.frametime - 18.0]);
         if (downtrace.plane.normal[2] > 0.7) {
-            if (ent.v_float[EntVarOfs.solid] == SV.solid.bsp) {
+            if (ent.v_float[EntVarOfs.solid] == SolidType.bsp) {
                 ent.flags = ent.flags | EntFlag.onground;
                 ent.v_int[EntVarOfs.groundentity] = downtrace.ent.num;
             }
@@ -1981,7 +1978,7 @@ class SV {
     }
 
     static function HullForEntity(ent:Edict, mins:Vec, maxs:Vec, offset:Vec):MHull {
-        if (ent.v_float[EntVarOfs.solid] != SV.solid.bsp) {
+        if (ent.v_float[EntVarOfs.solid] != SolidType.bsp) {
             SV.box_planes[0].dist = ent.v_float[EntVarOfs.maxs] - mins[0];
             SV.box_planes[1].dist = ent.v_float[EntVarOfs.mins] - maxs[0];
             SV.box_planes[2].dist = ent.v_float[EntVarOfs.maxs1] - mins[1];
@@ -2055,7 +2052,7 @@ class SV {
             l = next;
             if (touch == ent)
                 continue;
-            if ((touch.v_int[EntVarOfs.touch] == 0) || (touch.v_float[EntVarOfs.solid] != SV.solid.trigger))
+            if ((touch.v_int[EntVarOfs.touch] == 0) || (touch.v_float[EntVarOfs.solid] != SolidType.trigger))
                 continue;
             if ((ent.v_float[EntVarOfs.absmin] > touch.v_float[EntVarOfs.absmax]) ||
                 (ent.v_float[EntVarOfs.absmin1] > touch.v_float[EntVarOfs.absmax1]) || 
@@ -2127,7 +2124,7 @@ class SV {
         if (ent.v_float[EntVarOfs.modelindex] != 0.0)
             SV.FindTouchedLeafs(ent, SV.server.worldmodel.nodes[0]);
 
-        if (ent.v_float[EntVarOfs.solid] == SV.solid.not)
+        if (ent.v_float[EntVarOfs.solid] == SolidType.not)
             return;
 
         var node = SV.areanodes[0];
@@ -2142,7 +2139,7 @@ class SV {
                 break;
         }
 
-        var before = (ent.v_float[EntVarOfs.solid] == SV.solid.trigger) ? node.trigger_edicts : node.solid_edicts;
+        var before = (ent.v_float[EntVarOfs.solid] == SolidType.trigger) ? node.trigger_edicts : node.solid_edicts;
         ent.area.next = before;
         ent.area.prev = before.prev;
         ent.area.prev.next = ent.area;
@@ -2300,11 +2297,11 @@ class SV {
             var touch = l.ent;
             l = l.next;
             var solid = touch.v_float[EntVarOfs.solid];
-            if ((solid == SV.solid.not) || (touch == clip.passedict))
+            if ((solid == SolidType.not) || (touch == clip.passedict))
                 continue;
-            if (solid == SV.solid.trigger)
+            if (solid == SolidType.trigger)
                 Sys.Error('Trigger in clipping list');
-            if ((clip.type == SV.move.nomonsters) && (solid != SV.solid.bsp))
+            if ((clip.type == SV.move.nomonsters) && (solid != SolidType.bsp))
                 continue;
             if ((clip.boxmins[0] > touch.v_float[EntVarOfs.absmax]) ||
                 (clip.boxmins[1] > touch.v_float[EntVarOfs.absmax1]) ||

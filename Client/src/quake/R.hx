@@ -922,7 +922,7 @@ class R {
 
     static function MakeBrushModelDisplayLists(m:MModel) {
         if (m.cmds != null)
-            gl.deleteBuffer(cast m.cmds);
+            gl.deleteBuffer(m.cmds);
         var cmds = [];
         var styles = [0.0, 0.0, 0.0, 0.0];
         var verts = 0;
@@ -1830,7 +1830,7 @@ class R {
                 return;
         }
 
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
         var viewMatrix = GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]);
 
         var program = GL.UseProgram('brush');
@@ -2147,7 +2147,7 @@ class R {
         gl.colorMask(false, false, false, false);
         var clmodel:MModel = CL.state.worldmodel;
         var program = GL.UseProgram('skyChain');
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 12, clmodel.skychain);
         for (i in 0...clmodel.leafs.length) {
             var leaf = clmodel.leafs[i];

@@ -223,28 +223,27 @@ class R {
             R.lightmap_modified[i] = false;
 
         var bit = 1;
-        for (i in 0...32) {
-            var l:DLight = CL.dlights[i];
-            if ((l.die >= CL.state.time) && (l.radius != 0.0)) {
-                R.MarkLights(l, bit, CL.state.worldmodel.nodes[0]);
+        for (l in CL.dlights) {
+            if (l.die >= CL.state.time && l.radius != 0.0) {
+                MarkLights(l, bit, CL.state.worldmodel.nodes[0]);
                 for (j in 0...CL.numvisedicts) {
                     var ent = CL.visedicts[j];
                     if (ent.model == null)
                         continue;
                     if (ent.model.type != brush || !ent.model.submodel)
                         continue;
-                    R.MarkLights(l, bit, CL.state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
+                    MarkLights(l, bit, CL.state.worldmodel.nodes[ent.model.hulls[0].firstclipnode]);
                 }
             }
             bit += bit;
         }
 
         for (i in 0...CL.state.worldmodel.faces.length) {
-            var surf:MSurface = CL.state.worldmodel.faces[i];
+            var surf = CL.state.worldmodel.faces[i];
             if (surf.dlightframe == R.dlightframecount)
-                R.RemoveDynamicLights(surf);
+                RemoveDynamicLights(surf);
             else if (surf.dlightframe == (R.dlightframecount + 1))
-                R.AddDynamicLights(surf);
+                AddDynamicLights(surf);
         }
 
         GL.Bind(0, R.dlightmap_texture);

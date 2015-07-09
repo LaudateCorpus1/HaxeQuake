@@ -10909,15 +10909,16 @@ quake_R.PushDlights = function() {
 	}
 	var bit = 1;
 	var _g1 = 0;
-	while(_g1 < 32) {
-		var i1 = _g1++;
-		var l = quake_CL.dlights[i1];
+	var _g11 = quake_CL.dlights;
+	while(_g1 < _g11.length) {
+		var l = _g11[_g1];
+		++_g1;
 		if(l.die >= quake_CL.state.time && l.radius != 0.0) {
 			quake_R.MarkLights(l,bit,quake_CL.state.worldmodel.nodes[0]);
-			var _g2 = 0;
-			var _g11 = quake_CL.numvisedicts;
-			while(_g2 < _g11) {
-				var j = _g2++;
+			var _g3 = 0;
+			var _g2 = quake_CL.numvisedicts;
+			while(_g3 < _g2) {
+				var j = _g3++;
 				var ent = quake_CL.visedicts[j];
 				if(ent.model == null) continue;
 				if(ent.model.type != 0 || !ent.model.submodel) continue;
@@ -10927,19 +10928,19 @@ quake_R.PushDlights = function() {
 		bit += bit;
 	}
 	var _g12 = 0;
-	var _g3 = quake_CL.state.worldmodel.faces.length;
-	while(_g12 < _g3) {
-		var i2 = _g12++;
-		var surf = quake_CL.state.worldmodel.faces[i2];
+	var _g4 = quake_CL.state.worldmodel.faces.length;
+	while(_g12 < _g4) {
+		var i1 = _g12++;
+		var surf = quake_CL.state.worldmodel.faces[i1];
 		if(surf.dlightframe == quake_R.dlightframecount) quake_R.RemoveDynamicLights(surf); else if(surf.dlightframe == quake_R.dlightframecount + 1) quake_R.AddDynamicLights(surf);
 	}
 	quake_GL.Bind(0,quake_R.dlightmap_texture);
 	var start;
-	var _g4 = 0;
-	while(_g4 < 1024) {
-		var i3 = _g4++;
-		if(start == null && quake_R.lightmap_modified[i3]) start = i3; else if(start != null && !quake_R.lightmap_modified[i3]) {
-			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i3 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,i3 << 10));
+	var _g5 = 0;
+	while(_g5 < 1024) {
+		var i2 = _g5++;
+		if(start == null && quake_R.lightmap_modified[i2]) start = i2; else if(start != null && !quake_R.lightmap_modified[i2]) {
+			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i2 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,i2 << 10));
 			start = null;
 		}
 	}

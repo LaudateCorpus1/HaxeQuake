@@ -12,27 +12,28 @@ import quake.Key.KeyCode;
 
 @:publicFields
 class Sys {
-    static var events = [
-        'onbeforeunload',
-        'oncontextmenu',
-        'onfocus',
-        'onkeydown',
-        'onkeyup',
-        'onmousedown',
-        'onmouseup',
-        'onunload',
-        'onwheel'
-    ];
-
     static var oldtime:Float;
     static var frame:Int;
     static var scantokey:Map<Int,KeyCode>;
 
+    static function clearEvents() {
+        window.onbeforeunload = null;
+        window.oncontextmenu = null;
+        window.onfocus = null;
+        window.onkeydown = null;
+        window.onkeyup = null;
+        window.onmousedown = null;
+        window.onmouseup = null;
+        window.onunload = null;
+        window.onwheel = null;
+    }
+
     static function Quit():Void {
         if (frame != null)
             window.clearInterval(frame);
-        for (e in events)
-            Reflect.setField(window, e, null);
+
+        clearEvents();
+
         Host.Shutdown();
         document.body.style.cursor = 'auto';
         VID.mainwindow.style.display = 'none';
@@ -51,8 +52,9 @@ class Sys {
     static function Error(text:String):Void {
         if (frame != null)
             window.clearInterval(frame);
-        for (e in events)
-            Reflect.setField(window, e, null);
+
+        clearEvents();
+
         if (Host.initialized)
             Host.Shutdown();
         document.body.style.cursor = 'auto';
@@ -154,14 +156,21 @@ class Sys {
             Sys.Print('Host.Init\n');
             Host.Init();
 
-            for (e in events)
-                Reflect.setField(window, e, Reflect.field(Sys, e));
+            window.onbeforeunload = onbeforeunload;
+            window.oncontextmenu = oncontextmenu;
+            window.onfocus = onfocus;
+            window.onkeydown = onkeydown;
+            window.onkeyup = onkeyup;
+            window.onmousedown = onmousedown;
+            window.onmouseup = onmouseup;
+            window.onunload = onunload;
+            window.onwheel = onwheel;
 
             frame = window.setInterval(Host.Frame, 1000.0 / 60.0);
         }
     }
 
-    static function onbeforeunload():String {
+    static function onbeforeunload(_):String {
         return 'Are you sure you want to quit?';
     }
 

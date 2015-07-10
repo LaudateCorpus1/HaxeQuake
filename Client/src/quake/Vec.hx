@@ -1,25 +1,31 @@
 package quake;
 
+import js.html.Float32Array;
+
 typedef Matrix = Array<Array<Float>>;
 
 
-abstract Vec(Array<Float>) to Array<Float> {
+abstract Vec(Float32Array) to Float32Array {
     public static var origin = new Vec();
 
     public inline function new() {
-        this = [0.0, 0.0, 0.0];
+        this = new Float32Array(3);
     }
 
     public inline function copy():Vec {
-        return cast this.copy();
+        return cast new Float32Array(this);
     }
 
     public static inline function of(x:Float, y:Float, z:Float):Vec {
-        return cast [x, y, z];
+        var v = new Vec();
+        v[0] = x;
+        v[1] = y;
+        v[2] = z;
+        return v;
     }
 
     public static inline function ofArray(a:Array<Float>):Vec {
-        return cast a.slice(0, 3);
+        return Vec.of(a[0], a[1], a[2]);
     }
 
     @:arrayAccess inline function get(i:Int):Float return this[i];

@@ -1740,8 +1740,11 @@ class R {
 
         var i = 0;
         for (t in 0...tmax) {
-            R.lightmap_modified[surf.light_t + t] = 1;
-            var dest = ((surf.light_t + t) << 10) + surf.light_s;
+            var idx = surf.light_t + t;
+            if (idx >= 1024)
+                Sys.Error('Funny lightmap_modified index: $idx < 1024');
+            R.lightmap_modified[idx] = 1;
+            var dest = (idx << 10) + surf.light_s;
             for (s in 0...smax) {
                 var bl = blocklights[i++] >> 7;
                 if (bl > 255)
@@ -1755,8 +1758,11 @@ class R {
         var smax = (surf.extents[0] >> 4) + 1;
         var tmax = (surf.extents[1] >> 4) + 1;
         for (t in 0...tmax) {
-            R.lightmap_modified[surf.light_t + t] = 1;
-            var dest = ((surf.light_t + t) << 10) + surf.light_s;
+            var idx = surf.light_t + t;
+            if (idx >= 1024)
+                Sys.Error('Funny lightmap_modified index: $idx < 1024');
+            R.lightmap_modified[idx] = 1;
+            var dest = (idx << 10) + surf.light_s;
             for (s in 0...smax)
                 R.dlightmaps[dest + s] = 0;
         }

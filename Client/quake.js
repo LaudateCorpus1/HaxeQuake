@@ -12127,8 +12127,10 @@ quake_R.AddDynamicLights = function(surf) {
 	var _g3 = 0;
 	while(_g3 < tmax) {
 		var t1 = _g3++;
-		quake_R.lightmap_modified[surf.light_t + t1] = 1;
-		var dest = (surf.light_t + t1 << 10) + surf.light_s;
+		var idx = surf.light_t + t1;
+		if(idx >= 1024) quake_Sys.Error("Funny lightmap_modified index: " + idx + " < 1024");
+		quake_R.lightmap_modified[idx] = 1;
+		var dest = (idx << 10) + surf.light_s;
 		var _g12 = 0;
 		while(_g12 < smax) {
 			var s1 = _g12++;
@@ -12144,8 +12146,10 @@ quake_R.RemoveDynamicLights = function(surf) {
 	var _g = 0;
 	while(_g < tmax) {
 		var t = _g++;
-		quake_R.lightmap_modified[surf.light_t + t] = 1;
-		var dest = (surf.light_t + t << 10) + surf.light_s;
+		var idx = surf.light_t + t;
+		if(idx >= 1024) quake_Sys.Error("Funny lightmap_modified index: " + idx + " < 1024");
+		quake_R.lightmap_modified[idx] = 1;
+		var dest = (idx << 10) + surf.light_s;
 		var _g1 = 0;
 		while(_g1 < smax) {
 			var s = _g1++;

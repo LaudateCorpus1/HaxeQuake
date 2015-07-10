@@ -2130,7 +2130,7 @@ class SV {
 
     static function HullPointContents(hull:MHull, num:Int, p:Vec):ModContents {
         while (num >= 0) {
-            if ((num < hull.firstclipnode) || (num > hull.lastclipnode))
+            if (num < hull.firstclipnode || num > hull.lastclipnode)
                 Sys.Error('SV.HullPointContents: bad node number');
             var node = hull.clipnodes[num];
             var plane = hull.planes[node.planenum];
@@ -2148,15 +2148,15 @@ class SV {
     }
 
     static function PointContents(p:Vec):ModContents {
-        var cont = SV.HullPointContents(SV.server.worldmodel.hulls[0], 0, p);
-        if ((cont <= ModContents.current_0) && (cont >= ModContents.current_down))
+        var cont = HullPointContents(server.worldmodel.hulls[0], 0, p);
+        if (cont <= ModContents.current_0 && cont >= ModContents.current_down)
             return ModContents.water;
         return cont;
     }
 
     static function TestEntityPosition(ent) {
         var origin = ED.Vector(ent, EdictVarOfs.origin);
-        return SV.Move(origin, ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), origin, 0, ent).startsolid;
+        return Move(origin, ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), origin, 0, ent).startsolid;
     }
 
     static function RecursiveHullCheck(hull:MHull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:MTrace):Bool {
@@ -2167,12 +2167,13 @@ class SV {
                     trace.inopen = true;
                 else
                     trace.inwater = true;
-            } else
+            } else {
                 trace.startsolid = true;
+            }
             return true;
         }
 
-        if ((num < hull.firstclipnode) || (num > hull.lastclipnode))
+        if (num < hull.firstclipnode || num > hull.lastclipnode)
             Sys.Error('SV.RecursiveHullCheck: bad node number');
 
         var node = hull.clipnodes[num];
@@ -2187,10 +2188,10 @@ class SV {
             t2 = plane.normal[0] * p2[0] + plane.normal[1] * p2[1] + plane.normal[2] * p2[2] - plane.dist;
         }
 
-        if ((t1 >= 0.0) && (t2 >= 0.0))
-            return SV.RecursiveHullCheck(hull, node.children[0], p1f, p2f, p1, p2, trace);
-        if ((t1 < 0.0) && (t2 < 0.0))
-            return SV.RecursiveHullCheck(hull, node.children[1], p1f, p2f, p1, p2, trace);
+        if (t1 >= 0.0 && t2 >= 0.0)
+            return RecursiveHullCheck(hull, node.children[0], p1f, p2f, p1, p2, trace);
+        if (t1 < 0.0 && t2 < 0.0)
+            return RecursiveHullCheck(hull, node.children[1], p1f, p2f, p1, p2, trace);
 
         var frac = (t1 + (t1 < 0.0 ? 0.03125 : -0.03125)) / (t1 - t2);
         if (frac < 0.0)
@@ -2206,11 +2207,11 @@ class SV {
         );
         var side = t1 < 0.0 ? 1 : 0;
 
-        if (!SV.RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace))
+        if (!RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace))
             return false;
 
-        if (SV.HullPointContents(hull, node.children[1 - side], mid) != ModContents.solid)
-            return SV.RecursiveHullCheck(hull, node.children[1 - side], midf, p2f, mid, p2, trace);
+        if (HullPointContents(hull, node.children[1 - side], mid) != ModContents.solid)
+            return RecursiveHullCheck(hull, node.children[1 - side], midf, p2f, mid, p2, trace);
 
         if (trace.allsolid)
             return false;
@@ -2223,7 +2224,7 @@ class SV {
             trace.plane.dist = -plane.dist;
         }
 
-        while (SV.HullPointContents(hull, hull.firstclipnode, mid) == ModContents.solid) {
+        while (HullPointContents(hull, hull.firstclipnode, mid) == ModContents.solid) {
             frac -= 0.1;
             if (frac < 0.0) {
                 trace.fraction = midf;

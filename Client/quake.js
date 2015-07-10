@@ -5929,7 +5929,12 @@ quake_Mod.LoadVertexes = function(buf) {
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
-		quake_Mod.loadmodel.vertexes[i] = [view.getFloat32(fileofs,true),view.getFloat32(fileofs + 4,true),view.getFloat32(fileofs + 8,true)];
+		var tmp;
+		var x = view.getFloat32(fileofs,true);
+		var y = view.getFloat32(fileofs + 4,true);
+		var z = view.getFloat32(fileofs + 8,true);
+		tmp = [x,y,z];
+		quake_Mod.loadmodel.vertexes[i] = tmp;
 		fileofs += 12;
 	}
 };
@@ -6467,8 +6472,18 @@ quake_Mod.LoadAliasModel = function(buffer) {
 	var model = new DataView(buffer);
 	var version = model.getUint32(4,true);
 	if(version != quake_Mod.version.alias) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + quake_Mod.version.alias + ")");
-	quake_Mod.loadmodel.scale = [model.getFloat32(8,true),model.getFloat32(12,true),model.getFloat32(16,true)];
-	quake_Mod.loadmodel.scale_origin = [model.getFloat32(20,true),model.getFloat32(24,true),model.getFloat32(28,true)];
+	var tmp;
+	var x = model.getFloat32(8,true);
+	var y = model.getFloat32(12,true);
+	var z = model.getFloat32(16,true);
+	tmp = [x,y,z];
+	quake_Mod.loadmodel.scale = tmp;
+	var tmp1;
+	var x1 = model.getFloat32(20,true);
+	var y1 = model.getFloat32(24,true);
+	var z1 = model.getFloat32(28,true);
+	tmp1 = [x1,y1,z1];
+	quake_Mod.loadmodel.scale_origin = tmp1;
 	quake_Mod.loadmodel.boundingradius = model.getFloat32(32,true);
 	quake_Mod.loadmodel.numskins = model.getUint32(48,true);
 	if(quake_Mod.loadmodel.numskins == 0) quake_Sys.Error("model " + quake_Mod.loadmodel.name + " has no skins");
@@ -10677,7 +10692,10 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	if(quake_SV.HullPointContents(hull,node.children[1 - side],mid) != -2) return quake_SV.RecursiveHullCheck(hull,node.children[1 - side],midf,p2f,mid,p2,trace);
 	if(trace.allsolid) return false;
 	if(side == 0) {
-		trace.plane.normal = [plane.normal[0],plane.normal[1],plane.normal[2]];
+		var tmp;
+		var this1 = plane.normal;
+		tmp = [this1[0],this1[1],this1[2]];
+		trace.plane.normal = tmp;
 		trace.plane.dist = plane.dist;
 	} else {
 		trace.plane.normal = [-plane.normal[0],-plane.normal[1],-plane.normal[2]];
@@ -10711,7 +10729,7 @@ quake_SV.ClipMoveToEntity = function(ent,start,mins,maxs,end) {
 	p.dist = 0.0;
 	tmp = p;
 	trace.plane = tmp;
-	var offset = [];
+	var offset = [0.0,0.0,0.0];
 	var hull = quake_SV.HullForEntity(ent,mins,maxs,offset);
 	quake_SV.RecursiveHullCheck(hull,hull.firstclipnode,0.0,1.0,[start[0] - offset[0],start[1] - offset[1],start[2] - offset[2]],[end[0] - offset[0],end[1] - offset[1],end[2] - offset[2]],trace);
 	if(trace.fraction != 1.0) {
@@ -10761,8 +10779,8 @@ quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
 	clip.maxs = maxs;
 	clip.type = type;
 	clip.passedict = passedict;
-	clip.boxmins = [];
-	clip.boxmaxs = [];
+	clip.boxmins = [0.0,0.0,0.0];
+	clip.boxmaxs = [0.0,0.0,0.0];
 	if(type == 2) {
 		clip.mins2 = [-15.0,-15.0,-15.0];
 		clip.maxs2 = [15.0,15.0,15.0];

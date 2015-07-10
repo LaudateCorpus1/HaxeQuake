@@ -61,8 +61,8 @@ class PF {
 
     static function setsize() {
         SetMinMaxSize(SV.server.edicts[PR.globals_int[4]],
-            [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
-            [PR.globals_float[10], PR.globals_float[11], PR.globals_float[12]]);
+            Vec.of(PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]),
+            Vec.of(PR.globals_float[10], PR.globals_float[11], PR.globals_float[12]));
     }
 
     static function setmodel() {
@@ -113,7 +113,7 @@ class PF {
     }
 
     static function normalize() {
-        var newvalue = [PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]];
+        var newvalue = Vec.of(PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]);
         Vec.Normalize(newvalue);
         PR.globals_float[1] = newvalue[0];
         PR.globals_float[2] = newvalue[1];
@@ -203,8 +203,8 @@ class PF {
     }
 
     static function traceline() {
-        var trace = SV.Move([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
-            Vec.origin, Vec.origin, [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
+        var trace = SV.Move(Vec.of(PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]),
+            Vec.origin, Vec.origin, Vec.of(PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]),
             Std.int(PR.globals_float[10]), SV.server.edicts[PR.globals_int[13]]);
         PR.globals_float[GlobalVarOfs.trace_allsolid] = (trace.allsolid) ? 1.0 : 0.0;
         PR.globals_float[GlobalVarOfs.trace_startsolid] = (trace.startsolid) ? 1.0 : 0.0;
@@ -247,11 +247,11 @@ class PF {
             }
             break;
         }
-        checkpvs = Mod.LeafPVS(Mod.PointInLeaf([
+        checkpvs = Mod.LeafPVS(Mod.PointInLeaf(Vec.of(
                 ent.v.origin + ent.v.view_ofs,
                 ent.v.origin1 + ent.v.view_ofs1,
                 ent.v.origin2 + ent.v.view_ofs2
-            ], SV.server.worldmodel), SV.server.worldmodel);
+            ), SV.server.worldmodel), SV.server.worldmodel);
         return i;
     }
 
@@ -268,11 +268,11 @@ class PF {
             return;
         }
         var self = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-        var l = Mod.PointInLeaf([
+        var l = Mod.PointInLeaf(Vec.of(
                 self.v.origin + self.v.view_ofs,
                 self.v.origin1 + self.v.view_ofs1,
                 self.v.origin2 + self.v.view_ofs2
-            ], SV.server.worldmodel).num - 1;
+            ), SV.server.worldmodel).num - 1;
         if ((l < 0) || ((checkpvs[l >> 3] & (1 << (l & 7))) == 0)) {
             PR.globals_int[1] = 0;
             return;

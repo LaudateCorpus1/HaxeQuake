@@ -581,7 +581,7 @@ class Mod {
         var count = Std.int(filelen / 12);
         Mod.loadmodel.vertexes = [];
         for (i in 0...count) {
-            Mod.loadmodel.vertexes[i] = [view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true)];
+            Mod.loadmodel.vertexes[i] = Vec.of(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
             fileofs += 12;
         }
     }
@@ -1180,8 +1180,8 @@ class Mod {
         var version = model.getUint32(4, true);
         if (version != Mod.version.alias)
             Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.alias + ')');
-        Mod.loadmodel.scale = [model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true)];
-        Mod.loadmodel.scale_origin = [model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true)];
+        Mod.loadmodel.scale = Vec.of(model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true));
+        Mod.loadmodel.scale_origin = Vec.of(model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true));
         Mod.loadmodel.boundingradius = model.getFloat32(32, true);
         Mod.loadmodel.numskins = model.getUint32(48, true);
         if (Mod.loadmodel.numskins == 0)
@@ -1199,8 +1199,8 @@ class Mod {
             Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
         Mod.loadmodel.random = model.getUint32(72, true) == 1;
         Mod.loadmodel.flags = cast model.getUint32(76, true);
-        Mod.loadmodel.mins = [-16.0, -16.0, -16.0];
-        Mod.loadmodel.maxs = [16.0, 16.0, 16.0];
+        Mod.loadmodel.mins = Vec.of(-16.0, -16.0, -16.0);
+        Mod.loadmodel.maxs = Vec.of(16.0, 16.0, 16.0);
 
         var inmodel = Mod.LoadAllSkins(buffer, 84);
 
@@ -1377,8 +1377,8 @@ class Mod {
         if (Mod.loadmodel.numframes == 0)
             Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
         Mod.loadmodel.random = model.getUint32(32, true) == 1;
-        Mod.loadmodel.mins = [Mod.loadmodel.width * -0.5, Mod.loadmodel.width * -0.5, Mod.loadmodel.height * -0.5];
-        Mod.loadmodel.maxs = [Mod.loadmodel.width * 0.5, Mod.loadmodel.width * 0.5, Mod.loadmodel.height * 0.5];
+        Mod.loadmodel.mins = Vec.of(Mod.loadmodel.width * -0.5, Mod.loadmodel.width * -0.5, Mod.loadmodel.height * -0.5);
+        Mod.loadmodel.maxs = Vec.of(Mod.loadmodel.width * 0.5, Mod.loadmodel.width * 0.5, Mod.loadmodel.height * 0.5);
 
         Mod.loadmodel.frames = [];
         var inframe = 36, frame, group, numframes;

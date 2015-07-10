@@ -2202,11 +2202,11 @@ class SV {
             frac = 1.0;
 
         var midf = p1f + (p2f - p1f) * frac;
-        var mid = [
+        var mid = Vec.of(
             p1[0] + frac * (p2[0] - p1[0]),
             p1[1] + frac * (p2[1] - p1[1]),
             p1[2] + frac * (p2[2] - p1[2])
-        ];
+        );
         var side = t1 < 0.0 ? 1 : 0;
 
         if (!SV.RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace))
@@ -2219,10 +2219,10 @@ class SV {
             return false;
 
         if (side == 0) {
-            trace.plane.normal = [plane.normal[0], plane.normal[1], plane.normal[2]];
+            trace.plane.normal = plane.normal.copy();
             trace.plane.dist = plane.dist;
         } else {
-            trace.plane.normal = [-plane.normal[0], -plane.normal[1], -plane.normal[2]];
+            trace.plane.normal = Vec.of(-plane.normal[0], -plane.normal[1], -plane.normal[2]);
             trace.plane.dist = -plane.dist;
         }
 
@@ -2230,7 +2230,7 @@ class SV {
             frac -= 0.1;
             if (frac < 0.0) {
                 trace.fraction = midf;
-                trace.endpos = [mid[0], mid[1], mid[2]];
+                trace.endpos = mid.copy();
                 Console.DPrint('backup past 0\n');
                 return false;
             }
@@ -2241,7 +2241,7 @@ class SV {
         }
 
         trace.fraction = midf;
-        trace.endpos = [mid[0], mid[1], mid[2]];
+        trace.endpos = mid.copy();
         return false;
     }
 
@@ -2249,19 +2249,19 @@ class SV {
         var trace = new MTrace();
         trace.fraction = 1.0;
         trace.allsolid = true;
-        trace.endpos = [end[0], end[1], end[2]];
+        trace.endpos = end.copy();
         trace.plane = {
             var p = new Plane();
-            p.normal = [0.0, 0.0, 0.0];
+            p.normal = Vec.of(0.0, 0.0, 0.0);
             p.dist = 0.0;
             p;
         };
 
-        var offset = [];
+        var offset = new Vec();
         var hull = SV.HullForEntity(ent, mins, maxs, offset);
         SV.RecursiveHullCheck(hull, hull.firstclipnode, 0.0, 1.0,
-            [start[0] - offset[0], start[1] - offset[1], start[2] - offset[2]],
-            [end[0] - offset[0], end[1] - offset[1], end[2] - offset[2]], trace);
+            Vec.of(start[0] - offset[0], start[1] - offset[1], start[2] - offset[2]),
+            Vec.of(end[0] - offset[0], end[1] - offset[1], end[2] - offset[2]), trace);
         if (trace.fraction != 1.0) {
             trace.endpos[0] += offset[0];
             trace.endpos[1] += offset[1];
@@ -2332,14 +2332,14 @@ class SV {
         clip.maxs = maxs;
         clip.type = type;
         clip.passedict = passedict;
-        clip.boxmins = [];
-        clip.boxmaxs = [];
+        clip.boxmins = new Vec();
+        clip.boxmaxs = new Vec();
         if (type == ClipType.missile) {
-            clip.mins2 = [-15.0, -15.0, -15.0];
-            clip.maxs2 = [15.0, 15.0, 15.0];
+            clip.mins2 = Vec.of(-15.0, -15.0, -15.0);
+            clip.maxs2 = Vec.of(15.0, 15.0, 15.0);
         } else {
-            clip.mins2 = [mins[0], mins[1], mins[2]];
-            clip.maxs2 = [maxs[0], maxs[1], maxs[2]];
+            clip.mins2 = mins.copy();
+            clip.maxs2 = maxs.copy();
         }
         for (i in 0...3) {
             if (end[i] > start[i]) {

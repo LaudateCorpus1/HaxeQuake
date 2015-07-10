@@ -595,12 +595,12 @@ class Mod {
             Sys.Error('Mod.LoadSubmodels: funny lump size in ' + Mod.loadmodel.name);
         Mod.loadmodel.submodels = [];
 
-        Mod.loadmodel.mins = [view.getFloat32(fileofs, true) - 1.0,
+        Mod.loadmodel.mins = Vec.of(view.getFloat32(fileofs, true) - 1.0,
             view.getFloat32(fileofs + 4, true) - 1.0,
-            view.getFloat32(fileofs + 8, true) - 1.0];
-        Mod.loadmodel.maxs = [view.getFloat32(fileofs + 12, true) + 1.0,
+            view.getFloat32(fileofs + 8, true) - 1.0);
+        Mod.loadmodel.maxs = Vec.of(view.getFloat32(fileofs + 12, true) + 1.0,
             view.getFloat32(fileofs + 16, true) + 1.0,
-            view.getFloat32(fileofs + 20, true) + 1.0];
+            view.getFloat32(fileofs + 20, true) + 1.0);
         Mod.loadmodel.hulls[0].firstclipnode = view.getUint32(fileofs + 36, true);
         Mod.loadmodel.hulls[1].firstclipnode = view.getUint32(fileofs + 40, true);
         Mod.loadmodel.hulls[2].firstclipnode = view.getUint32(fileofs + 44, true);
@@ -612,13 +612,13 @@ class Mod {
             out.needload = false;
             out.type = brush;
             out.submodel = true;
-            out.mins = [view.getFloat32(fileofs, true) - 1.0,
+            out.mins = Vec.of(view.getFloat32(fileofs, true) - 1.0,
                 view.getFloat32(fileofs + 4, true) - 1.0,
-                view.getFloat32(fileofs + 8, true) - 1.0];
-            out.maxs = [view.getFloat32(fileofs + 12, true) + 1.0,
+                view.getFloat32(fileofs + 8, true) - 1.0);
+            out.maxs = Vec.of(view.getFloat32(fileofs + 12, true) + 1.0,
                 view.getFloat32(fileofs + 16, true) + 1.0,
-                view.getFloat32(fileofs + 20, true) + 1.0];
-            out.origin = [view.getFloat32(fileofs + 24, true), view.getFloat32(fileofs + 28, true), view.getFloat32(fileofs + 32, true)];
+                view.getFloat32(fileofs + 20, true) + 1.0);
+            out.origin = Vec.of(view.getFloat32(fileofs + 24, true), view.getFloat32(fileofs + 28, true), view.getFloat32(fileofs + 32, true));
             out.hulls = [
                 {
                     var h = new MHull();
@@ -731,8 +731,8 @@ class Mod {
             if (styles[3] != 255)
                 out.styles[3] = styles[3];
 
-            var mins:Vec = [999999.0, 999999.0];
-            var maxs:Vec = [-99999.0, -99999.0];
+            var mins = [999999.0, 999999.0];
+            var maxs = [-99999.0, -99999.0];
             var tex = Mod.loadmodel.texinfo[out.texinfo];
             out.texture = tex.texture;
             for (j in 0...out.numedges) {
@@ -742,12 +742,13 @@ class Mod {
                     v = Mod.loadmodel.vertexes[Mod.loadmodel.edges[e][0]];
                 else
                     v = Mod.loadmodel.vertexes[Mod.loadmodel.edges[-e][1]];
-                var val = Vec.DotProduct(v, tex.vecs[0]) + tex.vecs[0][3];
+
+                var val = Vec.DotProduct(v, Vec.ofArray(tex.vecs[0])) + tex.vecs[0][3];
                 if (val < mins[0])
                     mins[0] = val;
                 if (val > maxs[0])
                     maxs[0] = val;
-                val = Vec.DotProduct(v, tex.vecs[1]) + tex.vecs[1][3];
+                val = Vec.DotProduct(v, Vec.ofArray(tex.vecs[1])) + tex.vecs[1][3];
                 if (val < mins[1])
                     mins[1] = val;
                 if (val > maxs[1])
@@ -789,8 +790,8 @@ class Mod {
             n.contents = 0;
             n.planenum = view.getUint32(fileofs, true);
             children[i] = [view.getInt16(fileofs + 4, true), view.getInt16(fileofs + 6, true)];
-            n.mins = [cast view.getInt16(fileofs + 8, true), cast view.getInt16(fileofs + 10, true), cast view.getInt16(fileofs + 12, true)];
-            n.maxs = [cast view.getInt16(fileofs + 14, true), cast view.getInt16(fileofs + 16, true), cast view.getInt16(fileofs + 18, true)];
+            n.mins = Vec.of(view.getInt16(fileofs + 8, true), view.getInt16(fileofs + 10, true), view.getInt16(fileofs + 12, true));
+            n.maxs = Vec.of(view.getInt16(fileofs + 14, true), view.getInt16(fileofs + 16, true), view.getInt16(fileofs + 18, true));
             n.firstface = view.getUint16(fileofs + 20, true);
             n.numfaces = view.getUint16(fileofs + 22, true);
             n.cmds = [];
@@ -827,8 +828,8 @@ class Mod {
                 out.num = i;
                 out.contents = view.getInt32(fileofs, true);
                 out.visofs = view.getInt32(fileofs + 4, true);
-                out.mins = [cast view.getInt16(fileofs + 8, true), cast view.getInt16(fileofs + 10, true), cast view.getInt16(fileofs + 12, true)];
-                out.maxs = [cast view.getInt16(fileofs + 14, true), cast view.getInt16(fileofs + 16, true), cast view.getInt16(fileofs + 18, true)];
+                out.mins = Vec.of(view.getInt16(fileofs + 8, true), view.getInt16(fileofs + 10, true), view.getInt16(fileofs + 12, true));
+                out.maxs = Vec.of(view.getInt16(fileofs + 14, true), view.getInt16(fileofs + 16, true), view.getInt16(fileofs + 18, true));
                 out.firstmarksurface = view.getUint16(fileofs + 20, true);
                 out.nummarksurfaces = view.getUint16(fileofs + 22, true);
                 out.ambient_level = [view.getUint8(fileofs + 24), view.getUint8(fileofs + 25), view.getUint8(fileofs + 26), view.getUint8(fileofs + 27)];
@@ -855,8 +856,8 @@ class Mod {
             h.firstclipnode = 0;
             h.lastclipnode = count - 1;
             h.planes = Mod.loadmodel.planes;
-            h.clip_mins = [-16.0, -16.0, -24.0];
-            h.clip_maxs = [16.0, 16.0, 32.0];
+            h.clip_mins = Vec.of(-16.0, -16.0, -24.0);
+            h.clip_maxs = Vec.of(16.0, 16.0, 32.0);
             h;
         };
         Mod.loadmodel.hulls[2] = {
@@ -865,8 +866,8 @@ class Mod {
             h.firstclipnode = 0;
             h.lastclipnode = count - 1;
             h.planes = Mod.loadmodel.planes;
-            h.clip_mins = [-32.0, -32.0, -24.0];
-            h.clip_maxs = [32.0, 32.0, 64.0];
+            h.clip_mins = Vec.of(-32.0, -32.0, -24.0);
+            h.clip_maxs = Vec.of(32.0, 32.0, 64.0);
             h;
         };
         for (i in 0...count) {
@@ -887,8 +888,8 @@ class Mod {
             h.clipnodes = clipnodes;
             h.lastclipnode = Mod.loadmodel.nodes.length - 1;
             h.planes = Mod.loadmodel.planes;
-            h.clip_mins = [0.0, 0.0, 0.0];
-            h.clip_maxs = [0.0, 0.0, 0.0];
+            h.clip_mins = new Vec();
+            h.clip_maxs = new Vec();
             h;
         };
         for (i in 0...Mod.loadmodel.nodes.length) {
@@ -939,7 +940,7 @@ class Mod {
         Mod.loadmodel.planes = [];
         for (i in 0...count) {
             var out = new Plane();
-            out.normal = [view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true)];
+            out.normal = Vec.of(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
             out.dist = view.getFloat32(fileofs + 12, true);
             out.type = view.getUint32(fileofs + 16, true);
             out.signbits = 0;

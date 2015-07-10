@@ -18,6 +18,10 @@ abstract Vec(Array<Float>) from Array<Float> {
         return cast [x, y, z];
     }
 
+    public static inline function ofArray(a:Array<Float>):Vec {
+        return cast a.slice(0, 3);
+    }
+
     @:arrayAccess inline function get(i:Int):Float return this[i];
     @:arrayAccess inline function set(i:Int, v:Float):Float return this[i] = v;
 

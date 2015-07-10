@@ -11230,9 +11230,8 @@ quake_SV.UnlinkEdict = function(ent) {
 quake_SV.TouchLinks = function(ent,node) {
 	var l = node.trigger_edicts.next;
 	while(l != node.trigger_edicts) {
-		var next = l.next;
 		var touch = l.ent;
-		l = next;
+		l = l.next;
 		if(touch == ent) continue;
 		if(touch._v_int[42] == 0 || touch._v_float[9] != 1) continue;
 		if(ent._v_float[1] > touch._v_float[4] || ent._v_float[2] > touch._v_float[5] || ent._v_float[3] > touch._v_float[6] || ent._v_float[4] < touch._v_float[1] || ent._v_float[5] < touch._v_float[2] || ent._v_float[6] < touch._v_float[3]) continue;

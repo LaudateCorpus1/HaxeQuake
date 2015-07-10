@@ -2029,25 +2029,20 @@ class SV {
     static function TouchLinks(ent:Edict, node:MAreaNode):Void {
         var l = node.trigger_edicts.next;
         while (l != node.trigger_edicts) {
-            var next = l.next;
             var touch = l.ent;
-            l = next;
+            l = l.next;
             if (touch == ent)
                 continue;
-            if ((touch.v.touch == 0) || (touch.v.solid != SolidType.trigger))
+            if (touch.v.touch == 0 || touch.v.solid != SolidType.trigger)
                 continue;
-            if ((ent.v.absmin > touch.v.absmax) ||
-                (ent.v.absmin1 > touch.v.absmax1) || 
-                (ent.v.absmin2 > touch.v.absmax2) ||
-                (ent.v.absmax < touch.v.absmin) ||
-                (ent.v.absmax1 < touch.v.absmin1) ||
-                (ent.v.absmax2 < touch.v.absmin2))
+            if (ent.v.absmin > touch.v.absmax || ent.v.absmin1 > touch.v.absmax1 || ent.v.absmin2 > touch.v.absmax2 ||
+                ent.v.absmax < touch.v.absmin || ent.v.absmax1 < touch.v.absmin1 || ent.v.absmax2 < touch.v.absmin2)
                 continue;
             var old_self = PR.globals_int[GlobalVarOfs.self];
             var old_other = PR.globals_int[GlobalVarOfs.other];
             PR.globals_int[GlobalVarOfs.self] = touch.num;
             PR.globals_int[GlobalVarOfs.other] = ent.num;
-            PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+            PR.globals_float[GlobalVarOfs.time] = server.time;
             PR.ExecuteProgram(touch.v.touch);
             PR.globals_int[GlobalVarOfs.self] = old_self;
             PR.globals_int[GlobalVarOfs.other] = old_other;
@@ -2055,9 +2050,9 @@ class SV {
         if (node.axis == -1)
             return;
         if (ent._v_float[EdictVarOfs.absmax + node.axis] > node.dist)
-            SV.TouchLinks(ent, node.children[0]);
+            TouchLinks(ent, node.children[0]);
         if (ent._v_float[EdictVarOfs.absmin + node.axis] < node.dist)
-            SV.TouchLinks(ent, node.children[1]);
+            TouchLinks(ent, node.children[1]);
     }
 
     static function FindTouchedLeafs(ent:Edict, node:MNode):Void {

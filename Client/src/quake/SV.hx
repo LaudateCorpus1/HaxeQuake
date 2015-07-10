@@ -1816,9 +1816,9 @@ class SV {
             SV.AirMove();
     }
 
-    static function ReadClientMove() {
+    static function ReadClientMove():Void {
         var client = Host.client;
-        client.ping_times[client.num_pings++ & 15] = SV.server.time - MSG.ReadFloat();
+        client.ping_times[client.num_pings++ & 15] = server.time - MSG.ReadFloat();
         client.edict.v.v_angle = MSG.ReadAngle();
         client.edict.v.v_angle1 = MSG.ReadAngle();
         client.edict.v.v_angle2 = MSG.ReadAngle();

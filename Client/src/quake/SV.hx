@@ -1785,8 +1785,8 @@ class SV {
             SV.Accelerate(wishvel, true);
     }
 
-    static function ClientThink() {
-        var ent = SV.player;
+    static function ClientThink():Void {
+        var ent = player;
 
         if (ent.v.movetype == MoveType.none)
             return;
@@ -1803,17 +1803,17 @@ class SV {
             return;
 
         ent.v.angles2 = V.CalcRoll(ED.Vector(ent, EdictVarOfs.angles), ED.Vector(ent, EdictVarOfs.velocity)) * 4.0;
-        if (SV.player.v.fixangle == 0.0) {
+        if (ent.v.fixangle == 0.0) {
             ent.v.angles = (ent.v.v_angle + ent.v.punchangle) / -3.0;
             ent.v.angles1 = ent.v.v_angle1 + ent.v.punchangle1;
         }
 
         if ((ent.flags & EntFlag.waterjump) != 0)
-            SV.WaterJump();
-        else if ((ent.v.waterlevel >= 2.0) && (ent.v.movetype != MoveType.noclip))
-            SV.WaterMove();
+            WaterJump();
+        else if (ent.v.waterlevel >= 2.0 && ent.v.movetype != MoveType.noclip)
+            WaterMove();
         else
-            SV.AirMove();
+            AirMove();
     }
 
     static function ReadClientMove():Void {

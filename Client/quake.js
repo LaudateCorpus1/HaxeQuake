@@ -11065,7 +11065,7 @@ quake_SV.ClientThink = function() {
 	v2[2] = ent._v_float[o2 + 2];
 	tmp2 = v2;
 	ent._v_float[21] = quake_V.CalcRoll(tmp1,tmp2) * 4.0;
-	if(quake_SV.player._v_float[69] == 0.0) {
+	if(ent._v_float[69] == 0.0) {
 		ent._v_float[19] = (ent._v_float[70] + ent._v_float[25]) / -3.0;
 		ent._v_float[20] = ent._v_float[71] + ent._v_float[26];
 	}

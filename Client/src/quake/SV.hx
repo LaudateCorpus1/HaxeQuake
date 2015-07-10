@@ -200,12 +200,12 @@ class SV {
             datagram.WriteByte(Math.floor(attenuation * 64.0));
         datagram.WriteShort((entity.num << 3) + channel);
         datagram.WriteByte(i);
-        datagram.WriteCoord(entity._v_float[EdictVarOfs.origin] + 0.5 *
-            (entity._v_float[EdictVarOfs.mins] + entity._v_float[EdictVarOfs.maxs]));
-        datagram.WriteCoord(entity._v_float[EdictVarOfs.origin1] + 0.5 *
-            (entity._v_float[EdictVarOfs.mins1] + entity._v_float[EdictVarOfs.maxs1]));
-        datagram.WriteCoord(entity._v_float[EdictVarOfs.origin2] + 0.5 *
-            (entity._v_float[EdictVarOfs.mins2] + entity._v_float[EdictVarOfs.maxs2]));
+        datagram.WriteCoord(entity.v.origin + 0.5 *
+            (entity.v.mins + entity.v.maxs));
+        datagram.WriteCoord(entity.v.origin1 + 0.5 *
+            (entity.v.mins1 + entity.v.maxs1));
+        datagram.WriteCoord(entity.v.origin2 + 0.5 *
+            (entity.v.mins2 + entity.v.maxs2));
     }
 
     static function SendServerinfo(client:HClient) {
@@ -216,7 +216,7 @@ class SV {
         message.WriteLong(Protocol.version);
         message.WriteByte(SV.svs.maxclients);
         message.WriteByte(((Host.coop.value == 0) && (Host.deathmatch.value != 0)) ? 1 : 0);
-        message.WriteString(PR.GetString(SV.server.edicts[0]._v_int[EdictVarOfs.message]));
+        message.WriteString(PR.GetString(SV.server.edicts[0].v.message));
         for (i in 1...SV.server.model_precache.length)
             message.WriteString(SV.server.model_precache[i]);
         message.WriteByte(0);
@@ -224,8 +224,8 @@ class SV {
             message.WriteString(SV.server.sound_precache[i]);
         message.WriteByte(0);
         message.WriteByte(SVC.cdtrack);
-        message.WriteByte(Std.int(SV.server.edicts[0]._v_float[EdictVarOfs.sounds]));
-        message.WriteByte(Std.int(SV.server.edicts[0]._v_float[EdictVarOfs.sounds]));
+        message.WriteByte(Std.int(SV.server.edicts[0].v.sounds));
+        message.WriteByte(Std.int(SV.server.edicts[0].v.sounds));
         message.WriteByte(SVC.setview);
         message.WriteShort(client.edict.num);
         message.WriteByte(SVC.signonnum);
@@ -254,7 +254,7 @@ class SV {
         client.wishdir = [0.0, 0.0, 0.0];
         client.message.cursize = 0;
         client.edict = SV.server.edicts[clientnum + 1];
-        client.edict._v_int[EdictVarOfs.netname] = PR.netnames + (clientnum << 5);
+        client.edict.v.netname = PR.netnames + (clientnum << 5);
         SV.SetClientName(client, 'unconnected');
         client.colors = 0;
         client.ping_times = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -330,15 +330,15 @@ class SV {
 
     static function WriteEntitiesToClient(clent:Edict, msg:MSG):Void {
         SV.FatPVS([
-            clent._v_float[EdictVarOfs.origin] + clent._v_float[EdictVarOfs.view_ofs],
-            clent._v_float[EdictVarOfs.origin1] + clent._v_float[EdictVarOfs.view_ofs1],
-            clent._v_float[EdictVarOfs.origin2] + clent._v_float[EdictVarOfs.view_ofs2]
+            clent.v.origin + clent.v.view_ofs,
+            clent.v.origin1 + clent.v.view_ofs1,
+            clent.v.origin2 + clent.v.view_ofs2
         ]);
         var pvs = SV.fatpvs;
         for (e in 1...SV.server.num_edicts) {
             var ent = SV.server.edicts[e];
             if (ent != clent) {
-                if (ent._v_float[EdictVarOfs.modelindex] == 0.0 || PR.strings[ent._v_int[EdictVarOfs.model]] == 0)
+                if (ent.v.modelindex == 0.0 || PR.strings[ent.v.model] == 0)
                     continue;
                 var i = 0;
                 while (i < ent.leafnums.length) {
@@ -360,23 +360,23 @@ class SV {
                 if ((miss < -0.1) || (miss > 0.1))
                     bits += U.origin1 << i;
             }
-            if (ent._v_float[EdictVarOfs.angles] != ent.baseline.angles[0])
+            if (ent.v.angles != ent.baseline.angles[0])
                 bits += U.angle1;
-            if (ent._v_float[EdictVarOfs.angles1] != ent.baseline.angles[1])
+            if (ent.v.angles1 != ent.baseline.angles[1])
                 bits += U.angle2;
-            if (ent._v_float[EdictVarOfs.angles2] != ent.baseline.angles[2])
+            if (ent.v.angles2 != ent.baseline.angles[2])
                 bits += U.angle3;
-            if (ent._v_float[EdictVarOfs.movetype] == MoveType.step)
+            if (ent.v.movetype == MoveType.step)
                 bits += U.nolerp;
-            if (ent.baseline.colormap != ent._v_float[EdictVarOfs.colormap])
+            if (ent.baseline.colormap != ent.v.colormap)
                 bits += U.colormap;
-            if (ent.baseline.skin != ent._v_float[EdictVarOfs.skin])
+            if (ent.baseline.skin != ent.v.skin)
                 bits += U.skin;
-            if (ent.baseline.frame != ent._v_float[EdictVarOfs.frame])
+            if (ent.baseline.frame != ent.v.frame)
                 bits += U.frame;
-            if (ent.baseline.effects != ent._v_float[EdictVarOfs.effects])
+            if (ent.baseline.effects != ent.v.effects)
                 bits += U.effects;
-            if (ent.baseline.modelindex != ent._v_float[EdictVarOfs.modelindex])
+            if (ent.baseline.modelindex != ent.v.modelindex)
                 bits += U.model;
             if (e >= 256)
                 bits += U.longentity;
@@ -391,57 +391,57 @@ class SV {
             else
                 msg.WriteByte(e);
             if ((bits & U.model) != 0)
-                msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.modelindex]));
+                msg.WriteByte(Std.int(ent.v.modelindex));
             if ((bits & U.frame) != 0)
-                msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.frame]));
+                msg.WriteByte(Std.int(ent.v.frame));
             if ((bits & U.colormap) != 0)
-                msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.colormap]));
+                msg.WriteByte(Std.int(ent.v.colormap));
             if ((bits & U.skin) != 0)
-                msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.skin]));
+                msg.WriteByte(Std.int(ent.v.skin));
             if ((bits & U.effects) != 0)
-                msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.effects]));
+                msg.WriteByte(Std.int(ent.v.effects));
             if ((bits & U.origin1) != 0)
-                msg.WriteCoord(Std.int(ent._v_float[EdictVarOfs.origin]));
+                msg.WriteCoord(Std.int(ent.v.origin));
             if ((bits & U.angle1) != 0)
-                msg.WriteAngle(Std.int(ent._v_float[EdictVarOfs.angles]));
+                msg.WriteAngle(Std.int(ent.v.angles));
             if ((bits & U.origin2) != 0)
-                msg.WriteCoord(Std.int(ent._v_float[EdictVarOfs.origin1]));
+                msg.WriteCoord(Std.int(ent.v.origin1));
             if ((bits & U.angle2) != 0)
-                msg.WriteAngle(Std.int(ent._v_float[EdictVarOfs.angles1]));
+                msg.WriteAngle(Std.int(ent.v.angles1));
             if ((bits & U.origin3) != 0)
-                msg.WriteCoord(Std.int(ent._v_float[EdictVarOfs.origin2]));
+                msg.WriteCoord(Std.int(ent.v.origin2));
             if ((bits & U.angle3) != 0)
-                msg.WriteAngle(Std.int(ent._v_float[EdictVarOfs.angles2]));
+                msg.WriteAngle(Std.int(ent.v.angles2));
         }
     }
 
     static function WriteClientdataToMessage(ent:Edict, msg:MSG):Void {
-        if ((ent._v_float[EdictVarOfs.dmg_take] != 0.0) || (ent._v_float[EdictVarOfs.dmg_save] != 0.0)) {
-            var other = SV.server.edicts[ent._v_int[EdictVarOfs.dmg_inflictor]];
+        if ((ent.v.dmg_take != 0.0) || (ent.v.dmg_save != 0.0)) {
+            var other = SV.server.edicts[ent.v.dmg_inflictor];
             msg.WriteByte(SVC.damage);
-            msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.dmg_save]));
-            msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.dmg_take]));
-            msg.WriteCoord(other._v_float[EdictVarOfs.origin] + 0.5 * (other._v_float[EdictVarOfs.mins] + other._v_float[EdictVarOfs.maxs]));
-            msg.WriteCoord(other._v_float[EdictVarOfs.origin1] + 0.5 * (other._v_float[EdictVarOfs.mins1] + other._v_float[EdictVarOfs.maxs1]));
-            msg.WriteCoord(other._v_float[EdictVarOfs.origin2] + 0.5 * (other._v_float[EdictVarOfs.mins2] + other._v_float[EdictVarOfs.maxs2]));
-            ent._v_float[EdictVarOfs.dmg_take] = 0.0;
-            ent._v_float[EdictVarOfs.dmg_save] = 0.0;
+            msg.WriteByte(Std.int(ent.v.dmg_save));
+            msg.WriteByte(Std.int(ent.v.dmg_take));
+            msg.WriteCoord(other.v.origin + 0.5 * (other.v.mins + other.v.maxs));
+            msg.WriteCoord(other.v.origin1 + 0.5 * (other.v.mins1 + other.v.maxs1));
+            msg.WriteCoord(other.v.origin2 + 0.5 * (other.v.mins2 + other.v.maxs2));
+            ent.v.dmg_take = 0.0;
+            ent.v.dmg_save = 0.0;
         }
 
         SV.SetIdealPitch();
 
-        if (ent._v_float[EdictVarOfs.fixangle] != 0.0) {
+        if (ent.v.fixangle != 0.0) {
             msg.WriteByte(SVC.setangle);
-            msg.WriteAngle(ent._v_float[EdictVarOfs.angles]);
-            msg.WriteAngle(ent._v_float[EdictVarOfs.angles1]);
-            msg.WriteAngle(ent._v_float[EdictVarOfs.angles2]);
-            ent._v_float[EdictVarOfs.fixangle] = 0.0;
+            msg.WriteAngle(ent.v.angles);
+            msg.WriteAngle(ent.v.angles1);
+            msg.WriteAngle(ent.v.angles2);
+            ent.v.fixangle = 0.0;
         };
 
         var bits = SU.items + SU.weapon;
-        if (ent._v_float[EdictVarOfs.view_ofs2] != Protocol.default_viewheight)
+        if (ent.v.view_ofs2 != Protocol.default_viewheight)
             bits += SU.viewheight;
-        if (ent._v_float[EdictVarOfs.idealpitch] != 0.0)
+        if (ent.v.idealpitch != 0.0)
             bits += SU.idealpitch;
 
         var val = EdictVarOfs.items2, items;
@@ -455,63 +455,63 @@ class SV {
 
         if ((ent.flags & EntFlag.onground) != 0)
             bits += SU.onground;
-        if (ent._v_float[EdictVarOfs.waterlevel] >= 2.0)
+        if (ent.v.waterlevel >= 2.0)
             bits += SU.inwater;
 
-        if (ent._v_float[EdictVarOfs.punchangle] != 0.0)
+        if (ent.v.punchangle != 0.0)
             bits += SU.punch1;
-        if (ent._v_float[EdictVarOfs.velocity] != 0.0)
+        if (ent.v.velocity != 0.0)
             bits += SU.velocity1;
-        if (ent._v_float[EdictVarOfs.punchangle1] != 0.0)
+        if (ent.v.punchangle1 != 0.0)
             bits += SU.punch2;
-        if (ent._v_float[EdictVarOfs.velocity1] != 0.0)
+        if (ent.v.velocity1 != 0.0)
             bits += SU.velocity2;
-        if (ent._v_float[EdictVarOfs.punchangle2] != 0.0)
+        if (ent.v.punchangle2 != 0.0)
             bits += SU.punch3;
-        if (ent._v_float[EdictVarOfs.velocity2] != 0.0)
+        if (ent.v.velocity2 != 0.0)
             bits += SU.velocity3;
 
-        if (ent._v_float[EdictVarOfs.weaponframe] != 0.0)
+        if (ent.v.weaponframe != 0.0)
             bits += SU.weaponframe;
-        if (ent._v_float[EdictVarOfs.armorvalue] != 0.0)
+        if (ent.v.armorvalue != 0.0)
             bits += SU.armor;
 
         msg.WriteByte(SVC.clientdata);
         msg.WriteShort(bits);
         if ((bits & SU.viewheight) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.view_ofs2]));
+            msg.WriteChar(Std.int(ent.v.view_ofs2));
         if ((bits & SU.idealpitch) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.idealpitch]));
+            msg.WriteChar(Std.int(ent.v.idealpitch));
 
         if ((bits & SU.punch1) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.punchangle]));
+            msg.WriteChar(Std.int(ent.v.punchangle));
         if ((bits & SU.velocity1) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.velocity] * 0.0625));
+            msg.WriteChar(Std.int(ent.v.velocity * 0.0625));
         if ((bits & SU.punch2) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.punchangle1]));
+            msg.WriteChar(Std.int(ent.v.punchangle1));
         if ((bits & SU.velocity2) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.velocity1] * 0.0625));
+            msg.WriteChar(Std.int(ent.v.velocity1 * 0.0625));
         if ((bits & SU.punch3) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.punchangle2]));
+            msg.WriteChar(Std.int(ent.v.punchangle2));
         if ((bits & SU.velocity3) != 0)
-            msg.WriteChar(Std.int(ent._v_float[EdictVarOfs.velocity2] * 0.0625));
+            msg.WriteChar(Std.int(ent.v.velocity2 * 0.0625));
 
         msg.WriteLong(items);
         if ((bits & SU.weaponframe) != 0)
-            msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.weaponframe]));
+            msg.WriteByte(Std.int(ent.v.weaponframe));
         if ((bits & SU.armor) != 0)
-            msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.armorvalue]));
-        msg.WriteByte(SV.ModelIndex(PR.GetString(ent._v_int[EdictVarOfs.weaponmodel])));
-        msg.WriteShort(Std.int(ent._v_float[EdictVarOfs.health]));
-        msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.currentammo]));
-        msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.ammo_shells]));
-        msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.ammo_nails]));
-        msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.ammo_rockets]));
-        msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.ammo_cells]));
+            msg.WriteByte(Std.int(ent.v.armorvalue));
+        msg.WriteByte(SV.ModelIndex(PR.GetString(ent.v.weaponmodel)));
+        msg.WriteShort(Std.int(ent.v.health));
+        msg.WriteByte(Std.int(ent.v.currentammo));
+        msg.WriteByte(Std.int(ent.v.ammo_shells));
+        msg.WriteByte(Std.int(ent.v.ammo_nails));
+        msg.WriteByte(Std.int(ent.v.ammo_rockets));
+        msg.WriteByte(Std.int(ent.v.ammo_cells));
         if (COM.standard_quake)
-            msg.WriteByte(Std.int(ent._v_float[EdictVarOfs.weapon]));
+            msg.WriteByte(Std.int(ent.v.weapon));
         else {
-            var weapon = Std.int(ent._v_float[EdictVarOfs.weapon]);
+            var weapon = Std.int(ent.v.weapon);
             for (i in 0...32) {
                 if ((weapon & (1 << i)) != 0) {
                     msg.WriteByte(i);
@@ -543,8 +543,8 @@ class SV {
 
         for (i in 0...SV.svs.maxclients) {
             Host.client = SV.svs.clients[i];
-            Host.client.edict._v_float[EdictVarOfs.frags] = Std.int(Host.client.edict._v_float[EdictVarOfs.frags]) >> 0;
-            var frags = Std.int(Host.client.edict._v_float[EdictVarOfs.frags]);
+            Host.client.edict.v.frags = Std.int(Host.client.edict.v.frags) >> 0;
+            var frags = Std.int(Host.client.edict.v.frags);
             if (Host.client.old_frags == frags)
                 continue;
             for (j in 0...SV.svs.maxclients) {
@@ -604,7 +604,7 @@ class SV {
         }
 
         for (i in 1...SV.server.num_edicts)
-            SV.server.edicts[i]._v_float[EdictVarOfs.effects] = Std.int(SV.server.edicts[i]._v_float[EdictVarOfs.effects]) & (~EntEffect.muzzleflash >>> 0);
+            SV.server.edicts[i].v.effects = Std.int(SV.server.edicts[i].v.effects) & (~EntEffect.muzzleflash >>> 0);
     }
 
     static function ModelIndex(name:String):Int {
@@ -627,19 +627,19 @@ class SV {
             var svent = SV.server.edicts[i];
             if (svent.free)
                 continue;
-            if ((i > SV.svs.maxclients) && (svent._v_int[EdictVarOfs.modelindex] == 0))
+            if ((i > SV.svs.maxclients) && (svent.v.modelindex == 0))
                 continue;
             var baseline = svent.baseline;
             baseline.origin = ED.Vector(svent, EdictVarOfs.origin);
             baseline.angles = ED.Vector(svent, EdictVarOfs.angles);
-            baseline.frame = Std.int(svent._v_float[EdictVarOfs.frame]);
-            baseline.skin = Std.int(svent._v_float[EdictVarOfs.skin]);
+            baseline.frame = Std.int(svent.v.frame);
+            baseline.skin = Std.int(svent.v.skin);
             if ((i > 0) && (i <= SV.svs.maxclients)) {
                 baseline.colormap = i;
                 baseline.modelindex = player;
             } else {
                 baseline.colormap = 0;
-                baseline.modelindex = SV.ModelIndex(PR.GetString(svent._v_int[EdictVarOfs.model]));
+                baseline.modelindex = SV.ModelIndex(PR.GetString(svent.v.model));
             }
             signon.WriteByte(SVC.spawnbaseline);
             signon.WriteShort(i);
@@ -753,10 +753,10 @@ class SV {
             SV.server.lightstyles[i] = '';
 
         var ent = SV.server.edicts[0];
-        ent._v_int[EdictVarOfs.model] = PR.NewString(SV.server.modelname, 64);
-        ent._v_float[EdictVarOfs.modelindex] = 1.0;
-        ent._v_float[EdictVarOfs.solid] = SolidType.bsp;
-        ent._v_float[EdictVarOfs.movetype] = MoveType.push;
+        ent.v.model = PR.NewString(SV.server.modelname, 64);
+        ent.v.modelindex = 1.0;
+        ent.v.solid = SolidType.bsp;
+        ent.v.movetype = MoveType.push;
 
         if (Host.coop.value != 0)
             PR.globals_float[GlobalVarOfs.coop] = Host.coop.value;
@@ -776,7 +776,7 @@ class SV {
             Host.client = SV.svs.clients[i];
             if (!Host.client.active)
                 continue;
-            Host.client.edict._v_int[EdictVarOfs.netname] = PR.netnames + (i << 5);
+            Host.client.edict.v.netname = PR.netnames + (i << 5);
             SV.SendServerinfo(Host.client);
         }
         Console.DPrint('Server spawned.\n');
@@ -800,14 +800,14 @@ class SV {
 
     static function CheckBottom(ent:Edict):Bool {
         var mins = [
-            ent._v_float[EdictVarOfs.origin] + ent._v_float[EdictVarOfs.mins],
-            ent._v_float[EdictVarOfs.origin1] + ent._v_float[EdictVarOfs.mins1],
-            ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.mins2]
+            ent.v.origin + ent.v.mins,
+            ent.v.origin1 + ent.v.mins1,
+            ent.v.origin2 + ent.v.mins2
         ];
         var maxs = [
-            ent._v_float[EdictVarOfs.origin] + ent._v_float[EdictVarOfs.maxs],
-            ent._v_float[EdictVarOfs.origin1] + ent._v_float[EdictVarOfs.maxs1],
-            ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.maxs2]
+            ent.v.origin + ent.v.maxs,
+            ent.v.origin1 + ent.v.maxs1,
+            ent.v.origin2 + ent.v.maxs2
         ];
         while (true) {
             if (SV.PointContents([mins[0], mins[1], mins[2] - 1.0]) != ModContents.solid)
@@ -847,13 +847,13 @@ class SV {
         var mins = ED.Vector(ent, EdictVarOfs.mins), maxs = ED.Vector(ent, EdictVarOfs.maxs);
         var trace;
         if ((ent.flags & (EntFlag.swim + EntFlag.fly)) != 0) {
-            var enemy = ent._v_int[EdictVarOfs.enemy];
+            var enemy = ent.v.enemy;
             for (i in 0...2) {
-                neworg[0] = ent._v_float[EdictVarOfs.origin] + move[0];
-                neworg[1] = ent._v_float[EdictVarOfs.origin1] + move[1];
-                neworg[2] = ent._v_float[EdictVarOfs.origin2];
+                neworg[0] = ent.v.origin + move[0];
+                neworg[1] = ent.v.origin1 + move[1];
+                neworg[2] = ent.v.origin2;
                 if ((i == 0) && (enemy != 0)) {
-                    var dz = ent._v_float[EdictVarOfs.origin2] - SV.server.edicts[enemy]._v_float[EdictVarOfs.origin2];
+                    var dz = ent.v.origin2 - SV.server.edicts[enemy].v.origin2;
                     if (dz > 40.0)
                         neworg[2] -= 8.0;
                     else if (dz < 30.0)
@@ -863,9 +863,9 @@ class SV {
                 if (trace.fraction == 1.0) {
                     if (((ent.flags & EntFlag.swim) != 0) && (SV.PointContents(trace.endpos) == ModContents.empty))
                         return false;
-                    ent._v_float[EdictVarOfs.origin] = trace.endpos[0];
-                    ent._v_float[EdictVarOfs.origin1] = trace.endpos[1];
-                    ent._v_float[EdictVarOfs.origin2] = trace.endpos[2];
+                    ent.v.origin = trace.endpos[0];
+                    ent.v.origin1 = trace.endpos[1];
+                    ent.v.origin2 = trace.endpos[2];
                     if (relink)
                         SV.LinkEdict(ent, true);
                     return true;
@@ -875,9 +875,9 @@ class SV {
             }
             return false;
         }
-        neworg[0] = ent._v_float[EdictVarOfs.origin] + move[0];
-        neworg[1] = ent._v_float[EdictVarOfs.origin1] + move[1];
-        neworg[2] = ent._v_float[EdictVarOfs.origin2] + 18.0;
+        neworg[0] = ent.v.origin + move[0];
+        neworg[1] = ent.v.origin1 + move[1];
+        neworg[2] = ent.v.origin2 + 18.0;
         var end = [neworg[0], neworg[1], neworg[2] - 36.0];
         trace = SV.Move(neworg, mins, maxs, end, 0, ent);
         if (trace.allsolid)
@@ -891,41 +891,41 @@ class SV {
         if (trace.fraction == 1.0) {
             if ((ent.flags & EntFlag.partialground) == 0)
                 return false;
-            ent._v_float[EdictVarOfs.origin] += move[0];
-            ent._v_float[EdictVarOfs.origin1] += move[1];
+            ent.v.origin += move[0];
+            ent.v.origin1 += move[1];
             if (relink)
                 SV.LinkEdict(ent, true);
             ent.flags = ent.flags & ~EntFlag.onground;
             return true;
         }
-        ent._v_float[EdictVarOfs.origin] = trace.endpos[0];
-        ent._v_float[EdictVarOfs.origin1] = trace.endpos[1];
-        ent._v_float[EdictVarOfs.origin2] = trace.endpos[2];
+        ent.v.origin = trace.endpos[0];
+        ent.v.origin1 = trace.endpos[1];
+        ent.v.origin2 = trace.endpos[2];
         if (!SV.CheckBottom(ent)) {
             if ((ent.flags & EntFlag.partialground) != 0) {
                 if (relink)
                     SV.LinkEdict(ent, true);
                 return true;
             }
-            ent._v_float[EdictVarOfs.origin] = oldorg[0];
-            ent._v_float[EdictVarOfs.origin1] = oldorg[1];
-            ent._v_float[EdictVarOfs.origin2] = oldorg[2];
+            ent.v.origin = oldorg[0];
+            ent.v.origin1 = oldorg[1];
+            ent.v.origin2 = oldorg[2];
             return false;
         }
         ent.flags = ent.flags & ~EntFlag.partialground;
-        ent._v_int[EdictVarOfs.groundentity] = trace.ent.num;
+        ent.v.groundentity = trace.ent.num;
         if (relink)
             SV.LinkEdict(ent, true);
         return true;
     }
 
     static function StepDirection(ent:Edict, yaw:Float, dist:Float):Bool {
-        ent._v_float[EdictVarOfs.ideal_yaw] = yaw;
+        ent.v.ideal_yaw = yaw;
         PF.changeyaw();
         yaw *= Math.PI / 180.0;
         var oldorigin = ED.Vector(ent, EdictVarOfs.origin);
         if (SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], false)) {
-            var delta = ent._v_float[EdictVarOfs.angles1] - ent._v_float[EdictVarOfs.ideal_yaw];
+            var delta = ent.v.angles1 - ent.v.ideal_yaw;
             if ((delta > 45.0) && (delta < 315.0))
                 ED.SetVector(ent, EdictVarOfs.origin, oldorigin);
             SV.LinkEdict(ent, true);
@@ -936,10 +936,10 @@ class SV {
     }
 
     static function NewChaseDir(actor:Edict, enemy:Edict, dist:Float):Void {
-        var olddir = Vec.Anglemod(Std.int(actor._v_float[EdictVarOfs.ideal_yaw] / 45.0) * 45.0);
+        var olddir = Vec.Anglemod(Std.int(actor.v.ideal_yaw / 45.0) * 45.0);
         var turnaround = Vec.Anglemod(olddir - 180.0);
-        var deltax = enemy._v_float[EdictVarOfs.origin] - actor._v_float[EdictVarOfs.origin];
-        var deltay = enemy._v_float[EdictVarOfs.origin1] - actor._v_float[EdictVarOfs.origin1];
+        var deltax = enemy.v.origin - actor.v.origin;
+        var deltay = enemy.v.origin1 - actor.v.origin1;
         var dx, dy;
         if (deltax > 10.0)
             dx = 0.0;
@@ -990,7 +990,7 @@ class SV {
         }
         if (turnaround != -1 && SV.StepDirection(actor, turnaround, dist))
             return;
-        actor._v_float[EdictVarOfs.ideal_yaw] = olddir;
+        actor.v.ideal_yaw = olddir;
         if (!SV.CheckBottom(actor))
             actor.flags = actor.flags | EntFlag.partialground;
     }
@@ -1012,7 +1012,7 @@ class SV {
             var check = SV.server.edicts[e];
             if (check.free)
                 continue;
-            switch (check._v_float[EdictVarOfs.movetype]) {
+            switch (check.v.movetype) {
                 case MoveType.push | MoveType.none | MoveType.noclip:
                     continue;
             }
@@ -1025,11 +1025,11 @@ class SV {
         for (i in 0...3) {
             var velocity = ent._v_float[EdictVarOfs.velocity + i];
             if (Math.isNaN(velocity)) {
-                Console.Print('Got a NaN velocity on ' + PR.GetString(ent._v_int[EdictVarOfs.classname]) + '\n');
+                Console.Print('Got a NaN velocity on ' + PR.GetString(ent.v.classname) + '\n');
                 velocity = 0.0;
             }
             if (Math.isNaN(ent._v_float[EdictVarOfs.origin + i])) {
-                Console.Print('Got a NaN origin on ' + PR.GetString(ent._v_int[EdictVarOfs.classname]) + '\n');
+                Console.Print('Got a NaN origin on ' + PR.GetString(ent.v.classname) + '\n');
                 ent._v_float[EdictVarOfs.origin + i] = 0.0;
             }
             if (velocity > SV.maxvelocity.value)
@@ -1041,16 +1041,16 @@ class SV {
     }
 
     static function RunThink(ent:Edict) {
-        var thinktime = ent._v_float[EdictVarOfs.nextthink];
+        var thinktime = ent.v.nextthink;
         if ((thinktime <= 0.0) || (thinktime > (SV.server.time + Host.frametime)))
             return true;
         if (thinktime < SV.server.time)
             thinktime = SV.server.time;
-        ent._v_float[EdictVarOfs.nextthink] = 0.0;
+        ent.v.nextthink = 0.0;
         PR.globals_float[GlobalVarOfs.time] = thinktime;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
         PR.globals_int[GlobalVarOfs.other] = 0;
-        PR.ExecuteProgram(ent._v_int[EdictVarOfs.think]);
+        PR.ExecuteProgram(ent.v.think);
         return !ent.free;
     }
 
@@ -1059,15 +1059,15 @@ class SV {
         var old_other = PR.globals_int[GlobalVarOfs.other];
         PR.globals_float[GlobalVarOfs.time] = SV.server.time;
 
-        if ((e1._v_int[EdictVarOfs.touch] != 0) && (e1._v_float[EdictVarOfs.solid] != SolidType.not)) {
+        if ((e1.v.touch != 0) && (e1.v.solid != SolidType.not)) {
             PR.globals_int[GlobalVarOfs.self] = e1.num;
             PR.globals_int[GlobalVarOfs.other] = e2.num;
-            PR.ExecuteProgram(e1._v_int[EdictVarOfs.touch]);
+            PR.ExecuteProgram(e1.v.touch);
         }
-        if ((e2._v_int[EdictVarOfs.touch] != 0) && (e2._v_float[EdictVarOfs.solid] != SolidType.not)) {
+        if ((e2.v.touch != 0) && (e2.v.solid != SolidType.not)) {
             PR.globals_int[GlobalVarOfs.self] = e2.num;
             PR.globals_int[GlobalVarOfs.other] = e1.num;
-            PR.ExecuteProgram(e2._v_int[EdictVarOfs.touch]);
+            PR.ExecuteProgram(e2.v.touch);
         }
 
         PR.globals_int[GlobalVarOfs.self] = old_self;
@@ -1103,13 +1103,13 @@ class SV {
         var time_left = time;
         var blocked = 0;
         for (bumpcount in 0...4) {
-            if ((ent._v_float[EdictVarOfs.velocity] == 0.0) &&
-                (ent._v_float[EdictVarOfs.velocity1] == 0.0) &&
-                (ent._v_float[EdictVarOfs.velocity2] == 0.0))
+            if ((ent.v.velocity == 0.0) &&
+                (ent.v.velocity1 == 0.0) &&
+                (ent.v.velocity2 == 0.0))
                 break;
-            end[0] = ent._v_float[EdictVarOfs.origin] + time_left * ent._v_float[EdictVarOfs.velocity];
-            end[1] = ent._v_float[EdictVarOfs.origin1] + time_left * ent._v_float[EdictVarOfs.velocity1];
-            end[2] = ent._v_float[EdictVarOfs.origin2] + time_left * ent._v_float[EdictVarOfs.velocity2];
+            end[0] = ent.v.origin + time_left * ent.v.velocity;
+            end[1] = ent.v.origin1 + time_left * ent.v.velocity1;
+            end[2] = ent.v.origin2 + time_left * ent.v.velocity2;
             trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), end, 0, ent);
             if (trace.allsolid) {
                 ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
@@ -1126,9 +1126,9 @@ class SV {
                 Sys.Error('SV.FlyMove: !trace.ent');
             if (trace.plane.normal[2] > 0.7) {
                 blocked |= 1;
-                if (trace.ent._v_float[EdictVarOfs.solid] == SolidType.bsp) {
+                if (trace.ent.v.solid == SolidType.bsp) {
                     ent.flags = ent.flags | EntFlag.onground;
-                    ent._v_int[EdictVarOfs.groundentity] = trace.ent.num;
+                    ent.v.groundentity = trace.ent.num;
                 }
             } else if (trace.plane.normal[2] == 0.0) {
                 blocked |= 2;
@@ -1167,16 +1167,16 @@ class SV {
                     return 7;
                 }
                 dir = Vec.CrossProduct(planes[0], planes[1]);
-                d = dir[0] * ent._v_float[EdictVarOfs.velocity] +
-                    dir[1] * ent._v_float[EdictVarOfs.velocity1] +
-                    dir[2] * ent._v_float[EdictVarOfs.velocity2];
-                ent._v_float[EdictVarOfs.velocity] = dir[0] * d;
-                ent._v_float[EdictVarOfs.velocity1] = dir[1] * d;
-                ent._v_float[EdictVarOfs.velocity2] = dir[2] * d;
+                d = dir[0] * ent.v.velocity +
+                    dir[1] * ent.v.velocity1 +
+                    dir[2] * ent.v.velocity2;
+                ent.v.velocity = dir[0] * d;
+                ent.v.velocity1 = dir[1] * d;
+                ent.v.velocity2 = dir[2] * d;
             }
-            if ((ent._v_float[EdictVarOfs.velocity] * primal_velocity[0] +
-                ent._v_float[EdictVarOfs.velocity1] * primal_velocity[1] +
-                ent._v_float[EdictVarOfs.velocity2] * primal_velocity[2]) <= 0.0) {
+            if ((ent.v.velocity * primal_velocity[0] +
+                ent.v.velocity1 * primal_velocity[1] +
+                ent.v.velocity2 * primal_velocity[2]) <= 0.0) {
                 ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
                 return blocked;
             }
@@ -1190,18 +1190,18 @@ class SV {
             ent_gravity = (ent._v_float[val] != 0.0) ? ent._v_float[val] : 1.0;
         else
             ent_gravity = 1.0;
-        ent._v_float[EdictVarOfs.velocity2] -= ent_gravity * SV.gravity.value * Host.frametime;
+        ent.v.velocity2 -= ent_gravity * SV.gravity.value * Host.frametime;
     }
 
     static function PushEntity(ent:Edict, push) {
         var end = [
-            ent._v_float[EdictVarOfs.origin] + push[0],
-            ent._v_float[EdictVarOfs.origin1] + push[1],
-            ent._v_float[EdictVarOfs.origin2] + push[2]
+            ent.v.origin + push[0],
+            ent.v.origin1 + push[1],
+            ent.v.origin2 + push[2]
         ];
         var nomonsters;
-        var solid = ent._v_float[EdictVarOfs.solid];
-        if (ent._v_float[EdictVarOfs.movetype] == MoveType.flymissile)
+        var solid = ent.v.solid;
+        if (ent.v.movetype == MoveType.flymissile)
             nomonsters = ClipType.missile;
         else if ((solid == SolidType.trigger) || (solid == SolidType.not))
             nomonsters = ClipType.nomonsters
@@ -1217,51 +1217,51 @@ class SV {
     }
 
     static function PushMove(pusher:Edict, movetime:Float):Void {
-        if ((pusher._v_float[EdictVarOfs.velocity] == 0.0) &&
-            (pusher._v_float[EdictVarOfs.velocity1] == 0.0) &&
-            (pusher._v_float[EdictVarOfs.velocity2] == 0.0)) {
-            pusher._v_float[EdictVarOfs.ltime] += movetime;
+        if ((pusher.v.velocity == 0.0) &&
+            (pusher.v.velocity1 == 0.0) &&
+            (pusher.v.velocity2 == 0.0)) {
+            pusher.v.ltime += movetime;
             return;
         }
         var move = [
-            pusher._v_float[EdictVarOfs.velocity] * movetime,
-            pusher._v_float[EdictVarOfs.velocity1] * movetime,
-            pusher._v_float[EdictVarOfs.velocity2] * movetime
+            pusher.v.velocity * movetime,
+            pusher.v.velocity1 * movetime,
+            pusher.v.velocity2 * movetime
         ];
         var mins = [
-            pusher._v_float[EdictVarOfs.absmin] + move[0],
-            pusher._v_float[EdictVarOfs.absmin1] + move[1],
-            pusher._v_float[EdictVarOfs.absmin2] + move[2]
+            pusher.v.absmin + move[0],
+            pusher.v.absmin1 + move[1],
+            pusher.v.absmin2 + move[2]
         ];
         var maxs = [
-            pusher._v_float[EdictVarOfs.absmax] + move[0],
-            pusher._v_float[EdictVarOfs.absmax1] + move[1],
-            pusher._v_float[EdictVarOfs.absmax2] + move[2]
+            pusher.v.absmax + move[0],
+            pusher.v.absmax1 + move[1],
+            pusher.v.absmax2 + move[2]
         ];
         var pushorig = ED.Vector(pusher, EdictVarOfs.origin);
-        pusher._v_float[EdictVarOfs.origin] += move[0];
-        pusher._v_float[EdictVarOfs.origin1] += move[1];
-        pusher._v_float[EdictVarOfs.origin2] += move[2];
-        pusher._v_float[EdictVarOfs.ltime] += movetime;
+        pusher.v.origin += move[0];
+        pusher.v.origin1 += move[1];
+        pusher.v.origin2 += move[2];
+        pusher.v.ltime += movetime;
         SV.LinkEdict(pusher, false);
         var moved:Array<Dynamic> = [];
         for (e in 1...SV.server.num_edicts) {
             var check = SV.server.edicts[e];
             if (check.free)
                 continue;
-            var movetype = check._v_float[EdictVarOfs.movetype];
+            var movetype = check.v.movetype;
             if ((movetype == MoveType.push)
                 || (movetype == MoveType.none)
                 || (movetype == MoveType.noclip))
                 continue;
             if (((check.flags & EntFlag.onground) == 0) ||
-                (check._v_int[EdictVarOfs.groundentity] != pusher.num)) {
-                if ((check._v_float[EdictVarOfs.absmin] >= maxs[0])
-                    || (check._v_float[EdictVarOfs.absmin1] >= maxs[1])
-                    || (check._v_float[EdictVarOfs.absmin2] >= maxs[2])
-                    || (check._v_float[EdictVarOfs.absmax] <= mins[0])
-                    || (check._v_float[EdictVarOfs.absmax1] <= mins[1])
-                    || (check._v_float[EdictVarOfs.absmax2] <= mins[2]))
+                (check.v.groundentity != pusher.num)) {
+                if ((check.v.absmin >= maxs[0])
+                    || (check.v.absmin1 >= maxs[1])
+                    || (check.v.absmin2 >= maxs[2])
+                    || (check.v.absmax <= mins[0])
+                    || (check.v.absmax1 <= mins[1])
+                    || (check.v.absmax2 <= mins[2]))
                     continue;
                 if (!SV.TestEntityPosition(check))
                     continue;
@@ -1270,36 +1270,36 @@ class SV {
                 check.flags = check.flags & ~EntFlag.onground;
             var entorig = ED.Vector(check, EdictVarOfs.origin);
             moved[moved.length] = [entorig[0], entorig[1], entorig[2], check];
-            pusher._v_float[EdictVarOfs.solid] = SolidType.not;
+            pusher.v.solid = SolidType.not;
             SV.PushEntity(check, move);
-            pusher._v_float[EdictVarOfs.solid] = SolidType.bsp;
+            pusher.v.solid = SolidType.bsp;
             if (SV.TestEntityPosition(check)) {
-                if (check._v_float[EdictVarOfs.mins] == check._v_float[EdictVarOfs.maxs])
+                if (check.v.mins == check.v.maxs)
                     continue;
-                if ((check._v_float[EdictVarOfs.solid] == SolidType.not) || (check._v_float[EdictVarOfs.solid] == SolidType.trigger)) {
-                    check._v_float[EdictVarOfs.mins] = check._v_float[EdictVarOfs.maxs] = 0.0;
-                    check._v_float[EdictVarOfs.mins1] = check._v_float[EdictVarOfs.maxs1] = 0.0;
-                    check._v_float[EdictVarOfs.maxs2] = check._v_float[EdictVarOfs.mins2];
+                if ((check.v.solid == SolidType.not) || (check.v.solid == SolidType.trigger)) {
+                    check.v.mins = check.v.maxs = 0.0;
+                    check.v.mins1 = check.v.maxs1 = 0.0;
+                    check.v.maxs2 = check.v.mins2;
                     continue;
                 }
-                check._v_float[EdictVarOfs.origin] = entorig[0];
-                check._v_float[EdictVarOfs.origin1] = entorig[1];
-                check._v_float[EdictVarOfs.origin2] = entorig[2];
+                check.v.origin = entorig[0];
+                check.v.origin1 = entorig[1];
+                check.v.origin2 = entorig[2];
                 SV.LinkEdict(check, true);
-                pusher._v_float[EdictVarOfs.origin] = pushorig[0];
-                pusher._v_float[EdictVarOfs.origin1] = pushorig[1];
-                pusher._v_float[EdictVarOfs.origin2] = pushorig[2];
+                pusher.v.origin = pushorig[0];
+                pusher.v.origin1 = pushorig[1];
+                pusher.v.origin2 = pushorig[2];
                 SV.LinkEdict(pusher, false);
-                pusher._v_float[EdictVarOfs.ltime] -= movetime;
-                if (pusher._v_int[EdictVarOfs.blocked] != 0) {
+                pusher.v.ltime -= movetime;
+                if (pusher.v.blocked != 0) {
                     PR.globals_int[GlobalVarOfs.self] = pusher.num;
                     PR.globals_int[GlobalVarOfs.other] = check.num;
-                    PR.ExecuteProgram(pusher._v_int[EdictVarOfs.blocked]);
+                    PR.ExecuteProgram(pusher.v.blocked);
                 }
                 for (moved_edict in moved) {
-                    moved_edict[3]._v_float[EdictVarOfs.origin] = moved_edict[0];
-                    moved_edict[3]._v_float[EdictVarOfs.origin1] = moved_edict[1];
-                    moved_edict[3]._v_float[EdictVarOfs.origin2] = moved_edict[2];
+                    (moved_edict[3] : Edict).v.origin = moved_edict[0];
+                    (moved_edict[3] : Edict).v.origin1 = moved_edict[1];
+                    (moved_edict[3] : Edict).v.origin2 = moved_edict[2];
                     SV.LinkEdict(moved_edict[3], false);
                 }
                 return;
@@ -1308,8 +1308,8 @@ class SV {
     }
 
     static function Physics_Pusher(ent:Edict) {
-        var oldltime = ent._v_float[EdictVarOfs.ltime];
-        var thinktime = ent._v_float[EdictVarOfs.nextthink];
+        var oldltime = ent.v.ltime;
+        var thinktime = ent.v.nextthink;
         var movetime;
         if (thinktime < (oldltime + Host.frametime)) {
             movetime = thinktime - oldltime;
@@ -1319,26 +1319,26 @@ class SV {
             movetime = Host.frametime;
         if (movetime != 0.0)
             SV.PushMove(ent, movetime);
-        if ((thinktime <= oldltime) || (thinktime > ent._v_float[EdictVarOfs.ltime]))
+        if ((thinktime <= oldltime) || (thinktime > ent.v.ltime))
             return;
-        ent._v_float[EdictVarOfs.nextthink] = 0.0;
+        ent.v.nextthink = 0.0;
         PR.globals_float[GlobalVarOfs.time] = SV.server.time;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
         PR.globals_int[GlobalVarOfs.other] = 0;
-        PR.ExecuteProgram(ent._v_int[EdictVarOfs.think]);
+        PR.ExecuteProgram(ent.v.think);
     }
 
     static function CheckStuck(ent:Edict) {
         if (!SV.TestEntityPosition(ent)) {
-            ent._v_float[EdictVarOfs.oldorigin] = ent._v_float[EdictVarOfs.origin];
-            ent._v_float[EdictVarOfs.oldorigin1] = ent._v_float[EdictVarOfs.origin1];
-            ent._v_float[EdictVarOfs.oldorigin2] = ent._v_float[EdictVarOfs.origin2];
+            ent.v.oldorigin = ent.v.origin;
+            ent.v.oldorigin1 = ent.v.origin1;
+            ent.v.oldorigin2 = ent.v.origin2;
             return;
         }
         var org = ED.Vector(ent, EdictVarOfs.origin);
-        ent._v_float[EdictVarOfs.origin] = ent._v_float[EdictVarOfs.oldorigin];
-        ent._v_float[EdictVarOfs.origin1] = ent._v_float[EdictVarOfs.oldorigin1];
-        ent._v_float[EdictVarOfs.origin2] = ent._v_float[EdictVarOfs.oldorigin2];
+        ent.v.origin = ent.v.oldorigin;
+        ent.v.origin1 = ent.v.oldorigin1;
+        ent.v.origin2 = ent.v.oldorigin2;
         if (!SV.TestEntityPosition(ent)) {
             Console.DPrint('Unstuck.\n');
             SV.LinkEdict(ent, true);
@@ -1347,9 +1347,9 @@ class SV {
         for (z in 0...18) {
             for (i in -1...2) {
                 for (j in -1...2) {
-                    ent._v_float[EdictVarOfs.origin] = org[0] + i;
-                    ent._v_float[EdictVarOfs.origin1] = org[1] + j;
-                    ent._v_float[EdictVarOfs.origin2] = org[2] + z;
+                    ent.v.origin = org[0] + i;
+                    ent.v.origin1 = org[1] + j;
+                    ent.v.origin2 = org[2] + z;
                     if (!SV.TestEntityPosition(ent)) {
                         Console.DPrint('Unstuck.\n');
                         SV.LinkEdict(ent, true);
@@ -1364,27 +1364,27 @@ class SV {
 
     static function CheckWater(ent:Edict):Bool {
         var point = [
-            ent._v_float[EdictVarOfs.origin],
-            ent._v_float[EdictVarOfs.origin1],
-            ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.mins2] + 1.0
+            ent.v.origin,
+            ent.v.origin1,
+            ent.v.origin2 + ent.v.mins2 + 1.0
         ];
-        ent._v_float[EdictVarOfs.waterlevel] = 0.0;
-        ent._v_float[EdictVarOfs.watertype] = ModContents.empty;
+        ent.v.waterlevel = 0.0;
+        ent.v.watertype = ModContents.empty;
         var cont = SV.PointContents(point);
         if (cont > ModContents.water)
             return false;
-        ent._v_float[EdictVarOfs.watertype] = cont;
-        ent._v_float[EdictVarOfs.waterlevel] = 1.0;
-        point[2] = ent._v_float[EdictVarOfs.origin2] + (ent._v_float[EdictVarOfs.mins2] + ent._v_float[EdictVarOfs.maxs2]) * 0.5;
+        ent.v.watertype = cont;
+        ent.v.waterlevel = 1.0;
+        point[2] = ent.v.origin2 + (ent.v.mins2 + ent.v.maxs2) * 0.5;
         cont = SV.PointContents(point);
         if (cont <= ModContents.water) {
-            ent._v_float[EdictVarOfs.waterlevel] = 2.0;
-            point[2] = ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.view_ofs2];
+            ent.v.waterlevel = 2.0;
+            point[2] = ent.v.origin2 + ent.v.view_ofs2;
             cont = SV.PointContents(point);
             if (cont <= ModContents.water)
-                ent._v_float[EdictVarOfs.waterlevel] = 3.0;
+                ent.v.waterlevel = 3.0;
         }
-        return ent._v_float[EdictVarOfs.waterlevel] > 1.0;
+        return ent.v.waterlevel > 1.0;
     }
 
     static function WallFriction(ent:Edict, trace:MTrace):Void {
@@ -1395,11 +1395,11 @@ class SV {
         if (d >= 0.0)
             return;
         d += 1.0;
-        var i = normal[0] * ent._v_float[EdictVarOfs.velocity]
-            + normal[1] * ent._v_float[EdictVarOfs.velocity1]
-            + normal[2] * ent._v_float[EdictVarOfs.velocity2];
-        ent._v_float[EdictVarOfs.velocity] = (ent._v_float[EdictVarOfs.velocity] - normal[0] * i) * d; 
-        ent._v_float[EdictVarOfs.velocity1] = (ent._v_float[EdictVarOfs.velocity1] - normal[1] * i) * d; 
+        var i = normal[0] * ent.v.velocity
+            + normal[1] * ent.v.velocity1
+            + normal[2] * ent.v.velocity2;
+        ent.v.velocity = (ent.v.velocity - normal[0] * i) * d; 
+        ent.v.velocity1 = (ent.v.velocity1 - normal[1] * i) * d; 
     }
 
     static function TryUnstick(ent:Edict, oldvel:Vec):Int {
@@ -1416,12 +1416,12 @@ class SV {
                 case 7: dir[0] = -2.0; dir[1] = -2.0;
             }
             SV.PushEntity(ent, dir);
-            ent._v_float[EdictVarOfs.velocity] = oldvel[0];
-            ent._v_float[EdictVarOfs.velocity1] = oldvel[1];
-            ent._v_float[EdictVarOfs.velocity2] = 0.0;
+            ent.v.velocity = oldvel[0];
+            ent.v.velocity1 = oldvel[1];
+            ent.v.velocity2 = 0.0;
             var clip = SV.FlyMove(ent, 0.1);
-            if ((Math.abs(oldorg[1] - ent._v_float[EdictVarOfs.origin1]) > 4.0)
-                || (Math.abs(oldorg[0] - ent._v_float[EdictVarOfs.origin]) > 4.0))
+            if ((Math.abs(oldorg[1] - ent.v.origin1) > 4.0)
+                || (Math.abs(oldorg[0] - ent.v.origin) > 4.0))
                 return clip;
             ED.SetVector(ent, EdictVarOfs.origin, oldorg);
         }
@@ -1437,9 +1437,9 @@ class SV {
         var clip = SV.FlyMove(ent, Host.frametime);
         if ((clip & 2) == 0)
             return;
-        if ((oldonground == 0) && (ent._v_float[EdictVarOfs.waterlevel] == 0.0))
+        if ((oldonground == 0) && (ent.v.waterlevel == 0.0))
             return;
-        if (ent._v_float[EdictVarOfs.movetype] != MoveType.walk)
+        if (ent.v.movetype != MoveType.walk)
             return;
         if (SV.nostep.value != 0)
             return;
@@ -1449,22 +1449,22 @@ class SV {
         var nostepvel = ED.Vector(ent, EdictVarOfs.velocity);
         ED.SetVector(ent, EdictVarOfs.origin, oldorg);
         SV.PushEntity(ent, [0.0, 0.0, 18.0]);
-        ent._v_float[EdictVarOfs.velocity] = oldvel[0];
-        ent._v_float[EdictVarOfs.velocity1] = oldvel[1];
-        ent._v_float[EdictVarOfs.velocity2] = 0.0;
+        ent.v.velocity = oldvel[0];
+        ent.v.velocity1 = oldvel[1];
+        ent.v.velocity2 = 0.0;
         clip = SV.FlyMove(ent, Host.frametime);
         if (clip != 0) {
-            if ((Math.abs(oldorg[1] - ent._v_float[EdictVarOfs.origin1]) < 0.03125)
-                && (Math.abs(oldorg[0] - ent._v_float[EdictVarOfs.origin]) < 0.03125))
+            if ((Math.abs(oldorg[1] - ent.v.origin1) < 0.03125)
+                && (Math.abs(oldorg[0] - ent.v.origin) < 0.03125))
                 clip = SV.TryUnstick(ent, oldvel);
             if ((clip & 2) != 0)
                 SV.WallFriction(ent, SV.steptrace);
         }
         var downtrace = SV.PushEntity(ent, [0.0, 0.0, oldvel[2] * Host.frametime - 18.0]);
         if (downtrace.plane.normal[2] > 0.7) {
-            if (ent._v_float[EdictVarOfs.solid] == SolidType.bsp) {
+            if (ent.v.solid == SolidType.bsp) {
                 ent.flags = ent.flags | EntFlag.onground;
-                ent._v_int[EdictVarOfs.groundentity] = downtrace.ent.num;
+                ent.v.groundentity = downtrace.ent.num;
             }
             return;
         }
@@ -1479,7 +1479,7 @@ class SV {
         PR.globals_int[GlobalVarOfs.self] = ent.num;
         PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.PlayerPreThink]);
         SV.CheckVelocity(ent);
-        var movetype = Std.int(ent._v_float[EdictVarOfs.movetype]);
+        var movetype = Std.int(ent.v.movetype);
         if ((movetype == MoveType.toss) || (movetype == MoveType.bounce))
             SV.Physics_Toss(ent);
         else {
@@ -1495,9 +1495,9 @@ class SV {
                 case MoveType.fly:
                     SV.FlyMove(ent, Host.frametime);
                 case MoveType.noclip:
-                    ent._v_float[EdictVarOfs.origin] += Host.frametime * ent._v_float[EdictVarOfs.velocity];
-                    ent._v_float[EdictVarOfs.origin1] += Host.frametime * ent._v_float[EdictVarOfs.velocity1];
-                    ent._v_float[EdictVarOfs.origin2] += Host.frametime * ent._v_float[EdictVarOfs.velocity2];
+                    ent.v.origin += Host.frametime * ent.v.velocity;
+                    ent.v.origin1 += Host.frametime * ent.v.velocity1;
+                    ent.v.origin2 += Host.frametime * ent.v.velocity2;
                 default:
                     Sys.Error('SV.Physics_Client: bad movetype ' + movetype);
             }
@@ -1511,33 +1511,33 @@ class SV {
     static function Physics_Noclip(ent:Edict) {
         if (!SV.RunThink(ent))
             return;
-        ent._v_float[EdictVarOfs.angles] += Host.frametime * ent._v_float[EdictVarOfs.avelocity];
-        ent._v_float[EdictVarOfs.angles1] += Host.frametime * ent._v_float[EdictVarOfs.avelocity1];
-        ent._v_float[EdictVarOfs.angles2] += Host.frametime * ent._v_float[EdictVarOfs.avelocity2];
-        ent._v_float[EdictVarOfs.origin] += Host.frametime * ent._v_float[EdictVarOfs.velocity];
-        ent._v_float[EdictVarOfs.origin1] += Host.frametime * ent._v_float[EdictVarOfs.velocity1];
-        ent._v_float[EdictVarOfs.origin2] += Host.frametime * ent._v_float[EdictVarOfs.velocity2];
+        ent.v.angles += Host.frametime * ent.v.avelocity;
+        ent.v.angles1 += Host.frametime * ent.v.avelocity1;
+        ent.v.angles2 += Host.frametime * ent.v.avelocity2;
+        ent.v.origin += Host.frametime * ent.v.velocity;
+        ent.v.origin1 += Host.frametime * ent.v.velocity1;
+        ent.v.origin2 += Host.frametime * ent.v.velocity2;
         SV.LinkEdict(ent, false);
     }
 
     static function CheckWaterTransition(ent:Edict) {
         var cont = SV.PointContents(ED.Vector(ent, EdictVarOfs.origin));
-        if (ent._v_float[EdictVarOfs.watertype] == 0.0) {
-            ent._v_float[EdictVarOfs.watertype] = cont;
-            ent._v_float[EdictVarOfs.waterlevel] = 1.0;
+        if (ent.v.watertype == 0.0) {
+            ent.v.watertype = cont;
+            ent.v.waterlevel = 1.0;
             return;
         }
         if (cont <= ModContents.water) {
-            if (ent._v_float[EdictVarOfs.watertype] == ModContents.empty)
+            if (ent.v.watertype == ModContents.empty)
                 SV.StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
-            ent._v_float[EdictVarOfs.watertype] = cont;
-            ent._v_float[EdictVarOfs.waterlevel] = 1.0;
+            ent.v.watertype = cont;
+            ent.v.waterlevel = 1.0;
             return;
         }
-        if (ent._v_float[EdictVarOfs.watertype] != ModContents.empty)
+        if (ent.v.watertype != ModContents.empty)
             SV.StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
-        ent._v_float[EdictVarOfs.watertype] = ModContents.empty;
-        ent._v_float[EdictVarOfs.waterlevel] = cont;
+        ent.v.watertype = ModContents.empty;
+        ent.v.waterlevel = cont;
     }
 
     static function Physics_Toss(ent:Edict) {
@@ -1546,17 +1546,17 @@ class SV {
         if ((ent.flags & EntFlag.onground) != 0)
             return;
         SV.CheckVelocity(ent);
-        var movetype = ent._v_float[EdictVarOfs.movetype];
+        var movetype = ent.v.movetype;
         if ((movetype != MoveType.fly) && (movetype != MoveType.flymissile))
             SV.AddGravity(ent);
-        ent._v_float[EdictVarOfs.angles] += Host.frametime * ent._v_float[EdictVarOfs.avelocity];
-        ent._v_float[EdictVarOfs.angles1] += Host.frametime * ent._v_float[EdictVarOfs.avelocity1];
-        ent._v_float[EdictVarOfs.angles2] += Host.frametime * ent._v_float[EdictVarOfs.avelocity2];
+        ent.v.angles += Host.frametime * ent.v.avelocity;
+        ent.v.angles1 += Host.frametime * ent.v.avelocity1;
+        ent.v.angles2 += Host.frametime * ent.v.avelocity2;
         var trace = SV.PushEntity(ent,
             [
-                ent._v_float[EdictVarOfs.velocity] * Host.frametime,
-                ent._v_float[EdictVarOfs.velocity1] * Host.frametime,
-                ent._v_float[EdictVarOfs.velocity2] * Host.frametime
+                ent.v.velocity * Host.frametime,
+                ent.v.velocity1 * Host.frametime,
+                ent.v.velocity2 * Host.frametime
             ]);
         if ((trace.fraction == 1.0) || (ent.free))
             return;
@@ -1564,11 +1564,11 @@ class SV {
         SV.ClipVelocity(ED.Vector(ent, EdictVarOfs.velocity), trace.plane.normal, velocity, (movetype == MoveType.bounce) ? 1.5 : 1.0);
         ED.SetVector(ent, EdictVarOfs.velocity, velocity);
         if (trace.plane.normal[2] > 0.7) {
-            if ((ent._v_float[EdictVarOfs.velocity2] < 60.0) || (movetype != MoveType.bounce)) {
+            if ((ent.v.velocity2 < 60.0) || (movetype != MoveType.bounce)) {
                 ent.flags = ent.flags | EntFlag.onground;
-                ent._v_int[EdictVarOfs.groundentity] = trace.ent.num;
-                ent._v_float[EdictVarOfs.velocity] = ent._v_float[EdictVarOfs.velocity1] = ent._v_float[EdictVarOfs.velocity2] = 0.0;
-                ent._v_float[EdictVarOfs.avelocity] = ent._v_float[EdictVarOfs.avelocity1] = ent._v_float[EdictVarOfs.avelocity2] = 0.0;
+                ent.v.groundentity = trace.ent.num;
+                ent.v.velocity = ent.v.velocity1 = ent.v.velocity2 = 0.0;
+                ent.v.avelocity = ent.v.avelocity1 = ent.v.avelocity2 = 0.0;
             }
         }
         SV.CheckWaterTransition(ent);
@@ -1576,7 +1576,7 @@ class SV {
 
     static function Physics_Step(ent:Edict):Void {
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
-            var hitsound = (ent._v_float[EdictVarOfs.velocity2] < (SV.gravity.value * -0.1));
+            var hitsound = (ent.v.velocity2 < (SV.gravity.value * -0.1));
             SV.AddGravity(ent);
             SV.CheckVelocity(ent);
             SV.FlyMove(ent, Host.frametime);
@@ -1603,7 +1603,7 @@ class SV {
                 SV.Physics_Client(ent);
                 continue;
             }
-            switch (ent._v_float[EdictVarOfs.movetype]) {
+            switch (ent.v.movetype) {
                 case MoveType.push:
                     SV.Physics_Pusher(ent);
                 case MoveType.none:
@@ -1615,7 +1615,7 @@ class SV {
                 case MoveType.toss | MoveType.bounce | MoveType.fly | MoveType.flymissile:
                     SV.Physics_Toss(ent);
                 default:
-                    Sys.Error('SV.Physics: bad movetype ' + Std.int(ent._v_float[EdictVarOfs.movetype]));
+                    Sys.Error('SV.Physics: bad movetype ' + Std.int(ent.v.movetype));
             }
         }
         if (PR.globals_float[GlobalVarOfs.force_retouch] != 0.0)
@@ -1631,15 +1631,15 @@ class SV {
         var ent = SV.player;
         if ((ent.flags & EntFlag.onground) == 0)
             return;
-        var angleval = ent._v_float[EdictVarOfs.angles1] * (Math.PI / 180.0);
+        var angleval = ent.v.angles1 * (Math.PI / 180.0);
         var sinval = Math.sin(angleval);
         var cosval = Math.cos(angleval);
-        var top = [0.0, 0.0, ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.view_ofs2]];
+        var top = [0.0, 0.0, ent.v.origin2 + ent.v.view_ofs2];
         var bottom = [0.0, 0.0, top[2] - 160.0];
         var z = [];
         for (i in 0...6) {
-            top[0] = bottom[0] = ent._v_float[EdictVarOfs.origin] + cosval * (i + 3) * 12.0;
-            top[1] = bottom[1] = ent._v_float[EdictVarOfs.origin1] + sinval * (i + 3) * 12.0;
+            top[0] = bottom[0] = ent.v.origin + cosval * (i + 3) * 12.0;
+            top[1] = bottom[1] = ent.v.origin1 + sinval * (i + 3) * 12.0;
             var tr = SV.Move(top, Vec.origin, Vec.origin, bottom, 1, ent);
             if ((tr.allsolid) || (tr.fraction == 1.0))
                 return;
@@ -1656,23 +1656,23 @@ class SV {
             dir = step;
         }
         if (dir == 0.0) {
-            ent._v_float[EdictVarOfs.idealpitch] = 0.0;
+            ent.v.idealpitch = 0.0;
             return;
         }
         if (steps >= 2)
-            ent._v_float[EdictVarOfs.idealpitch] = -dir * SV.idealpitchscale.value;
+            ent.v.idealpitch = -dir * SV.idealpitchscale.value;
     }
 
     static function UserFriction() {
         var ent = SV.player;
-        var vel0 = ent._v_float[EdictVarOfs.velocity], vel1 = ent._v_float[EdictVarOfs.velocity1];
+        var vel0 = ent.v.velocity, vel1 = ent.v.velocity1;
         var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
         if (speed == 0.0)
             return;
         var start = [
-            ent._v_float[EdictVarOfs.origin] + vel0 / speed * 16.0,
-            ent._v_float[EdictVarOfs.origin1] + vel1 / speed * 16.0,
-            ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.mins2]
+            ent.v.origin + vel0 / speed * 16.0,
+            ent.v.origin1 + vel1 / speed * 16.0,
+            ent.v.origin2 + ent.v.mins2
         ];
         var friction = SV.friction.value;
         if (SV.Move(start, Vec.origin, Vec.origin, [start[0], start[1], start[2] - 34.0], 1, ent).fraction == 1.0)
@@ -1681,9 +1681,9 @@ class SV {
         if (newspeed < 0.0)
             newspeed = 0.0;
         newspeed /= speed;
-        ent._v_float[EdictVarOfs.velocity] *= newspeed;
-        ent._v_float[EdictVarOfs.velocity1] *= newspeed;
-        ent._v_float[EdictVarOfs.velocity2] *= newspeed;
+        ent.v.velocity *= newspeed;
+        ent.v.velocity1 *= newspeed;
+        ent.v.velocity2 *= newspeed;
     }
 
     static function Accelerate(wishvel:Vec, air:Bool) {
@@ -1692,18 +1692,18 @@ class SV {
         var wishspeed = Vec.Normalize(wishdir);
         if ((air) && (wishspeed > 30.0))
             wishspeed = 30.0;
-        var addspeed = wishspeed - (ent._v_float[EdictVarOfs.velocity] * wishdir[0]
-            + ent._v_float[EdictVarOfs.velocity1] * wishdir[1]
-            + ent._v_float[EdictVarOfs.velocity2] * wishdir[2]
+        var addspeed = wishspeed - (ent.v.velocity * wishdir[0]
+            + ent.v.velocity1 * wishdir[1]
+            + ent.v.velocity2 * wishdir[2]
         );
         if (addspeed <= 0.0)
             return;
         var accelspeed = SV.accelerate.value * Host.frametime * wishspeed;
         if (accelspeed > addspeed)
             accelspeed = addspeed;
-        ent._v_float[EdictVarOfs.velocity] += accelspeed * wishdir[0];
-        ent._v_float[EdictVarOfs.velocity1] += accelspeed * wishdir[1];
-        ent._v_float[EdictVarOfs.velocity2] += accelspeed * wishdir[2];
+        ent.v.velocity += accelspeed * wishdir[0];
+        ent.v.velocity1 += accelspeed * wishdir[1];
+        ent.v.velocity2 += accelspeed * wishdir[2];
     }
 
     static function WaterMove() {
@@ -1729,18 +1729,18 @@ class SV {
             wishspeed = SV.maxspeed.value;
         }
         wishspeed *= 0.7;
-        var speed = Math.sqrt(ent._v_float[EdictVarOfs.velocity] * ent._v_float[EdictVarOfs.velocity]
-            + ent._v_float[EdictVarOfs.velocity1] * ent._v_float[EdictVarOfs.velocity1]
-            + ent._v_float[EdictVarOfs.velocity2] * ent._v_float[EdictVarOfs.velocity2]
+        var speed = Math.sqrt(ent.v.velocity * ent.v.velocity
+            + ent.v.velocity1 * ent.v.velocity1
+            + ent.v.velocity2 * ent.v.velocity2
         ), newspeed;
         if (speed != 0.0) {
             newspeed = speed - Host.frametime * speed * SV.friction.value;
             if (newspeed < 0.0)
                 newspeed = 0.0;
             scale = newspeed / speed;
-            ent._v_float[EdictVarOfs.velocity] *= scale;
-            ent._v_float[EdictVarOfs.velocity1] *= scale;
-            ent._v_float[EdictVarOfs.velocity2] *= scale;
+            ent.v.velocity *= scale;
+            ent.v.velocity1 *= scale;
+            ent.v.velocity2 *= scale;
         } else
             newspeed = 0.0;
         if (wishspeed == 0.0)
@@ -1751,19 +1751,19 @@ class SV {
         var accelspeed = SV.accelerate.value * wishspeed * Host.frametime;
         if (accelspeed > addspeed)
             accelspeed = addspeed;
-        ent._v_float[EdictVarOfs.velocity] += accelspeed * (wishvel[0] / wishspeed);
-        ent._v_float[EdictVarOfs.velocity1] += accelspeed * (wishvel[1] / wishspeed);
-        ent._v_float[EdictVarOfs.velocity2] += accelspeed * (wishvel[2] / wishspeed);
+        ent.v.velocity += accelspeed * (wishvel[0] / wishspeed);
+        ent.v.velocity1 += accelspeed * (wishvel[1] / wishspeed);
+        ent.v.velocity2 += accelspeed * (wishvel[2] / wishspeed);
     }
 
     static function WaterJump() {
         var ent = SV.player;
-        if ((SV.server.time > ent._v_float[EdictVarOfs.teleport_time]) || (ent._v_float[EdictVarOfs.waterlevel] == 0.0)) {
+        if ((SV.server.time > ent.v.teleport_time) || (ent.v.waterlevel == 0.0)) {
             ent.flags = ent.flags & ~EntFlag.waterjump;
-            ent._v_float[EdictVarOfs.teleport_time] = 0.0;
+            ent.v.teleport_time = 0.0;
         }
-        ent._v_float[EdictVarOfs.velocity] = ent._v_float[EdictVarOfs.movedir];
-        ent._v_float[EdictVarOfs.velocity1] = ent._v_float[EdictVarOfs.movedir1];
+        ent.v.velocity = ent.v.movedir;
+        ent.v.velocity1 = ent.v.movedir1;
     }
 
     static function AirMove() {
@@ -1773,19 +1773,19 @@ class SV {
         Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.angles), forward, right);
         var fmove = cmd.forwardmove;
         var smove = cmd.sidemove;
-        if ((SV.server.time < ent._v_float[EdictVarOfs.teleport_time]) && (fmove < 0.0))
+        if ((SV.server.time < ent.v.teleport_time) && (fmove < 0.0))
             fmove = 0.0;
         var wishvel = [
             forward[0] * fmove + right[0] * smove,
             forward[1] * fmove + right[1] * smove,
-            (Std.int(ent._v_float[EdictVarOfs.movetype]) != MoveType.walk) ? cmd.upmove : 0.0];
+            (Std.int(ent.v.movetype) != MoveType.walk) ? cmd.upmove : 0.0];
         var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
         if (Vec.Normalize(wishdir) > SV.maxspeed.value) {
             wishvel[0] = wishdir[0] * SV.maxspeed.value;
             wishvel[1] = wishdir[1] * SV.maxspeed.value;
             wishvel[2] = wishdir[2] * SV.maxspeed.value;
         }
-        if (ent._v_float[EdictVarOfs.movetype] == MoveType.noclip)
+        if (ent.v.movetype == MoveType.noclip)
             ED.SetVector(ent, EdictVarOfs.velocity, wishvel);
         else if ((ent.flags & EntFlag.onground) != 0) {
             SV.UserFriction();
@@ -1797,29 +1797,29 @@ class SV {
     static function ClientThink() {
         var ent = SV.player;
 
-        if (ent._v_float[EdictVarOfs.movetype] == MoveType.none)
+        if (ent.v.movetype == MoveType.none)
             return;
 
         var punchangle = ED.Vector(ent, EdictVarOfs.punchangle);
         var len = Vec.Normalize(punchangle) - 10.0 * Host.frametime;
         if (len < 0.0)
             len = 0.0;
-        ent._v_float[EdictVarOfs.punchangle] = punchangle[0] * len;
-        ent._v_float[EdictVarOfs.punchangle1] = punchangle[1] * len;
-        ent._v_float[EdictVarOfs.punchangle2] = punchangle[2] * len;
+        ent.v.punchangle = punchangle[0] * len;
+        ent.v.punchangle1 = punchangle[1] * len;
+        ent.v.punchangle2 = punchangle[2] * len;
 
-        if (ent._v_float[EdictVarOfs.health] <= 0.0)
+        if (ent.v.health <= 0.0)
             return;
 
-        ent._v_float[EdictVarOfs.angles2] = V.CalcRoll(ED.Vector(ent, EdictVarOfs.angles), ED.Vector(ent, EdictVarOfs.velocity)) * 4.0;
-        if (SV.player._v_float[EdictVarOfs.fixangle] == 0.0) {
-            ent._v_float[EdictVarOfs.angles] = (ent._v_float[EdictVarOfs.v_angle] + ent._v_float[EdictVarOfs.punchangle]) / -3.0;
-            ent._v_float[EdictVarOfs.angles1] = ent._v_float[EdictVarOfs.v_angle1] + ent._v_float[EdictVarOfs.punchangle1];
+        ent.v.angles2 = V.CalcRoll(ED.Vector(ent, EdictVarOfs.angles), ED.Vector(ent, EdictVarOfs.velocity)) * 4.0;
+        if (SV.player.v.fixangle == 0.0) {
+            ent.v.angles = (ent.v.v_angle + ent.v.punchangle) / -3.0;
+            ent.v.angles1 = ent.v.v_angle1 + ent.v.punchangle1;
         }
 
         if ((ent.flags & EntFlag.waterjump) != 0)
             SV.WaterJump();
-        else if ((ent._v_float[EdictVarOfs.waterlevel] >= 2.0) && (ent._v_float[EdictVarOfs.movetype] != MoveType.noclip))
+        else if ((ent.v.waterlevel >= 2.0) && (ent.v.movetype != MoveType.noclip))
             SV.WaterMove();
         else
             SV.AirMove();
@@ -1828,18 +1828,18 @@ class SV {
     static function ReadClientMove() {
         var client = Host.client;
         client.ping_times[client.num_pings++ & 15] = SV.server.time - MSG.ReadFloat();
-        client.edict._v_float[EdictVarOfs.v_angle] = MSG.ReadAngle();
-        client.edict._v_float[EdictVarOfs.v_angle1] = MSG.ReadAngle();
-        client.edict._v_float[EdictVarOfs.v_angle2] = MSG.ReadAngle();
+        client.edict.v.v_angle = MSG.ReadAngle();
+        client.edict.v.v_angle1 = MSG.ReadAngle();
+        client.edict.v.v_angle2 = MSG.ReadAngle();
         client.cmd.forwardmove = MSG.ReadShort();
         client.cmd.sidemove = MSG.ReadShort();
         client.cmd.upmove = MSG.ReadShort();
         var i = MSG.ReadByte();
-        client.edict._v_float[EdictVarOfs.button0] = i & 1;
-        client.edict._v_float[EdictVarOfs.button2] = (i & 2) >> 1;
+        client.edict.v.button0 = i & 1;
+        client.edict.v.button2 = (i & 2) >> 1;
         i = MSG.ReadByte();
         if (i != 0)
-            client.edict._v_float[EdictVarOfs.impulse] = i;
+            client.edict.v.impulse = i;
     }
 
     static function ReadClientMessage():Bool {
@@ -1974,21 +1974,21 @@ class SV {
     }
 
     static function HullForEntity(ent:Edict, mins:Vec, maxs:Vec, offset:Vec):MHull {
-        if (ent._v_float[EdictVarOfs.solid] != SolidType.bsp) {
-            SV.box_planes[0].dist = ent._v_float[EdictVarOfs.maxs] - mins[0];
-            SV.box_planes[1].dist = ent._v_float[EdictVarOfs.mins] - maxs[0];
-            SV.box_planes[2].dist = ent._v_float[EdictVarOfs.maxs1] - mins[1];
-            SV.box_planes[3].dist = ent._v_float[EdictVarOfs.mins1] - maxs[1];
-            SV.box_planes[4].dist = ent._v_float[EdictVarOfs.maxs2] - mins[2];
-            SV.box_planes[5].dist = ent._v_float[EdictVarOfs.mins2] - maxs[2];
-            offset[0] = ent._v_float[EdictVarOfs.origin];
-            offset[1] = ent._v_float[EdictVarOfs.origin1];
-            offset[2] = ent._v_float[EdictVarOfs.origin2];
+        if (ent.v.solid != SolidType.bsp) {
+            SV.box_planes[0].dist = ent.v.maxs - mins[0];
+            SV.box_planes[1].dist = ent.v.mins - maxs[0];
+            SV.box_planes[2].dist = ent.v.maxs1 - mins[1];
+            SV.box_planes[3].dist = ent.v.mins1 - maxs[1];
+            SV.box_planes[4].dist = ent.v.maxs2 - mins[2];
+            SV.box_planes[5].dist = ent.v.mins2 - maxs[2];
+            offset[0] = ent.v.origin;
+            offset[1] = ent.v.origin1;
+            offset[2] = ent.v.origin2;
             return SV.box_hull;
         }
-        if (ent._v_float[EdictVarOfs.movetype] != MoveType.push)
+        if (ent.v.movetype != MoveType.push)
             Sys.Error('SOLID_BSP without MOVETYPE_PUSH');
-        var model = SV.server.models[Std.int(ent._v_float[EdictVarOfs.modelindex])];
+        var model = SV.server.models[Std.int(ent.v.modelindex)];
         if (model == null)
             Sys.Error('MOVETYPE_PUSH with a non bsp model');
         if (model.type != brush)
@@ -2001,9 +2001,9 @@ class SV {
             hull = model.hulls[1];
         else
             hull = model.hulls[2];
-        offset[0] = hull.clip_mins[0] - mins[0] + ent._v_float[EdictVarOfs.origin];
-        offset[1] = hull.clip_mins[1] - mins[1] + ent._v_float[EdictVarOfs.origin1];
-        offset[2] = hull.clip_mins[2] - mins[2] + ent._v_float[EdictVarOfs.origin2];
+        offset[0] = hull.clip_mins[0] - mins[0] + ent.v.origin;
+        offset[1] = hull.clip_mins[1] - mins[1] + ent.v.origin1;
+        offset[2] = hull.clip_mins[2] - mins[2] + ent.v.origin2;
         return hull;
     }
 
@@ -2048,21 +2048,21 @@ class SV {
             l = next;
             if (touch == ent)
                 continue;
-            if ((touch._v_int[EdictVarOfs.touch] == 0) || (touch._v_float[EdictVarOfs.solid] != SolidType.trigger))
+            if ((touch.v.touch == 0) || (touch.v.solid != SolidType.trigger))
                 continue;
-            if ((ent._v_float[EdictVarOfs.absmin] > touch._v_float[EdictVarOfs.absmax]) ||
-                (ent._v_float[EdictVarOfs.absmin1] > touch._v_float[EdictVarOfs.absmax1]) || 
-                (ent._v_float[EdictVarOfs.absmin2] > touch._v_float[EdictVarOfs.absmax2]) ||
-                (ent._v_float[EdictVarOfs.absmax] < touch._v_float[EdictVarOfs.absmin]) ||
-                (ent._v_float[EdictVarOfs.absmax1] < touch._v_float[EdictVarOfs.absmin1]) ||
-                (ent._v_float[EdictVarOfs.absmax2] < touch._v_float[EdictVarOfs.absmin2]))
+            if ((ent.v.absmin > touch.v.absmax) ||
+                (ent.v.absmin1 > touch.v.absmax1) || 
+                (ent.v.absmin2 > touch.v.absmax2) ||
+                (ent.v.absmax < touch.v.absmin) ||
+                (ent.v.absmax1 < touch.v.absmin1) ||
+                (ent.v.absmax2 < touch.v.absmin2))
                 continue;
             var old_self = PR.globals_int[GlobalVarOfs.self];
             var old_other = PR.globals_int[GlobalVarOfs.other];
             PR.globals_int[GlobalVarOfs.self] = touch.num;
             PR.globals_int[GlobalVarOfs.other] = ent.num;
             PR.globals_float[GlobalVarOfs.time] = SV.server.time;
-            PR.ExecuteProgram(touch._v_int[EdictVarOfs.touch]);
+            PR.ExecuteProgram(touch.v.touch);
             PR.globals_int[GlobalVarOfs.self] = old_self;
             PR.globals_int[GlobalVarOfs.other] = old_other;
         }
@@ -2085,8 +2085,8 @@ class SV {
             return;
         }
 
-        var sides = Vec.BoxOnPlaneSide([ent._v_float[EdictVarOfs.absmin], ent._v_float[EdictVarOfs.absmin1], ent._v_float[EdictVarOfs.absmin2]],
-            [ent._v_float[EdictVarOfs.absmax], ent._v_float[EdictVarOfs.absmax1], ent._v_float[EdictVarOfs.absmax2]], node.plane);
+        var sides = Vec.BoxOnPlaneSide([ent.v.absmin, ent.v.absmin1, ent.v.absmin2],
+            [ent.v.absmax, ent.v.absmax1, ent.v.absmax2], node.plane);
         if ((sides & 1) != 0)
             SV.FindTouchedLeafs(ent, node.children[0]);
         if ((sides & 2) != 0)
@@ -2099,28 +2099,28 @@ class SV {
 
         SV.UnlinkEdict(ent);
 
-        ent._v_float[EdictVarOfs.absmin] = ent._v_float[EdictVarOfs.origin] + ent._v_float[EdictVarOfs.mins] - 1.0;
-        ent._v_float[EdictVarOfs.absmin1] = ent._v_float[EdictVarOfs.origin1] + ent._v_float[EdictVarOfs.mins1] - 1.0;
-        ent._v_float[EdictVarOfs.absmin2] = ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.mins2];
-        ent._v_float[EdictVarOfs.absmax] = ent._v_float[EdictVarOfs.origin] + ent._v_float[EdictVarOfs.maxs] + 1.0;
-        ent._v_float[EdictVarOfs.absmax1] = ent._v_float[EdictVarOfs.origin1] + ent._v_float[EdictVarOfs.maxs1] + 1.0;
-        ent._v_float[EdictVarOfs.absmax2] = ent._v_float[EdictVarOfs.origin2] + ent._v_float[EdictVarOfs.maxs2];
+        ent.v.absmin = ent.v.origin + ent.v.mins - 1.0;
+        ent.v.absmin1 = ent.v.origin1 + ent.v.mins1 - 1.0;
+        ent.v.absmin2 = ent.v.origin2 + ent.v.mins2;
+        ent.v.absmax = ent.v.origin + ent.v.maxs + 1.0;
+        ent.v.absmax1 = ent.v.origin1 + ent.v.maxs1 + 1.0;
+        ent.v.absmax2 = ent.v.origin2 + ent.v.maxs2;
 
         if ((ent.flags & EntFlag.item) != 0) {
-            ent._v_float[EdictVarOfs.absmin] -= 14.0;
-            ent._v_float[EdictVarOfs.absmin1] -= 14.0;
-            ent._v_float[EdictVarOfs.absmax] += 14.0;
-            ent._v_float[EdictVarOfs.absmax1] += 14.0;
+            ent.v.absmin -= 14.0;
+            ent.v.absmin1 -= 14.0;
+            ent.v.absmax += 14.0;
+            ent.v.absmax1 += 14.0;
         } else {
-            ent._v_float[EdictVarOfs.absmin2] -= 1.0;
-            ent._v_float[EdictVarOfs.absmax2] += 1.0;
+            ent.v.absmin2 -= 1.0;
+            ent.v.absmax2 += 1.0;
         }
 
         ent.leafnums = [];
-        if (ent._v_float[EdictVarOfs.modelindex] != 0.0)
+        if (ent.v.modelindex != 0.0)
             SV.FindTouchedLeafs(ent, SV.server.worldmodel.nodes[0]);
 
-        if (ent._v_float[EdictVarOfs.solid] == SolidType.not)
+        if (ent.v.solid == SolidType.not)
             return;
 
         var node = SV.areanodes[0];
@@ -2135,7 +2135,7 @@ class SV {
                 break;
         }
 
-        var before = (ent._v_float[EdictVarOfs.solid] == SolidType.trigger) ? node.trigger_edicts : node.solid_edicts;
+        var before = (ent.v.solid == SolidType.trigger) ? node.trigger_edicts : node.solid_edicts;
         ent.area.next = before;
         ent.area.prev = before.prev;
         ent.area.prev.next = ent.area;
@@ -2292,30 +2292,30 @@ class SV {
         while (l != node.solid_edicts) {
             var touch = l.ent;
             l = l.next;
-            var solid = touch._v_float[EdictVarOfs.solid];
+            var solid = touch.v.solid;
             if ((solid == SolidType.not) || (touch == clip.passedict))
                 continue;
             if (solid == SolidType.trigger)
                 Sys.Error('Trigger in clipping list');
             if ((clip.type == ClipType.nomonsters) && (solid != SolidType.bsp))
                 continue;
-            if ((clip.boxmins[0] > touch._v_float[EdictVarOfs.absmax]) ||
-                (clip.boxmins[1] > touch._v_float[EdictVarOfs.absmax1]) ||
-                (clip.boxmins[2] > touch._v_float[EdictVarOfs.absmax2]) ||
-                (clip.boxmaxs[0] < touch._v_float[EdictVarOfs.absmin]) ||
-                (clip.boxmaxs[1] < touch._v_float[EdictVarOfs.absmin1]) ||
-                (clip.boxmaxs[2] < touch._v_float[EdictVarOfs.absmin2]))
+            if ((clip.boxmins[0] > touch.v.absmax) ||
+                (clip.boxmins[1] > touch.v.absmax1) ||
+                (clip.boxmins[2] > touch.v.absmax2) ||
+                (clip.boxmaxs[0] < touch.v.absmin) ||
+                (clip.boxmaxs[1] < touch.v.absmin1) ||
+                (clip.boxmaxs[2] < touch.v.absmin2))
                 continue;
             if (clip.passedict != null) {
-                if ((clip.passedict._v_float[EdictVarOfs.size] != 0.0) && (touch._v_float[EdictVarOfs.size] == 0.0))
+                if ((clip.passedict.v.size != 0.0) && (touch.v.size == 0.0))
                     continue;
             }
             if (clip.trace.allsolid)
                 return;
             if (clip.passedict != null) {
-                if (SV.server.edicts[touch._v_int[EdictVarOfs.owner]] == clip.passedict)
+                if (SV.server.edicts[touch.v.owner] == clip.passedict)
                     continue;
-                if (SV.server.edicts[clip.passedict._v_int[EdictVarOfs.owner]] == touch)
+                if (SV.server.edicts[clip.passedict.v.owner] == touch)
                     continue;
             }
             var trace;

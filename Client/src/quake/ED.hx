@@ -39,16 +39,16 @@ class ED {
 	static function Free(ed:Edict):Void {
 		SV.UnlinkEdict(ed);
 		ed.free = true;
-		ed._v_int[EdictVarOfs.model] = 0;
-		ed._v_float[EdictVarOfs.takedamage] = 0.0;
-		ed._v_float[EdictVarOfs.modelindex] = 0.0;
-		ed._v_float[EdictVarOfs.colormap] = 0.0;
-		ed._v_float[EdictVarOfs.skin] = 0.0;
-		ed._v_float[EdictVarOfs.frame] = 0.0;
+		ed.v.model = 0;
+		ed.v.takedamage = 0.0;
+		ed.v.modelindex = 0.0;
+		ed.v.colormap = 0.0;
+		ed.v.skin = 0.0;
+		ed.v.frame = 0.0;
 		SetVector(ed, EdictVarOfs.origin, Vec.origin);
 		SetVector(ed, EdictVarOfs.angles, Vec.origin);
-		ed._v_float[EdictVarOfs.nextthink] = -1.0;
-		ed._v_float[EdictVarOfs.solid] = 0.0;
+		ed.v.nextthink = -1.0;
+		ed.v.solid = 0.0;
 		ed.freetime = SV.server.time;
 	}
 
@@ -143,11 +143,11 @@ class ED {
 			if (ent.free)
 				continue;
 			++active;
-			if (ent._v_float[EdictVarOfs.solid] != 0.0)
+			if (ent.v.solid != 0.0)
 				++solid;
-			if (ent._v_int[EdictVarOfs.model] != 0)
+			if (ent.v.model != 0)
 				++models;
-			if (ent._v_float[EdictVarOfs.movetype] == MoveType.step)
+			if (ent.v.movetype == MoveType.step)
 				++step;
 		}
 		var num_edicts = SV.server.num_edicts;
@@ -304,7 +304,7 @@ class ED {
 				ent = Alloc();
 			data = ParseEdict(data, ent);
 
-			var spawnflags = Std.int(ent._v_float[EdictVarOfs.spawnflags]);
+			var spawnflags = Std.int(ent.v.spawnflags);
 			if (Host.deathmatch.value != 0) {
 				if ((spawnflags & 2048) != 0) {
 					Free(ent);
@@ -320,14 +320,14 @@ class ED {
 				continue;
 			}
 
-			if (ent._v_int[EdictVarOfs.classname] == 0) {
+			if (ent.v.classname == 0) {
 				Console.Print('No classname for:\n');
 				Print(ent);
 				Free(ent);
 				continue;
 			}
 
-			var func = FindFunction(PR.GetString(ent._v_int[EdictVarOfs.classname]));
+			var func = FindFunction(PR.GetString(ent.v.classname));
 			if (func == null) {
 				Console.Print('No spawn function for:\n');
 				Print(ent);

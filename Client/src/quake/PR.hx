@@ -736,9 +736,9 @@ class PR {
 						return;
 				case PROp.state:
 					var ed:Edict = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-					ed._v_float[EdictVarOfs.nextthink] = PR.globals_float[GlobalVarOfs.time] + 0.1;
-					ed._v_float[EdictVarOfs.frame] = PR.globals_float[st.a];
-					ed._v_int[EdictVarOfs.think] = PR.globals_int[st.b];
+					ed.v.nextthink = PR.globals_float[GlobalVarOfs.time] + 0.1;
+					ed.v.frame = PR.globals_float[st.a];
+					ed.v.think = PR.globals_int[st.b];
 				default:
 					PR.RunError('Bad opcode ' + st.op);
 			}

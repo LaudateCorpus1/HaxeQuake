@@ -9408,7 +9408,7 @@ quake_SV.CreateBaseline = function() {
 		var i = _g1++;
 		var svent = quake_SV.server.edicts[i];
 		if(svent.free) continue;
-		if(i > quake_SV.svs.maxclients && svent._v_int[0] == 0) continue;
+		if(i > quake_SV.svs.maxclients && svent._v_float[0] == 0) continue;
 		var baseline = svent.baseline;
 		baseline.origin = quake_ED.Vector(svent,10);
 		baseline.angles = quake_ED.Vector(svent,19);

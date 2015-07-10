@@ -24,12 +24,12 @@ class Edict {
     var area:MLink;
 
     var flags(get,set):EntFlag;
-    inline function get_flags():EntFlag return cast Std.int(_v_float[EdictVarOfs.flags]);
-    inline function set_flags(v:EntFlag):EntFlag return {_v_float[EdictVarOfs.flags] = v; v;}
+    inline function get_flags():EntFlag return cast Std.int(v.flags);
+    inline function set_flags(v:EntFlag):EntFlag return {this.v.flags = v; v;}
 
     var items(get,set):Int;
-    inline function get_items():Int return Std.int(_v_float[EdictVarOfs.items]);
-    inline function set_items(v:Int):Int return {_v_float[EdictVarOfs.items] = v; v;}
+    inline function get_items():Int return Std.int(v.items);
+    inline function set_items(v:Int):Int return {this.v.items = v; v;}
 
     function new() {}
 }

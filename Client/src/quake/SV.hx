@@ -2256,16 +2256,17 @@ class SV {
         };
 
         var offset = new Vec();
-        var hull = SV.HullForEntity(ent, mins, maxs, offset);
-        SV.RecursiveHullCheck(hull, hull.firstclipnode, 0.0, 1.0,
-            Vec.of(start[0] - offset[0], start[1] - offset[1], start[2] - offset[2]),
-            Vec.of(end[0] - offset[0], end[1] - offset[1], end[2] - offset[2]), trace);
+        var hull = HullForEntity(ent, mins, maxs, offset);
+        RecursiveHullCheck(hull, hull.firstclipnode, 0.0, 1.0,
+                           Vec.of(start[0] - offset[0], start[1] - offset[1], start[2] - offset[2]),
+                           Vec.of(end[0] - offset[0], end[1] - offset[1], end[2] - offset[2]),
+                           trace);
         if (trace.fraction != 1.0) {
             trace.endpos[0] += offset[0];
             trace.endpos[1] += offset[1];
             trace.endpos[2] += offset[2];
         }
-        if ((trace.fraction < 1.0) || (trace.startsolid))
+        if (trace.fraction < 1.0 || trace.startsolid)
             trace.ent = ent;
         return trace;
     }
@@ -2276,37 +2277,33 @@ class SV {
             var touch = l.ent;
             l = l.next;
             var solid = touch.v.solid;
-            if ((solid == SolidType.not) || (touch == clip.passedict))
+            if (solid == SolidType.not || touch == clip.passedict)
                 continue;
             if (solid == SolidType.trigger)
                 Sys.Error('Trigger in clipping list');
-            if ((clip.type == ClipType.nomonsters) && (solid != SolidType.bsp))
+            if (clip.type == ClipType.nomonsters && solid != SolidType.bsp)
                 continue;
-            if ((clip.boxmins[0] > touch.v.absmax) ||
-                (clip.boxmins[1] > touch.v.absmax1) ||
-                (clip.boxmins[2] > touch.v.absmax2) ||
-                (clip.boxmaxs[0] < touch.v.absmin) ||
-                (clip.boxmaxs[1] < touch.v.absmin1) ||
-                (clip.boxmaxs[2] < touch.v.absmin2))
+            if (clip.boxmins[0] > touch.v.absmax || clip.boxmins[1] > touch.v.absmax1 || clip.boxmins[2] > touch.v.absmax2 ||
+                clip.boxmaxs[0] < touch.v.absmin || clip.boxmaxs[1] < touch.v.absmin1 || clip.boxmaxs[2] < touch.v.absmin2)
                 continue;
             if (clip.passedict != null) {
-                if ((clip.passedict.v.size != 0.0) && (touch.v.size == 0.0))
+                if (clip.passedict.v.size != 0.0 && touch.v.size == 0.0)
                     continue;
             }
             if (clip.trace.allsolid)
                 return;
             if (clip.passedict != null) {
-                if (SV.server.edicts[touch.v.owner] == clip.passedict)
+                if (server.edicts[touch.v.owner] == clip.passedict)
                     continue;
-                if (SV.server.edicts[clip.passedict.v.owner] == touch)
+                if (server.edicts[clip.passedict.v.owner] == touch)
                     continue;
             }
             var trace;
             if ((touch.flags & EntFlag.monster) != 0)
-                trace = SV.ClipMoveToEntity(touch, clip.start, clip.mins2, clip.maxs2, clip.end);
+                trace = ClipMoveToEntity(touch, clip.start, clip.mins2, clip.maxs2, clip.end);
             else
-                trace = SV.ClipMoveToEntity(touch, clip.start, clip.mins, clip.maxs, clip.end);
-            if ((trace.allsolid) || (trace.startsolid) || (trace.fraction < clip.trace.fraction)) {
+                trace = ClipMoveToEntity(touch, clip.start, clip.mins, clip.maxs, clip.end);
+            if (trace.allsolid || trace.startsolid || trace.fraction < clip.trace.fraction) {
                 trace.ent = touch;
                 clip.trace = trace;
                 if (trace.startsolid)
@@ -2316,9 +2313,9 @@ class SV {
         if (node.axis == -1)
             return;
         if (clip.boxmaxs[node.axis] > node.dist)
-            SV.ClipToLinks(node.children[0], clip);
+            ClipToLinks(node.children[0], clip);
         if (clip.boxmins[node.axis] < node.dist)
-            SV.ClipToLinks(node.children[1], clip);
+            ClipToLinks(node.children[1], clip);
     }
 
     static function Move(start:Vec, mins:Vec, maxs:Vec, end:Vec, type:Int, passedict:Edict):MTrace {

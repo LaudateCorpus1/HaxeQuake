@@ -11273,7 +11273,7 @@ quake_SV.FindTouchedLeafs = function(ent,node) {
 	if((sides & 2) != 0) quake_SV.FindTouchedLeafs(ent,node.children[1]);
 };
 quake_SV.LinkEdict = function(ent,touch_triggers) {
-	if(ent == quake_SV.server.edicts[0] || ent.free) return;
+	if(ent.free || ent == quake_SV.server.edicts[0]) return;
 	quake_SV.UnlinkEdict(ent);
 	ent._v_float[1] = ent._v_float[10] + ent._v_float[33] - 1.0;
 	ent._v_float[2] = ent._v_float[11] + ent._v_float[34] - 1.0;
@@ -11291,7 +11291,7 @@ quake_SV.LinkEdict = function(ent,touch_triggers) {
 		ent._v_float[6] += 1.0;
 	}
 	ent.leafnums = [];
-	if(ent._v_float[0] != 0.0) quake_SV.FindTouchedLeafs(ent,quake_SV.server.worldmodel.nodes[0]);
+	if(ent._v_float[0] != 0) quake_SV.FindTouchedLeafs(ent,quake_SV.server.worldmodel.nodes[0]);
 	if(ent._v_float[9] == 0) return;
 	var node = quake_SV.areanodes[0];
 	while(true) {

@@ -2079,11 +2079,11 @@ class SV {
             SV.FindTouchedLeafs(ent, node.children[1]);
     }
 
-    static function LinkEdict(ent, touch_triggers) {
-        if ((ent == SV.server.edicts[0]) || (ent.free))
+    static function LinkEdict(ent:Edict, touch_triggers:Bool):Void {
+        if (ent.free || ent == server.edicts[0])
             return;
 
-        SV.UnlinkEdict(ent);
+        UnlinkEdict(ent);
 
         ent.v.absmin = ent.v.origin + ent.v.mins - 1.0;
         ent.v.absmin1 = ent.v.origin1 + ent.v.mins1 - 1.0;
@@ -2103,13 +2103,13 @@ class SV {
         }
 
         ent.leafnums = [];
-        if (ent.v.modelindex != 0.0)
-            SV.FindTouchedLeafs(ent, SV.server.worldmodel.nodes[0]);
+        if (ent.v.modelindex != 0)
+            FindTouchedLeafs(ent, server.worldmodel.nodes[0]);
 
         if (ent.v.solid == SolidType.not)
             return;
 
-        var node = SV.areanodes[0];
+        var node = areanodes[0];
         while (true) {
             if (node.axis == -1)
                 break;
@@ -2129,7 +2129,7 @@ class SV {
         ent.area.ent = ent;
 
         if (touch_triggers)
-            SV.TouchLinks(ent, SV.areanodes[0]);
+            TouchLinks(ent, areanodes[0]);
     }
 
     static function HullPointContents(hull:MHull, num:Int, p:Vec):ModContents {

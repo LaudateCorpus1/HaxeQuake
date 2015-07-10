@@ -549,7 +549,7 @@ class Sbar {
 			Draw.String(x + 32 - (f.length << 3), y, f);
 			if (Sbar.fragsort[i] == (CL.state.viewentity - 1))
 				Draw.Character(x - 8, y, 12);
-			Draw.String(x + 64, y, cast s.name);
+			Draw.String(x + 64, y, s.name);
 			y += 10;
 		}
 	}

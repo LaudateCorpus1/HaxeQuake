@@ -653,7 +653,7 @@ class R {
             }
             frame = frame.frames[i];
         }
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, cast clmodel.cmds);
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 24, frame.cmdofs);
         gl.vertexAttribPointer(program.aLightNormal, 3, RenderingContext.FLOAT, false, 24, frame.cmdofs + 12);
         gl.vertexAttribPointer(program.aTexCoord, 2, RenderingContext.FLOAT, false, 0, 0);

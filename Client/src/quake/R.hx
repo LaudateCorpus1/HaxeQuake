@@ -220,7 +220,7 @@ class R {
         if (R.flashblend.value != 0)
             return;
         for (i in 0...1024)
-            R.lightmap_modified[i] = false;
+            R.lightmap_modified[i] = 0;
 
         var bit = 1;
         for (l in CL.dlights) {
@@ -249,9 +249,9 @@ class R {
         GL.Bind(0, R.dlightmap_texture);
         var start;
         for (i in 0...1024) {
-            if ((start == null) && (R.lightmap_modified[i]))
+            if (start == null && R.lightmap_modified[i] != 0)
                 start = i;
-            else if (start != null && !R.lightmap_modified[i]) {
+            else if (start != null && R.lightmap_modified[i] == 0) {
                 gl.texSubImage2D(RenderingContext.TEXTURE_2D, 0, 0, start, 1024, i - start, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE,
                     R.dlightmaps.subarray(start << 10, i << 10));
                 start = null;
@@ -1688,7 +1688,7 @@ class R {
 
     // surf
 
-    static var lightmap_modified = [];
+    static var lightmap_modified = new Uint8Array(1024);
     static var lightmaps = new Uint8Array(new ArrayBuffer(4194304));
     static var dlightmaps = new Uint8Array(new ArrayBuffer(1048576));
 
@@ -1740,7 +1740,7 @@ class R {
 
         var i = 0;
         for (t in 0...tmax) {
-            R.lightmap_modified[surf.light_t + t] = true;
+            R.lightmap_modified[surf.light_t + t] = 1;
             var dest = ((surf.light_t + t) << 10) + surf.light_s;
             for (s in 0...smax) {
                 var bl = blocklights[i++] >> 7;
@@ -1755,7 +1755,7 @@ class R {
         var smax = (surf.extents[0] >> 4) + 1;
         var tmax = (surf.extents[1] >> 4) + 1;
         for (t in 0...tmax) {
-            R.lightmap_modified[surf.light_t + t] = true;
+            R.lightmap_modified[surf.light_t + t] = 1;
             var dest = ((surf.light_t + t) << 10) + surf.light_s;
             for (s in 0...smax)
                 R.dlightmaps[dest + s] = 0;

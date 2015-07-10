@@ -10908,7 +10908,7 @@ quake_R.PushDlights = function() {
 	var _g = 0;
 	while(_g < 1024) {
 		var i = _g++;
-		quake_R.lightmap_modified[i] = false;
+		quake_R.lightmap_modified[i] = 0;
 	}
 	var bit = 1;
 	var _g1 = 0;
@@ -10942,7 +10942,7 @@ quake_R.PushDlights = function() {
 	var _g5 = 0;
 	while(_g5 < 1024) {
 		var i2 = _g5++;
-		if(start == null && quake_R.lightmap_modified[i2]) start = i2; else if(start != null && !quake_R.lightmap_modified[i2]) {
+		if(start == null && quake_R.lightmap_modified[i2] != 0) start = i2; else if(start != null && quake_R.lightmap_modified[i2] == 0) {
 			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i2 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,i2 << 10));
 			start = null;
 		}
@@ -12127,7 +12127,7 @@ quake_R.AddDynamicLights = function(surf) {
 	var _g3 = 0;
 	while(_g3 < tmax) {
 		var t1 = _g3++;
-		quake_R.lightmap_modified[surf.light_t + t1] = true;
+		quake_R.lightmap_modified[surf.light_t + t1] = 1;
 		var dest = (surf.light_t + t1 << 10) + surf.light_s;
 		var _g12 = 0;
 		while(_g12 < smax) {
@@ -12144,7 +12144,7 @@ quake_R.RemoveDynamicLights = function(surf) {
 	var _g = 0;
 	while(_g < tmax) {
 		var t = _g++;
-		quake_R.lightmap_modified[surf.light_t + t] = true;
+		quake_R.lightmap_modified[surf.light_t + t] = 1;
 		var dest = (surf.light_t + t << 10) + surf.light_s;
 		var _g1 = 0;
 		while(_g1 < smax) {
@@ -14091,7 +14091,7 @@ quake_R.ramp1 = [111,109,107,105,103,101,99,97];
 quake_R.ramp2 = [111,110,109,108,107,106,104,102];
 quake_R.ramp3 = [109,107,6,5,4,3];
 quake_R.tracercount = 0;
-quake_R.lightmap_modified = [];
+quake_R.lightmap_modified = new Uint8Array(1024);
 quake_R.lightmaps = new Uint8Array(new ArrayBuffer(4194304));
 quake_R.dlightmaps = new Uint8Array(new ArrayBuffer(1048576));
 quake_PF.builtin = [quake_PF.Fixme,quake_PF.makevectors,quake_PF.setorigin,quake_PF.setmodel,quake_PF.setsize,quake_PF.Fixme,quake_PF.breakstatement,quake_PF.random,quake_PF.sound,quake_PF.normalize,quake_PF.error,quake_PF.objerror,quake_PF.vlen,quake_PF.vectoyaw,quake_PF.Spawn,quake_PF.Remove,quake_PF.traceline,quake_PF.checkclient,quake_PF.Find,quake_PF.precache_sound,quake_PF.precache_model,quake_PF.stuffcmd,quake_PF.findradius,quake_PF.bprint,quake_PF.sprint,quake_PF.dprint,quake_PF.ftos,quake_PF.vtos,quake_PF.coredump,quake_PF.traceon,quake_PF.traceoff,quake_PF.eprint,quake_PF.walkmove,quake_PF.Fixme,quake_PF.droptofloor,quake_PF.lightstyle,quake_PF.rint,quake_PF.floor,quake_PF.ceil,quake_PF.Fixme,quake_PF.checkbottom,quake_PF.pointcontents,quake_PF.Fixme,quake_PF.fabs,quake_PF.aim,quake_PF.cvar,quake_PF.localcmd,quake_PF.nextent,quake_PF.particle,quake_PF.changeyaw,quake_PF.Fixme,quake_PF.vectoangles,quake_PF.WriteByte,quake_PF.WriteChar,quake_PF.WriteShort,quake_PF.WriteLong,quake_PF.WriteCoord,quake_PF.WriteAngle,quake_PF.WriteString,quake_PF.WriteEntity,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.MoveToGoal,quake_PF.precache_file,quake_PF.makestatic,quake_PF.changelevel,quake_PF.Fixme,quake_PF.cvar_set,quake_PF.centerprint,quake_PF.ambientsound,quake_PF.precache_model,quake_PF.precache_sound,quake_PF.precache_file,quake_PF.setspawnparms];

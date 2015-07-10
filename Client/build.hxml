@@ -5,3 +5,6 @@
 -D js-es5
 -js quake.js
 -D version=0.0.1
+
+--next
+-cmd start http://localhost/

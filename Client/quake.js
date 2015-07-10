@@ -10903,25 +10903,25 @@ quake_R.PushDlights = function() {
 		}
 		bit += bit;
 	}
-	var _g12 = 0;
-	var _g4 = quake_CL.state.worldmodel.faces.length;
-	while(_g12 < _g4) {
-		var i1 = _g12++;
-		var surf = quake_CL.state.worldmodel.faces[i1];
+	var _g4 = 0;
+	var _g12 = quake_CL.state.worldmodel.faces;
+	while(_g4 < _g12.length) {
+		var surf = _g12[_g4];
+		++_g4;
 		if(surf.dlightframe == quake_R.dlightframecount) quake_R.RemoveDynamicLights(surf); else if(surf.dlightframe == quake_R.dlightframecount + 1) quake_R.AddDynamicLights(surf);
 	}
 	quake_GL.Bind(0,quake_R.dlightmap_texture);
-	var start;
+	var start = null;
 	var _g5 = 0;
 	while(_g5 < 1024) {
-		var i2 = _g5++;
-		if(start == null && quake_R.lightmap_modified[i2] != 0) start = i2; else if(start != null && quake_R.lightmap_modified[i2] == 0) {
-			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i2 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,i2 << 10));
+		var i1 = _g5++;
+		if(start == null && quake_R.lightmap_modified[i1] != 0) start = i1; else if(start != null && quake_R.lightmap_modified[i1] == 0) {
+			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i1 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,i1 << 10));
 			start = null;
 		}
 	}
 	if(start != null) quake_GL.gl.texSubImage2D(3553,0,0,start,1024,1024 - start,6406,5121,quake_R.dlightmaps.subarray(start << 10,1048576));
-	++quake_R.dlightframecount;
+	quake_R.dlightframecount++;
 };
 quake_R.RecursiveLightPoint = function(node,start,end) {
 	if(node.contents < 0) return -1;

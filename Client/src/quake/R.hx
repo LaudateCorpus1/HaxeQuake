@@ -238,8 +238,7 @@ class R {
             bit += bit;
         }
 
-        for (i in 0...CL.state.worldmodel.faces.length) {
-            var surf = CL.state.worldmodel.faces[i];
+        for (surf in CL.state.worldmodel.faces) {
             if (surf.dlightframe == R.dlightframecount)
                 RemoveDynamicLights(surf);
             else if (surf.dlightframe == (R.dlightframecount + 1))
@@ -247,7 +246,7 @@ class R {
         }
 
         GL.Bind(0, R.dlightmap_texture);
-        var start;
+        var start:Null<Int> = null;
         for (i in 0...1024) {
             if (start == null && R.lightmap_modified[i] != 0)
                 start = i;
@@ -261,7 +260,7 @@ class R {
             gl.texSubImage2D(RenderingContext.TEXTURE_2D, 0, 0, start, 1024, 1024 - start, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE,
                 R.dlightmaps.subarray(start << 10, 1048576));
         }
-        ++R.dlightframecount;
+        dlightframecount++;
     }
 
     static function RecursiveLightPoint(node:MNode, start:Vec, end:Vec):Int {

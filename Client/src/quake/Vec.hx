@@ -3,7 +3,7 @@ package quake;
 typedef Matrix = Array<Array<Float>>;
 
 
-abstract Vec(Array<Float>) from Array<Float> {
+abstract Vec(Array<Float>) from Array<Float> to Array<Float> {
     public static var origin = new Vec();
 
     public inline function new() {
@@ -44,11 +44,11 @@ abstract Vec(Array<Float>) from Array<Float> {
         tempvec[pos] = 1.0;
         var inv_denom = 1.0 / (v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
         var d = (tempvec[0] * v[0] + tempvec[1] * v[1] + tempvec[2] * v[2]) * inv_denom;
-        var dst = [
+        var dst = Vec.of(
             tempvec[0] - d * v[0] * inv_denom,
             tempvec[1] - d * v[1] * inv_denom,
             tempvec[2] - d * v[2] * inv_denom
-        ];
+        );
         Normalize(dst);
         return dst;
     }
@@ -70,11 +70,11 @@ abstract Vec(Array<Float>) from Array<Float> {
         var c = Math.cos(degrees * Math.PI / 180.0);
         var zrot = [[c, s, 0], [-s, c, 0], [0.0, 0.0, 1.0]];
         var rot = ConcatRotations(ConcatRotations(m, zrot), im);
-        return [
+        return Vec.of(
             rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2],
             rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2],
             rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2]
-        ];
+        );
     }
 
     public static function Anglemod(a:Float):Float {
@@ -167,11 +167,11 @@ abstract Vec(Array<Float>) from Array<Float> {
     }
 
     public static function CrossProduct(v1:Vec, v2:Vec):Vec {
-        return [
+        return Vec.of(
             v1[1] * v2[2] - v1[2] * v2[1],
             v1[2] * v2[0] - v1[0] * v2[2],
             v1[0] * v2[1] - v1[1] * v2[0]
-        ];
+        );
     }
 
     public static inline function Length(v:Vec):Float {

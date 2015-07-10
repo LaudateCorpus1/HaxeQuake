@@ -18,16 +18,16 @@ class Chase {
     }
 
     static function Update():Void {
-        var forward:Vec = [];
-        var r:Vec = [];
+        var forward = new Vec();
+        var r = new Vec();
         Vec.AngleVectors(CL.state.viewangles, forward, r);
         var trace = new MTrace();
         trace.plane = new Plane();
         var org:Vec = R.refdef.vieworg;
-        SV.RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, [
+        SV.RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, Vec.of(
             org[0] + 4096.0 * forward[0],
             org[1] + 4096.0 * forward[1],
-            org[2] + 4096.0 * forward[2]], trace);
+            org[2] + 4096.0 * forward[2]), trace);
         var stop:Vec = trace.endpos;
         stop[2] -= org[2];
         var dist = (stop[0] - org[0]) * forward[0] + (stop[1] - org[1]) * forward[1] + stop[2] * forward[2];

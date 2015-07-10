@@ -276,11 +276,11 @@ class R {
             return R.RecursiveLightPoint(node.children[side ? 1 : 0], start, end);
 
         var frac = front / (front - back);
-        var mid = [
+        var mid = Vec.of(
             start[0] + (end[0] - start[0]) * frac,
             start[1] + (end[1] - start[1]) * frac,
             start[2] + (end[2] - start[2]) * frac
-        ];
+        );
 
         var r = R.RecursiveLightPoint(node.children[side ? 1 : 0], start, mid);
         if (r >= 0)
@@ -296,8 +296,8 @@ class R {
 
             var tex = CL.state.worldmodel.texinfo[surf.texinfo];
 
-            var s = Std.int(Vec.DotProduct(mid, tex.vecs[0]) + tex.vecs[0][3]);
-            var t = Std.int(Vec.DotProduct(mid, tex.vecs[1]) + tex.vecs[1][3]);
+            var s = Std.int(Vec.DotProduct(mid, Vec.ofArray(tex.vecs[0])) + tex.vecs[0][3]);
+            var t = Std.int(Vec.DotProduct(mid, Vec.ofArray(tex.vecs[1])) + tex.vecs[1][3]);
             if (s < surf.texturemins[0] || t < surf.texturemins[1])
                 continue;
 
@@ -331,7 +331,7 @@ class R {
     static function LightPoint(p:Vec):Int {
         if (CL.state.worldmodel.lightdata == null)
             return 255;
-        var r = R.RecursiveLightPoint(CL.state.worldmodel.nodes[0], p, [p[0], p[1], p[2] - 2048.0]);
+        var r = R.RecursiveLightPoint(CL.state.worldmodel.nodes[0], p, Vec.of(p[0], p[1], p[2] - 2048.0));
         if (r == -1)
             return 0;
         return r;
@@ -343,14 +343,14 @@ class R {
 
     static var frustum = [new Plane(), new Plane(), new Plane(), new Plane()];
 
-    static var vup = [];
-    static var vpn = [];
-    static var vright = [];
+    static var vup = new Vec();
+    static var vpn = new Vec();
+    static var vright = new Vec();
 
     static var refdef = {
         vrect: {x: 0, y: 0, width: 0, height: 0},
-        vieworg: [0.0, 0.0, 0.0],
-        viewangles: [0.0, 0.0, 0.0],
+        vieworg: new Vec(),
+        viewangles: new Vec(),
         fov_x: 0.0,
         fov_y: 0.0,
     }
@@ -570,16 +570,16 @@ class R {
         var clmodel = e.model;
 
         if (R.CullBox(
-            [
+            Vec.of(
                 e.origin[0] - clmodel.boundingradius,
                 e.origin[1] - clmodel.boundingradius,
                 e.origin[2] - clmodel.boundingradius
-            ],
-            [
+            ),
+            Vec.of(
                 e.origin[0] + clmodel.boundingradius,
                 e.origin[1] + clmodel.boundingradius,
                 e.origin[2] + clmodel.boundingradius
-            ]))
+            )))
             return;
 
         var program;
@@ -608,7 +608,7 @@ class R {
             var dl = CL.dlights[i];
             if (dl.die < CL.state.time)
                 continue;
-            var add = dl.radius - Vec.Length([e.origin[0] - dl.origin[0], e.origin[1] - dl.origin[1], e.origin[1] - dl.origin[1]]);
+            var add = dl.radius - Vec.Length(Vec.of(e.origin[0] - dl.origin[0], e.origin[1] - dl.origin[1], e.origin[1] - dl.origin[1]));
             if (add > 0) {
                 ambientlight += add;
                 shadelight += add;
@@ -623,12 +623,12 @@ class R {
         gl.uniform1f(program.uAmbientLight, ambientlight * 0.0078125);
         gl.uniform1f(program.uShadeLight, shadelight * 0.0078125);
 
-        var forward = [], right = [], up = [];
+        var forward = new Vec(), right = new Vec(), up = new Vec();
         Vec.AngleVectors(e.angles, forward, right, up);
         gl.uniform3fv(program.uLightVec, [
-            Vec.DotProduct([-1.0, 0.0, 0.0], forward),
-            -Vec.DotProduct([-1.0, 0.0, 0.0], right),
-            Vec.DotProduct([-1.0, 0.0, 0.0], up)
+            Vec.DotProduct(Vec.of(-1.0, 0.0, 0.0), forward),
+            -Vec.DotProduct(Vec.of(-1.0, 0.0, 0.0), right),
+            Vec.DotProduct(Vec.of(-1.0, 0.0, 0.0), up)
         ]);
 
         R.c_alias_polys += clmodel.numtris;
@@ -1696,7 +1696,7 @@ class R {
         var tmax = (surf.extents[1] >> 4) + 1;
         var size = smax * tmax;
         var tex = CL.state.worldmodel.texinfo[surf.texinfo];
-        var impact = [], local = [];
+        var impact = new Vec(), local = [];
 
         var blocklights = [];
         for (i in 0...size)
@@ -1715,8 +1715,8 @@ class R {
             impact[0] = light.origin[0] - surf.plane.normal[0] * dist;
             impact[1] = light.origin[1] - surf.plane.normal[1] * dist;
             impact[2] = light.origin[2] - surf.plane.normal[2] * dist;
-            local[0] = Vec.DotProduct(impact, tex.vecs[0]) + tex.vecs[0][3] - surf.texturemins[0];
-            local[1] = Vec.DotProduct(impact, tex.vecs[1]) + tex.vecs[1][3] - surf.texturemins[1];
+            local[0] = Vec.DotProduct(impact, Vec.ofArray(tex.vecs[0])) + tex.vecs[0][3] - surf.texturemins[0];
+            local[1] = Vec.DotProduct(impact, Vec.ofArray(tex.vecs[1])) + tex.vecs[1][3] - surf.texturemins[1];
             for (t in 0...tmax) {
                 var td = local[1] - (t << 4);
                 if (td < 0.0)
@@ -1812,29 +1812,29 @@ class R {
 
         if (clmodel.submodel) {
             if (R.CullBox(
-                [
+                Vec.of(
                     e.origin[0] + clmodel.mins[0],
                     e.origin[1] + clmodel.mins[1],
                     e.origin[2] + clmodel.mins[2]
-                ],
-                [
+                ),
+                Vec.of(
                     e.origin[0] + clmodel.maxs[0],
                     e.origin[1] + clmodel.maxs[1],
                     e.origin[2] + clmodel.maxs[2]
-                ]))
+                )))
                 return;
         } else {
             if (R.CullBox(
-                [
+                Vec.of(
                     e.origin[0] - clmodel.radius,
                     e.origin[1] - clmodel.radius,
                     e.origin[2] - clmodel.radius
-                ],
-                [
+                ),
+                Vec.of(
                     e.origin[0] + clmodel.radius,
                     e.origin[1] + clmodel.radius,
                     e.origin[2] + clmodel.radius
-                ]))
+                )))
                 return;
         }
 
@@ -1972,11 +1972,11 @@ class R {
             var p = [R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2]];
             var leaf;
             if (R.viewleaf.contents <= ModContents.water) {
-                leaf = Mod.PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0], CL.state.worldmodel);
+                leaf = Mod.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0), CL.state.worldmodel);
                 if (leaf.contents <= ModContents.water)
                     break;
             } else {
-                leaf = Mod.PointInLeaf([R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0], CL.state.worldmodel);
+                leaf = Mod.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0), CL.state.worldmodel);
                 if (leaf.contents > ModContents.water)
                     break;
             }

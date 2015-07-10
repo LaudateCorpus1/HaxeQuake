@@ -2077,8 +2077,8 @@ quake_Chase.Init = function() {
 	quake_Chase.active = quake_Cvar.RegisterVariable("chase_active","0");
 };
 quake_Chase.Update = function() {
-	var forward = [];
-	var r = [];
+	var forward = [0.0,0.0,0.0];
+	var r = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_CL.state.viewangles,forward,r);
 	var trace = new quake_MTrace();
 	trace.plane = new quake_Plane();
@@ -2088,7 +2088,8 @@ quake_Chase.Update = function() {
 	stop[2] = stop[2] - org[2];
 	var dist = (stop[0] - org[0]) * forward[0] + (stop[1] - org[1]) * forward[1] + stop[2] * forward[2];
 	if(dist < 1.0) dist = 1.0;
-	quake_R.refdef.viewangles[0] = Math.atan(stop[2] / dist) / Math.PI * -180.0;
+	var v = Math.atan(stop[2] / dist) / Math.PI * -180.0;
+	quake_R.refdef.viewangles[0] = v;
 	org[0] = org[0] - (forward[0] * quake_Chase.back.value + r[0] * quake_Chase.right.value);
 	org[1] = org[1] - (forward[1] * quake_Chase.back.value + r[1] * quake_Chase.right.value);
 	org[2] = org[2] + quake_Chase.up.value;
@@ -11126,13 +11127,19 @@ quake_R.RecursiveLightPoint = function(node,start,end) {
 		if(surf.sky || surf.turbulent) continue;
 		var tex = quake_CL.state.worldmodel.texinfo[surf.texinfo];
 		var tmp;
-		var v2 = tex.vecs[0];
-		tmp = mid[0] * v2[0] + mid[1] * v2[1] + mid[2] * v2[2];
-		var s = tmp + tex.vecs[0][3] | 0;
+		var tmp2;
+		var v2 = tex.vecs[0].slice(0,3);
+		tmp2 = mid[0] * v2[0] + mid[1] * v2[1] + mid[2] * v2[2];
+		var x = tmp2 + tex.vecs[0][3];
+		tmp = x | 0;
+		var s = tmp;
 		var tmp1;
-		var v21 = tex.vecs[1];
-		tmp1 = mid[0] * v21[0] + mid[1] * v21[1] + mid[2] * v21[2];
-		var t = tmp1 + tex.vecs[1][3] | 0;
+		var tmp3;
+		var v21 = tex.vecs[1].slice(0,3);
+		tmp3 = mid[0] * v21[0] + mid[1] * v21[1] + mid[2] * v21[2];
+		var x1 = tmp3 + tex.vecs[1][3];
+		tmp1 = x1 | 0;
+		var t = tmp1;
 		if(s < surf.texturemins[0] || t < surf.texturemins[1]) continue;
 		var ds = s - surf.texturemins[0];
 		var dt = t - surf.texturemins[1];
@@ -11239,9 +11246,9 @@ quake_R.DrawAliasModel = function(e) {
 	if(e.num >= 1 && e.num <= quake_CL.state.maxclients && ambientlight < 8.0) ambientlight = shadelight = 8.0;
 	quake_GL.gl.uniform1f(program.uAmbientLight,ambientlight * 0.0078125);
 	quake_GL.gl.uniform1f(program.uShadeLight,shadelight * 0.0078125);
-	var forward = [];
-	var right = [];
-	var up = [];
+	var forward = [0.0,0.0,0.0];
+	var right = [0.0,0.0,0.0];
+	var up = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors(e.angles,forward,right,up);
 	var tmp;
 	var v1 = [-1.0,0.0,0.0];
@@ -12229,7 +12236,7 @@ quake_R.AddDynamicLights = function(surf) {
 	var tmax = (surf.extents[1] >> 4) + 1;
 	var size = smax * tmax;
 	var tex = quake_CL.state.worldmodel.texinfo[surf.texinfo];
-	var impact = [];
+	var impact = [0.0,0.0,0.0];
 	var local = [];
 	var blocklights = [];
 	var _g = 0;
@@ -12255,11 +12262,11 @@ quake_R.AddDynamicLights = function(surf) {
 		impact[1] = light.origin[1] - surf.plane.normal[1] * dist;
 		impact[2] = light.origin[2] - surf.plane.normal[2] * dist;
 		var tmp1;
-		var v21 = tex.vecs[0];
+		var v21 = tex.vecs[0].slice(0,3);
 		tmp1 = impact[0] * v21[0] + impact[1] * v21[1] + impact[2] * v21[2];
 		local[0] = tmp1 + tex.vecs[0][3] - surf.texturemins[0];
 		var tmp2;
-		var v22 = tex.vecs[1];
+		var v22 = tex.vecs[1].slice(0,3);
 		tmp2 = impact[0] * v22[0] + impact[1] * v22[1] + impact[2] * v22[2];
 		local[1] = tmp2 + tex.vecs[1][3] - surf.texturemins[1];
 		var _g11 = 0;
@@ -13985,9 +13992,12 @@ quake_V.CalcIntermissionRefdef = function() {
 	quake_R.refdef.vieworg[0] = ent.origin[0];
 	quake_R.refdef.vieworg[1] = ent.origin[1];
 	quake_R.refdef.vieworg[2] = ent.origin[2];
-	quake_R.refdef.viewangles[0] = ent.angles[0] + Math.sin(quake_CL.state.time * quake_V.ipitch_cycle.value) * quake_V.ipitch_level.value;
-	quake_R.refdef.viewangles[1] = ent.angles[1] + Math.sin(quake_CL.state.time * quake_V.iyaw_cycle.value) * quake_V.iyaw_level.value;
-	quake_R.refdef.viewangles[2] = ent.angles[2] + Math.sin(quake_CL.state.time * quake_V.iroll_cycle.value) * quake_V.iroll_level.value;
+	var v = ent.angles[0] + Math.sin(quake_CL.state.time * quake_V.ipitch_cycle.value) * quake_V.ipitch_level.value;
+	quake_R.refdef.viewangles[0] = v;
+	var v1 = ent.angles[1] + Math.sin(quake_CL.state.time * quake_V.iyaw_cycle.value) * quake_V.iyaw_level.value;
+	quake_R.refdef.viewangles[1] = v1;
+	var v2 = ent.angles[2] + Math.sin(quake_CL.state.time * quake_V.iroll_cycle.value) * quake_V.iroll_level.value;
+	quake_R.refdef.viewangles[2] = v2;
 	quake_CL.state.viewent.model = null;
 };
 quake_V.CalcRefdef = function() {
@@ -14001,11 +14011,12 @@ quake_V.CalcRefdef = function() {
 	quake_R.refdef.vieworg[2] = ent.origin[2] + quake_CL.state.viewheight + bob + 0.03125;
 	quake_R.refdef.viewangles[0] = quake_CL.state.viewangles[0];
 	quake_R.refdef.viewangles[1] = quake_CL.state.viewangles[1];
-	quake_R.refdef.viewangles[2] = quake_CL.state.viewangles[2] + quake_V.CalcRoll(quake_CL.entities[quake_CL.state.viewentity].angles,quake_CL.state.velocity);
+	var v = quake_CL.state.viewangles[2] + quake_V.CalcRoll(quake_CL.entities[quake_CL.state.viewentity].angles,quake_CL.state.velocity);
+	quake_R.refdef.viewangles[2] = v;
 	if(quake_V.dmg_time > 0.0) {
 		if(quake_V.kicktime.value != 0.0) {
-			quake_R.refdef.viewangles[2] += quake_V.dmg_time / quake_V.kicktime.value * quake_V.dmg_roll;
-			quake_R.refdef.viewangles[0] -= quake_V.dmg_time / quake_V.kicktime.value * quake_V.dmg_pitch;
+			quake_R.refdef.viewangles[2] = quake_R.refdef.viewangles[2] + quake_V.dmg_time / quake_V.kicktime.value * quake_V.dmg_roll;
+			quake_R.refdef.viewangles[0] = quake_R.refdef.viewangles[0] - quake_V.dmg_time / quake_V.kicktime.value * quake_V.dmg_pitch;
 		}
 		quake_V.dmg_time -= quake_Host.frametime;
 	}
@@ -14013,16 +14024,16 @@ quake_V.CalcRefdef = function() {
 	var ipitch = quake_V.idlescale.value * Math.sin(quake_CL.state.time * quake_V.ipitch_cycle.value) * quake_V.ipitch_level.value;
 	var iyaw = quake_V.idlescale.value * Math.sin(quake_CL.state.time * quake_V.iyaw_cycle.value) * quake_V.iyaw_level.value;
 	var iroll = quake_V.idlescale.value * Math.sin(quake_CL.state.time * quake_V.iroll_cycle.value) * quake_V.iroll_level.value;
-	quake_R.refdef.viewangles[0] += ipitch;
-	quake_R.refdef.viewangles[1] += iyaw;
-	quake_R.refdef.viewangles[2] += iroll;
+	quake_R.refdef.viewangles[0] = quake_R.refdef.viewangles[0] + ipitch;
+	quake_R.refdef.viewangles[1] = quake_R.refdef.viewangles[1] + iyaw;
+	quake_R.refdef.viewangles[2] = quake_R.refdef.viewangles[2] + iroll;
 	var forward = [0.0,0.0,0.0];
 	var right = [0.0,0.0,0.0];
 	var up = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors([-ent.angles[0],ent.angles[1],ent.angles[2]],forward,right,up);
-	quake_R.refdef.vieworg[0] += quake_V.ofsx.value * forward[0] + quake_V.ofsy.value * right[0] + quake_V.ofsz.value * up[0];
-	quake_R.refdef.vieworg[1] += quake_V.ofsx.value * forward[1] + quake_V.ofsy.value * right[1] + quake_V.ofsz.value * up[1];
-	quake_R.refdef.vieworg[2] += quake_V.ofsx.value * forward[2] + quake_V.ofsy.value * right[2] + quake_V.ofsz.value * up[2];
+	quake_R.refdef.vieworg[0] = quake_R.refdef.vieworg[0] + (quake_V.ofsx.value * forward[0] + quake_V.ofsy.value * right[0] + quake_V.ofsz.value * up[0]);
+	quake_R.refdef.vieworg[1] = quake_R.refdef.vieworg[1] + (quake_V.ofsx.value * forward[1] + quake_V.ofsy.value * right[1] + quake_V.ofsz.value * up[1]);
+	quake_R.refdef.vieworg[2] = quake_R.refdef.vieworg[2] + (quake_V.ofsx.value * forward[2] + quake_V.ofsy.value * right[2] + quake_V.ofsz.value * up[2]);
 	if(quake_R.refdef.vieworg[0] < ent.origin[0] - 14.0) quake_R.refdef.vieworg[0] = ent.origin[0] - 14.0; else if(quake_R.refdef.vieworg[0] > ent.origin[0] + 14.0) quake_R.refdef.vieworg[0] = ent.origin[0] + 14.0;
 	if(quake_R.refdef.vieworg[1] < ent.origin[1] - 14.0) quake_R.refdef.vieworg[1] = ent.origin[1] - 14.0; else if(quake_R.refdef.vieworg[1] > ent.origin[1] + 14.0) quake_R.refdef.vieworg[1] = ent.origin[1] + 14.0;
 	if(quake_R.refdef.vieworg[2] < ent.origin[2] - 22.0) quake_R.refdef.vieworg[2] = ent.origin[2] - 22.0; else if(quake_R.refdef.vieworg[2] > ent.origin[2] + 30.0) quake_R.refdef.vieworg[2] = ent.origin[2] + 30.0;
@@ -14047,15 +14058,15 @@ quake_V.CalcRefdef = function() {
 	}
 	view.model = quake_CL.state.model_precache[quake_CL.state.stats[2]];
 	view.frame = quake_CL.state.stats[5];
-	quake_R.refdef.viewangles[0] += quake_CL.state.punchangle[0];
-	quake_R.refdef.viewangles[1] += quake_CL.state.punchangle[1];
-	quake_R.refdef.viewangles[2] += quake_CL.state.punchangle[2];
+	quake_R.refdef.viewangles[0] = quake_R.refdef.viewangles[0] + quake_CL.state.punchangle[0];
+	quake_R.refdef.viewangles[1] = quake_R.refdef.viewangles[1] + quake_CL.state.punchangle[1];
+	quake_R.refdef.viewangles[2] = quake_R.refdef.viewangles[2] + quake_CL.state.punchangle[2];
 	if(quake_CL.state.onground && ent.origin[2] - quake_V.oldz > 0.0) {
 		var steptime = quake_CL.state.time - quake_CL.state.oldtime;
 		if(steptime < 0.0) steptime = 0.0;
 		quake_V.oldz += steptime * 80.0;
 		if(quake_V.oldz > ent.origin[2]) quake_V.oldz = ent.origin[2]; else if(ent.origin[2] - quake_V.oldz > 12.0) quake_V.oldz = ent.origin[2] - 12.0;
-		quake_R.refdef.vieworg[2] += quake_V.oldz - ent.origin[2];
+		quake_R.refdef.vieworg[2] = quake_R.refdef.vieworg[2] + (quake_V.oldz - ent.origin[2]);
 		view.origin[2] = view.origin[2] + (quake_V.oldz - ent.origin[2]);
 	} else quake_V.oldz = ent.origin[2];
 	if(quake_Chase.active.value != 0) quake_Chase.Update();
@@ -14264,9 +14275,9 @@ quake_R.dlightframecount = 0;
 quake_R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 quake_R.visframecount = 0;
 quake_R.frustum = [new quake_Plane(),new quake_Plane(),new quake_Plane(),new quake_Plane()];
-quake_R.vup = [];
-quake_R.vpn = [];
-quake_R.vright = [];
+quake_R.vup = [0.0,0.0,0.0];
+quake_R.vpn = [0.0,0.0,0.0];
+quake_R.vright = [0.0,0.0,0.0];
 quake_R.refdef = { vrect : { x : 0, y : 0, width : 0, height : 0}, vieworg : [0.0,0.0,0.0], viewangles : [0.0,0.0,0.0], fov_x : 0.0, fov_y : 0.0};
 quake_R.avertexnormals = [[-0.525731,0.0,0.850651],[-0.442863,0.238856,0.864188],[-0.295242,0.0,0.955423],[-0.309017,0.5,0.809017],[-0.16246,0.262866,0.951056],[0.0,0.0,1.0],[0.0,0.850651,0.525731],[-0.147621,0.716567,0.681718],[0.147621,0.716567,0.681718],[0.0,0.525731,0.850651],[0.309017,0.5,0.809017],[0.525731,0.0,0.850651],[0.295242,0.0,0.955423],[0.442863,0.238856,0.864188],[0.16246,0.262866,0.951056],[-0.681718,0.147621,0.716567],[-0.809017,0.309017,0.5],[-0.587785,0.425325,0.688191],[-0.850651,0.525731,0.0],[-0.864188,0.442863,0.238856],[-0.716567,0.681718,0.147621],[-0.688191,0.587785,0.425325],[-0.5,0.809017,0.309017],[-0.238856,0.864188,0.442863],[-0.425325,0.688191,0.587785],[-0.716567,0.681718,-0.147621],[-0.5,0.809017,-0.309017],[-0.525731,0.850651,0.0],[0.0,0.850651,-0.525731],[-0.238856,0.864188,-0.442863],[0.0,0.955423,-0.295242],[-0.262866,0.951056,-0.16246],[0.0,1.0,0.0],[0.0,0.955423,0.295242],[-0.262866,0.951056,0.16246],[0.238856,0.864188,0.442863],[0.262866,0.951056,0.16246],[0.5,0.809017,0.309017],[0.238856,0.864188,-0.442863],[0.262866,0.951056,-0.16246],[0.5,0.809017,-0.309017],[0.850651,0.525731,0.0],[0.716567,0.681718,0.147621],[0.716567,0.681718,-0.147621],[0.525731,0.850651,0.0],[0.425325,0.688191,0.587785],[0.864188,0.442863,0.238856],[0.688191,0.587785,0.425325],[0.809017,0.309017,0.5],[0.681718,0.147621,0.716567],[0.587785,0.425325,0.688191],[0.955423,0.295242,0.0],[1.0,0.0,0.0],[0.951056,0.16246,0.262866],[0.850651,-0.525731,0.0],[0.955423,-0.295242,0.0],[0.864188,-0.442863,0.238856],[0.951056,-0.16246,0.262866],[0.809017,-0.309017,0.5],[0.681718,-0.147621,0.716567],[0.850651,0.0,0.525731],[0.864188,0.442863,-0.238856],[0.809017,0.309017,-0.5],[0.951056,0.16246,-0.262866],[0.525731,0.0,-0.850651],[0.681718,0.147621,-0.716567],[0.681718,-0.147621,-0.716567],[0.850651,0.0,-0.525731],[0.809017,-0.309017,-0.5],[0.864188,-0.442863,-0.238856],[0.951056,-0.16246,-0.262866],[0.147621,0.716567,-0.681718],[0.309017,0.5,-0.809017],[0.425325,0.688191,-0.587785],[0.442863,0.238856,-0.864188],[0.587785,0.425325,-0.688191],[0.688191,0.587785,-0.425325],[-0.147621,0.716567,-0.681718],[-0.309017,0.5,-0.809017],[0.0,0.525731,-0.850651],[-0.525731,0.0,-0.850651],[-0.442863,0.238856,-0.864188],[-0.295242,0.0,-0.955423],[-0.16246,0.262866,-0.951056],[0.0,0.0,-1.0],[0.295242,0.0,-0.955423],[0.16246,0.262866,-0.951056],[-0.442863,-0.238856,-0.864188],[-0.309017,-0.5,-0.809017],[-0.16246,-0.262866,-0.951056],[0.0,-0.850651,-0.525731],[-0.147621,-0.716567,-0.681718],[0.147621,-0.716567,-0.681718],[0.0,-0.525731,-0.850651],[0.309017,-0.5,-0.809017],[0.442863,-0.238856,-0.864188],[0.16246,-0.262866,-0.951056],[0.238856,-0.864188,-0.442863],[0.5,-0.809017,-0.309017],[0.425325,-0.688191,-0.587785],[0.716567,-0.681718,-0.147621],[0.688191,-0.587785,-0.425325],[0.587785,-0.425325,-0.688191],[0.0,-0.955423,-0.295242],[0.0,-1.0,0.0],[0.262866,-0.951056,-0.16246],[0.0,-0.850651,0.525731],[0.0,-0.955423,0.295242],[0.238856,-0.864188,0.442863],[0.262866,-0.951056,0.16246],[0.5,-0.809017,0.309017],[0.716567,-0.681718,0.147621],[0.525731,-0.850651,0.0],[-0.238856,-0.864188,-0.442863],[-0.5,-0.809017,-0.309017],[-0.262866,-0.951056,-0.16246],[-0.850651,-0.525731,0.0],[-0.716567,-0.681718,-0.147621],[-0.716567,-0.681718,0.147621],[-0.525731,-0.850651,0.0],[-0.5,-0.809017,0.309017],[-0.238856,-0.864188,0.442863],[-0.262866,-0.951056,0.16246],[-0.864188,-0.442863,0.238856],[-0.809017,-0.309017,0.5],[-0.688191,-0.587785,0.425325],[-0.681718,-0.147621,0.716567],[-0.442863,-0.238856,0.864188],[-0.587785,-0.425325,0.688191],[-0.309017,-0.5,0.809017],[-0.147621,-0.716567,0.681718],[-0.425325,-0.688191,0.587785],[-0.16246,-0.262866,0.951056],[0.442863,-0.238856,0.864188],[0.16246,-0.262866,0.951056],[0.309017,-0.5,0.809017],[0.147621,-0.716567,0.681718],[0.0,-0.525731,0.850651],[0.425325,-0.688191,0.587785],[0.587785,-0.425325,0.688191],[0.688191,-0.587785,0.425325],[-0.955423,0.295242,0.0],[-0.951056,0.16246,0.262866],[-1.0,0.0,0.0],[-0.850651,0.0,0.525731],[-0.955423,-0.295242,0.0],[-0.951056,-0.16246,0.262866],[-0.864188,0.442863,-0.238856],[-0.951056,0.16246,-0.262866],[-0.809017,0.309017,-0.5],[-0.864188,-0.442863,-0.238856],[-0.951056,-0.16246,-0.262866],[-0.809017,-0.309017,-0.5],[-0.681718,0.147621,-0.716567],[-0.681718,-0.147621,-0.716567],[-0.850651,0.0,-0.525731],[-0.688191,0.587785,-0.425325],[-0.587785,0.425325,-0.688191],[-0.425325,0.688191,-0.587785],[-0.425325,-0.688191,-0.587785],[-0.587785,-0.425325,-0.688191],[-0.688191,-0.587785,-0.425325]];
 quake_R.perspective = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0001220777635353,-1.0,0.0,0.0,-8.0004883110541414,0.0];

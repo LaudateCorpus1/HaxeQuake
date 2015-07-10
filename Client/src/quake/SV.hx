@@ -1757,13 +1757,14 @@ class SV {
     }
 
     static function AirMove() {
-        var ent = SV.player;
+        var ent = player;
         var cmd = Host.client.cmd;
-        var forward = new Vec(), right = new Vec();
+        var forward = new Vec();
+        var right = new Vec();
         Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.angles), forward, right);
         var fmove = cmd.forwardmove;
         var smove = cmd.sidemove;
-        if ((SV.server.time < ent.v.teleport_time) && (fmove < 0.0))
+        if (server.time < ent.v.teleport_time && fmove < 0.0)
             fmove = 0.0;
         var wishvel = Vec.of(
             forward[0] * fmove + right[0] * smove,
@@ -1771,18 +1772,19 @@ class SV {
             (Std.int(ent.v.movetype) != MoveType.walk) ? cmd.upmove : 0.0
         );
         var wishdir = wishvel.copy();
-        if (Vec.Normalize(wishdir) > SV.maxspeed.value) {
-            wishvel[0] = wishdir[0] * SV.maxspeed.value;
-            wishvel[1] = wishdir[1] * SV.maxspeed.value;
-            wishvel[2] = wishdir[2] * SV.maxspeed.value;
+        if (Vec.Normalize(wishdir) > maxspeed.value) {
+            wishvel[0] = wishdir[0] * maxspeed.value;
+            wishvel[1] = wishdir[1] * maxspeed.value;
+            wishvel[2] = wishdir[2] * maxspeed.value;
         }
-        if (ent.v.movetype == MoveType.noclip)
+        if (ent.v.movetype == MoveType.noclip) {
             ED.SetVector(ent, EdictVarOfs.velocity, wishvel);
-        else if ((ent.flags & EntFlag.onground) != 0) {
-            SV.UserFriction();
-            SV.Accelerate(wishvel, false);
-        } else
-            SV.Accelerate(wishvel, true);
+        } else if ((ent.flags & EntFlag.onground) != 0) {
+            UserFriction();
+            Accelerate(wishvel, false);
+        } else {
+            Accelerate(wishvel, true);
+        }
     }
 
     static function ClientThink():Void {

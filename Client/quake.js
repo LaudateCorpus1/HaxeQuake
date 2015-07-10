@@ -9577,12 +9577,10 @@ quake_SV.GetClientName = function(client) {
 };
 quake_SV.SetClientName = function(client,name) {
 	var ofs = quake_PR.netnames + (client.num << 5);
-	var i;
-	var _g1 = 0;
-	var _g = name.length;
-	while(_g1 < _g) {
-		var i1 = _g1++;
-		quake_PR.strings[ofs + i1] = HxOverrides.cca(name,i1);
+	var i = 0;
+	while(i < name.length) {
+		quake_PR.strings[ofs + i] = HxOverrides.cca(name,i);
+		i++;
 	}
 	quake_PR.strings[ofs + i] = 0;
 };

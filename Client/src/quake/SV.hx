@@ -789,9 +789,12 @@ class SV {
     }
 
     static function SetClientName(client, name:String):Void {
-        var ofs = PR.netnames + (client.num << 5), i;
-        for (i in 0...name.length)
+        var ofs = PR.netnames + (client.num << 5);
+        var i = 0;
+        while (i < name.length) {
             PR.strings[ofs + i] = name.charCodeAt(i);
+            i++;
+        }
         PR.strings[ofs + i] = 0;
     }
 

@@ -1101,7 +1101,7 @@ quake_CL.SendCmd = function() {
 	if(quake_CL.cls.state != 2) return;
 	if(quake_CL.cls.signon == 4) {
 		quake_CL.BaseMove();
-		quake_IN.Move();
+		quake_IN.MouseMove();
 		quake_CL.SendMove();
 	}
 	if(quake_CL.cls.demoplayback) {
@@ -4540,9 +4540,6 @@ quake_IN.MouseMove = function() {
 		if(angles[0] > 80.0) angles[0] = 80.0; else if(angles[0] < -70.0) angles[0] = -70.0;
 	} else if(strafe != 0 && quake_Host.noclip_anglehack) quake_CL.state.cmd.upmove -= quake_CL.m_forward.value * mouse_y; else quake_CL.state.cmd.forwardmove -= quake_CL.m_forward.value * mouse_y;
 	quake_IN.mouse_x = quake_IN.mouse_y = 0;
-};
-quake_IN.Move = function() {
-	quake_IN.MouseMove();
 };
 quake_IN.onclick = function() {
 	if(window.document.pointerLockElement != quake_VID.mainwindow) quake_VID.mainwindow.requestPointerLock();

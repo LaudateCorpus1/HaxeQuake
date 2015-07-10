@@ -87,7 +87,7 @@ class IN {
         IN.mouse_x = IN.mouse_y = 0;
     }
 
-    static function Move():Void
+    static inline function Move():Void
     {
         MouseMove();
     }

@@ -1963,20 +1963,20 @@ class SV {
 
     static function HullForEntity(ent:Edict, mins:Vec, maxs:Vec, offset:Vec):MHull {
         if (ent.v.solid != SolidType.bsp) {
-            SV.box_planes[0].dist = ent.v.maxs - mins[0];
-            SV.box_planes[1].dist = ent.v.mins - maxs[0];
-            SV.box_planes[2].dist = ent.v.maxs1 - mins[1];
-            SV.box_planes[3].dist = ent.v.mins1 - maxs[1];
-            SV.box_planes[4].dist = ent.v.maxs2 - mins[2];
-            SV.box_planes[5].dist = ent.v.mins2 - maxs[2];
+            box_planes[0].dist = ent.v.maxs - mins[0];
+            box_planes[1].dist = ent.v.mins - maxs[0];
+            box_planes[2].dist = ent.v.maxs1 - mins[1];
+            box_planes[3].dist = ent.v.mins1 - maxs[1];
+            box_planes[4].dist = ent.v.maxs2 - mins[2];
+            box_planes[5].dist = ent.v.mins2 - maxs[2];
             offset[0] = ent.v.origin;
             offset[1] = ent.v.origin1;
             offset[2] = ent.v.origin2;
-            return SV.box_hull;
+            return box_hull;
         }
         if (ent.v.movetype != MoveType.push)
             Sys.Error('SOLID_BSP without MOVETYPE_PUSH');
-        var model = SV.server.models[Std.int(ent.v.modelindex)];
+        var model = server.models[Std.int(ent.v.modelindex)];
         if (model == null)
             Sys.Error('MOVETYPE_PUSH with a non bsp model');
         if (model.type != brush)
@@ -1997,7 +1997,7 @@ class SV {
 
     static function CreateAreaNode(depth:Int, mins:Vec, maxs:Vec):MAreaNode {
         var anode = new MAreaNode();
-        SV.areanodes.push(anode);
+        areanodes.push(anode);
 
         anode.trigger_edicts = new MLink();
         anode.trigger_edicts.prev = anode.trigger_edicts.next = anode.trigger_edicts;
@@ -2016,7 +2016,7 @@ class SV {
         var maxs1 = maxs.copy();
         var mins2 = mins.copy();
         maxs1[anode.axis] = mins2[anode.axis] = anode.dist;
-        anode.children = [SV.CreateAreaNode(depth + 1, mins2, maxs), SV.CreateAreaNode(depth + 1, mins, maxs1)];
+        anode.children = [CreateAreaNode(depth + 1, mins2, maxs), CreateAreaNode(depth + 1, mins, maxs1)];
         return anode;
     }
 

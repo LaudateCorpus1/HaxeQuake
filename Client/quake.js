@@ -11252,7 +11252,7 @@ quake_SV.FindTouchedLeafs = function(ent,node) {
 	if(node.contents == -2) return;
 	if(node.contents < 0) {
 		if(ent.leafnums.length == 16) return;
-		ent.leafnums[ent.leafnums.length] = node.num - 1;
+		ent.leafnums.push(node.num - 1);
 		return;
 	}
 	var tmp;

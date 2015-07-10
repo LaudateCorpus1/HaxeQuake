@@ -2062,16 +2062,17 @@ class SV {
         if (node.contents < 0) {
             if (ent.leafnums.length == 16)
                 return;
-            ent.leafnums[ent.leafnums.length] = node.num - 1;
+            ent.leafnums.push(node.num - 1);
             return;
         }
 
         var sides = Vec.BoxOnPlaneSide(Vec.of(ent.v.absmin, ent.v.absmin1, ent.v.absmin2),
-            Vec.of(ent.v.absmax, ent.v.absmax1, ent.v.absmax2), node.plane);
+                                       Vec.of(ent.v.absmax, ent.v.absmax1, ent.v.absmax2),
+                                       node.plane);
         if ((sides & 1) != 0)
-            SV.FindTouchedLeafs(ent, node.children[0]);
+            FindTouchedLeafs(ent, node.children[0]);
         if ((sides & 2) != 0)
-            SV.FindTouchedLeafs(ent, node.children[1]);
+            FindTouchedLeafs(ent, node.children[1]);
     }
 
     static function LinkEdict(ent:Edict, touch_triggers:Bool):Void {

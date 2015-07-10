@@ -145,7 +145,7 @@ class MFrame {
     var group:Bool;
     var frames:Array<MFrame>;
     var interval:Float;
-    var origin:Vec2i;
+    var origin:Array<Int>;
     var width:Int;
     var height:Int;
     var texturenum:Texture;
@@ -202,8 +202,8 @@ class MTexinfo {
 
 @:publicFields
 class MSurface {
-    var extents:Vec2i;
-    var texturemins:Vec2i;
+    var extents:Array<Int>;
+    var texturemins:Array<Int>;
     var light_s:Int;
     var light_t:Int;
     var dlightframe:Int;

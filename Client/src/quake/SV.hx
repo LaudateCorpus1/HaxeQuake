@@ -122,6 +122,8 @@ class SV {
     static var nop:MSG;
     static var reconnect:MSG;
 
+    static var areanodes:Array<MAreaNode>;
+
     static function Init() {
         SV.maxvelocity = Cvar.RegisterVariable('sv_maxvelocity', '2000');
         SV.gravity = Cvar.RegisterVariable('sv_gravity', '800', false, true);
@@ -2320,7 +2322,7 @@ class SV {
 
     static function Move(start:Vec, mins:Vec, maxs:Vec, end:Vec, type:Int, passedict:Edict):MTrace {
         var clip = new MMoveClip();
-        clip.trace = SV.ClipMoveToEntity(SV.server.edicts[0], start, mins, maxs, end);
+        clip.trace = ClipMoveToEntity(server.edicts[0], start, mins, maxs, end);
         clip.start = start;
         clip.end = end;
         clip.mins = mins;
@@ -2345,9 +2347,7 @@ class SV {
             clip.boxmins[i] = end[i] + clip.mins2[i] - 1.0;
             clip.boxmaxs[i] = start[i] + clip.maxs2[i] + 1.0;
         }
-        SV.ClipToLinks(SV.areanodes[0], clip);
+        ClipToLinks(areanodes[0], clip);
         return clip.trace;
     }
-
-    static var areanodes:Array<MAreaNode>;
 }

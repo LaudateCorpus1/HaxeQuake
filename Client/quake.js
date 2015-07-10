@@ -2557,7 +2557,7 @@ quake_Draw.Init = function() {
 	quake_Draw.conback.width = 320;
 	quake_Draw.conback.height = 200;
 	quake_Draw.conback.data = new Uint8Array(cb,8,64000);
-	var ver = "(WebQuake build " + quake_Def.webquake_version + ") 1.09";
+	var ver = "(HaxeQuake " + "0.0.1" + ") 1.09";
 	var _g1 = 0;
 	var _g2 = ver.length;
 	while(_g1 < _g2) {
@@ -13963,7 +13963,6 @@ quake_Console.backscroll = 0;
 quake_Console.current = 0;
 quake_Console.text = [];
 quake_Cvar.vars = new haxe_ds_StringMap();
-quake_Def.webquake_version = 48;
 quake_Def.timedate = "Exe: 12:39:20 Aug  7 2014\n";
 quake_Def.max_edicts = 600;
 quake_Def.it = { shotgun : 1, super_shotgun : 2, nailgun : 4, super_nailgun : 8, grenade_launcher : 16, rocket_launcher : 32, lightning : 64, super_lightning : 128, shells : 256, nails : 512, rockets : 1024, cells : 2048, axe : 4096, armor1 : 8192, armor2 : 16384, armor3 : 32768, superhealth : 65536, key1 : 131072, key2 : 262144, invisibility : 524288, invulnerability : 1048576, suit : 2097152, quad : 4194304};

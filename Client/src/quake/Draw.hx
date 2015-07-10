@@ -73,7 +73,7 @@ class Draw {
 		conback.width = 320;
 		conback.height = 200;
 		conback.data = new Uint8Array(cb, 8, 64000);
-		var ver = '(WebQuake build ' + Def.webquake_version + ') 1.09';
+		var ver = '(HaxeQuake ' + Def.getVersion() + ') 1.09';
 		for (i in 0...ver.length)
 			CharToConback(ver.charCodeAt(i), 59829 - ((ver.length - i) << 3));
 		conback.texnum = GL.LoadPicTexture(conback);

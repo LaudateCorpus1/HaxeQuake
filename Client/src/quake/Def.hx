@@ -20,7 +20,10 @@ package quake;
 
 @:publicFields
 class Def {
-	static var webquake_version = 48;
+	static macro function getVersion():haxe.macro.Expr.ExprOf<String> {
+		return macro $v{haxe.macro.Context.definedValue("version")};
+	}
+
 	static var timedate = 'Exe: 12:39:20 Aug  7 2014\n';
 	static var max_edicts = 600;
 

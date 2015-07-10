@@ -123,6 +123,9 @@ class SV {
     static var reconnect:MSG;
 
     static var areanodes:Array<MAreaNode>;
+    static var box_clipnodes:Array<MClipNode>;
+    static var box_planes:Array<Plane>;
+    static var box_hull:MHull;
 
     static function Init() {
         SV.maxvelocity = Cvar.RegisterVariable('sv_maxvelocity', '2000');
@@ -1903,13 +1906,13 @@ class SV {
         return false;
     }
 
-    static function RunClients() {
-        for (i in 0...SV.svs.maxclients) {
-            Host.client = SV.svs.clients[i];
+    static function RunClients():Void {
+        for (i in 0...svs.maxclients) {
+            Host.client = svs.clients[i];
             if (!Host.client.active)
                 continue;
-            SV.player = Host.client.edict;
-            if (!SV.ReadClientMessage()) {
+            player = Host.client.edict;
+            if (!ReadClientMessage()) {
                 Host.DropClient(false);
                 continue;
             }
@@ -1919,15 +1922,11 @@ class SV {
                 Host.client.cmd.upmove = 0.0;
                 continue;
             }
-            SV.ClientThink();
+            ClientThink();
         }
     }
 
     // world
-
-    static var box_clipnodes:Array<MClipNode>;
-    static var box_planes:Array<Plane>;
-    static var box_hull:MHull;
 
     static function InitBoxHull():Void {
         box_clipnodes = [];

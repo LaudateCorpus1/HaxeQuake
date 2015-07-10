@@ -340,7 +340,7 @@ class SV {
         for (e in 1...SV.server.num_edicts) {
             var ent = SV.server.edicts[e];
             if (ent != clent) {
-                if ((ent.v_float[EntVarOfs.modelindex] == 0.0) || (PR.strings[ent.v_int[EntVarOfs.model]] == 0))
+                if (ent.v_float[EntVarOfs.modelindex] == 0.0 || PR.strings[ent.v_int[EntVarOfs.model]] == 0)
                     continue;
                 var i = 0;
                 while (i < ent.leafnums.length) {

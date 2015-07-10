@@ -1833,29 +1833,30 @@ class SV {
             client.edict.v.impulse = i;
     }
 
+    static var readClientCmds = [
+        'status',
+        'god', 
+        'notarget',
+        'fly',
+        'name',
+        'noclip',
+        'say',
+        'say_team',
+        'tell',
+        'color',
+        'kill',
+        'pause',
+        'spawn',
+        'begin',
+        'prespawn',
+        'kick',
+        'ping',
+        'give',
+        'ban'
+    ];
+
     static function ReadClientMessage():Bool {
         var ret;
-        var cmds = [
-            'status',
-            'god', 
-            'notarget',
-            'fly',
-            'name',
-            'noclip',
-            'say',
-            'say_team',
-            'tell',
-            'color',
-            'kill',
-            'pause',
-            'spawn',
-            'begin',
-            'prespawn',
-            'kick',
-            'ping',
-            'give',
-            'ban'
-        ];
         do
         {
             ret = NET.GetMessage(Host.client.netconnection);
@@ -1883,21 +1884,21 @@ class SV {
                 if (cmd == CLC.stringcmd) {
                     var s = MSG.ReadString();
                     var i = 0;
-                    while (i < cmds.length) {
-                        if (s.substring(0, cmds[i].length).toLowerCase() != cmds[i]) {
+                    while (i < readClientCmds.length) {
+                        if (s.substring(0, readClientCmds[i].length).toLowerCase() != readClientCmds[i]) {
                             i++;
                             continue;
                         }
                         Cmd.ExecuteString(s, true);
                         break;
                     }
-                    if (i == cmds.length)
-                        Console.DPrint(SV.GetClientName(Host.client) + ' tried to ' + s);
-                } else if (cmd == CLC.disconnect)
+                    if (i == readClientCmds.length)
+                        Console.DPrint(GetClientName(Host.client) + ' tried to ' + s);
+                } else if (cmd == CLC.disconnect) {
                     return false;
-                else if (cmd == CLC.move)
-                    SV.ReadClientMove();
-                else {
+                } else if (cmd == CLC.move) {
+                    ReadClientMove();
+                } else {
                     Sys.Print('SV.ReadClientMessage: unknown command char\n');
                     return false;
                 }

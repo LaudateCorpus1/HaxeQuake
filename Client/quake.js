@@ -11088,7 +11088,6 @@ quake_SV.ReadClientMove = function() {
 };
 quake_SV.ReadClientMessage = function() {
 	var ret;
-	var cmds = ["status","god","notarget","fly","name","noclip","say","say_team","tell","color","kill","pause","spawn","begin","prespawn","kick","ping","give","ban"];
 	while(true) {
 		ret = quake_NET.GetMessage(quake_Host.client.netconnection);
 		if(ret == -1) {
@@ -11112,15 +11111,15 @@ quake_SV.ReadClientMessage = function() {
 			if(cmd == 4) {
 				var s = quake_MSG.ReadString();
 				var i = 0;
-				while(i < cmds.length) {
-					if(s.substring(0,cmds[i].length).toLowerCase() != cmds[i]) {
+				while(i < quake_SV.readClientCmds.length) {
+					if(s.substring(0,quake_SV.readClientCmds[i].length).toLowerCase() != quake_SV.readClientCmds[i]) {
 						i++;
 						continue;
 					}
 					quake_Cmd.ExecuteString(s,true);
 					break;
 				}
-				if(i == cmds.length) quake_Console.DPrint(quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)) + " tried to " + s);
+				if(i == quake_SV.readClientCmds.length) quake_Console.DPrint(quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)) + " tried to " + s);
 			} else if(cmd == 2) return false; else if(cmd == 3) quake_SV.ReadClientMove(); else {
 				quake_Sys.Print("SV.ReadClientMessage: unknown command char\n");
 				return false;
@@ -15255,6 +15254,7 @@ quake_SV.server = new quake__$SV_ServerState();
 quake_SV.svs = new quake__$SV_ServerStatic();
 quake_SV.fatpvs = [];
 quake_SV.clientdatagram = new quake_MSG(1024);
+quake_SV.readClientCmds = ["status","god","notarget","fly","name","noclip","say","say_team","tell","color","kill","pause","spawn","begin","prespawn","kick","ping","give","ban"];
 quake_R.dlightframecount = 0;
 quake_R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));
 quake_R.visframecount = 0;

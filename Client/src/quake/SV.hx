@@ -1584,7 +1584,7 @@ class SV {
                 continue;
             if (PR.globals_float[GlobalVarOfs.force_retouch] != 0.0)
                 SV.LinkEdict(ent, true);
-            if ((i > 0) && (i <= SV.svs.maxclients)) {
+            if (i > 0 && i <= SV.svs.maxclients) {
                 SV.Physics_Client(ent);
                 continue;
             }

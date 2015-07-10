@@ -6086,6 +6086,11 @@ quake_Mod.LoadNodes = function(buf) {
 	if(filelen == 0 || filelen % 24 != 0) quake_Sys.Error("Mod.LoadNodes: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 24 | 0;
 	quake_Mod.loadmodel.nodes = [];
+	var tmp;
+	var this1;
+	this1 = new Array(count);
+	tmp = this1;
+	var children = tmp;
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
@@ -6093,7 +6098,8 @@ quake_Mod.LoadNodes = function(buf) {
 		n.num = i;
 		n.contents = 0;
 		n.planenum = view.getUint32(fileofs,true);
-		n.children = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
+		var val = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
+		children[i] = val;
 		n.mins = [view.getInt16(fileofs + 8,true),view.getInt16(fileofs + 10,true),view.getInt16(fileofs + 12,true)];
 		n.maxs = [view.getInt16(fileofs + 14,true),view.getInt16(fileofs + 16,true),view.getInt16(fileofs + 18,true)];
 		n.firstface = view.getUint16(fileofs + 20,true);
@@ -6106,8 +6112,10 @@ quake_Mod.LoadNodes = function(buf) {
 		var i1 = _g1++;
 		var out = quake_Mod.loadmodel.nodes[i1];
 		out.plane = quake_Mod.loadmodel.planes[out.planenum];
-		if(out.children[0] >= 0) out.children[0] = quake_Mod.loadmodel.nodes[out.children[0]]; else out.children[0] = quake_Mod.loadmodel.leafs[-1 - out.children[0]];
-		if(out.children[1] >= 0) out.children[1] = quake_Mod.loadmodel.nodes[out.children[1]]; else out.children[1] = quake_Mod.loadmodel.leafs[-1 - out.children[1]];
+		out.children = [];
+		var children1 = children[i1];
+		if(children1[0] >= 0) out.children[0] = quake_Mod.loadmodel.nodes[children1[0]]; else out.children[0] = quake_Mod.loadmodel.leafs[-1 - children1[0]];
+		if(children1[1] >= 0) out.children[1] = quake_Mod.loadmodel.nodes[children1[1]]; else out.children[1] = quake_Mod.loadmodel.leafs[-1 - children1[1]];
 	}
 	quake_Mod.SetParent(quake_Mod.loadmodel.nodes[0],null);
 };

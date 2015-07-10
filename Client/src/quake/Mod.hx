@@ -783,32 +783,33 @@ class Mod {
             Sys.Error('Mod.LoadNodes: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 24);
         Mod.loadmodel.nodes = [];
+        var children = new haxe.ds.Vector(count);
         for (i in 0...count) {
             var n = Mod.loadmodel.nodes[i] = new MNode();
-            {
-                n.num = i;
-                n.contents = 0;
-                n.planenum = view.getUint32(fileofs, true);
-                n.children = cast [view.getInt16(fileofs + 4, true), view.getInt16(fileofs + 6, true)];
-                n.mins = cast [view.getInt16(fileofs + 8, true), view.getInt16(fileofs + 10, true), view.getInt16(fileofs + 12, true)];
-                n.maxs = cast [view.getInt16(fileofs + 14, true), view.getInt16(fileofs + 16, true), view.getInt16(fileofs + 18, true)];
-                n.firstface = view.getUint16(fileofs + 20, true);
-                n.numfaces = view.getUint16(fileofs + 22, true);
-                n.cmds = [];
-            };
+            n.num = i;
+            n.contents = 0;
+            n.planenum = view.getUint32(fileofs, true);
+            children[i] = [view.getInt16(fileofs + 4, true), view.getInt16(fileofs + 6, true)];
+            n.mins = [cast view.getInt16(fileofs + 8, true), cast view.getInt16(fileofs + 10, true), cast view.getInt16(fileofs + 12, true)];
+            n.maxs = [cast view.getInt16(fileofs + 14, true), cast view.getInt16(fileofs + 16, true), cast view.getInt16(fileofs + 18, true)];
+            n.firstface = view.getUint16(fileofs + 20, true);
+            n.numfaces = view.getUint16(fileofs + 22, true);
+            n.cmds = [];
             fileofs += 24;
         }
         for (i in 0...count) {
             var out = Mod.loadmodel.nodes[i];
             out.plane = Mod.loadmodel.planes[out.planenum];
-            if ((cast out.children[0]) >= 0)
-                out.children[0] = Mod.loadmodel.nodes[cast out.children[0]];
+            out.children = [];
+            var children = children[i];
+            if (children[0] >= 0)
+                out.children[0] = Mod.loadmodel.nodes[children[0]];
             else
-                out.children[0] = Mod.loadmodel.leafs[-1 - cast out.children[0]];
-            if ((cast out.children[1]) >= 0)
-                out.children[1] = Mod.loadmodel.nodes[cast out.children[1]];
+                out.children[0] = Mod.loadmodel.leafs[-1 - children[0]];
+            if (children[1] >= 0)
+                out.children[1] = Mod.loadmodel.nodes[children[1]];
             else
-                out.children[1] = Mod.loadmodel.leafs[-1 - cast out.children[1]];
+                out.children[1] = Mod.loadmodel.leafs[-1 - children[1]];
         }
         Mod.SetParent(Mod.loadmodel.nodes[0], null);
     }

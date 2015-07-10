@@ -586,7 +586,7 @@ class Sbar {
 				Draw.Character(324, y, 16);
 				Draw.Character(356, y, 17);
 			}
-			Draw.String(372, y, cast s.name);
+			Draw.String(372, y, s.name);
 			y += 8;
 		}
 	}

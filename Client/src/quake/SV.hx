@@ -1465,9 +1465,9 @@ class SV {
         PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.PlayerPreThink]);
         SV.CheckVelocity(ent);
         var movetype = Std.int(ent.v.movetype);
-        if ((movetype == MoveType.toss) || (movetype == MoveType.bounce))
+        if (movetype == MoveType.toss || movetype == MoveType.bounce) {
             SV.Physics_Toss(ent);
-        else {
+        } else {
             if (!SV.RunThink(ent))
                 return;
             switch (movetype) {

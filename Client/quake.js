@@ -2994,6 +2994,8 @@ quake_ED.SetVector = function(e,o,v) {
 var quake_Edict = function() {
 };
 quake_Edict.__name__ = true;
+var quake__$EdictVarOfs_EdictVarOfs_$Impl_$ = {};
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.__name__ = true;
 var quake__$GL_GLModeSetting = function(min,max) {
 	this.min = min;
 	this.max = max;
@@ -4338,42 +4340,42 @@ quake_Host.Give_f = function() {
 	}
 	if(t != null) switch(t) {
 	case 115:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_shells1 != null) ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_shells1] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1 != null) ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1] = v;
 		ent._v_float[54] = v;
 		return;
 	case 110:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_nails1 != null) {
-			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_nails1] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1 != null) {
+			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1] = v;
 			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[55] = v;
 		}
 		return;
 	case 108:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_lava_nails != null) {
-			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_lava_nails] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails != null) {
+			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails] = v;
 			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[55] = v;
 		}
 		return;
 	case 114:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_rockets1 != null) {
-			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_rockets1] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1 != null) {
+			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1] = v;
 			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[56] = v;
 		}
 		return;
 	case 109:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_multi_rockets != null) {
-			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_multi_rockets] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets != null) {
+			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets] = v;
 			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[56] = v;
 		}
 		return;
 	case 99:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_cells1 != null) {
-			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_cells1] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1 != null) {
+			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1] = v;
 			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[57] = v;
 		}
 		return;
 	case 112:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_plasma != null) {
-			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_plasma] = v;
+		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma != null) {
+			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma] = v;
 			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[57] = v;
 		}
 		break;
@@ -7281,23 +7283,23 @@ quake_PR.LoadProgs = function() {
 	quake_PR.entityfields = view.getUint32(56,true);
 	quake_PR.edict_size = 96 + (quake_PR.entityfields << 2);
 	var def = quake_ED.FindField("ammo_shells1");
-	if(def != null) quake__$PR_EntVarOfs_$Impl_$.ammo_shells1 = def.ofs;
+	if(def != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1 = def.ofs;
 	var def1 = quake_ED.FindField("ammo_nails1");
-	if(def1 != null) quake__$PR_EntVarOfs_$Impl_$.ammo_nails1 = def1.ofs;
+	if(def1 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1 = def1.ofs;
 	var def2 = quake_ED.FindField("ammo_lava_nails");
-	if(def2 != null) quake__$PR_EntVarOfs_$Impl_$.ammo_lava_nails = def2.ofs;
+	if(def2 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails = def2.ofs;
 	var def3 = quake_ED.FindField("ammo_rockets1");
-	if(def3 != null) quake__$PR_EntVarOfs_$Impl_$.ammo_rockets1 = def3.ofs;
+	if(def3 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1 = def3.ofs;
 	var def4 = quake_ED.FindField("ammo_multi_rockets");
-	if(def4 != null) quake__$PR_EntVarOfs_$Impl_$.ammo_multi_rockets = def4.ofs;
+	if(def4 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets = def4.ofs;
 	var def5 = quake_ED.FindField("ammo_cells1");
-	if(def5 != null) quake__$PR_EntVarOfs_$Impl_$.ammo_cells1 = def5.ofs;
+	if(def5 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1 = def5.ofs;
 	var def6 = quake_ED.FindField("ammo_plasma");
-	if(def6 != null) quake__$PR_EntVarOfs_$Impl_$.ammo_plasma = def6.ofs;
+	if(def6 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma = def6.ofs;
 	var def7 = quake_ED.FindField("gravity");
-	if(def7 != null) quake__$PR_EntVarOfs_$Impl_$.gravity = def7.ofs;
+	if(def7 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.gravity = def7.ofs;
 	var def8 = quake_ED.FindField("items2");
-	if(def8 != null) quake__$PR_EntVarOfs_$Impl_$.items2 = def8.ofs;
+	if(def8 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.items2 = def8.ofs;
 };
 quake_PR.Init = function() {
 	quake_Cmd.AddCommand("edict",quake_ED.PrintEdict_f);
@@ -9254,7 +9256,7 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	var bits = 512 + 16384;
 	if(ent._v_float[64] != 22) bits = bits + 1;
 	if(ent._v_float[73] != 0.0) bits = bits + 2;
-	var val = quake__$PR_EntVarOfs_$Impl_$.items2;
+	var val = quake__$EdictVarOfs_EdictVarOfs_$Impl_$.items2;
 	var items;
 	if(val != null) {
 		if(ent._v_float[val] != 0.0) items = (ent._v_float[58] | 0 | 0) + ((ent._v_float[val] | 0) << 23 >>> 0); else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
@@ -9872,7 +9874,7 @@ quake_SV.FlyMove = function(ent,time) {
 	return blocked;
 };
 quake_SV.AddGravity = function(ent) {
-	var val = quake__$PR_EntVarOfs_$Impl_$.gravity;
+	var val = quake__$EdictVarOfs_EdictVarOfs_$Impl_$.gravity;
 	var ent_gravity;
 	if(val != null) ent_gravity = ent._v_float[val] != 0.0?ent._v_float[val]:1.0; else ent_gravity = 1.0;
 	ent._v_float[18] -= ent_gravity * quake_SV.gravity.value * quake_Host.frametime;
@@ -13170,8 +13172,6 @@ var quake__$PR_PRStatement = function(view,ofs) {
 	this.c = view.getInt16(ofs + 6,true);
 };
 quake__$PR_PRStatement.__name__ = true;
-var quake__$PR_EntVarOfs_$Impl_$ = {};
-quake__$PR_EntVarOfs_$Impl_$.__name__ = true;
 var quake__$R_RParticle = function(t) {
 	this.type = t;
 };
@@ -13976,6 +13976,16 @@ quake_Def.max_edicts = 600;
 quake_Def.it = { shotgun : 1, super_shotgun : 2, nailgun : 4, super_nailgun : 8, grenade_launcher : 16, rocket_launcher : 32, lightning : 64, super_lightning : 128, shells : 256, nails : 512, rockets : 1024, cells : 2048, axe : 4096, armor1 : 8192, armor2 : 16384, armor3 : 32768, superhealth : 65536, key1 : 131072, key2 : 262144, invisibility : 524288, invulnerability : 1048576, suit : 2097152, quad : 4194304};
 quake_Def.rit = { shells : 128, nails : 256, rockets : 512, cells : 1024, axe : 2048, lava_nailgun : 4096, lava_super_nailgun : 8192, multi_grenade : 16384, multi_rocket : 32768, plasma_gun : 65536, armor1 : 8388608, armor2 : 16777216, armor3 : 33554432, lava_nails : 67108864, plasma_ammo : 134217728, multi_rockets : 268435456, shield : 536870912, antigrav : 1073741824, superhealth : 2147483648};
 quake_Def.hit = { proximity_gun_bit : 16, mjolnir_bit : 7, laser_cannon_bit : 23, proximity_gun : 65536, mjolnir : 128, laser_cannon : 8388608, wetsuit : 33554432, empathy_shields : 67108864};
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.__meta__ = { statics : { ammo_shells1 : { f : null}, ammo_nails1 : { f : null}, ammo_lava_nails : { f : null}, ammo_rockets1 : { f : null}, ammo_multi_rockets : { f : null}, ammo_cells1 : { f : null}, ammo_plasma : { f : null}, gravity : { f : null}, items2 : { f : null}}};
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1 = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1 = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1 = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1 = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.gravity = null;
+quake__$EdictVarOfs_EdictVarOfs_$Impl_$.items2 = null;
 quake_GL.textures = [];
 quake_GL.currenttextures = new haxe_ds_IntMap();
 quake_GL.programs = [];

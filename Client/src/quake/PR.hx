@@ -212,124 +212,6 @@ private class PRStackItem {
 	var SetChangeParms = 91; // func
 }
 
-@:enum abstract EntVarOfs(Int) to Int {
-	var modelindex = 0; // float
-	var absmin = 1; // vec3
-	var absmin1 = 2;
-	var absmin2 = 3;
-	var absmax = 4; // vec3
-	var absmax1 = 5;
-	var absmax2 = 6;
-	var ltime = 7; // float
-	var movetype = 8; // float
-	var solid = 9; // float
-	var origin = 10; // vec3
-	var origin1 = 11;
-	var origin2 = 12;
-	var oldorigin = 13; // vec3
-	var oldorigin1 = 14;
-	var oldorigin2 = 15;
-	var velocity = 16; // vec3
-	var velocity1 = 17;
-	var velocity2 = 18;
-	var angles = 19; // vec3
-	var angles1 = 20;
-	var angles2 = 21;
-	var avelocity = 22; // vec3
-	var avelocity1 = 23;
-	var avelocity2 = 24;
-	var punchangle = 25; // vec3
-	var punchangle1 = 26;
-	var punchangle2 = 27;
-	var classname = 28; // string
-	var model = 29; // string
-	var frame = 30; // float
-	var skin = 31; // float
-	var effects = 32; // float
-	var mins = 33; // vec3
-	var mins1 = 34;
-	var mins2 = 35;
-	var maxs = 36; // vec3
-	var maxs1 = 37;
-	var maxs2 = 38;
-	var size = 39; // vec3
-	var size1 = 40;
-	var size2 = 41;
-	var touch = 42; // func
-	var use = 43; // func
-	var think = 44; // func
-	var blocked = 45; // func
-	var nextthink = 46; // float
-	var groundentity = 47; // edict
-	var health = 48; // float
-	var frags = 49; // float
-	var weapon = 50; // float
-	var weaponmodel = 51; // string
-	var weaponframe = 52; // float
-	var currentammo = 53; // float
-	var ammo_shells = 54; // float
-	var ammo_nails = 55; // float
-	var ammo_rockets = 56; // float
-	var ammo_cells = 57; // float
-	var items = 58; // float
-	var takedamage = 59; // float
-	var chain = 60; // edict
-	var deadflag = 61; // float
-	var view_ofs = 62; // vec3
-	var view_ofs1 = 63;
-	var view_ofs2 = 64;
-	var button0 = 65; // float
-	var button1 = 66; // float
-	var button2 = 67; // float
-	var impulse = 68; // float
-	var fixangle = 69; // float
-	var v_angle = 70; // vec3
-	var v_angle1 = 71;
-	var v_angle2 = 72;
-	var idealpitch = 73; // float
-	var netname = 74; // string
-	var enemy = 75; // edict
-	var flags = 76; // float
-	var colormap = 77; // float
-	var team = 78; // float
-	var max_health = 79; // float
-	var teleport_time = 80; // float
-	var armortype = 81; // float
-	var armorvalue = 82; // float
-	var waterlevel = 83; // float
-	var watertype = 84; // float
-	var ideal_yaw = 85; // float
-	var yaw_speed = 86; // float
-	var aiment = 87; // edict
-	var goalentity = 88; // edict
-	var spawnflags = 89; // float
-	var target = 90; // string
-	var targetname = 91; // string
-	var dmg_take = 92; // float
-	var dmg_save = 93; // float
-	var dmg_inflictor = 94; // edict
-	var owner = 95; // edict
-	var movedir = 96; // vec3
-	var movedir1 = 97;
-	var movedir2 = 98;
-	var message = 99; // string
-	var sounds = 100; // float
-	var noise = 101; // string
-	var noise1 = 102; // string
-	var noise2 = 103; // string
-	var noise3 = 104; // string
-
-	public static var ammo_shells1 = null;
-	public static var ammo_nails1 = null;
-	public static var ammo_lava_nails = null;
-	public static var ammo_rockets1 = null;
-	public static var ammo_multi_rockets = null;
-	public static var ammo_cells1 = null;
-	public static var ammo_plasma = null;
-	public static var gravity = null;
-	public static var items2 = null;
-}
-
 @:publicFields
 class PR {
 
@@ -854,9 +736,9 @@ class PR {
 						return;
 				case PROp.state:
 					var ed:Edict = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-					ed._v_float[EntVarOfs.nextthink] = PR.globals_float[GlobalVarOfs.time] + 0.1;
-					ed._v_float[EntVarOfs.frame] = PR.globals_float[st.a];
-					ed._v_int[EntVarOfs.think] = PR.globals_int[st.b];
+					ed._v_float[EdictVarOfs.nextthink] = PR.globals_float[GlobalVarOfs.time] + 0.1;
+					ed._v_float[EdictVarOfs.frame] = PR.globals_float[st.a];
+					ed._v_int[EdictVarOfs.think] = PR.globals_int[st.b];
 				default:
 					PR.RunError('Bad opcode ' + st.op);
 			}

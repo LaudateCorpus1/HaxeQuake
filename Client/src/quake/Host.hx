@@ -6,7 +6,6 @@ import quake.CL.ClientCmd;
 import quake.Mod.MModel;
 import quake.NET.INETSocket;
 import quake.PR.EType;
-import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;
 import quake.Protocol.SVC;
 import quake.SV.MoveType;
@@ -395,7 +394,7 @@ class Host {
             var client = SV.svs.clients[i];
             if (!client.active)
                 continue;
-            var frags = client.edict._v_float[EntVarOfs.frags].toFixed(0);
+            var frags = client.edict._v_float[EdictVarOfs.frags].toFixed(0);
             if (frags.length == 1)
                 frags = '  ' + frags;
             else if (frags.length == 2)
@@ -466,14 +465,14 @@ class Host {
         }
         if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
-        if (SV.player._v_float[EntVarOfs.movetype] != MoveType.noclip) {
+        if (SV.player._v_float[EdictVarOfs.movetype] != MoveType.noclip) {
             Host.noclip_anglehack = true;
-            SV.player._v_float[EntVarOfs.movetype] = MoveType.noclip;
+            SV.player._v_float[EdictVarOfs.movetype] = MoveType.noclip;
             Host.ClientPrint('noclip ON\n');
             return;
         }
         Host.noclip_anglehack = false;
-        SV.player._v_float[EntVarOfs.movetype] = MoveType.walk;
+        SV.player._v_float[EdictVarOfs.movetype] = MoveType.walk;
         Host.ClientPrint('noclip OFF\n');
     }
 
@@ -484,12 +483,12 @@ class Host {
         }
         if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
-        if (SV.player._v_float[EntVarOfs.movetype] != MoveType.fly) {
-            SV.player._v_float[EntVarOfs.movetype] = MoveType.fly;
+        if (SV.player._v_float[EdictVarOfs.movetype] != MoveType.fly) {
+            SV.player._v_float[EdictVarOfs.movetype] = MoveType.fly;
             Host.ClientPrint('flymode ON\n');
             return;
         }
-        SV.player._v_float[EntVarOfs.movetype] = MoveType.walk;
+        SV.player._v_float[EdictVarOfs.movetype] = MoveType.walk;
         Host.ClientPrint('flymode OFF\n');
     }
 
@@ -619,7 +618,7 @@ class Host {
         }
         var client = SV.svs.clients[0];
         if (client.active) {
-            if (client.edict._v_float[EntVarOfs.health] <= 0.0) {
+            if (client.edict._v_float[EdictVarOfs.health] <= 0.0) {
                 Console.Print('Can\'t savegame with a dead player\n');
                 return;
             }
@@ -823,7 +822,7 @@ class Host {
             var client:HClient = SV.svs.clients[i];
             if ((!client.active) || (!client.spawned))
                 continue;
-            if ((Host.teamplay.value != 0) && (teamonly) && (client.edict._v_float[EntVarOfs.team] != save.edict._v_float[EntVarOfs.team]))
+            if ((Host.teamplay.value != 0) && (teamonly) && (client.edict._v_float[EdictVarOfs.team] != save.edict._v_float[EdictVarOfs.team]))
                 continue;
             Host.client = client;
             Host.ClientPrint(text);
@@ -893,7 +892,7 @@ class Host {
         }
 
         Host.client.colors = playercolor;
-        Host.client.edict._v_float[EntVarOfs.team] = bottom + 1;
+        Host.client.edict._v_float[EdictVarOfs.team] = bottom + 1;
         var msg = SV.server.reliable_datagram;
         msg.WriteByte(SVC.updatecolors);
         msg.WriteByte(Host.client.num);
@@ -905,7 +904,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (SV.player._v_float[EntVarOfs.health] <= 0.0) {
+        if (SV.player._v_float[EdictVarOfs.health] <= 0.0) {
             Host.ClientPrint('Can\'t suicide -- already dead!\n');
             return;
         }
@@ -962,9 +961,9 @@ class Host {
         else {
             for (i in 0...PR.entityfields)
                 ent._v_int[i] = 0;
-            ent._v_float[EntVarOfs.colormap] = ent.num;
-            ent._v_float[EntVarOfs.team] = (client.colors & 15) + 1;
-            ent._v_int[EntVarOfs.netname] = PR.netnames + (client.num << 5);
+            ent._v_float[EdictVarOfs.colormap] = ent.num;
+            ent._v_float[EdictVarOfs.team] = (client.colors & 15) + 1;
+            ent._v_int[EdictVarOfs.netname] = PR.netnames + (client.num << 5);
             for (i in 0...16)
                 PR.globals_float[GlobalVarOfs.parms + i] = client.spawn_parms[i];
             PR.globals_float[GlobalVarOfs.time] = SV.server.time;
@@ -1009,8 +1008,8 @@ class Host {
         message.WriteByte(ClientStat.monsters);
         message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.killed_monsters]));
         message.WriteByte(SVC.setangle);
-        message.WriteAngle(ent._v_float[EntVarOfs.angles]);
-        message.WriteAngle(ent._v_float[EntVarOfs.angles1]);
+        message.WriteAngle(ent._v_float[EdictVarOfs.angles]);
+        message.WriteAngle(ent._v_float[EdictVarOfs.angles1]);
         message.WriteAngle(0.0);
         SV.WriteClientdataToMessage(ent, message);
         message.WriteByte(SVC.signonnum);
@@ -1134,71 +1133,71 @@ class Host {
         }
         var v = Q.atoi(Cmd.argv[2]);
         if (t == 104) {
-            ent._v_float[EntVarOfs.health] = v;
+            ent._v_float[EdictVarOfs.health] = v;
             return;
         }
         if (!COM.rogue) {
             switch (t) {
             case 115:
-                ent._v_float[EntVarOfs.ammo_shells] = v;
+                ent._v_float[EdictVarOfs.ammo_shells] = v;
                 return;
             case 110:
-                ent._v_float[EntVarOfs.ammo_nails] = v;
+                ent._v_float[EdictVarOfs.ammo_nails] = v;
                 return;
             case 114:
-                ent._v_float[EntVarOfs.ammo_rockets] = v;
+                ent._v_float[EdictVarOfs.ammo_rockets] = v;
                 return;
             case 99:
-                ent._v_float[EntVarOfs.ammo_cells] = v;
+                ent._v_float[EdictVarOfs.ammo_cells] = v;
             }
             return;
         }
         switch (t) {
         case 115:
-            if (EntVarOfs.ammo_shells1 != null)
-                ent._v_float[EntVarOfs.ammo_shells1] = v;
-            ent._v_float[EntVarOfs.ammo_shells] = v;
+            if (EdictVarOfs.ammo_shells1 != null)
+                ent._v_float[EdictVarOfs.ammo_shells1] = v;
+            ent._v_float[EdictVarOfs.ammo_shells] = v;
             return;
         case 110:
-            if (EntVarOfs.ammo_nails1 != null) {
-                ent._v_float[EntVarOfs.ammo_nails1] = v;
-                if (ent._v_float[EntVarOfs.weapon] <= Def.it.lightning)
-                    ent._v_float[EntVarOfs.ammo_nails] = v;
+            if (EdictVarOfs.ammo_nails1 != null) {
+                ent._v_float[EdictVarOfs.ammo_nails1] = v;
+                if (ent._v_float[EdictVarOfs.weapon] <= Def.it.lightning)
+                    ent._v_float[EdictVarOfs.ammo_nails] = v;
             }
             return;
         case 108:
-            if (EntVarOfs.ammo_lava_nails != null) {
-                ent._v_float[EntVarOfs.ammo_lava_nails] = v;
-                if (ent._v_float[EntVarOfs.weapon] > Def.it.lightning)
-                    ent._v_float[EntVarOfs.ammo_nails] = v;
+            if (EdictVarOfs.ammo_lava_nails != null) {
+                ent._v_float[EdictVarOfs.ammo_lava_nails] = v;
+                if (ent._v_float[EdictVarOfs.weapon] > Def.it.lightning)
+                    ent._v_float[EdictVarOfs.ammo_nails] = v;
             }
             return;
         case 114:
-            if (EntVarOfs.ammo_rockets1 != null) {
-                ent._v_float[EntVarOfs.ammo_rockets1] = v;
-                if (ent._v_float[EntVarOfs.weapon] <= Def.it.lightning)
-                    ent._v_float[EntVarOfs.ammo_rockets] = v;
+            if (EdictVarOfs.ammo_rockets1 != null) {
+                ent._v_float[EdictVarOfs.ammo_rockets1] = v;
+                if (ent._v_float[EdictVarOfs.weapon] <= Def.it.lightning)
+                    ent._v_float[EdictVarOfs.ammo_rockets] = v;
             }
             return;
         case 109:
-            if (EntVarOfs.ammo_multi_rockets != null) {
-                ent._v_float[EntVarOfs.ammo_multi_rockets] = v;
-                if (ent._v_float[EntVarOfs.weapon] > Def.it.lightning)
-                    ent._v_float[EntVarOfs.ammo_rockets] = v;
+            if (EdictVarOfs.ammo_multi_rockets != null) {
+                ent._v_float[EdictVarOfs.ammo_multi_rockets] = v;
+                if (ent._v_float[EdictVarOfs.weapon] > Def.it.lightning)
+                    ent._v_float[EdictVarOfs.ammo_rockets] = v;
             }
             return;
         case 99:
-            if (EntVarOfs.ammo_cells1 != null) {
-                ent._v_float[EntVarOfs.ammo_cells1] = v;
-                if (ent._v_float[EntVarOfs.weapon] <= Def.it.lightning)
-                    ent._v_float[EntVarOfs.ammo_cells] = v;
+            if (EdictVarOfs.ammo_cells1 != null) {
+                ent._v_float[EdictVarOfs.ammo_cells1] = v;
+                if (ent._v_float[EdictVarOfs.weapon] <= Def.it.lightning)
+                    ent._v_float[EdictVarOfs.ammo_cells] = v;
             }
             return;
         case 112:
-            if (EntVarOfs.ammo_plasma != null) {
-                ent._v_float[EntVarOfs.ammo_plasma] = v;
-                if (ent._v_float[EntVarOfs.weapon] > Def.it.lightning)
-                    ent._v_float[EntVarOfs.ammo_cells] = v;
+            if (EdictVarOfs.ammo_plasma != null) {
+                ent._v_float[EdictVarOfs.ammo_plasma] = v;
+                if (ent._v_float[EdictVarOfs.weapon] > Def.it.lightning)
+                    ent._v_float[EdictVarOfs.ammo_cells] = v;
             }
         }
     }
@@ -1207,7 +1206,7 @@ class Host {
         if (SV.server.active) {
             for (i in 0...SV.server.num_edicts) {
                 var e:Edict = SV.server.edicts[i];
-                if (PR.GetString(e._v_int[EntVarOfs.classname]) == 'viewthing')
+                if (PR.GetString(e._v_int[EdictVarOfs.classname]) == 'viewthing')
                     return e;
             }
         }
@@ -1226,30 +1225,30 @@ class Host {
             Console.Print('Can\'t load ' + Cmd.argv[1] + '\n');
             return;
         }
-        ent._v_float[EntVarOfs.frame] = 0.0;
-        CL.state.model_precache[Std.int(ent._v_float[EntVarOfs.modelindex])] = m;
+        ent._v_float[EdictVarOfs.frame] = 0.0;
+        CL.state.model_precache[Std.int(ent._v_float[EdictVarOfs.modelindex])] = m;
     }
 
     static function Viewframe_f() {
         var ent = Host.FindViewthing();
         if (ent == null)
             return;
-        var m = CL.state.model_precache[Std.int(ent._v_float[EntVarOfs.modelindex])];
+        var m = CL.state.model_precache[Std.int(ent._v_float[EdictVarOfs.modelindex])];
         var f = Q.atoi(Cmd.argv[1]);
         if (f >= m.frames.length)
             f = m.frames.length - 1;
-        ent._v_float[EntVarOfs.frame] = f;
+        ent._v_float[EdictVarOfs.frame] = f;
     }
 
     static function Viewnext_f() {
         var ent = Host.FindViewthing();
         if (ent == null)
             return;
-        var m = CL.state.model_precache[Std.int(ent._v_float[EntVarOfs.modelindex])];
-        var f = Std.int(ent._v_float[EntVarOfs.frame]) + 1;
+        var m = CL.state.model_precache[Std.int(ent._v_float[EdictVarOfs.modelindex])];
+        var f = Std.int(ent._v_float[EdictVarOfs.frame]) + 1;
         if (f >= m.frames.length)
             f = m.frames.length - 1;
-        ent._v_float[EntVarOfs.frame] = f;
+        ent._v_float[EdictVarOfs.frame] = f;
         Console.Print('frame ' + f + ': ' + m.frames[f].name + '\n');
     }
 
@@ -1257,11 +1256,11 @@ class Host {
         var ent = Host.FindViewthing();
         if (ent == null)
             return;
-        var m = CL.state.model_precache[Std.int(ent._v_float[EntVarOfs.modelindex])];
-        var f = Std.int(ent._v_float[EntVarOfs.frame]) - 1;
+        var m = CL.state.model_precache[Std.int(ent._v_float[EdictVarOfs.modelindex])];
+        var f = Std.int(ent._v_float[EdictVarOfs.frame]) - 1;
         if (f < 0)
             f = 0;
-        ent._v_float[EntVarOfs.frame] = f;
+        ent._v_float[EdictVarOfs.frame] = f;
         Console.Print('frame ' + f + ': ' + m.frames[f].name + '\n');
     }
 

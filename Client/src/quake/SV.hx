@@ -251,7 +251,7 @@ class SV {
         client.dropasap = false;
         client.last_message = 0.0;
         client.cmd = new ClientCmd();
-        client.wishdir = [0.0, 0.0, 0.0];
+        client.wishdir = new Vec();
         client.message.cursize = 0;
         client.edict = SV.server.edicts[clientnum + 1];
         client.edict.v.netname = PR.netnames + (clientnum << 5);
@@ -329,11 +329,11 @@ class SV {
     }
 
     static function WriteEntitiesToClient(clent:Edict, msg:MSG):Void {
-        SV.FatPVS([
+        SV.FatPVS(Vec.of(
             clent.v.origin + clent.v.view_ofs,
             clent.v.origin1 + clent.v.view_ofs1,
             clent.v.origin2 + clent.v.view_ofs2
-        ]);
+        ));
         var pvs = SV.fatpvs;
         for (e in 1...SV.server.num_edicts) {
             var ent = SV.server.edicts[e];
@@ -1078,13 +1078,13 @@ class SV {
     static function FlyMove(ent:Edict, time:Float):Int {
         var numplanes = 0;
         var dir, d;
-        var planes = [], plane;
+        var planes = new Array<Vec>(), plane;
         var primal_velocity = ED.Vector(ent, EdictVarOfs.velocity);
         var original_velocity = ED.Vector(ent, EdictVarOfs.velocity);
-        var new_velocity = [];
+        var new_velocity = new Vec();
         var i, j;
         var trace;
-        var end = [];
+        var end = new Vec();
         var time_left = time;
         var blocked = 0;
         for (bumpcount in 0...4) {
@@ -1127,7 +1127,7 @@ class SV {
                 ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
                 return 3;
             }
-            planes[numplanes++] = [trace.plane.normal[0], trace.plane.normal[1], trace.plane.normal[2]];
+            planes[numplanes++] = Vec.of(trace.plane.normal[0], trace.plane.normal[1], trace.plane.normal[2]);
             var i = 0;
             while (i < numplanes) {
                 SV.ClipVelocity(original_velocity, planes[i], new_velocity, 1.0);
@@ -1179,11 +1179,11 @@ class SV {
     }
 
     static function PushEntity(ent:Edict, push) {
-        var end = [
+        var end = Vec.of(
             ent.v.origin + push[0],
             ent.v.origin1 + push[1],
             ent.v.origin2 + push[2]
-        ];
+        );
         var nomonsters;
         var solid = ent.v.solid;
         if (ent.v.movetype == MoveType.flymissile)
@@ -1348,11 +1348,11 @@ class SV {
     }
 
     static function CheckWater(ent:Edict):Bool {
-        var point = [
+        var point = Vec.of(
             ent.v.origin,
             ent.v.origin1,
             ent.v.origin2 + ent.v.mins2 + 1.0
-        ];
+        );
         ent.v.waterlevel = 0.0;
         ent.v.watertype = ModContents.empty;
         var cont = SV.PointContents(point);
@@ -1373,7 +1373,7 @@ class SV {
     }
 
     static function WallFriction(ent:Edict, trace:MTrace):Void {
-        var forward = [];
+        var forward = new Vec();
         Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.v_angle), forward);
         var normal = trace.plane.normal;
         var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
@@ -1545,7 +1545,7 @@ class SV {
             ]);
         if ((trace.fraction == 1.0) || (ent.free))
             return;
-        var velocity = [];
+        var velocity = new Vec();
         SV.ClipVelocity(ED.Vector(ent, EdictVarOfs.velocity), trace.plane.normal, velocity, (movetype == MoveType.bounce) ? 1.5 : 1.0);
         ED.SetVector(ent, EdictVarOfs.velocity, velocity);
         if (trace.plane.normal[2] > 0.7) {
@@ -1619,8 +1619,8 @@ class SV {
         var angleval = ent.v.angles1 * (Math.PI / 180.0);
         var sinval = Math.sin(angleval);
         var cosval = Math.cos(angleval);
-        var top = [0.0, 0.0, ent.v.origin2 + ent.v.view_ofs2];
-        var bottom = [0.0, 0.0, top[2] - 160.0];
+        var top = Vec.of(0.0, 0.0, ent.v.origin2 + ent.v.view_ofs2);
+        var bottom = Vec.of(0.0, 0.0, top[2] - 160.0);
         var z = [];
         for (i in 0...6) {
             top[0] = bottom[0] = ent.v.origin + cosval * (i + 3) * 12.0;
@@ -1654,13 +1654,13 @@ class SV {
         var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
         if (speed == 0.0)
             return;
-        var start = [
+        var start = Vec.of(
             ent.v.origin + vel0 / speed * 16.0,
             ent.v.origin1 + vel1 / speed * 16.0,
             ent.v.origin2 + ent.v.mins2
-        ];
+        );
         var friction = SV.friction.value;
-        if (SV.Move(start, Vec.origin, Vec.origin, [start[0], start[1], start[2] - 34.0], 1, ent).fraction == 1.0)
+        if (SV.Move(start, Vec.origin, Vec.origin, Vec.of(start[0], start[1], start[2] - 34.0), 1, ent).fraction == 1.0)
             friction *= SV.edgefriction.value;
         var newspeed = speed - Host.frametime * (speed < SV.stopspeed.value ? SV.stopspeed.value : speed) * friction;
         if (newspeed < 0.0)
@@ -1673,7 +1673,7 @@ class SV {
 
     static function Accelerate(wishvel:Vec, air:Bool) {
         var ent = SV.player;
-        var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
+        var wishdir = wishvel.copy();
         var wishspeed = Vec.Normalize(wishdir);
         if ((air) && (wishspeed > 30.0))
             wishspeed = 30.0;
@@ -1693,7 +1693,7 @@ class SV {
 
     static function WaterMove() {
         var ent = SV.player, cmd = Host.client.cmd;
-        var forward = [], right = [];
+        var forward = new Vec(), right = new Vec();
         Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.v_angle), forward, right);
         var wishvel = [
             forward[0] * cmd.forwardmove + right[0] * cmd.sidemove,
@@ -1754,17 +1754,18 @@ class SV {
     static function AirMove() {
         var ent = SV.player;
         var cmd = Host.client.cmd;
-        var forward = [], right = [];
+        var forward = new Vec(), right = new Vec();
         Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.angles), forward, right);
         var fmove = cmd.forwardmove;
         var smove = cmd.sidemove;
         if ((SV.server.time < ent.v.teleport_time) && (fmove < 0.0))
             fmove = 0.0;
-        var wishvel = [
+        var wishvel = Vec.of(
             forward[0] * fmove + right[0] * smove,
             forward[1] * fmove + right[1] * smove,
-            (Std.int(ent.v.movetype) != MoveType.walk) ? cmd.upmove : 0.0];
-        var wishdir = [wishvel[0], wishvel[1], wishvel[2]];
+            (Std.int(ent.v.movetype) != MoveType.walk) ? cmd.upmove : 0.0
+        );
+        var wishdir = wishvel.copy();
         if (Vec.Normalize(wishdir) > SV.maxspeed.value) {
             wishvel[0] = wishdir[0] * SV.maxspeed.value;
             wishvel[1] = wishdir[1] * SV.maxspeed.value;
@@ -1951,7 +1952,7 @@ class SV {
 
             var plane = new Plane();
             plane.type = i >> 1;
-            plane.normal = [0.0, 0.0, 0.0];
+            plane.normal = new Vec();
             plane.normal[i >> 1] = 1.0;
             plane.dist = 0.0;
             box_planes.push(plane);
@@ -2010,8 +2011,8 @@ class SV {
         anode.axis = (maxs[0] - mins[0]) > (maxs[1] - mins[1]) ? 0 : 1;
         anode.dist = 0.5 * (maxs[anode.axis] + mins[anode.axis]);
 
-        var maxs1 = [maxs[0], maxs[1], maxs[2]];
-        var mins2 = [mins[0], mins[1], mins[2]];
+        var maxs1 = maxs.copy();
+        var mins2 = mins.copy();
         maxs1[anode.axis] = mins2[anode.axis] = anode.dist;
         anode.children = [SV.CreateAreaNode(depth + 1, mins2, maxs), SV.CreateAreaNode(depth + 1, mins, maxs1)];
         return anode;

@@ -266,7 +266,7 @@ class S {
 			return;
 		}
 		var ss = new Channel(sfx);
-		ss.origin = [origin[0], origin[1], origin[2]];
+		ss.origin = origin.copy();
 		ss.master_vol = vol;
 		ss.dist_mult = attenuation * 0.000015625;
 		ss.end = Host.realtime + sfx.cache.length;

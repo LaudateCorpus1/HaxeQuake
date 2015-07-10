@@ -519,7 +519,12 @@ quake_CL.GetMessage = function() {
 		quake_NET.message.cursize = view.getUint32(quake_CL.cls.demoofs,true);
 		if(quake_NET.message.cursize > 8000) quake_Sys.Error("Demo message > MAX_MSGLEN");
 		quake_CL.state.mviewangles[1] = quake_CL.state.mviewangles[0];
-		quake_CL.state.mviewangles[0] = [view.getFloat32(quake_CL.cls.demoofs + 4,true),view.getFloat32(quake_CL.cls.demoofs + 8,true),view.getFloat32(quake_CL.cls.demoofs + 12,true)];
+		var tmp;
+		var x = view.getFloat32(quake_CL.cls.demoofs + 4,true);
+		var y = view.getFloat32(quake_CL.cls.demoofs + 8,true);
+		var z = view.getFloat32(quake_CL.cls.demoofs + 12,true);
+		tmp = [x,y,z];
+		quake_CL.state.mviewangles[0] = tmp;
 		quake_CL.cls.demoofs += 16;
 		if(quake_CL.cls.demoofs + quake_NET.message.cursize > quake_CL.cls.demosize) {
 			quake_CL.StopPlayback();
@@ -1005,7 +1010,7 @@ quake_CL.RelinkEntities = function() {
 	}
 	var bobjrotate = quake__$Vec_Vec_$Impl_$.Anglemod(100.0 * quake_CL.state.time);
 	var delta = [];
-	var oldorg = [];
+	var oldorg = [0.0,0.0,0.0];
 	var dl;
 	var _g1 = 1;
 	var _g2 = quake_CL.entities.length;
@@ -1052,7 +1057,7 @@ quake_CL.RelinkEntities = function() {
 		if((ent.effects & 1) != 0) quake_R.EntityParticles(ent);
 		if((ent.effects & 2) != 0) {
 			dl = quake_CL.AllocDlight(i1);
-			var fv = [];
+			var fv = [0.0,0.0,0.0];
 			quake__$Vec_Vec_$Impl_$.AngleVectors(ent.angles,fv);
 			dl.origin = [ent.origin[0] + 18.0 * fv[0],ent.origin[1] + 18.0 * fv[1],ent.origin[2] + 16.0 + 18.0 * fv[2]];
 			dl.radius = 200.0 + Math.random() * 32.0;
@@ -1074,7 +1079,7 @@ quake_CL.RelinkEntities = function() {
 		if((ent.model.flags & 4) != 0) quake_R.RocketTrail(oldorg,ent.origin,2); else if((ent.model.flags & 32) != 0) quake_R.RocketTrail(oldorg,ent.origin,4); else if((ent.model.flags & 16) != 0) quake_R.RocketTrail(oldorg,ent.origin,3); else if((ent.model.flags & 64) != 0) quake_R.RocketTrail(oldorg,ent.origin,5); else if((ent.model.flags & 1) != 0) {
 			quake_R.RocketTrail(oldorg,ent.origin,0);
 			dl = quake_CL.AllocDlight(i1);
-			dl.origin = [ent.origin[0],ent.origin[1],ent.origin[2]];
+			dl.origin = ent.origin.slice();
 			dl.radius = 200.0;
 			dl.die = quake_CL.state.time + 0.01;
 		} else if((ent.model.flags & 2) != 0) quake_R.RocketTrail(oldorg,ent.origin,1); else if((ent.model.flags & 128) != 0) quake_R.RocketTrail(oldorg,ent.origin,6);
@@ -1162,7 +1167,12 @@ quake_CL.ParseStartSoundPacket = function() {
 	var sound_num = quake_MSG.ReadByte();
 	var ent = channel >> 3;
 	channel &= 7;
-	var pos = [quake_MSG.ReadCoord(),quake_MSG.ReadCoord(),quake_MSG.ReadCoord()];
+	var tmp;
+	var x = quake_MSG.ReadCoord();
+	var y = quake_MSG.ReadCoord();
+	var z = quake_MSG.ReadCoord();
+	tmp = [x,y,z];
+	var pos = tmp;
 	quake_S.StartSound(ent,channel,quake_CL.state.sound_precache[sound_num],pos,volume / 255.0,attenuation);
 };
 quake_CL.KeepaliveMessage = function() {
@@ -1353,7 +1363,7 @@ quake_CL.ParseBaseline = function(ent) {
 quake_CL.ParseClientdata = function(bits) {
 	quake_CL.state.viewheight = (bits & 1) != 0?quake_MSG.ReadChar():22;
 	quake_CL.state.idealpitch = (bits & 2) != 0?quake_MSG.ReadChar():0.0;
-	quake_CL.state.mvelocity[1] = [quake_CL.state.mvelocity[0][0],quake_CL.state.mvelocity[0][1],quake_CL.state.mvelocity[0][2]];
+	quake_CL.state.mvelocity[1] = quake_CL.state.mvelocity[0].slice();
 	var _g = 0;
 	while(_g < 3) {
 		var i1 = _g++;
@@ -1404,7 +1414,12 @@ quake_CL.ParseStatic = function() {
 	quake_R.SplitEntityOnNode(quake_CL.state.worldmodel.nodes[0]);
 };
 quake_CL.ParseStaticSound = function() {
-	var org = [quake_MSG.ReadCoord(),quake_MSG.ReadCoord(),quake_MSG.ReadCoord()];
+	var tmp;
+	var x = quake_MSG.ReadCoord();
+	var y = quake_MSG.ReadCoord();
+	var z = quake_MSG.ReadCoord();
+	tmp = [x,y,z];
+	var org = tmp;
 	var sound_num = quake_MSG.ReadByte();
 	var vol = quake_MSG.ReadByte();
 	var atten = quake_MSG.ReadByte();
@@ -1609,12 +1624,18 @@ quake_CL.InitTEnts = function() {
 };
 quake_CL.ParseBeam = function(m) {
 	var ent = quake_MSG.ReadShort();
-	var start_0 = quake_MSG.ReadCoord();
-	var start_1 = quake_MSG.ReadCoord();
-	var start_2 = quake_MSG.ReadCoord();
-	var end_0 = quake_MSG.ReadCoord();
-	var end_1 = quake_MSG.ReadCoord();
-	var end_2 = quake_MSG.ReadCoord();
+	var tmp;
+	var x = quake_MSG.ReadCoord();
+	var y = quake_MSG.ReadCoord();
+	var z = quake_MSG.ReadCoord();
+	tmp = [x,y,z];
+	var start = tmp;
+	var tmp1;
+	var x1 = quake_MSG.ReadCoord();
+	var y1 = quake_MSG.ReadCoord();
+	var z1 = quake_MSG.ReadCoord();
+	tmp1 = [x1,y1,z1];
+	var end = tmp1;
 	var _g = 0;
 	while(_g < 24) {
 		var i = _g++;
@@ -1622,8 +1643,8 @@ quake_CL.ParseBeam = function(m) {
 		if(b.entity != ent) continue;
 		b.model = m;
 		b.endtime = quake_CL.state.time + 0.2;
-		b.start = [start_0,start_1,start_2];
-		b.end = [end_0,end_1,end_2];
+		b.start = start.slice();
+		b.end = end.slice();
 		return;
 	}
 	var _g1 = 0;
@@ -1634,8 +1655,8 @@ quake_CL.ParseBeam = function(m) {
 		b1.entity = ent;
 		b1.model = m;
 		b1.endtime = quake_CL.state.time + 0.2;
-		b1.start = [start_0,start_1,start_2];
-		b1.end = [end_0,end_1,end_2];
+		b1.start = start.slice();
+		b1.end = end.slice();
 		return;
 	}
 	quake_Console.Print("beam list overflow!\n");
@@ -1657,7 +1678,12 @@ quake_CL.ParseTEnt = function() {
 		return;
 	default:
 	}
-	var pos = [quake_MSG.ReadCoord(),quake_MSG.ReadCoord(),quake_MSG.ReadCoord()];
+	var tmp;
+	var x = quake_MSG.ReadCoord();
+	var y = quake_MSG.ReadCoord();
+	var z = quake_MSG.ReadCoord();
+	tmp = [x,y,z];
+	var pos = tmp;
 	switch(type) {
 	case 7:
 		quake_R.RunParticleEffect(pos,quake__$Vec_Vec_$Impl_$.origin,20,20);
@@ -1679,7 +1705,7 @@ quake_CL.ParseTEnt = function() {
 	case 3:
 		quake_R.ParticleExplosion(pos);
 		var dl = quake_CL.AllocDlight(0);
-		dl.origin = [pos[0],pos[1],pos[2]];
+		dl.origin = pos.slice();
 		dl.radius = 350.0;
 		dl.die = quake_CL.state.time + 0.5;
 		dl.decay = 300.0;
@@ -1700,7 +1726,7 @@ quake_CL.ParseTEnt = function() {
 		var colorLength = quake_MSG.ReadByte();
 		quake_R.ParticleExplosion2(pos,colorStart,colorLength);
 		var dl1 = quake_CL.AllocDlight(0);
-		dl1.origin = [pos[0],pos[1],pos[2]];
+		dl1.origin = pos.slice();
 		dl1.radius = 350.0;
 		dl1.die = quake_CL.state.time + 0.5;
 		dl1.decay = 300.0;
@@ -1719,7 +1745,7 @@ quake_CL.NewTempEntity = function() {
 quake_CL.UpdateTEnts = function() {
 	quake_CL.num_temp_entities = 0;
 	var dist = [];
-	var org = [];
+	var org = [0.0,0.0,0.0];
 	var _g = 0;
 	while(_g < 24) {
 		var i = _g++;
@@ -1763,12 +1789,15 @@ quake_CL.UpdateTEnts = function() {
 		}
 		while(d > 0.0) {
 			var ent = quake_CL.NewTempEntity();
-			ent.origin = [org[0],org[1],org[2]];
+			ent.origin = org.slice();
 			ent.model = b.model;
-			ent.angles = [pitch,yaw,Math.random() * 360.0];
-			org[0] += dist[0] * 30.0;
-			org[1] += dist[1] * 30.0;
-			org[2] += dist[2] * 30.0;
+			var tmp2;
+			var z = Math.random() * 360.0;
+			tmp2 = [pitch,yaw,z];
+			ent.angles = tmp2;
+			org[0] = org[0] + dist[0] * 30.0;
+			org[1] = org[1] + dist[1] * 30.0;
+			org[2] = org[2] + dist[2] * 30.0;
 			d -= 30.0;
 		}
 	}
@@ -8306,7 +8335,7 @@ quake_S.Spatialize = function(ch) {
 quake_S.StartSound = function(entnum,entchannel,sfx,origin,vol,attenuation) {
 	if(quake_S.nosound.value != 0 || sfx == null) return;
 	var target_chan = quake_S.PickChannel(entnum,entchannel);
-	target_chan.origin = [origin[0],origin[1],origin[2]];
+	target_chan.origin = origin.slice();
 	target_chan.dist_mult = attenuation * 0.001;
 	target_chan.master_vol = vol;
 	target_chan.entnum = entnum;
@@ -8381,7 +8410,7 @@ quake_S.StaticSound = function(sfx,origin,vol,attenuation) {
 		return;
 	}
 	var ss = new quake__$S_Channel(sfx);
-	ss.origin = [origin[0],origin[1],origin[2]];
+	ss.origin = origin.slice();
 	ss.master_vol = vol;
 	ss.dist_mult = attenuation * 0.000015625;
 	ss.end = quake_Host.realtime + sfx.cache.length;
@@ -9894,9 +9923,9 @@ quake_SV.FlyMove = function(ent,time) {
 	var o1 = 16;
 	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
 	var original_velocity = tmp1;
-	var new_velocity = [];
+	var new_velocity = [0.0,0.0,0.0];
 	var trace;
-	var end = [];
+	var end = [0.0,0.0,0.0];
 	var time_left = time;
 	var blocked = 0;
 	var _g = 0;
@@ -10165,7 +10194,7 @@ quake_SV.CheckWater = function(ent) {
 	return ent._v_float[83] > 1.0;
 };
 quake_SV.WallFriction = function(ent,trace) {
-	var forward = [];
+	var forward = [0.0,0.0,0.0];
 	var tmp;
 	var o = 70;
 	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
@@ -10341,7 +10370,7 @@ quake_SV.Physics_Toss = function(ent) {
 	ent._v_float[21] += quake_Host.frametime * ent._v_float[24];
 	var trace = quake_SV.PushEntity(ent,[ent._v_float[16] * quake_Host.frametime,ent._v_float[17] * quake_Host.frametime,ent._v_float[18] * quake_Host.frametime]);
 	if(trace.fraction == 1.0 || ent.free) return;
-	var velocity = [];
+	var velocity = [0.0,0.0,0.0];
 	var tmp;
 	var o = 16;
 	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
@@ -10422,8 +10451,10 @@ quake_SV.SetIdealPitch = function() {
 	var _g = 0;
 	while(_g < 6) {
 		var i = _g++;
-		top[0] = bottom[0] = ent._v_float[10] + cosval * (i + 3) * 12.0;
-		top[1] = bottom[1] = ent._v_float[11] + sinval * (i + 3) * 12.0;
+		var v = bottom[0] = ent._v_float[10] + cosval * (i + 3) * 12.0;
+		top[0] = v;
+		var v1 = bottom[1] = ent._v_float[11] + sinval * (i + 3) * 12.0;
+		top[1] = v1;
 		var tr = quake_SV.Move(top,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,bottom,1,ent);
 		if(tr.allsolid || tr.fraction == 1.0) return;
 		z[i] = top[2] - tr.fraction * 160.0;
@@ -10463,7 +10494,7 @@ quake_SV.UserFriction = function() {
 };
 quake_SV.Accelerate = function(wishvel,air) {
 	var ent = quake_SV.player;
-	var wishdir = [wishvel[0],wishvel[1],wishvel[2]];
+	var wishdir = wishvel.slice();
 	var wishspeed = quake__$Vec_Vec_$Impl_$.Normalize(wishdir);
 	if(air && wishspeed > 30.0) wishspeed = 30.0;
 	var addspeed = wishspeed - (ent._v_float[16] * wishdir[0] + ent._v_float[17] * wishdir[1] + ent._v_float[18] * wishdir[2]);
@@ -10477,8 +10508,8 @@ quake_SV.Accelerate = function(wishvel,air) {
 quake_SV.WaterMove = function() {
 	var ent = quake_SV.player;
 	var cmd = quake_Host.client.cmd;
-	var forward = [];
-	var right = [];
+	var forward = [0.0,0.0,0.0];
+	var right = [0.0,0.0,0.0];
 	var tmp;
 	var o = 70;
 	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
@@ -10529,8 +10560,8 @@ quake_SV.WaterJump = function() {
 quake_SV.AirMove = function() {
 	var ent = quake_SV.player;
 	var cmd = quake_Host.client.cmd;
-	var forward = [];
-	var right = [];
+	var forward = [0.0,0.0,0.0];
+	var right = [0.0,0.0,0.0];
 	var tmp;
 	var o = 19;
 	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
@@ -10539,7 +10570,7 @@ quake_SV.AirMove = function() {
 	var smove = cmd.sidemove;
 	if(quake_SV.server.time < ent._v_float[80] && fmove < 0.0) fmove = 0.0;
 	var wishvel = [forward[0] * fmove + right[0] * smove,forward[1] * fmove + right[1] * smove,(ent._v_float[8] | 0) != 3?cmd.upmove:0.0];
-	var wishdir = [wishvel[0],wishvel[1],wishvel[2]];
+	var wishdir = wishvel.slice();
 	if(quake__$Vec_Vec_$Impl_$.Normalize(wishdir) > quake_SV.maxspeed.value) {
 		wishvel[0] = wishdir[0] * quake_SV.maxspeed.value;
 		wishvel[1] = wishdir[1] * quake_SV.maxspeed.value;
@@ -10720,9 +10751,10 @@ quake_SV.CreateAreaNode = function(depth,mins,maxs) {
 	}
 	anode.axis = maxs[0] - mins[0] > maxs[1] - mins[1]?0:1;
 	anode.dist = 0.5 * (maxs[anode.axis] + mins[anode.axis]);
-	var maxs1 = [maxs[0],maxs[1],maxs[2]];
-	var mins2 = [mins[0],mins[1],mins[2]];
-	maxs1[anode.axis] = mins2[anode.axis] = anode.dist;
+	var maxs1 = maxs.slice();
+	var mins2 = mins.slice();
+	var v = mins2[anode.axis] = anode.dist;
+	maxs1[anode.axis] = v;
 	anode.children = [quake_SV.CreateAreaNode(depth + 1,mins2,maxs),quake_SV.CreateAreaNode(depth + 1,mins,maxs1)];
 	return anode;
 };
@@ -10858,10 +10890,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	if(quake_SV.HullPointContents(hull,node.children[1 - side],mid) != -2) return quake_SV.RecursiveHullCheck(hull,node.children[1 - side],midf,p2f,mid,p2,trace);
 	if(trace.allsolid) return false;
 	if(side == 0) {
-		var tmp;
-		var this1 = plane.normal;
-		tmp = [this1[0],this1[1],this1[2]];
-		trace.plane.normal = tmp;
+		trace.plane.normal = plane.normal.slice();
 		trace.plane.dist = plane.dist;
 	} else {
 		trace.plane.normal = [-plane.normal[0],-plane.normal[1],-plane.normal[2]];
@@ -10871,7 +10900,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 		frac -= 0.1;
 		if(frac < 0.0) {
 			trace.fraction = midf;
-			trace.endpos = [mid[0],mid[1],mid[2]];
+			trace.endpos = mid.slice();
 			quake_Console.DPrint("backup past 0\n");
 			return false;
 		}
@@ -10881,14 +10910,14 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 		mid[2] = p1[2] + frac * (p2[2] - p1[2]);
 	}
 	trace.fraction = midf;
-	trace.endpos = [mid[0],mid[1],mid[2]];
+	trace.endpos = mid.slice();
 	return false;
 };
 quake_SV.ClipMoveToEntity = function(ent,start,mins,maxs,end) {
 	var trace = new quake_MTrace();
 	trace.fraction = 1.0;
 	trace.allsolid = true;
-	trace.endpos = [end[0],end[1],end[2]];
+	trace.endpos = end.slice();
 	var tmp;
 	var p = new quake_Plane();
 	p.normal = [0.0,0.0,0.0];
@@ -10951,8 +10980,8 @@ quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
 		clip.mins2 = [-15.0,-15.0,-15.0];
 		clip.maxs2 = [15.0,15.0,15.0];
 	} else {
-		clip.mins2 = [mins[0],mins[1],mins[2]];
-		clip.maxs2 = [maxs[0],maxs[1],maxs[2]];
+		clip.mins2 = mins.slice();
+		clip.maxs2 = maxs.slice();
 	}
 	var _g = 0;
 	while(_g < 3) {
@@ -11888,7 +11917,12 @@ quake_R.InitParticles = function() {
 	var _g = 0;
 	while(_g < 162) {
 		var i1 = _g++;
-		quake_R.avelocities[i1] = [Math.random() * 2.56,Math.random() * 2.56,Math.random() * 2.56];
+		var tmp;
+		var x = Math.random() * 2.56;
+		var y = Math.random() * 2.56;
+		var z = Math.random() * 2.56;
+		tmp = [x,y,z];
+		quake_R.avelocities[i1] = tmp;
 	}
 	quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
 };
@@ -11953,15 +11987,30 @@ quake_R.ReadPointFile_f = function() {
 		p1.die = 99999.0;
 		p1.color = -c & 15;
 		p1.vel = [0.0,0.0,0.0];
-		p1.org = [quake_Q.atof(org[0]),quake_Q.atof(org[1]),quake_Q.atof(org[2])];
+		var tmp1;
+		var x = quake_Q.atof(org[0]);
+		var y = quake_Q.atof(org[1]);
+		var z = quake_Q.atof(org[2]);
+		tmp1 = [x,y,z];
+		p1.org = tmp1;
 		tmp = p1;
 		quake_R.particles[p[0]] = tmp;
 	}
 	quake_Console.Print(c + " points read\n");
 };
 quake_R.ParseParticleEffect = function() {
-	var org = [quake_MSG.ReadCoord(),quake_MSG.ReadCoord(),quake_MSG.ReadCoord()];
-	var dir = [quake_MSG.ReadChar() * 0.0625,quake_MSG.ReadChar() * 0.0625,quake_MSG.ReadChar() * 0.0625];
+	var tmp;
+	var x = quake_MSG.ReadCoord();
+	var y = quake_MSG.ReadCoord();
+	var z = quake_MSG.ReadCoord();
+	tmp = [x,y,z];
+	var org = tmp;
+	var tmp1;
+	var x1 = quake_MSG.ReadChar() * 0.0625;
+	var y1 = quake_MSG.ReadChar() * 0.0625;
+	var z1 = quake_MSG.ReadChar() * 0.0625;
+	tmp1 = [x1,y1,z1];
+	var dir = tmp1;
 	var msgcount = quake_MSG.ReadByte();
 	var color = quake_MSG.ReadByte();
 	if(msgcount == 255) quake_R.ParticleExplosion(org); else quake_R.RunParticleEffect(org,dir,color,msgcount);
@@ -11977,8 +12026,18 @@ quake_R.ParticleExplosion = function(org) {
 		p.die = quake_CL.state.time + 5.0;
 		p.color = quake_R.ramp1[0];
 		p.ramp = Math.floor(Math.random() * 4.0);
-		p.vel = [Math.random() * 512.0 - 256.0,Math.random() * 512.0 - 256.0,Math.random() * 512.0 - 256.0];
-		p.org = [org[0] + Math.random() * 32.0 - 16.0,org[1] + Math.random() * 32.0 - 16.0,org[2] + Math.random() * 32.0 - 16.0];
+		var tmp1;
+		var x = Math.random() * 512.0 - 256.0;
+		var y = Math.random() * 512.0 - 256.0;
+		var z = Math.random() * 512.0 - 256.0;
+		tmp1 = [x,y,z];
+		p.vel = tmp1;
+		var tmp2;
+		var x1 = org[0] + Math.random() * 32.0 - 16.0;
+		var y1 = org[1] + Math.random() * 32.0 - 16.0;
+		var z1 = org[2] + Math.random() * 32.0 - 16.0;
+		tmp2 = [x1,y1,z1];
+		p.org = tmp2;
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
 	}
@@ -11994,8 +12053,18 @@ quake_R.ParticleExplosion2 = function(org,colorStart,colorLength) {
 		var p = new quake__$R_RParticle(6);
 		p.die = quake_CL.state.time + 0.3;
 		p.color = colorStart + colorMod++ % colorLength;
-		p.org = [org[0] + Math.random() * 32.0 - 16.0,org[1] + Math.random() * 32.0 - 16.0,org[2] + Math.random() * 32.0 - 16.0];
-		p.vel = [Math.random() * 512.0 - 256.0,Math.random() * 512.0 - 256.0,Math.random() * 512.0 - 256.0];
+		var tmp1;
+		var x = org[0] + Math.random() * 32.0 - 16.0;
+		var y = org[1] + Math.random() * 32.0 - 16.0;
+		var z = org[2] + Math.random() * 32.0 - 16.0;
+		tmp1 = [x,y,z];
+		p.org = tmp1;
+		var tmp2;
+		var x1 = Math.random() * 512.0 - 256.0;
+		var y1 = Math.random() * 512.0 - 256.0;
+		var z1 = Math.random() * 512.0 - 256.0;
+		tmp2 = [x1,y1,z1];
+		p.vel = tmp2;
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
 	}
@@ -12015,8 +12084,18 @@ quake_R.BlobExplosion = function(org) {
 			p.type = 7;
 			p.color = 150 + Math.floor(Math.random() * 7.0);
 		}
-		p.org = [org[0] + Math.random() * 32.0 - 16.0,org[1] + Math.random() * 32.0 - 16.0,org[2] + Math.random() * 32.0 - 16.0];
-		p.vel = [Math.random() * 512.0 - 256.0,Math.random() * 512.0 - 256.0,Math.random() * 512.0 - 256.0];
+		var tmp;
+		var x = org[0] + Math.random() * 32.0 - 16.0;
+		var y = org[1] + Math.random() * 32.0 - 16.0;
+		var z = org[2] + Math.random() * 32.0 - 16.0;
+		tmp = [x,y,z];
+		p.org = tmp;
+		var tmp1;
+		var x1 = Math.random() * 512.0 - 256.0;
+		var y1 = Math.random() * 512.0 - 256.0;
+		var z1 = Math.random() * 512.0 - 256.0;
+		tmp1 = [x1,y1,z1];
+		p.vel = tmp1;
 	}
 };
 quake_R.RunParticleEffect = function(org,dir,color,count) {
@@ -12029,7 +12108,12 @@ quake_R.RunParticleEffect = function(org,dir,color,count) {
 		var p = new quake__$R_RParticle(2);
 		p.die = quake_CL.state.time + 0.6 * Math.random();
 		p.color = (color & 248) + Math.floor(Math.random() * 8.0);
-		p.org = [org[0] + Math.random() * 16.0 - 8.0,org[1] + Math.random() * 16.0 - 8.0,org[2] + Math.random() * 16.0 - 8.0];
+		var tmp1;
+		var x = org[0] + Math.random() * 16.0 - 8.0;
+		var y = org[1] + Math.random() * 16.0 - 8.0;
+		var z = org[2] + Math.random() * 16.0 - 8.0;
+		tmp1 = [x,y,z];
+		p.org = tmp1;
 		p.vel = [dir[0] * 15.0,dir[1] * 15.0,dir[2] * 15.0];
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
@@ -12038,8 +12122,7 @@ quake_R.RunParticleEffect = function(org,dir,color,count) {
 quake_R.LavaSplash = function(org) {
 	var allocated = quake_R.AllocParticles(1024);
 	var k = 0;
-	var dir = [];
-	var vel;
+	var dir = [0.0,0.0,0.0];
 	var _g = -16;
 	while(_g < 16) {
 		var i = _g++;
@@ -12051,12 +12134,17 @@ quake_R.LavaSplash = function(org) {
 			p.die = quake_CL.state.time + 2.0 + Math.random() * 0.64;
 			p.color = 224 + Math.floor(Math.random() * 8.0);
 			p.type = 2;
-			dir[0] = (j + Math.random()) * 8.0;
-			dir[1] = (i + Math.random()) * 8.0;
+			var v = (j + Math.random()) * 8.0;
+			dir[0] = v;
+			var v1 = (i + Math.random()) * 8.0;
+			dir[1] = v1;
 			dir[2] = 256.0;
-			p.org = [org[0] + dir[0],org[1] + dir[1],org[2] + Math.random() * 64.0];
+			var tmp;
+			var z = org[2] + Math.random() * 64.0;
+			tmp = [org[0] + dir[0],org[1] + dir[1],z];
+			p.org = tmp;
 			quake__$Vec_Vec_$Impl_$.Normalize(dir);
-			vel = 50.0 + Math.random() * 64.0;
+			var vel = 50.0 + Math.random() * 64.0;
 			p.vel = [dir[0] * vel,dir[1] * vel,dir[2] * vel];
 		}
 	}
@@ -12067,7 +12155,7 @@ quake_R.TeleportSplash = function(org) {
 	var j;
 	var k;
 	var l = 0;
-	var dir = [];
+	var dir = [0.0,0.0,0.0];
 	i = -16;
 	while(i < 16) {
 		j = -16;
@@ -12082,7 +12170,12 @@ quake_R.TeleportSplash = function(org) {
 				dir[0] = j * 8.0;
 				dir[1] = i * 8.0;
 				dir[2] = k * 8.0;
-				p.org = [org[0] + i + Math.random() * 4.0,org[1] + j + Math.random() * 4.0,org[2] + k + Math.random() * 4.0];
+				var tmp;
+				var x = org[0] + i + Math.random() * 4.0;
+				var y = org[1] + j + Math.random() * 4.0;
+				var z = org[2] + k + Math.random() * 4.0;
+				tmp = [x,y,z];
+				p.org = tmp;
 				quake__$Vec_Vec_$Impl_$.Normalize(dir);
 				var vel = 50.0 + Math.random() * 64.0;
 				p.vel = [dir[0] * vel,dir[1] * vel,dir[2] * vel];
@@ -12113,18 +12206,28 @@ quake_R.RocketTrail = function(start,end,type) {
 				p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
 				p.color = quake_R.ramp3[p.ramp | 0];
 				p.type = 3;
-				p.org = [start[0] + Math.random() * 6.0 - 3.0,start[1] + Math.random() * 6.0 - 3.0,start[2] + Math.random() * 6.0 - 3.0];
+				var tmp;
+				var x = start[0] + Math.random() * 6.0 - 3.0;
+				var y = start[1] + Math.random() * 6.0 - 3.0;
+				var z = start[2] + Math.random() * 6.0 - 3.0;
+				tmp = [x,y,z];
+				p.org = tmp;
 				break;
 			case 2:
 				p.type = 1;
 				p.color = 67 + Math.floor(Math.random() * 4.0);
-				p.org = [start[0] + Math.random() * 6.0 - 3.0,start[1] + Math.random() * 6.0 - 3.0,start[2] + Math.random() * 6.0 - 3.0];
+				var tmp1;
+				var x1 = start[0] + Math.random() * 6.0 - 3.0;
+				var y1 = start[1] + Math.random() * 6.0 - 3.0;
+				var z1 = start[2] + Math.random() * 6.0 - 3.0;
+				tmp1 = [x1,y1,z1];
+				p.org = tmp1;
 				break;
 			case 3:case 5:
 				p.die = quake_CL.state.time + 0.5;
 				p.type = 0;
 				if(type == 3) p.color = 52 + ((quake_R.tracercount++ & 4) << 1); else p.color = 230 + ((quake_R.tracercount++ & 4) << 1);
-				p.org = [start[0],start[1],start[2]];
+				p.org = start.slice();
 				if((quake_R.tracercount & 1) != 0) {
 					p.vel[0] = 30.0 * vec[1];
 					p.vel[2] = -30. * vec[0];
@@ -12137,14 +12240,24 @@ quake_R.RocketTrail = function(start,end,type) {
 			case 4:
 				p.type = 1;
 				p.color = 67 + Math.floor(Math.random() * 4.0);
-				p.org = [start[0] + Math.random() * 6.0 - 3.0,start[1] + Math.random() * 6.0 - 3.0,start[2] + Math.random() * 6.0 - 3.0];
+				var tmp2;
+				var x2 = start[0] + Math.random() * 6.0 - 3.0;
+				var y2 = start[1] + Math.random() * 6.0 - 3.0;
+				var z2 = start[2] + Math.random() * 6.0 - 3.0;
+				tmp2 = [x2,y2,z2];
+				p.org = tmp2;
 				throw "__break__";
 				break;
 			case 6:
 				p.color = 152 + Math.floor(Math.random() * 4.0);
 				p.type = 0;
 				p.die = quake_CL.state.time + 0.3;
-				p.org = [start[0] + Math.random() * 16.0 - 8.0,start[1] + Math.random() * 16.0 - 8.0,start[2] + Math.random() * 16.0 - 8.0];
+				var tmp3;
+				var x3 = start[0] + Math.random() * 16.0 - 8.0;
+				var y3 = start[1] + Math.random() * 16.0 - 8.0;
+				var z3 = start[2] + Math.random() * 16.0 - 8.0;
+				tmp3 = [x3,y3,z3];
+				p.org = tmp3;
 				break;
 			}
 			start[0] = start[0] + vec[0];
@@ -12569,11 +12682,11 @@ quake_R.BuildSurfaceDisplayList = function(fa) {
 		var vert = [vec[0],vec[1],vec[2]];
 		if(!fa.sky) {
 			var tmp;
-			var v2 = texinfo.vecs[0];
+			var v2 = texinfo.vecs[0].slice(0,3);
 			tmp = vec[0] * v2[0] + vec[1] * v2[1] + vec[2] * v2[2];
 			var s = tmp + texinfo.vecs[0][3];
 			var tmp1;
-			var v21 = texinfo.vecs[1];
+			var v21 = texinfo.vecs[1].slice(0,3);
 			tmp1 = vec[0] * v21[0] + vec[1] * v21[1] + vec[2] * v21[2];
 			var t = tmp1 + texinfo.vecs[1][3];
 			vert[3] = s / texture.width;
@@ -13206,7 +13319,7 @@ quake_PF.aim = function() {
 			return;
 		}
 	}
-	var bestdir = [dir[0],dir[1],dir[2]];
+	var bestdir = dir.slice();
 	var bestdist = quake_SV.aim.value;
 	var bestent;
 	var end1 = [0.0,0.0,0.0];

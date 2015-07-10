@@ -46,9 +46,9 @@ class REntity {
     var leafs:Array<Int> = [];
     var model:MModel;
     var angles= new Vec();
-    var msg_angles:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+    var msg_angles = [new Vec(), new Vec()];
     var origin= new Vec();
-    var msg_origins:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+    var msg_origins = [new Vec(), new Vec()];
     var frame = 0;
     var syncbase = 0.0;
     var colormap:Int;
@@ -173,7 +173,7 @@ class R {
         for (l in CL.dlights) {
             if (l.die < CL.state.time || l.radius == 0.0)
                 continue;
-            if (Vec.Length([l.origin[0] - R.refdef.vieworg[0], l.origin[1] - R.refdef.vieworg[1], l.origin[2] - R.refdef.vieworg[2]]) < (l.radius * 0.35)) {
+            if (Vec.Length(Vec.of(l.origin[0] - R.refdef.vieworg[0], l.origin[1] - R.refdef.vieworg[1], l.origin[2] - R.refdef.vieworg[2])) < (l.radius * 0.35)) {
                 var a = l.radius * 0.0003;
                 V.blend[3] += a * (1.0 - V.blend[3]);
                 a /= V.blend[3];
@@ -182,7 +182,7 @@ class R {
                 V.blend[2] *= 1.0 - a;
                 continue;
             }
-            gl.uniform3fv(program.uOrigin, cast l.origin);
+            gl.uniform3fv(program.uOrigin, l.origin);
             gl.uniform1f(program.uRadius, l.radius);
             gl.drawArrays(RenderingContext.TRIANGLE_FAN, 0, 18);
         }
@@ -394,7 +394,7 @@ class R {
             frame = frame.frames[i];
         }
         gl.uniform4f(program.uRect, frame.origin[0], frame.origin[1], frame.width, frame.height);
-        gl.uniform3fv(program.uOrigin, cast e.origin);
+        gl.uniform3fv(program.uOrigin, e.origin);
         GL.Bind(program.tTexture, frame.texturenum);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -597,7 +597,7 @@ class R {
             gl.uniform3f(program.uBottom, bottom & 0xff, (bottom >> 8) & 0xff, bottom >> 16);
         } else
             program = GL.UseProgram('alias');
-        gl.uniform3fv(program.uOrigin, cast e.origin);
+        gl.uniform3fv(program.uOrigin, e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]));
 
         var ambientlight:Float = R.LightPoint(e.origin);
@@ -1299,7 +1299,7 @@ class R {
 
         R.avelocities = [];
         for (i in 0...162)
-            R.avelocities[i] = [Math.random() * 2.56, Math.random() * 2.56, Math.random() * 2.56];
+            R.avelocities[i] = Vec.of(Math.random() * 2.56, Math.random() * 2.56, Math.random() * 2.56);
 
         GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }
@@ -1319,12 +1319,12 @@ class R {
                 p.die = CL.state.time + 0.01;
                 p.color = 0x6f;
                 p.ramp = 0.0;
-                p.vel = [0.0, 0.0, 0.0];
-                p.org = [
+                p.vel = new Vec();
+                p.org = Vec.of(
                     ent.origin[0] + R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0,
                     ent.origin[1] + R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0,
                     ent.origin[2] + R.avertexnormals[i][2] * 64.0 + sp * -16.0
-                ];
+                );
                 p;
             };
         }
@@ -1366,8 +1366,8 @@ class R {
                 var p = new RParticle(tracer);
                 p.die = 99999.0;
                 p.color = -c & 15;
-                p.vel = [0.0, 0.0, 0.0];
-                p.org = [Q.atof(org[0]), Q.atof(org[1]), Q.atof(org[2])];
+                p.vel = new Vec();
+                p.org = Vec.of(Q.atof(org[0]), Q.atof(org[1]), Q.atof(org[2]));
                 p;
             };
         }
@@ -1375,8 +1375,8 @@ class R {
     }
 
     static function ParseParticleEffect() {
-        var org = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
-        var dir = [MSG.ReadChar() * 0.0625, MSG.ReadChar() * 0.0625, MSG.ReadChar() * 0.0625];
+        var org = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var dir = Vec.of(MSG.ReadChar() * 0.0625, MSG.ReadChar() * 0.0625, MSG.ReadChar() * 0.0625);
         var msgcount = MSG.ReadByte();
         var color = MSG.ReadByte();
         if (msgcount == 255)
@@ -1393,12 +1393,12 @@ class R {
                 p.die = CL.state.time + 5.0;
                 p.color = R.ramp1[0];
                 p.ramp = Math.floor(Math.random() * 4.0);
-                p.vel = [Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0];
-                p.org = [
+                p.vel = Vec.of(Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0);
+                p.org = Vec.of(
                     org[0] + Math.random() * 32.0 - 16.0,
                     org[1] + Math.random() * 32.0 - 16.0,
                     org[2] + Math.random() * 32.0 - 16.0
-                ];
+                );
                 p;
             };
         }
@@ -1411,12 +1411,12 @@ class R {
                 var p = new RParticle(blob);
                 p.die = CL.state.time + 0.3;
                 p.color = colorStart + (colorMod++ % colorLength);
-                p.org = [
+                p.org = Vec.of(
                     org[0] + Math.random() * 32.0 - 16.0,
                     org[1] + Math.random() * 32.0 - 16.0,
                     org[2] + Math.random() * 32.0 - 16.0
-                ];
-                p.vel = [Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0];
+                );
+                p.vel = Vec.of(Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0);
                 p;
             };
         }
@@ -1434,12 +1434,12 @@ class R {
                 p.type = blob2;
                 p.color = 150 + Math.floor(Math.random() * 7.0);
             }
-            p.org = [
+            p.org = Vec.of(
                 org[0] + Math.random() * 32.0 - 16.0,
                 org[1] + Math.random() * 32.0 - 16.0,
                 org[2] + Math.random() * 32.0 - 16.0
-            ];
-            p.vel = [Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0];
+            );
+            p.vel = Vec.of(Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0);
         }
     }
 
@@ -1450,20 +1450,20 @@ class R {
                 var p = new RParticle(slowgrav);
                 p.die = CL.state.time + 0.6 * Math.random();
                 p.color = (color & 0xf8) + Math.floor(Math.random() * 8.0);
-                p.org = [
+                p.org = Vec.of(
                     org[0] + Math.random() * 16.0 - 8.0,
                     org[1] + Math.random() * 16.0 - 8.0,
                     org[2] + Math.random() * 16.0 - 8.0
-                ];
-                p.vel = [dir[0] * 15.0, dir[1] * 15.0, dir[2] * 15.0];
+                );
+                p.vel = Vec.of(dir[0] * 15.0, dir[1] * 15.0, dir[2] * 15.0);
                 p;
             };
         }
     }
 
-    static function LavaSplash(org) {
+    static function LavaSplash(org:Vec) {
         var allocated = R.AllocParticles(1024), k = 0;
-        var dir = [], vel;
+        var dir = new Vec();
         for (i in -16...16) {
             for (j in -16...16) {
                 if (k >= allocated.length)
@@ -1475,17 +1475,17 @@ class R {
                 dir[0] = (j + Math.random()) * 8.0;
                 dir[1] = (i + Math.random()) * 8.0;
                 dir[2] = 256.0;
-                p.org = [org[0] + dir[0], org[1] + dir[1], org[2] + Math.random() * 64.0];
+                p.org = Vec.of(org[0] + dir[0], org[1] + dir[1], org[2] + Math.random() * 64.0);
                 Vec.Normalize(dir);
-                vel = 50.0 + Math.random() * 64.0;
-                p.vel = [dir[0] * vel, dir[1] * vel, dir[2] * vel];
+                var vel = 50.0 + Math.random() * 64.0;
+                p.vel = Vec.of(dir[0] * vel, dir[1] * vel, dir[2] * vel);
             }
         }
     }
 
     static function TeleportSplash(org:Vec):Void {
         var allocated = R.AllocParticles(896), i, j, k, l = 0;
-        var dir = [];
+        var dir = new Vec();
         i = -16;
         while (i < 16) {
             j = -16;
@@ -1501,14 +1501,14 @@ class R {
                     dir[0] = j * 8.0;
                     dir[1] = i * 8.0;
                     dir[2] = k * 8.0;
-                    p.org = [
+                    p.org = Vec.of(
                         org[0] + i + Math.random() * 4.0,
                         org[1] + j + Math.random() * 4.0,
                         org[2] + k + Math.random() * 4.0
-                    ];
+                    );
                     Vec.Normalize(dir);
                     var vel = 50.0 + Math.random() * 64.0;
-                    p.vel = [dir[0] * vel, dir[1] * vel, dir[2] * vel];
+                    p.vel = Vec.of(dir[0] * vel, dir[1] * vel, dir[2] * vel);
                     k += 4;
                 }
                 j += 4;
@@ -1533,26 +1533,26 @@ class R {
 
         for (i in 0...allocated.length) {
             var p = R.particles[allocated[i]];
-            p.vel = [0.0, 0.0, 0.0];
+            p.vel = new Vec();
             p.die = CL.state.time + 2.0;
             switch (type) {
                 case 0 | 1:
                     p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
                     p.color = R.ramp3[Std.int(p.ramp)];
                     p.type = fire;
-                    p.org = [
+                    p.org = Vec.of(
                         start[0] + Math.random() * 6.0 - 3.0,
                         start[1] + Math.random() * 6.0 - 3.0,
                         start[2] + Math.random() * 6.0 - 3.0
-                    ];
+                    );
                 case 2:
                     p.type = grav;
                     p.color = 67 + Math.floor(Math.random() * 4.0);
-                    p.org = [
+                    p.org = Vec.of(
                         start[0] + Math.random() * 6.0 - 3.0,
                         start[1] + Math.random() * 6.0 - 3.0,
                         start[2] + Math.random() * 6.0 - 3.0
-                    ];
+                    );
                 case 3 | 5:
                     p.die = CL.state.time + 0.5;
                     p.type = tracer;
@@ -1560,7 +1560,7 @@ class R {
                         p.color = 52 + ((R.tracercount++ & 4) << 1);
                     else
                         p.color = 230 + ((R.tracercount++ & 4) << 1);
-                    p.org = [start[0], start[1], start[2]];
+                    p.org = start.copy();
                     if ((R.tracercount & 1) != 0) {
                         p.vel[0] = 30.0 * vec[1];
                         p.vel[2] = -30.0 * vec[0];
@@ -1572,21 +1572,21 @@ class R {
                 case 4:
                     p.type = grav;
                     p.color = 67 + Math.floor(Math.random() * 4.0);
-                    p.org = [
+                    p.org = Vec.of(
                         start[0] + Math.random() * 6.0 - 3.0,
                         start[1] + Math.random() * 6.0 - 3.0,
                         start[2] + Math.random() * 6.0 - 3.0
-                    ];
+                    );
                     break;
                 case 6:
                     p.color = 152 + Math.floor(Math.random() * 4.0);
                     p.type = tracer;
                     p.die = CL.state.time + 0.3;
-                    p.org = [
+                    p.org = Vec.of(
                         start[0] + Math.random() * 16.0 - 8.0,
                         start[1] + Math.random() * 16.0 - 8.0,
                         start[2] + Math.random() * 16.0 - 8.0
-                    ];
+                    );
             }
             start[0] += vec[0];
             start[1] += vec[1];
@@ -1614,7 +1614,7 @@ class R {
 
             var color = VID.d_8to24table[p.color];
             gl.uniform3f(program.uColor, color & 0xff, (color >> 8) & 0xff, color >> 16);
-            gl.uniform3fv(program.uOrigin, cast p.org);
+            gl.uniform3fv(program.uOrigin, p.org);
             var scale = (p.org[0] - R.refdef.vieworg[0]) * R.vpn[0]
                 + (p.org[1] - R.refdef.vieworg[1]) * R.vpn[1]
                 + (p.org[2] - R.refdef.vieworg[2]) * R.vpn[2];
@@ -1842,7 +1842,7 @@ class R {
         var viewMatrix = GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]);
 
         var program = GL.UseProgram('brush');
-        gl.uniform3fv(program.uOrigin, cast e.origin);
+        gl.uniform3fv(program.uOrigin, e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
         gl.vertexAttribPointer(program.aTexCoord, 4, RenderingContext.FLOAT, false, 44, 12);
@@ -2046,8 +2046,8 @@ class R {
                 vec = R.currentmodel.vertexes[R.currentmodel.edges[-index][1]];
             var vert = [vec[0], vec[1], vec[2]];
             if (!fa.sky) {
-                var s = Vec.DotProduct(vec, texinfo.vecs[0]) + texinfo.vecs[0][3];
-                var t = Vec.DotProduct(vec, texinfo.vecs[1]) + texinfo.vecs[1][3];
+                var s = Vec.DotProduct(vec, Vec.ofArray(texinfo.vecs[0])) + texinfo.vecs[0][3];
+                var t = Vec.DotProduct(vec, Vec.ofArray(texinfo.vecs[1])) + texinfo.vecs[1][3];
                 vert[3] = s / texture.width;
                 vert[4] = t / texture.height;
                 if (!fa.turbulent) {

@@ -76,8 +76,8 @@ private class ClientState {
     var mtime = [0.0, 0.0];
     var time = 0.0;
     var viewangles= new Vec();
-    var mviewangles:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
-    var mvelocity:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+    var mviewangles = [new Vec(), new Vec()];
+    var mvelocity = [new Vec(), new Vec()];
     var velocity= new Vec();
     var cmd = new ClientCmd();
     var movemessages = 0;
@@ -217,7 +217,7 @@ class CL {
             if (NET.message.cursize > 8000)
                 Sys.Error('Demo message > MAX_MSGLEN');
             CL.state.mviewangles[1] = CL.state.mviewangles[0];
-            CL.state.mviewangles[0] = [view.getFloat32(CL.cls.demoofs + 4, true), view.getFloat32(CL.cls.demoofs + 8, true), view.getFloat32(CL.cls.demoofs + 12, true)];
+            CL.state.mviewangles[0] = Vec.of(view.getFloat32(CL.cls.demoofs + 4, true), view.getFloat32(CL.cls.demoofs + 8, true), view.getFloat32(CL.cls.demoofs + 12, true));
             CL.cls.demoofs += 16;
             if ((CL.cls.demoofs + NET.message.cursize) > CL.cls.demosize) {
                 CL.StopPlayback();
@@ -772,7 +772,7 @@ class CL {
             if (dl == null)
                 dl = CL.dlights[0];
         }
-        dl.origin = [0.0, 0.0, 0.0];
+        dl.origin = new Vec();
         dl.radius = 0.0;
         dl.die = 0.0;
         dl.decay = 0.0;
@@ -841,7 +841,7 @@ class CL {
 
         var bobjrotate = Vec.Anglemod(100.0 * CL.state.time);
         var delta = [];
-        var oldorg = [];
+        var oldorg = new Vec();
         var dl;
         for (i in 1...CL.entities.length) {
             var ent = CL.entities[i];
@@ -883,26 +883,26 @@ class CL {
                 R.EntityParticles(ent);
             if ((ent.effects & EntEffect.muzzleflash) != 0) {
                 dl = CL.AllocDlight(i);
-                var fv = [];
+                var fv = new Vec();
                 Vec.AngleVectors(ent.angles, fv);
-                dl.origin = [
+                dl.origin = Vec.of(
                     ent.origin[0] + 18.0 * fv[0],
                     ent.origin[1] + 18.0 * fv[1],
                     ent.origin[2] + 16.0 + 18.0 * fv[2]
-                ];
+                );
                 dl.radius = 200.0 + Math.random() * 32.0;
                 dl.minlight = 32.0;
                 dl.die = CL.state.time + 0.1;
             }
             if ((ent.effects & EntEffect.brightlight) != 0) {
                 dl = CL.AllocDlight(i);
-                dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
+                dl.origin = Vec.of(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
                 dl.radius = 400.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
             if ((ent.effects & EntEffect.dimlight) != 0) {
                 dl = CL.AllocDlight(i);
-                dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2] + 16.0];
+                dl.origin = Vec.of(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
                 dl.radius = 200.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
@@ -917,7 +917,7 @@ class CL {
             else if ((ent.model.flags & ModelEffect.rocket) != 0) {
                 R.RocketTrail(oldorg, ent.origin, 0);
                 dl = CL.AllocDlight(i);
-                dl.origin = [ent.origin[0], ent.origin[1], ent.origin[2]];
+                dl.origin = ent.origin.copy();
                 dl.radius = 200.0;
                 dl.die = CL.state.time + 0.01;
             }
@@ -1072,7 +1072,7 @@ class CL {
         var sound_num = MSG.ReadByte();
         var ent = channel >> 3;
         channel &= 7;
-        var pos = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
+        var pos = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
         S.StartSound(ent, channel, CL.state.sound_precache[sound_num], pos, volume / 255.0, attenuation);
     }
 
@@ -1240,7 +1240,7 @@ class CL {
         CL.state.viewheight = ((bits & SU.viewheight) != 0) ? MSG.ReadChar() : Protocol.default_viewheight;
         CL.state.idealpitch = ((bits & SU.idealpitch) != 0) ? MSG.ReadChar() : 0.0;
 
-        CL.state.mvelocity[1] = [CL.state.mvelocity[0][0], CL.state.mvelocity[0][1], CL.state.mvelocity[0][2]];
+        CL.state.mvelocity[1] = CL.state.mvelocity[0].copy();
         for (i in 0...3) {
             if ((bits & (SU.punch1 << i)) != 0)
                 CL.state.punchangle[i] = MSG.ReadChar();
@@ -1287,16 +1287,16 @@ class CL {
         ent.frame = ent.baseline.frame;
         ent.skinnum = ent.baseline.skin;
         ent.effects = ent.baseline.effects;
-        ent.origin = [ent.baseline.origin[0], ent.baseline.origin[1], ent.baseline.origin[2]];
-        ent.angles = [ent.baseline.angles[0], ent.baseline.angles[1], ent.baseline.angles[2]];
+        ent.origin = Vec.of(ent.baseline.origin[0], ent.baseline.origin[1], ent.baseline.origin[2]);
+        ent.angles = Vec.of(ent.baseline.angles[0], ent.baseline.angles[1], ent.baseline.angles[2]);
         R.currententity = ent;
-        R.emins = [ent.origin[0] + ent.model.mins[0], ent.origin[1] + ent.model.mins[1], ent.origin[2] + ent.model.mins[2]];
-        R.emaxs = [ent.origin[0] + ent.model.maxs[0], ent.origin[1] + ent.model.maxs[1], ent.origin[2] + ent.model.maxs[2]];
+        R.emins = Vec.of(ent.origin[0] + ent.model.mins[0], ent.origin[1] + ent.model.mins[1], ent.origin[2] + ent.model.mins[2]);
+        R.emaxs = Vec.of(ent.origin[0] + ent.model.maxs[0], ent.origin[1] + ent.model.maxs[1], ent.origin[2] + ent.model.maxs[2]);
         R.SplitEntityOnNode(CL.state.worldmodel.nodes[0]);
     }
 
     static function ParseStaticSound() {
-        var org = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
+        var org = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
         var sound_num = MSG.ReadByte();
         var vol = MSG.ReadByte();
         var atten = MSG.ReadByte();
@@ -1508,16 +1508,16 @@ class CL {
 
     static function ParseBeam(m) {
         var ent = MSG.ReadShort();
-        var start = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
-        var end = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
+        var start = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var end = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
         for (i in 0...24) {
             var b = CL.beams[i];
             if (b.entity != ent)
                 continue;
             b.model = m;
             b.endtime = CL.state.time + 0.2;
-            b.start = [start[0], start[1], start[2]];
-            b.end = [end[0], end[1], end[2]];
+            b.start = start.copy();
+            b.end = end.copy();
             return;
         }
         for (i in 0...24) {
@@ -1527,8 +1527,8 @@ class CL {
             b.entity = ent;
             b.model = m;
             b.endtime = CL.state.time + 0.2;
-            b.start = [start[0], start[1], start[2]];
-            b.end = [end[0], end[1], end[2]];
+            b.start = start.copy();
+            b.end = end.copy();
             return;
         }
         Console.Print('beam list overflow!\n');
@@ -1553,7 +1553,7 @@ class CL {
             default:
         }
 
-        var pos = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
+        var pos = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
         switch (type) {
             case wizspike:
                 R.RunParticleEffect(pos, Vec.origin, 20, 20);
@@ -1570,7 +1570,7 @@ class CL {
             case explosion:
                 R.ParticleExplosion(pos);
                 var dl = CL.AllocDlight(0);
-                dl.origin = [pos[0], pos[1], pos[2]];
+                dl.origin = pos.copy();
                 dl.radius = 350.0;
                 dl.die = CL.state.time + 0.5;
                 dl.decay = 300.0;
@@ -1587,7 +1587,7 @@ class CL {
                 var colorLength = MSG.ReadByte();
                 R.ParticleExplosion2(pos, colorStart, colorLength);
                 var dl = CL.AllocDlight(0);
-                dl.origin = [pos[0], pos[1], pos[2]];
+                dl.origin = pos.copy();
                 dl.radius = 350.0;
                 dl.die = CL.state.time + 0.5;
                 dl.decay = 300.0;
@@ -1608,7 +1608,7 @@ class CL {
 
     static function UpdateTEnts() {
         CL.num_temp_entities = 0;
-        var dist = [], org = [];
+        var dist = [], org = new Vec();
         for (i in 0...24) {
             var b = CL.beams[i];
             if ((b.model == null) || (b.endtime < CL.state.time))
@@ -1643,9 +1643,9 @@ class CL {
             }
             while (d > 0.0) {
                 var ent = CL.NewTempEntity();
-                ent.origin = [org[0], org[1], org[2]];
+                ent.origin = org.copy();
                 ent.model = b.model;
-                ent.angles = [pitch, yaw, Math.random() * 360.0];
+                ent.angles = Vec.of(pitch, yaw, Math.random() * 360.0);
                 org[0] += dist[0] * 30.0;
                 org[1] += dist[1] * 30.0;
                 org[2] += dist[2] * 30.0;

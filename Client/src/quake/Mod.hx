@@ -215,7 +215,7 @@ class MSurface {
     var lightofs:Int;
     var styles:Array<Int>;
     var texture:Int;
-    var verts:Array<Vec>;
+    var verts:Array<Array<Float>>;
     var numedges:Int;
     var firstedge:Int;
     function new() {}

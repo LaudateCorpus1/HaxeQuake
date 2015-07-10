@@ -3,7 +3,7 @@ package quake;
 typedef Matrix = Array<Array<Float>>;
 
 
-abstract Vec(Array<Float>) from Array<Float> to Array<Float> {
+abstract Vec(Array<Float>) to Array<Float> {
     public static var origin = new Vec();
 
     public inline function new() {
@@ -11,7 +11,7 @@ abstract Vec(Array<Float>) from Array<Float> to Array<Float> {
     }
 
     public inline function copy():Vec {
-        return Vec.of(this[0], this[1], this[2]);
+        return cast this.copy();
     }
 
     public static inline function of(x:Float, y:Float, z:Float):Vec {

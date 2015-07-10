@@ -12568,9 +12568,9 @@ quake_PF.objerror = function() {
 	quake_Host.Error("Program error");
 };
 quake_PF.makevectors = function() {
-	var forward = [];
-	var right = [];
-	var up = [];
+	var forward = [0.0,0.0,0.0];
+	var right = [0.0,0.0,0.0];
+	var up = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors([quake_PR.globals_float[4],quake_PR.globals_float[5],quake_PR.globals_float[6]],forward,right,up);
 	var _g = 0;
 	while(_g < 3) {

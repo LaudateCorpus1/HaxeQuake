@@ -31,8 +31,8 @@ class PF {
     }
 
     static function makevectors() {
-        var forward = [], right = [], up = [];
-        Vec.AngleVectors([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]], forward, right, up);
+        var forward = new Vec(), right = new Vec(), up = new Vec();
+        Vec.AngleVectors(Vec.of(PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]), forward, right, up);
         for (i in 0...3) {
             PR.globals_float[GlobalVarOfs.v_forward + i] = forward[i];
             PR.globals_float[GlobalVarOfs.v_right + i] = right[i];

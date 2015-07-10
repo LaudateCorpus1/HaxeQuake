@@ -4,7 +4,19 @@ typedef Matrix = Array<Array<Float>>;
 
 
 abstract Vec(Array<Float>) from Array<Float> {
-    public static var origin:Vec = [0.0, 0.0, 0.0];
+    public static var origin = new Vec();
+
+    public inline function new() {
+        this = [0.0, 0.0, 0.0];
+    }
+
+    public inline function copy():Vec {
+        return Vec.of(this[0], this[1], this[2]);
+    }
+
+    public static inline function of(x:Float, y:Float, z:Float):Vec {
+        return cast [x, y, z];
+    }
 
     @:arrayAccess inline function get(i:Int):Float return this[i];
     @:arrayAccess inline function set(i:Int, v:Float):Float return this[i] = v;

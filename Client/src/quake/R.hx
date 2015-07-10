@@ -45,9 +45,9 @@ private class RParticle {
 class REntity {
     var leafs:Array<Int> = [];
     var model:MModel;
-    var angles:Vec = [0.0, 0.0, 0.0];
+    var angles= new Vec();
     var msg_angles:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
-    var origin:Vec = [0.0, 0.0, 0.0];
+    var origin= new Vec();
     var msg_origins:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
     var frame = 0;
     var syncbase = 0.0;
@@ -69,8 +69,8 @@ class REntity {
 
 @:publicFields
 class REntityState {
-    var origin:Vec = [0.0, 0.0, 0.0];
-    var angles:Vec = [0.0, 0.0, 0.0];
+    var origin= new Vec();
+    var angles= new Vec();
     var modelindex = 0;
     var frame = 0;
     var colormap = 0;

@@ -75,10 +75,10 @@ private class Score {
 private class ClientState {
     var mtime = [0.0, 0.0];
     var time = 0.0;
-    var viewangles:Vec = [0.0, 0.0, 0.0];
+    var viewangles= new Vec();
     var mviewangles:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
     var mvelocity:Array<Vec> = [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
-    var velocity:Vec = [0.0, 0.0, 0.0];
+    var velocity= new Vec();
     var cmd = new ClientCmd();
     var movemessages = 0;
     var stats = [
@@ -96,7 +96,7 @@ private class ClientState {
     ];
     var faceanimtime = 0.0;
     var cshifts = [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]];
-    var punchangle:Vec = [0.0, 0.0, 0.0];
+    var punchangle= new Vec();
     var idealpitch = 0.0;
     var pitchvel = 0.0;
     var driftmove = 0.0;

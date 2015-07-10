@@ -2070,8 +2070,8 @@ class SV {
             return;
         }
 
-        var sides = Vec.BoxOnPlaneSide([ent.v.absmin, ent.v.absmin1, ent.v.absmin2],
-            [ent.v.absmax, ent.v.absmax1, ent.v.absmax2], node.plane);
+        var sides = Vec.BoxOnPlaneSide(Vec.of(ent.v.absmin, ent.v.absmin1, ent.v.absmin2),
+            Vec.of(ent.v.absmax, ent.v.absmax1, ent.v.absmax2), node.plane);
         if ((sides & 1) != 0)
             SV.FindTouchedLeafs(ent, node.children[0]);
         if ((sides & 2) != 0)

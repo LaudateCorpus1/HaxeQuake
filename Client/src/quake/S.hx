@@ -53,10 +53,10 @@ class S {
 	static var channels:Array<Channel> = [];
 	static var static_channels:Array<Channel> = [];
 	static var ambient_channels:Array<Channel> = [];
-	static var listener_origin:Vec = [0.0, 0.0, 0.0];
-	static var listener_forward:Vec = [0.0, 0.0, 0.0];
-	static var listener_right:Vec = [0.0, 0.0, 0.0];
-	static var listener_up:Vec = [0.0, 0.0, 0.0];
+	static var listener_origin= new Vec();
+	static var listener_forward= new Vec();
+	static var listener_right= new Vec();
+	static var listener_up= new Vec();
 	static var known_sfx:Array<Sfx> = [];
 
 	static var nosound:Cvar;
@@ -190,7 +190,7 @@ class S {
 			return;
 
 		var target_chan = S.PickChannel(entnum, entchannel);
-		target_chan.origin = [origin[0], origin[1], origin[2]];
+		target_chan.origin = origin.copy();
 		target_chan.dist_mult = attenuation * 0.001;
 		target_chan.master_vol = vol;
 		target_chan.entnum = entnum;

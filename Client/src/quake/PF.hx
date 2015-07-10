@@ -1,6 +1,5 @@
 package quake;
 
-import quake.ED.Edict;
 import quake.Protocol.SVC;
 import quake.PR.EntVarOfs;
 import quake.PR.GlobalVarOfs;

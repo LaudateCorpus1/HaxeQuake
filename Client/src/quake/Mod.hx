@@ -8,7 +8,6 @@ import js.html.Uint8Array;
 import js.html.webgl.RenderingContext;
 import js.html.webgl.Buffer;
 import js.html.webgl.Texture;
-import quake.ED.Edict;
 import quake.GL.gl;
 import quake.GL.GLTexture;
 

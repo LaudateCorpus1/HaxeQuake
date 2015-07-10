@@ -5,7 +5,6 @@ import js.html.DataView;
 import js.html.Uint8Array;
 import js.html.Float32Array;
 import js.html.Int32Array;
-import quake.ED.Edict;
 import quake.PRMacro.SetEntVarField;
 using Tools;
 

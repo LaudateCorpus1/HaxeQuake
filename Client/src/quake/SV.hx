@@ -5,7 +5,6 @@ import js.html.Float32Array;
 import js.html.Int32Array;
 import js.html.Uint8Array;
 import quake.CL.ClientCmd;
-import quake.ED.Edict;
 import quake.Host.HClient;
 import quake.Mod;
 import quake.R.REntityState;

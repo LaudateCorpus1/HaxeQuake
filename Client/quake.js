@@ -2694,9 +2694,6 @@ quake_Draw.PicToDataURL = function(pic) {
 	ctx.putImageData(data,0,0);
 	return canvas.toDataURL();
 };
-var quake_Edict = function() {
-};
-quake_Edict.__name__ = true;
 var quake_ED = function() { };
 quake_ED.__name__ = true;
 quake_ED.ClearEdict = function(e) {
@@ -2994,6 +2991,9 @@ quake_ED.SetVector = function(e,o,v) {
 	e._v_float[o + 1] = v[1];
 	e._v_float[o + 2] = v[2];
 };
+var quake_Edict = function() {
+};
+quake_Edict.__name__ = true;
 var quake__$GL_GLModeSetting = function(min,max) {
 	this.min = min;
 	this.max = max;

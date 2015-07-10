@@ -339,7 +339,7 @@ class PR {
 
 	static inline var progheader_crc = 5927;
 
-	static var strings:Array<Int>;
+	static var strings:Uint8Array;
 	static var functions:Array<PRFunction>;
 	static var statements:Array<PRStatement>;
 	static var globaldefs:Array<PRDef>;
@@ -515,9 +515,9 @@ class PR {
 
 		ofs = view.getUint32(40, true);
 		num = view.getUint32(44, true);
-		PR.strings = [];
-		for (i in 0...num)
-			PR.strings.push(view.getUint8(ofs + i));
+
+		PR.strings = new Uint8Array(num);
+		PR.strings.set(new Uint8Array(progs, ofs, num));
 		PR.string_temp = PR.NewString('', 128);
 		PR.netnames = PR.NewString('', SV.svs.maxclients << 5);
 
@@ -876,17 +876,12 @@ class PR {
 
 	static function NewString(s:String, length:Int):Int {
 		var ofs = PR.strings.length;
-		if (s.length >= length) {
-			for (i in 0...(length - 1))
-				PR.strings.push(s.charCodeAt(i));
-			PR.strings.push(0);
-			return ofs;
-		}
-		for (i in 0...s.length)
-			PR.strings.push(s.charCodeAt(i));
-		length -= s.length;
-		for (i in 0...length)
-			PR.strings.push(0);
+		var old_strings = PR.strings;
+		PR.strings = new Uint8Array(ofs + length);
+		PR.strings.set(old_strings);
+		var end = if (s.length >= length) length - 1 else s.length;
+		for (i in 0...end)
+			PR.strings[ofs + i] = s.charCodeAt(i);
 		return ofs;
 	}
 

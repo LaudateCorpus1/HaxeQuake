@@ -7264,12 +7264,8 @@ quake_PR.LoadProgs = function() {
 	}
 	ofs = view.getUint32(40,true);
 	num = view.getUint32(44,true);
-	quake_PR.strings = [];
-	var _g6 = 0;
-	while(_g6 < num) {
-		var i1 = _g6++;
-		quake_PR.strings.push(view.getUint8(ofs + i1));
-	}
+	quake_PR.strings = new Uint8Array(num);
+	quake_PR.strings.set(new Uint8Array(progs,ofs,num));
 	quake_PR.string_temp = quake_PR.NewString("",128);
 	quake_PR.netnames = quake_PR.NewString("",quake_SV.svs.maxclients << 5);
 	ofs = view.getUint32(48,true);
@@ -7277,10 +7273,10 @@ quake_PR.LoadProgs = function() {
 	quake_PR.globals = new ArrayBuffer(num << 2);
 	quake_PR.globals_float = new Float32Array(quake_PR.globals);
 	quake_PR.globals_int = new Int32Array(quake_PR.globals);
-	var _g7 = 0;
-	while(_g7 < num) {
-		var i2 = _g7++;
-		quake_PR.globals_int[i2] = view.getInt32(ofs + (i2 << 2),true);
+	var _g6 = 0;
+	while(_g6 < num) {
+		var i1 = _g6++;
+		quake_PR.globals_int[i1] = view.getInt32(ofs + (i1 << 2),true);
 	}
 	quake_PR.entityfields = view.getUint32(56,true);
 	quake_PR.edict_size = 96 + (quake_PR.entityfields << 2);
@@ -7620,27 +7616,14 @@ quake_PR.GetString = function(num) {
 };
 quake_PR.NewString = function(s,length) {
 	var ofs = quake_PR.strings.length;
-	if(s.length >= length) {
-		var _g1 = 0;
-		var _g = length - 1;
-		while(_g1 < _g) {
-			var i = _g1++;
-			quake_PR.strings.push(HxOverrides.cca(s,i));
-		}
-		quake_PR.strings.push(0);
-		return ofs;
-	}
-	var _g11 = 0;
-	var _g2 = s.length;
-	while(_g11 < _g2) {
-		var i1 = _g11++;
-		quake_PR.strings.push(HxOverrides.cca(s,i1));
-	}
-	length -= s.length;
-	var _g3 = 0;
-	while(_g3 < length) {
-		_g3++;
-		quake_PR.strings.push(0);
+	var old_strings = quake_PR.strings;
+	quake_PR.strings = new Uint8Array(ofs + length);
+	quake_PR.strings.set(old_strings);
+	var end = s.length >= length?length - 1:s.length;
+	var _g = 0;
+	while(_g < end) {
+		var i = _g++;
+		quake_PR.strings[ofs + i] = HxOverrides.cca(s,i);
 	}
 	return ofs;
 };

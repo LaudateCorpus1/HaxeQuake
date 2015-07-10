@@ -3436,7 +3436,7 @@ quake_Host.DropClient = function(crash) {
 			quake_PR.ExecuteProgram(quake_PR.globals_int[89]);
 			quake_PR.globals_int[28] = saveSelf;
 		}
-		quake_Sys.Print("Client " + quake_SV.GetClientName(client) + " removed\n");
+		quake_Sys.Print("Client " + quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " removed\n");
 	}
 	quake_NET.Close(client.netconnection);
 	client.netconnection = null;
@@ -3652,7 +3652,7 @@ quake_Host.Status_f = function() {
 		} else hours = 0;
 		var str = "#" + (i + 1) + " ";
 		if(i <= 8) str += " ";
-		str += quake_SV.GetClientName(client);
+		str += quake_PR.GetString(quake_PR.netnames + (client.num << 5));
 		while(str.length <= 21) str += " ";
 		str += frags + "  ";
 		if(hours <= 9) str += " ";
@@ -3734,7 +3734,7 @@ quake_Host.Ping_f = function() {
 		}
 		var total1 = (total * 62.5).toFixed(0);
 		if(total1.length == 1) total1 = "   " + total1; else if(total1.length == 2) total1 = "  " + total1; else if(total1.length == 3) total1 = " " + total1;
-		quake_Host.ClientPrint(total1 + " " + quake_SV.GetClientName(client) + "\n");
+		quake_Host.ClientPrint(total1 + " " + quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + "\n");
 	}
 };
 quake_Host.Map_f = function() {
@@ -3994,7 +3994,7 @@ quake_Host.Name_f = function() {
 		if(quake_CL.cls.state == 2) quake_Cmd.ForwardToServer();
 		return;
 	}
-	var name = quake_SV.GetClientName(quake_Host.client);
+	var name = quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5));
 	if(name.length != 0 && name != "unconnected" && name != newName) quake_Console.Print(name + " renamed to " + newName + "\n");
 	quake_SV.SetClientName(quake_Host.client,newName);
 	var msg = quake_SV.server.reliable_datagram;
@@ -4015,7 +4015,7 @@ quake_Host.Say = function(teamonly) {
 	var save = quake_Host.client;
 	var p = quake_Cmd.args;
 	if(HxOverrides.cca(p,0) == 34) p = p.substring(1,p.length - 1);
-	var text = "\x01" + quake_SV.GetClientName(save) + ": ";
+	var text = "\x01" + quake_PR.GetString(quake_PR.netnames + (save.num << 5)) + ": ";
 	var i = 62 - text.length;
 	if(p.length > i) p = p.substring(0,i);
 	text += p + "\n";
@@ -4041,7 +4041,7 @@ quake_Host.Tell_f = function() {
 		return;
 	}
 	if(quake_Cmd.argv.length <= 2) return;
-	var text = quake_SV.GetClientName(quake_Host.client) + ": ";
+	var text = quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)) + ": ";
 	var p = quake_Cmd.args;
 	if(HxOverrides.cca(p,0) == 34) p = p.substring(1,p.length - 1);
 	var i = 62 - text.length;
@@ -4054,7 +4054,7 @@ quake_Host.Tell_f = function() {
 		var i1 = _g1++;
 		var client = quake_SV.svs.clients[i1];
 		if(!client.active || !client.spawned) continue;
-		if(quake_SV.GetClientName(client).toLowerCase() != quake_Cmd.argv[1].toLowerCase()) continue;
+		if(quake_PR.GetString(quake_PR.netnames + (client.num << 5)).toLowerCase() != quake_Cmd.argv[1].toLowerCase()) continue;
 		quake_Host.client = client;
 		quake_Host.ClientPrint(text);
 		break;
@@ -4111,7 +4111,7 @@ quake_Host.Pause_f = function() {
 		return;
 	}
 	quake_SV.server.paused = !quake_SV.server.paused;
-	quake_Host.BroadcastPrint(quake_SV.GetClientName(quake_Host.client) + (quake_SV.server.paused?" paused the game\n":" unpaused the game\n"));
+	quake_Host.BroadcastPrint(quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)) + (quake_SV.server.paused?" paused the game\n":" unpaused the game\n"));
 	quake_SV.server.reliable_datagram.WriteByte(24);
 	quake_SV.server.reliable_datagram.WriteByte(quake_SV.server.paused?1:0);
 };
@@ -4159,7 +4159,7 @@ quake_Host.Spawn_f = function() {
 		quake_PR.globals_float[31] = quake_SV.server.time;
 		quake_PR.globals_int[28] = ent.num;
 		quake_PR.ExecuteProgram(quake_PR.globals_int[87]);
-		if(quake_Sys.FloatTime() - client.netconnection.connecttime <= quake_SV.server.time) quake_Sys.Print(quake_SV.GetClientName(client) + " entered the game\n");
+		if(quake_Sys.FloatTime() - client.netconnection.connecttime <= quake_SV.server.time) quake_Sys.Print(quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " entered the game\n");
 		quake_PR.ExecuteProgram(quake_PR.globals_int[88]);
 	}
 	var message = client.message;
@@ -4173,7 +4173,7 @@ quake_Host.Spawn_f = function() {
 		client = quake_SV.svs.clients[i2];
 		message.WriteByte(13);
 		message.WriteByte(i2);
-		message.WriteString(quake_SV.GetClientName(client));
+		message.WriteString(quake_PR.GetString(quake_PR.netnames + (client.num << 5)));
 		message.WriteByte(14);
 		message.WriteByte(i2);
 		message.WriteShort(client.old_frags);
@@ -4240,7 +4240,7 @@ quake_Host.Kick_f = function() {
 				i++;
 				continue;
 			}
-			if(quake_SV.GetClientName(quake_Host.client).toLowerCase() == quake_Cmd.argv[1].toLowerCase()) break;
+			if(quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)).toLowerCase() == quake_Cmd.argv[1].toLowerCase()) break;
 			i++;
 		}
 	}
@@ -4252,7 +4252,7 @@ quake_Host.Kick_f = function() {
 	var who;
 	if(!quake_Cmd.client) who = quake_CL.$name.string; else {
 		if(quake_Host.client == save) return;
-		who = quake_SV.GetClientName(save);
+		who = quake_PR.GetString(quake_PR.netnames + (save.num << 5));
 	}
 	var message;
 	if(quake_Cmd.argv.length >= 3) message = quake_COM.Parse(quake_Cmd.args);
@@ -9572,9 +9572,6 @@ quake_SV.SpawnServer = function(server) {
 	}
 	quake_Console.DPrint("Server spawned.\n");
 };
-quake_SV.GetClientName = function(client) {
-	return quake_PR.GetString(quake_PR.netnames + (client.num << 5));
-};
 quake_SV.SetClientName = function(client,name) {
 	var ofs = quake_PR.netnames + (client.num << 5);
 	var i = 0;
@@ -10478,7 +10475,7 @@ quake_SV.ReadClientMessage = function() {
 					quake_Cmd.ExecuteString(s,true);
 					break;
 				}
-				if(i == cmds.length) quake_Console.DPrint(quake_SV.GetClientName(quake_Host.client) + " tried to " + s);
+				if(i == cmds.length) quake_Console.DPrint(quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)) + " tried to " + s);
 			} else if(cmd == 2) return false; else if(cmd == 3) quake_SV.ReadClientMove(); else {
 				quake_Sys.Print("SV.ReadClientMessage: unknown command char\n");
 				return false;

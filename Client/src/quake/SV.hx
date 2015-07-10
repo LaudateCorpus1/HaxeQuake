@@ -784,11 +784,11 @@ class SV {
         Console.DPrint('Server spawned.\n');
     }
 
-    static function GetClientName(client):String {
+    static inline function GetClientName(client:HClient):String {
         return PR.GetString(PR.netnames + (client.num << 5));
     }
 
-    static function SetClientName(client, name:String):Void {
+    static function SetClientName(client:HClient, name:String):Void {
         var ofs = PR.netnames + (client.num << 5);
         var i = 0;
         while (i < name.length) {

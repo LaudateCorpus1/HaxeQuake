@@ -866,12 +866,13 @@ class PR {
 
 	static function GetString(num:Int):String {
 		var string = [];
+		var buf = new StringBuf();
 		for (num in num...PR.strings.length) {
 			if (PR.strings[num] == 0)
 				break;
-			string.push(String.fromCharCode(PR.strings[num]));
+			buf.addChar(PR.strings[num]);
 		}
-		return string.join('');
+		return buf.toString();
 	}
 
 	static function NewString(s:String, length:Int):Int {

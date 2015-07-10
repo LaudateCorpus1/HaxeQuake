@@ -7608,15 +7608,15 @@ quake_PR.ExecuteProgram = function(fnum) {
 	}
 };
 quake_PR.GetString = function(num) {
-	var string = [];
+	var buf_b = "";
 	var _g1 = num;
 	var _g = quake_PR.strings.length;
 	while(_g1 < _g) {
 		var num1 = _g1++;
 		if(quake_PR.strings[num1] == 0) break;
-		string.push(String.fromCharCode(quake_PR.strings[num1]));
+		buf_b += String.fromCharCode(quake_PR.strings[num1]);
 	}
-	return string.join("");
+	return buf_b;
 };
 quake_PR.NewString = function(s,length) {
 	var ofs = quake_PR.strings.length;

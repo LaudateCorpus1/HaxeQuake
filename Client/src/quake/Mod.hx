@@ -192,7 +192,7 @@ class MLeaf extends MNode {
 @:publicFields
 class MTexinfo {
     var texture:Int;
-    var vecs:Array<Vec>;
+    var vecs:Array<Array<Float>>;
     var flags:Int;
     function new(v,t,f) {
         vecs = v;

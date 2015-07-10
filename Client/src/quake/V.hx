@@ -43,7 +43,7 @@ class V {
 	static var gamma:Cvar;
 
 	static function CalcRoll(angles:Vec, velocity:Vec):Float {
-		var right = [];
+		var right = new Vec();
 		Vec.AngleVectors(angles, null, right);
 		var side = velocity[0] * right[0] + velocity[1] * right[1] + velocity[2] * right[2];
 		var sign = side < 0 ? -1 : 1;
@@ -138,7 +138,7 @@ class V {
 		var armor = MSG.ReadByte();
 		var blood = MSG.ReadByte();
 		var ent = CL.entities[CL.state.viewentity];
-		var from = [MSG.ReadCoord() - ent.origin[0], MSG.ReadCoord() - ent.origin[1], MSG.ReadCoord() - ent.origin[2]];
+		var from = Vec.of(MSG.ReadCoord() - ent.origin[0], MSG.ReadCoord() - ent.origin[1], MSG.ReadCoord() - ent.origin[2]);
 		Vec.Normalize(from);
 		var count = (blood + armor) * 0.5;
 		if (count < 10.0)
@@ -166,7 +166,7 @@ class V {
 			cshift[1] = cshift[2] = 0.0;
 		}
 
-		var forward = [], right = [];
+		var forward = new Vec(), right = new Vec();
 		Vec.AngleVectors(ent.angles, forward, right);
 		V.dmg_roll = count * (from[0] * right[0] + from[1] * right[1] + from[2] * right[2]) * V.kickroll.value;
 		V.dmg_pitch = count * (from[0] * forward[0] + from[1] * forward[1] + from[2] * forward[2]) * V.kickpitch.value;
@@ -313,8 +313,8 @@ class V {
 		R.refdef.viewangles[1] += iyaw;
 		R.refdef.viewangles[2] += iroll;
 
-		var forward = [], right = [], up = [];
-		Vec.AngleVectors([-ent.angles[0], ent.angles[1], ent.angles[2]], forward, right, up);
+		var forward = new Vec(), right = new Vec(), up = new Vec();
+		Vec.AngleVectors(Vec.of(-ent.angles[0], ent.angles[1], ent.angles[2]), forward, right, up);
 		R.refdef.vieworg[0] += V.ofsx.value * forward[0] + V.ofsy.value * right[0] + V.ofsz.value * up[0];
 		R.refdef.vieworg[1] += V.ofsx.value * forward[1] + V.ofsy.value * right[1] + V.ofsz.value * up[1];
 		R.refdef.vieworg[2] += V.ofsx.value * forward[2] + V.ofsy.value * right[2] + V.ofsz.value * up[2];

@@ -2983,9 +2983,6 @@ quake_ED.LoadFromFile = function(data) {
 	}
 	quake_Console.DPrint(inhibit + " entities inhibited\n");
 };
-quake_ED.Vector = function(e,o) {
-	return [e._v_float[o],e._v_float[o + 1],e._v_float[o + 2]];
-};
 quake_ED.SetVector = function(e,o,v) {
 	e._v_float[o] = v[0];
 	e._v_float[o + 1] = v[1];
@@ -6361,7 +6358,12 @@ quake_Mod.LoadBrushModel = function(buffer) {
 		if(vert[2] < mins_2) mins_2 = vert[2]; else if(vert[2] > maxs_2) maxs_2 = vert[2];
 	}
 	var tmp;
-	var v = [Math.abs(mins_0) > Math.abs(maxs_0)?Math.abs(mins_0):Math.abs(maxs_0),Math.abs(mins_1) > Math.abs(maxs_1)?Math.abs(mins_1):Math.abs(maxs_1),Math.abs(mins_2) > Math.abs(maxs_2)?Math.abs(mins_2):Math.abs(maxs_2)];
+	var tmp1;
+	var x = Math.abs(mins_0) > Math.abs(maxs_0)?Math.abs(mins_0):Math.abs(maxs_0);
+	var y = Math.abs(mins_1) > Math.abs(maxs_1)?Math.abs(mins_1):Math.abs(maxs_1);
+	var z = Math.abs(mins_2) > Math.abs(maxs_2)?Math.abs(mins_2):Math.abs(maxs_2);
+	tmp1 = [x,y,z];
+	var v = tmp1;
 	tmp = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 	quake_Mod.loadmodel.radius = tmp;
 };
@@ -9484,8 +9486,14 @@ quake_SV.CreateBaseline = function() {
 		if(svent.free) continue;
 		if(i > quake_SV.svs.maxclients && svent._v_float[0] == 0) continue;
 		var baseline = svent.baseline;
-		baseline.origin = quake_ED.Vector(svent,10);
-		baseline.angles = quake_ED.Vector(svent,19);
+		var tmp;
+		var o = 10;
+		tmp = [svent._v_float[o],svent._v_float[o + 1],svent._v_float[o + 2]];
+		baseline.origin = tmp;
+		var tmp1;
+		var o1 = 19;
+		tmp1 = [svent._v_float[o1],svent._v_float[o1 + 1],svent._v_float[o1 + 2]];
+		baseline.angles = tmp1;
 		baseline.frame = svent._v_float[30] | 0;
 		baseline.skin = svent._v_float[31] | 0;
 		if(i > 0 && i <= quake_SV.svs.maxclients) {
@@ -9652,8 +9660,10 @@ quake_SV.CheckBottom = function(ent) {
 		var _g1 = 0;
 		while(_g1 < 2) {
 			var y = _g1++;
-			start[0] = stop[0] = x != 0?maxs_0:mins_0;
-			start[1] = stop[1] = y != 0?maxs_1:mins_1;
+			var v = stop[0] = x != 0?maxs_0:mins_0;
+			start[0] = v;
+			var v1 = stop[1] = y != 0?maxs_1:mins_1;
+			start[1] = v1;
 			trace = quake_SV.Move(start,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,stop,1,ent);
 			if(trace.fraction != 1.0 && trace.endpos[2] > bottom) bottom = trace.endpos[2];
 			if(trace.fraction == 1.0 || mid - trace.endpos[2] > 18.0) return false;
@@ -9662,10 +9672,19 @@ quake_SV.CheckBottom = function(ent) {
 	return true;
 };
 quake_SV.movestep = function(ent,move,relink) {
-	var oldorg = quake_ED.Vector(ent,10);
-	var neworg = [];
-	var mins = quake_ED.Vector(ent,33);
-	var maxs = quake_ED.Vector(ent,36);
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var oldorg = tmp;
+	var neworg = [0.0,0.0,0.0];
+	var tmp1;
+	var o1 = 33;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var mins = tmp1;
+	var tmp2;
+	var o2 = 36;
+	tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+	var maxs = tmp2;
 	var trace;
 	if(((ent._v_float[76] | 0) & 2 + 1) != 0) {
 		var enemy = ent._v_int[75];
@@ -9677,9 +9696,12 @@ quake_SV.movestep = function(ent,move,relink) {
 			neworg[2] = ent._v_float[12];
 			if(i == 0 && enemy != 0) {
 				var dz = ent._v_float[12] - quake_SV.server.edicts[enemy]._v_float[12];
-				if(dz > 40.0) neworg[2] -= 8.0; else if(dz < 30.0) neworg[2] += 8.0;
+				if(dz > 40.0) neworg[2] = neworg[2] - 8.0; else if(dz < 30.0) neworg[2] = neworg[2] + 8.0;
 			}
-			trace = quake_SV.Move(quake_ED.Vector(ent,10),mins,maxs,neworg,0,ent);
+			var tmp3;
+			var o3 = 10;
+			tmp3 = [ent._v_float[o3],ent._v_float[o3 + 1],ent._v_float[o3 + 2]];
+			trace = quake_SV.Move(tmp3,mins,maxs,neworg,0,ent);
 			if(trace.fraction == 1.0) {
 				if(((ent._v_float[76] | 0) & 2) != 0 && quake_SV.PointContents(trace.endpos) == -1) return false;
 				ent._v_float[10] = trace.endpos[0];
@@ -9699,7 +9721,7 @@ quake_SV.movestep = function(ent,move,relink) {
 	trace = quake_SV.Move(neworg,mins,maxs,end,0,ent);
 	if(trace.allsolid) return false;
 	if(trace.startsolid) {
-		neworg[2] -= 18.0;
+		neworg[2] = neworg[2] - 18.0;
 		trace = quake_SV.Move(neworg,mins,maxs,end,0,ent);
 		if(trace.allsolid || trace.startsolid) return false;
 	}
@@ -9735,8 +9757,15 @@ quake_SV.StepDirection = function(ent,yaw,dist) {
 	ent._v_float[85] = yaw;
 	quake_PF.changeyaw();
 	yaw *= Math.PI / 180.0;
-	var oldorigin = quake_ED.Vector(ent,10);
-	if(quake_SV.movestep(ent,[Math.cos(yaw) * dist,Math.sin(yaw) * dist],false)) {
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var oldorigin = tmp;
+	var tmp1;
+	var x = Math.cos(yaw) * dist;
+	var y = Math.sin(yaw) * dist;
+	tmp1 = [x,y,0];
+	if(quake_SV.movestep(ent,tmp1,false)) {
 		var delta = ent._v_float[20] - ent._v_float[85];
 		if(delta > 45.0 && delta < 315.0) quake_ED.SetVector(ent,10,oldorigin);
 		quake_SV.LinkEdict(ent,true);
@@ -9856,8 +9885,14 @@ quake_SV.FlyMove = function(ent,time) {
 	var d;
 	var planes = [];
 	var plane;
-	var primal_velocity = quake_ED.Vector(ent,16);
-	var original_velocity = quake_ED.Vector(ent,16);
+	var tmp;
+	var o = 16;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var primal_velocity = tmp;
+	var tmp1;
+	var o1 = 16;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var original_velocity = tmp1;
 	var new_velocity = [];
 	var trace;
 	var end = [];
@@ -9870,14 +9905,26 @@ quake_SV.FlyMove = function(ent,time) {
 		end[0] = ent._v_float[10] + time_left * ent._v_float[16];
 		end[1] = ent._v_float[11] + time_left * ent._v_float[17];
 		end[2] = ent._v_float[12] + time_left * ent._v_float[18];
-		trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),end,0,ent);
+		var tmp2;
+		var o2 = 10;
+		tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+		var tmp3;
+		var o3 = 33;
+		tmp3 = [ent._v_float[o3],ent._v_float[o3 + 1],ent._v_float[o3 + 2]];
+		var tmp4;
+		var o4 = 36;
+		tmp4 = [ent._v_float[o4],ent._v_float[o4 + 1],ent._v_float[o4 + 2]];
+		trace = quake_SV.Move(tmp2,tmp3,tmp4,end,0,ent);
 		if(trace.allsolid) {
 			quake_ED.SetVector(ent,16,quake__$Vec_Vec_$Impl_$.origin);
 			return 3;
 		}
 		if(trace.fraction > 0.0) {
 			quake_ED.SetVector(ent,10,trace.endpos);
-			original_velocity = quake_ED.Vector(ent,16);
+			var tmp5;
+			var o5 = 16;
+			tmp5 = [ent._v_float[o5],ent._v_float[o5 + 1],ent._v_float[o5 + 2]];
+			original_velocity = tmp5;
 			numplanes = 0;
 			if(trace.fraction == 1.0) break;
 		}
@@ -9944,7 +9991,16 @@ quake_SV.PushEntity = function(ent,push) {
 	var nomonsters;
 	var solid = ent._v_float[9];
 	if(ent._v_float[8] == 9) nomonsters = 2; else if(solid == 1 || solid == 0) nomonsters = 1; else nomonsters = 0;
-	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),end,nomonsters,ent);
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var tmp1;
+	var o1 = 33;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var tmp2;
+	var o2 = 36;
+	tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+	var trace = quake_SV.Move(tmp,tmp1,tmp2,end,nomonsters,ent);
 	quake_ED.SetVector(ent,10,trace.endpos);
 	quake_SV.LinkEdict(ent,true);
 	if(trace.ent != null) quake_SV.Impact(ent,trace.ent);
@@ -9962,7 +10018,10 @@ quake_SV.PushMove = function(pusher,movetime) {
 	var maxs_0 = pusher._v_float[4] + move[0];
 	var maxs_1 = pusher._v_float[5] + move[1];
 	var maxs_2 = pusher._v_float[6] + move[2];
-	var pushorig = quake_ED.Vector(pusher,10);
+	var tmp;
+	var o = 10;
+	tmp = [pusher._v_float[o],pusher._v_float[o + 1],pusher._v_float[o + 2]];
+	var pushorig = tmp;
 	pusher._v_float[10] += move[0];
 	pusher._v_float[11] += move[1];
 	pusher._v_float[12] += move[2];
@@ -9985,7 +10044,10 @@ quake_SV.PushMove = function(pusher,movetime) {
 			var v = (check._v_float[76] | 0) & ~512;
 			check._v_float[76] = v;
 		}
-		var entorig = quake_ED.Vector(check,10);
+		var tmp1;
+		var o1 = 10;
+		tmp1 = [check._v_float[o1],check._v_float[o1 + 1],check._v_float[o1 + 2]];
+		var entorig = tmp1;
 		moved[moved.length] = [entorig[0],entorig[1],entorig[2],check];
 		pusher._v_float[9] = 0;
 		quake_SV.PushEntity(check,move);
@@ -10048,7 +10110,10 @@ quake_SV.CheckStuck = function(ent) {
 		ent._v_float[15] = ent._v_float[12];
 		return;
 	}
-	var org = quake_ED.Vector(ent,10);
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var org = tmp;
 	ent._v_float[10] = ent._v_float[13];
 	ent._v_float[11] = ent._v_float[14];
 	ent._v_float[12] = ent._v_float[15];
@@ -10100,7 +10165,10 @@ quake_SV.CheckWater = function(ent) {
 };
 quake_SV.WallFriction = function(ent,trace) {
 	var forward = [];
-	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_ED.Vector(ent,70),forward);
+	var tmp;
+	var o = 70;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward);
 	var normal = trace.plane.normal;
 	var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
 	if(d >= 0.0) return;
@@ -10110,7 +10178,10 @@ quake_SV.WallFriction = function(ent,trace) {
 	ent._v_float[17] = (ent._v_float[17] - normal[1] * i) * d;
 };
 quake_SV.TryUnstick = function(ent,oldvel) {
-	var oldorg = quake_ED.Vector(ent,10);
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var oldorg = tmp;
 	var dir = [2.0,0.0,0.0];
 	var _g = 0;
 	while(_g < 8) {
@@ -10160,16 +10231,28 @@ quake_SV.WalkMove = function(ent) {
 	var oldonground = (ent._v_float[76] | 0) & 512;
 	var v = (ent._v_float[76] | 0) ^ oldonground;
 	ent._v_float[76] = v;
-	var oldorg = quake_ED.Vector(ent,10);
-	var oldvel = quake_ED.Vector(ent,16);
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var oldorg = tmp;
+	var tmp1;
+	var o1 = 16;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var oldvel = tmp1;
 	var clip = quake_SV.FlyMove(ent,quake_Host.frametime);
 	if((clip & 2) == 0) return;
 	if(oldonground == 0 && ent._v_float[83] == 0.0) return;
 	if(ent._v_float[8] != 3) return;
 	if(quake_SV.nostep.value != 0) return;
 	if(((quake_SV.player._v_float[76] | 0) & 2048) != 0) return;
-	var nosteporg = quake_ED.Vector(ent,10);
-	var nostepvel = quake_ED.Vector(ent,16);
+	var tmp2;
+	var o2 = 10;
+	tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+	var nosteporg = tmp2;
+	var tmp3;
+	var o3 = 16;
+	tmp3 = [ent._v_float[o3],ent._v_float[o3 + 1],ent._v_float[o3 + 2]];
+	var nostepvel = tmp3;
 	quake_ED.SetVector(ent,10,oldorg);
 	quake_SV.PushEntity(ent,[0.0,0.0,18.0]);
 	ent._v_float[16] = oldvel[0];
@@ -10227,7 +10310,10 @@ quake_SV.Physics_Client = function(ent) {
 	quake_PR.ExecuteProgram(quake_PR.globals_int[85]);
 };
 quake_SV.CheckWaterTransition = function(ent) {
-	var cont = quake_SV.PointContents(quake_ED.Vector(ent,10));
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var cont = quake_SV.PointContents(tmp);
 	if(ent._v_float[84] == 0.0) {
 		ent._v_float[84] = cont;
 		ent._v_float[83] = 1.0;
@@ -10255,7 +10341,10 @@ quake_SV.Physics_Toss = function(ent) {
 	var trace = quake_SV.PushEntity(ent,[ent._v_float[16] * quake_Host.frametime,ent._v_float[17] * quake_Host.frametime,ent._v_float[18] * quake_Host.frametime]);
 	if(trace.fraction == 1.0 || ent.free) return;
 	var velocity = [];
-	quake_SV.ClipVelocity(quake_ED.Vector(ent,16),trace.plane.normal,velocity,movetype == 10?1.5:1.0);
+	var tmp;
+	var o = 16;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	quake_SV.ClipVelocity(tmp,trace.plane.normal,velocity,movetype == 10?1.5:1.0);
 	quake_ED.SetVector(ent,16,velocity);
 	if(trace.plane.normal[2] > 0.7) {
 		if(ent._v_float[18] < 60.0 || movetype != 10) {
@@ -10389,7 +10478,10 @@ quake_SV.WaterMove = function() {
 	var cmd = quake_Host.client.cmd;
 	var forward = [];
 	var right = [];
-	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_ED.Vector(ent,70),forward,right);
+	var tmp;
+	var o = 70;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward,right);
 	var wishvel_0 = forward[0] * cmd.forwardmove + right[0] * cmd.sidemove;
 	var wishvel_1 = forward[1] * cmd.forwardmove + right[1] * cmd.sidemove;
 	var wishvel_2 = forward[2] * cmd.forwardmove + right[2] * cmd.sidemove;
@@ -10438,7 +10530,10 @@ quake_SV.AirMove = function() {
 	var cmd = quake_Host.client.cmd;
 	var forward = [];
 	var right = [];
-	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_ED.Vector(ent,19),forward,right);
+	var tmp;
+	var o = 19;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward,right);
 	var fmove = cmd.forwardmove;
 	var smove = cmd.sidemove;
 	if(quake_SV.server.time < ent._v_float[80] && fmove < 0.0) fmove = 0.0;
@@ -10457,14 +10552,23 @@ quake_SV.AirMove = function() {
 quake_SV.ClientThink = function() {
 	var ent = quake_SV.player;
 	if(ent._v_float[8] == 0) return;
-	var punchangle = quake_ED.Vector(ent,25);
+	var tmp;
+	var o = 25;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var punchangle = tmp;
 	var len = quake__$Vec_Vec_$Impl_$.Normalize(punchangle) - 10.0 * quake_Host.frametime;
 	if(len < 0.0) len = 0.0;
 	ent._v_float[25] = punchangle[0] * len;
 	ent._v_float[26] = punchangle[1] * len;
 	ent._v_float[27] = punchangle[2] * len;
 	if(ent._v_float[48] <= 0.0) return;
-	ent._v_float[21] = quake_V.CalcRoll(quake_ED.Vector(ent,19),quake_ED.Vector(ent,16)) * 4.0;
+	var tmp1;
+	var o1 = 19;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var tmp2;
+	var o2 = 16;
+	tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+	ent._v_float[21] = quake_V.CalcRoll(tmp1,tmp2) * 4.0;
 	if(quake_SV.player._v_float[69] == 0.0) {
 		ent._v_float[19] = (ent._v_float[70] + ent._v_float[25]) / -3.0;
 		ent._v_float[20] = ent._v_float[71] + ent._v_float[26];
@@ -10710,8 +10814,17 @@ quake_SV.PointContents = function(p) {
 	return cont;
 };
 quake_SV.TestEntityPosition = function(ent) {
-	var origin = quake_ED.Vector(ent,10);
-	return quake_SV.Move(origin,quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),origin,0,ent).startsolid;
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var origin = tmp;
+	var tmp1;
+	var o1 = 33;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var tmp2;
+	var o2 = 36;
+	tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+	return quake_SV.Move(origin,tmp1,tmp2,origin,0,ent).startsolid;
 };
 quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	if(num < 0) {
@@ -12986,7 +13099,11 @@ quake_PF.walkmove = function() {
 	var dist = quake_PR.globals_float[7];
 	var oldf = quake_PR.xfunction;
 	var tmp;
-	var b = quake_SV.movestep(ent,[Math.cos(yaw) * dist,Math.sin(yaw) * dist],true);
+	var tmp1;
+	var x = Math.cos(yaw) * dist;
+	var y = Math.sin(yaw) * dist;
+	tmp1 = [x,y,0];
+	var b = quake_SV.movestep(ent,tmp1,true);
 	if(b) tmp = 1; else tmp = 0;
 	quake_PR.globals_float[1] = tmp;
 	quake_PR.xfunction = oldf;
@@ -12994,7 +13111,16 @@ quake_PF.walkmove = function() {
 };
 quake_PF.droptofloor = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[28]];
-	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),[ent._v_float[10],ent._v_float[11],ent._v_float[12] - 256.0],0,ent);
+	var tmp;
+	var o = 10;
+	tmp = [ent._v_float[o],ent._v_float[o + 1],ent._v_float[o + 2]];
+	var tmp1;
+	var o1 = 33;
+	tmp1 = [ent._v_float[o1],ent._v_float[o1 + 1],ent._v_float[o1 + 2]];
+	var tmp2;
+	var o2 = 36;
+	tmp2 = [ent._v_float[o2],ent._v_float[o2 + 1],ent._v_float[o2 + 2]];
+	var trace = quake_SV.Move(tmp,tmp1,tmp2,[ent._v_float[10],ent._v_float[11],ent._v_float[12] - 256.0],0,ent);
 	if(trace.fraction == 1.0 || trace.allsolid) {
 		quake_PR.globals_float[1] = 0.0;
 		return;
@@ -13073,12 +13199,10 @@ quake_PF.aim = function() {
 			return;
 		}
 	}
-	var bestdir_0 = dir[0];
-	var bestdir_1 = dir[1];
-	var bestdir_2 = dir[2];
+	var bestdir = [dir[0],dir[1],dir[2]];
 	var bestdist = quake_SV.aim.value;
 	var bestent;
-	var end1 = [];
+	var end1 = [0.0,0.0,0.0];
 	var _g1 = 1;
 	var _g = quake_SV.server.num_edicts;
 	while(_g1 < _g) {
@@ -13094,7 +13218,7 @@ quake_PF.aim = function() {
 		dir[1] = end1[1] - start[1];
 		dir[2] = end1[2] - start[2];
 		quake__$Vec_Vec_$Impl_$.Normalize(dir);
-		var dist = dir[0] * bestdir_0 + dir[1] * bestdir_1 + dir[2] * bestdir_2;
+		var dist = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
 		if(dist < bestdist) continue;
 		tr = quake_SV.Move(start,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,end1,0,ent);
 		if(tr.ent == check) {
@@ -13106,9 +13230,9 @@ quake_PF.aim = function() {
 		dir[0] = bestent._v_float[10] - ent._v_float[10];
 		dir[1] = bestent._v_float[11] - ent._v_float[11];
 		dir[2] = bestent._v_float[12] - ent._v_float[12];
-		var dist1 = dir[0] * bestdir_0 + dir[1] * bestdir_1 + dir[2] * bestdir_2;
-		end1[0] = bestdir_0 * dist1;
-		end1[1] = bestdir_1 * dist1;
+		var dist1 = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
+		end1[0] = bestdir[0] * dist1;
+		end1[1] = bestdir[1] * dist1;
 		end1[2] = dir[2];
 		quake__$Vec_Vec_$Impl_$.Normalize(end1);
 		quake_PR.globals_float[1] = end1[0];
@@ -13116,9 +13240,9 @@ quake_PF.aim = function() {
 		quake_PR.globals_float[3] = end1[2];
 		return;
 	}
-	quake_PR.globals_float[1] = bestdir_0;
-	quake_PR.globals_float[2] = bestdir_1;
-	quake_PR.globals_float[3] = bestdir_2;
+	quake_PR.globals_float[1] = bestdir[0];
+	quake_PR.globals_float[2] = bestdir[1];
+	quake_PR.globals_float[3] = bestdir[2];
 };
 quake_PF.changeyaw = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[28]];
@@ -13677,7 +13801,7 @@ quake_Shaders.__name__ = true;
 var quake_V = function() { };
 quake_V.__name__ = true;
 quake_V.CalcRoll = function(angles,velocity) {
-	var right = [];
+	var right = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors(angles,null,right);
 	var side = velocity[0] * right[0] + velocity[1] * right[1] + velocity[2] * right[2];
 	var sign = side < 0?-1:1;
@@ -13743,7 +13867,12 @@ quake_V.ParseDamage = function() {
 	var armor = quake_MSG.ReadByte();
 	var blood = quake_MSG.ReadByte();
 	var ent = quake_CL.entities[quake_CL.state.viewentity];
-	var from = [quake_MSG.ReadCoord() - ent.origin[0],quake_MSG.ReadCoord() - ent.origin[1],quake_MSG.ReadCoord() - ent.origin[2]];
+	var tmp;
+	var x = quake_MSG.ReadCoord() - ent.origin[0];
+	var y = quake_MSG.ReadCoord() - ent.origin[1];
+	var z = quake_MSG.ReadCoord() - ent.origin[2];
+	tmp = [x,y,z];
+	var from = tmp;
 	quake__$Vec_Vec_$Impl_$.Normalize(from);
 	var count = (blood + armor) * 0.5;
 	if(count < 10.0) count = 10.0;
@@ -13761,8 +13890,8 @@ quake_V.ParseDamage = function() {
 		cshift[0] = 255.0;
 		cshift[1] = cshift[2] = 0.0;
 	}
-	var forward = [];
-	var right = [];
+	var forward = [0.0,0.0,0.0];
+	var right = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors(ent.angles,forward,right);
 	quake_V.dmg_roll = count * (from[0] * right[0] + from[1] * right[1] + from[2] * right[2]) * quake_V.kickroll.value;
 	quake_V.dmg_pitch = count * (from[0] * forward[0] + from[1] * forward[1] + from[2] * forward[2]) * quake_V.kickpitch.value;
@@ -13887,9 +14016,9 @@ quake_V.CalcRefdef = function() {
 	quake_R.refdef.viewangles[0] += ipitch;
 	quake_R.refdef.viewangles[1] += iyaw;
 	quake_R.refdef.viewangles[2] += iroll;
-	var forward = [];
-	var right = [];
-	var up = [];
+	var forward = [0.0,0.0,0.0];
+	var right = [0.0,0.0,0.0];
+	var up = [0.0,0.0,0.0];
 	quake__$Vec_Vec_$Impl_$.AngleVectors([-ent.angles[0],ent.angles[1],ent.angles[2]],forward,right,up);
 	quake_R.refdef.vieworg[0] += quake_V.ofsx.value * forward[0] + quake_V.ofsy.value * right[0] + quake_V.ofsz.value * up[0];
 	quake_R.refdef.vieworg[1] += quake_V.ofsx.value * forward[1] + quake_V.ofsy.value * right[1] + quake_V.ofsz.value * up[1];

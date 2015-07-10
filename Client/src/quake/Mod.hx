@@ -626,8 +626,8 @@ class Mod {
                     h.firstclipnode = view.getUint32(fileofs + 36, true);
                     h.lastclipnode = Mod.loadmodel.nodes.length - 1;
                     h.planes = Mod.loadmodel.planes;
-                    h.clip_mins = [0.0, 0.0, 0.0];
-                    h.clip_maxs = [0.0, 0.0, 0.0];
+                    h.clip_mins = new Vec();
+                    h.clip_maxs = new Vec();
                     h;
                 },
                 {
@@ -636,8 +636,8 @@ class Mod {
                     h.firstclipnode = view.getUint32(fileofs + 40, true);
                     h.lastclipnode = Mod.loadmodel.clipnodes.length - 1;
                     h.planes = Mod.loadmodel.planes;
-                    h.clip_mins = [-16.0, -16.0, -24.0];
-                    h.clip_maxs = [16.0, 16.0, 32.0];
+                    h.clip_mins = Vec.of(-16.0, -16.0, -24.0);
+                    h.clip_maxs = Vec.of(16.0, 16.0, 32.0);
                     h;
                 },
                 {
@@ -646,8 +646,8 @@ class Mod {
                     h.firstclipnode = view.getUint32(fileofs + 44, true);
                     h.lastclipnode = Mod.loadmodel.clipnodes.length - 1;
                     h.planes = Mod.loadmodel.planes;
-                    h.clip_mins = [-32.0, -32.0, -24.0];
-                    h.clip_maxs = [32.0, 32.0, 64.0];
+                    h.clip_mins = Vec.of(-32.0, -32.0, -24.0);
+                    h.clip_maxs = Vec.of(32.0, 32.0, 64.0);
                     h;
                 }
             ];
@@ -995,11 +995,11 @@ class Mod {
             else if (vert[2] > maxs[2])
                 maxs[2] = vert[2];
         };
-        Mod.loadmodel.radius = Vec.Length([
+        Mod.loadmodel.radius = Vec.Length(Vec.of(
             Math.abs(mins[0]) > Math.abs(maxs[0]) ? Math.abs(mins[0]) : Math.abs(maxs[0]),
             Math.abs(mins[1]) > Math.abs(maxs[1]) ? Math.abs(mins[1]) : Math.abs(maxs[1]),
             Math.abs(mins[2]) > Math.abs(maxs[2]) ? Math.abs(mins[2]) : Math.abs(maxs[2])
-        ]);
+        ));
     }
 
     /*

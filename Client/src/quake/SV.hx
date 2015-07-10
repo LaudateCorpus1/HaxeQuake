@@ -795,18 +795,18 @@ class SV {
             ent.v.origin2 + ent.v.maxs2
         ];
         while (true) {
-            if (SV.PointContents([mins[0], mins[1], mins[2] - 1.0]) != ModContents.solid)
+            if (SV.PointContents(Vec.of(mins[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
-            if (SV.PointContents([mins[0], maxs[1], mins[2] - 1.0]) != ModContents.solid)
+            if (SV.PointContents(Vec.of(mins[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
-            if (SV.PointContents([maxs[0], mins[1], mins[2] - 1.0]) != ModContents.solid)
+            if (SV.PointContents(Vec.of(maxs[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
-            if (SV.PointContents([maxs[0], maxs[1], mins[2] - 1.0]) != ModContents.solid)
+            if (SV.PointContents(Vec.of(maxs[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
             return true;
         }
-        var start = [(mins[0] + maxs[0]) * 0.5, (mins[1] + maxs[1]) * 0.5, mins[2]];
-        var stop = [start[0], start[1], start[2] - 36.0];
+        var start = Vec.of((mins[0] + maxs[0]) * 0.5, (mins[1] + maxs[1]) * 0.5, mins[2]);
+        var stop = Vec.of(start[0], start[1], start[2] - 36.0);
         var trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
         if (trace.fraction == 1.0)
             return false;
@@ -828,7 +828,7 @@ class SV {
 
     static function movestep(ent:Edict, move:Vec, relink:Bool):Bool {
         var oldorg = ED.Vector(ent, EdictVarOfs.origin);
-        var neworg = [];
+        var neworg = new Vec();
         var mins = ED.Vector(ent, EdictVarOfs.mins), maxs = ED.Vector(ent, EdictVarOfs.maxs);
         var trace;
         if ((ent.flags & (EntFlag.swim + EntFlag.fly)) != 0) {
@@ -863,7 +863,7 @@ class SV {
         neworg[0] = ent.v.origin + move[0];
         neworg[1] = ent.v.origin1 + move[1];
         neworg[2] = ent.v.origin2 + 18.0;
-        var end = [neworg[0], neworg[1], neworg[2] - 36.0];
+        var end = Vec.of(neworg[0], neworg[1], neworg[2] - 36.0);
         trace = SV.Move(neworg, mins, maxs, end, 0, ent);
         if (trace.allsolid)
             return false;
@@ -909,7 +909,7 @@ class SV {
         PF.changeyaw();
         yaw *= Math.PI / 180.0;
         var oldorigin = ED.Vector(ent, EdictVarOfs.origin);
-        if (SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], false)) {
+        if (SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), false)) {
             var delta = ent.v.angles1 - ent.v.ideal_yaw;
             if ((delta > 45.0) && (delta < 315.0))
                 ED.SetVector(ent, EdictVarOfs.origin, oldorigin);

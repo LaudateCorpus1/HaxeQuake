@@ -163,8 +163,8 @@ class PF {
     }
 
     static function particle() {
-        SV.StartParticle([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]],
-            [PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]],
+        SV.StartParticle(Vec.of(PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]),
+            Vec.of(PR.globals_float[7], PR.globals_float[8], PR.globals_float[9]),
             Std.int(PR.globals_float[10]), Std.int(PR.globals_float[13]));
     }
 
@@ -443,7 +443,7 @@ class PF {
         var yaw = PR.globals_float[4] * Math.PI / 180.0;
         var dist = PR.globals_float[7];
         var oldf = PR.xfunction;
-        PR.globals_float[1] = SV.movestep(ent, [Math.cos(yaw) * dist, Math.sin(yaw) * dist], true).toInt();
+        PR.globals_float[1] = SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), true).toInt();
         PR.xfunction = oldf;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
     }
@@ -452,7 +452,7 @@ class PF {
         var ent = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
         var trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin),
             ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs),
-            [ent.v.origin, ent.v.origin1, ent.v.origin2 - 256.0], 0, ent);
+            Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 - 256.0), 0, ent);
         if ((trace.fraction == 1.0) || (trace.allsolid)) {
             PR.globals_float[1] = 0.0;
             return;
@@ -498,7 +498,7 @@ class PF {
     }
 
     static function pointcontents() {
-        PR.globals_float[1] = SV.PointContents([PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]]);
+        PR.globals_float[1] = SV.PointContents(Vec.of(PR.globals_float[4], PR.globals_float[5], PR.globals_float[6]));
     }
 
     static function nextent() {
@@ -513,9 +513,9 @@ class PF {
 
     static function aim() {
         var ent = SV.server.edicts[PR.globals_int[4]];
-        var start = [ent.v.origin, ent.v.origin1, ent.v.origin2 + 20.0];
-        var dir = [PR.globals_float[GlobalVarOfs.v_forward], PR.globals_float[GlobalVarOfs.v_forward1], PR.globals_float[GlobalVarOfs.v_forward2]];
-        var end = [start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]];
+        var start = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + 20.0);
+        var dir = Vec.of(PR.globals_float[GlobalVarOfs.v_forward], PR.globals_float[GlobalVarOfs.v_forward1], PR.globals_float[GlobalVarOfs.v_forward2]);
+        var end = Vec.of(start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]);
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {
             if ((tr.ent.v.takedamage == DamageType.aim) &&
@@ -527,9 +527,9 @@ class PF {
                 return;
             }
         }
-        var bestdir = [dir[0], dir[1], dir[2]];
+        var bestdir = dir.copy();
         var bestdist = SV.aim.value;
-        var bestent, end = [];
+        var bestent, end = new Vec();
         for (i in 1...SV.server.num_edicts) {
             var check = SV.server.edicts[i];
             if (check.v.takedamage != DamageType.aim)

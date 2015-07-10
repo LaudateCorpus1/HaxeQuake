@@ -342,8 +342,8 @@ class ED {
 		Console.DPrint(inhibit + ' entities inhibited\n');
 	}
 
-	static function Vector(e:Edict, o:Int):Vec {
-		return [e._v_float[o], e._v_float[o + 1], e._v_float[o + 2]];
+	static inline function Vector(e:Edict, o:Int):Vec {
+		return Vec.of(e._v_float[o], e._v_float[o + 1], e._v_float[o + 2]);
 	}
 
 	static function SetVector(e:Edict, o:Int, v:Vec):Void {

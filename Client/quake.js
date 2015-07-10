@@ -2704,7 +2704,7 @@ quake_ED.ClearEdict = function(e) {
 	var _g = quake_PR.entityfields;
 	while(_g1 < _g) {
 		var i = _g1++;
-		e.v_int[i] = 0;
+		e._v_int[i] = 0;
 	}
 	e.free = false;
 };
@@ -2726,16 +2726,16 @@ quake_ED.Alloc = function() {
 quake_ED.Free = function(ed) {
 	quake_SV.UnlinkEdict(ed);
 	ed.free = true;
-	ed.v_int[29] = 0;
-	ed.v_float[59] = 0.0;
-	ed.v_float[0] = 0.0;
-	ed.v_float[77] = 0.0;
-	ed.v_float[31] = 0.0;
-	ed.v_float[30] = 0.0;
+	ed._v_int[29] = 0;
+	ed._v_float[59] = 0.0;
+	ed._v_float[0] = 0.0;
+	ed._v_float[77] = 0.0;
+	ed._v_float[31] = 0.0;
+	ed._v_float[30] = 0.0;
 	quake_ED.SetVector(ed,10,quake__$Vec_Vec_$Impl_$.origin);
 	quake_ED.SetVector(ed,19,quake__$Vec_Vec_$Impl_$.origin);
-	ed.v_float[46] = -1.0;
-	ed.v_float[9] = 0.0;
+	ed._v_float[46] = -1.0;
+	ed._v_float[9] = 0.0;
 	ed.freetime = quake_SV.server.time;
 };
 quake_ED.GlobalAtOfs = function(ofs) {
@@ -2801,13 +2801,13 @@ quake_ED.Print = function(ed) {
 		var name = quake_PR.GetString(d.name);
 		if(HxOverrides.cca(name,name.length - 2) == 95) continue;
 		var v = d.ofs;
-		if(ed.v_int[v] == 0) {
+		if(ed._v_int[v] == 0) {
 			if((d.type & 32767) == 3) {
-				if(ed.v_int[v + 1] == 0 && ed.v_int[v + 2] == 0) continue;
+				if(ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0) continue;
 			} else continue;
 		}
 		while(name.length <= 14) name += " ";
-		quake_Console.Print(name + quake_PR.ValueString(d.type,ed.v,v) + "\n");
+		quake_Console.Print(name + quake_PR.ValueString(d.type,ed._v,v) + "\n");
 	}
 };
 quake_ED.PrintEdicts = function() {
@@ -2838,9 +2838,9 @@ quake_ED.Count = function() {
 		var ent = quake_SV.server.edicts[i];
 		if(ent.free) continue;
 		++active;
-		if(ent.v_float[9] != 0.0) ++solid;
-		if(ent.v_int[29] != 0) ++models;
-		if(ent.v_float[8] == 4) ++step;
+		if(ent._v_float[9] != 0.0) ++solid;
+		if(ent._v_int[29] != 0) ++models;
+		if(ent._v_float[8] == 4) ++step;
 	}
 	var num_edicts = quake_SV.server.num_edicts;
 	quake_Console.Print("num_edicts:" + (num_edicts <= 9?"  ":num_edicts <= 99?" ":"") + num_edicts + "\n");
@@ -2908,7 +2908,7 @@ quake_ED.ParseEdict = function(data,ent) {
 		var _g = quake_PR.entityfields;
 		while(_g1 < _g) {
 			var i = _g1++;
-			ent.v_int[i] = 0;
+			ent._v_int[i] = 0;
 		}
 	}
 	var init = false;
@@ -2941,7 +2941,7 @@ quake_ED.ParseEdict = function(data,ent) {
 			continue;
 		}
 		if(anglehack) quake_COM.token = "0 " + quake_COM.token + " 0";
-		if(!quake_ED.ParseEpair(ent.v,key,quake_COM.token)) quake_Host.Error("ED.ParseEdict: parse error");
+		if(!quake_ED.ParseEpair(ent._v,key,quake_COM.token)) quake_Host.Error("ED.ParseEdict: parse error");
 	}
 	if(!init) ent.free = true;
 	return data;
@@ -2956,7 +2956,7 @@ quake_ED.LoadFromFile = function(data) {
 		if(HxOverrides.cca(quake_COM.token,0) != 123) quake_Sys.Error("ED.LoadFromFile: found " + quake_COM.token + " when expecting {");
 		if(ent == null) ent = quake_SV.server.edicts[0]; else ent = quake_ED.Alloc();
 		data = quake_ED.ParseEdict(data,ent);
-		var spawnflags = ent.v_float[89] | 0;
+		var spawnflags = ent._v_float[89] | 0;
 		if(quake_Host.deathmatch.value != 0) {
 			if((spawnflags & 2048) != 0) {
 				quake_ED.Free(ent);
@@ -2968,13 +2968,13 @@ quake_ED.LoadFromFile = function(data) {
 			++inhibit;
 			continue;
 		}
-		if(ent.v_int[28] == 0) {
+		if(ent._v_int[28] == 0) {
 			quake_Console.Print("No classname for:\n");
 			quake_ED.Print(ent);
 			quake_ED.Free(ent);
 			continue;
 		}
-		var func = quake_ED.FindFunction(quake_PR.GetString(ent.v_int[28]));
+		var func = quake_ED.FindFunction(quake_PR.GetString(ent._v_int[28]));
 		if(func == null) {
 			quake_Console.Print("No spawn function for:\n");
 			quake_ED.Print(ent);
@@ -2987,12 +2987,12 @@ quake_ED.LoadFromFile = function(data) {
 	quake_Console.DPrint(inhibit + " entities inhibited\n");
 };
 quake_ED.Vector = function(e,o) {
-	return [e.v_float[o],e.v_float[o + 1],e.v_float[o + 2]];
+	return [e._v_float[o],e._v_float[o + 1],e._v_float[o + 2]];
 };
 quake_ED.SetVector = function(e,o,v) {
-	e.v_float[o] = v[0];
-	e.v_float[o + 1] = v[1];
-	e.v_float[o + 2] = v[2];
+	e._v_float[o] = v[0];
+	e._v_float[o + 1] = v[1];
+	e._v_float[o + 2] = v[2];
 };
 var quake__$GL_GLModeSetting = function(min,max) {
 	this.min = min;
@@ -3640,7 +3640,7 @@ quake_Host.Status_f = function() {
 		var i = _g1++;
 		var client = quake_SV.svs.clients[i];
 		if(!client.active) continue;
-		var frags = client.edict.v_float[49].toFixed(0);
+		var frags = client.edict._v_float[49].toFixed(0);
 		if(frags.length == 1) frags = "  " + frags; else if(frags.length == 2) frags = " " + frags;
 		var seconds = quake_NET.time - client.netconnection.connecttime | 0;
 		var minutes = seconds / 60 | 0;
@@ -3670,9 +3670,9 @@ quake_Host.God_f = function() {
 		return;
 	}
 	if(quake_PR.globals_float[35] != 0) return;
-	var v = (quake_SV.player.v_float[76] | 0) ^ 64;
-	quake_SV.player.v_float[76] = v;
-	if(((quake_SV.player.v_float[76] | 0) & 64) == 0) quake_Host.ClientPrint("godmode OFF\n"); else quake_Host.ClientPrint("godmode ON\n");
+	var v = (quake_SV.player._v_float[76] | 0) ^ 64;
+	quake_SV.player._v_float[76] = v;
+	if(((quake_SV.player._v_float[76] | 0) & 64) == 0) quake_Host.ClientPrint("godmode OFF\n"); else quake_Host.ClientPrint("godmode ON\n");
 };
 quake_Host.Notarget_f = function() {
 	if(!quake_Cmd.client) {
@@ -3680,9 +3680,9 @@ quake_Host.Notarget_f = function() {
 		return;
 	}
 	if(quake_PR.globals_float[35] != 0) return;
-	var v = (quake_SV.player.v_float[76] | 0) ^ 128;
-	quake_SV.player.v_float[76] = v;
-	if(((quake_SV.player.v_float[76] | 0) & 128) == 0) quake_Host.ClientPrint("notarget OFF\n"); else quake_Host.ClientPrint("notarget ON\n");
+	var v = (quake_SV.player._v_float[76] | 0) ^ 128;
+	quake_SV.player._v_float[76] = v;
+	if(((quake_SV.player._v_float[76] | 0) & 128) == 0) quake_Host.ClientPrint("notarget OFF\n"); else quake_Host.ClientPrint("notarget ON\n");
 };
 quake_Host.Noclip_f = function() {
 	if(!quake_Cmd.client) {
@@ -3690,14 +3690,14 @@ quake_Host.Noclip_f = function() {
 		return;
 	}
 	if(quake_PR.globals_float[35] != 0) return;
-	if(quake_SV.player.v_float[8] != 8) {
+	if(quake_SV.player._v_float[8] != 8) {
 		quake_Host.noclip_anglehack = true;
-		quake_SV.player.v_float[8] = 8;
+		quake_SV.player._v_float[8] = 8;
 		quake_Host.ClientPrint("noclip ON\n");
 		return;
 	}
 	quake_Host.noclip_anglehack = false;
-	quake_SV.player.v_float[8] = 3;
+	quake_SV.player._v_float[8] = 3;
 	quake_Host.ClientPrint("noclip OFF\n");
 };
 quake_Host.Fly_f = function() {
@@ -3706,12 +3706,12 @@ quake_Host.Fly_f = function() {
 		return;
 	}
 	if(quake_PR.globals_float[35] != 0) return;
-	if(quake_SV.player.v_float[8] != 5) {
-		quake_SV.player.v_float[8] = 5;
+	if(quake_SV.player._v_float[8] != 5) {
+		quake_SV.player._v_float[8] = 5;
 		quake_Host.ClientPrint("flymode ON\n");
 		return;
 	}
-	quake_SV.player.v_float[8] = 3;
+	quake_SV.player._v_float[8] = 3;
 	quake_Host.ClientPrint("flymode OFF\n");
 };
 quake_Host.Ping_f = function() {
@@ -3828,7 +3828,7 @@ quake_Host.Savegame_f = function() {
 	}
 	var client = quake_SV.svs.clients[0];
 	if(client.active) {
-		if(client.edict.v_float[48] <= 0.0) {
+		if(client.edict._v_float[48] <= 0.0) {
 			quake_Console.Print("Can't savegame with a dead player\n");
 			return;
 		}
@@ -3877,12 +3877,12 @@ quake_Host.Savegame_f = function() {
 			if(HxOverrides.cca(name1,name1.length - 2) == 95) continue;
 			var type2 = def1.type & 32767;
 			var v = def1.ofs;
-			if(ed.v_int[v] == 0) {
+			if(ed._v_int[v] == 0) {
 				if(type2 == 3) {
-					if(ed.v_int[v + 1] == 0 && ed.v_int[v + 2] == 0) continue;
+					if(ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0) continue;
 				} else continue;
 			}
-			f[f.length] = "\"" + name1 + "\" \"" + quake_PR.UglyValueString(type2,ed.v,def1.ofs) + "\"\n";
+			f[f.length] = "\"" + name1 + "\" \"" + quake_PR.UglyValueString(type2,ed._v,def1.ofs) + "\"\n";
 		}
 		f[f.length] = "}\n";
 	}
@@ -3964,7 +3964,7 @@ quake_Host.Loadgame_f = function() {
 		var _g2 = quake_PR.entityfields;
 		while(_g11 < _g2) {
 			var j = _g11++;
-			ent.v_int[j] = 0;
+			ent._v_int[j] = 0;
 		}
 		ent.free = false;
 		data = quake_ED.ParseEdict(data,ent);
@@ -4025,7 +4025,7 @@ quake_Host.Say = function(teamonly) {
 		var i1 = _g1++;
 		var client = quake_SV.svs.clients[i1];
 		if(!client.active || !client.spawned) continue;
-		if(quake_Host.teamplay.value != 0 && teamonly && client.edict.v_float[78] != save.edict.v_float[78]) continue;
+		if(quake_Host.teamplay.value != 0 && teamonly && client.edict._v_float[78] != save.edict._v_float[78]) continue;
 		quake_Host.client = client;
 		quake_Host.ClientPrint(text);
 	}
@@ -4082,7 +4082,7 @@ quake_Host.Color_f = function() {
 		return;
 	}
 	quake_Host.client.colors = playercolor;
-	quake_Host.client.edict.v_float[78] = bottom + 1;
+	quake_Host.client.edict._v_float[78] = bottom + 1;
 	var msg = quake_SV.server.reliable_datagram;
 	msg.WriteByte(17);
 	msg.WriteByte(quake_Host.client.num);
@@ -4093,7 +4093,7 @@ quake_Host.Kill_f = function() {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
-	if(quake_SV.player.v_float[48] <= 0.0) {
+	if(quake_SV.player._v_float[48] <= 0.0) {
 		quake_Host.ClientPrint("Can't suicide -- already dead!\n");
 		return;
 	}
@@ -4146,11 +4146,11 @@ quake_Host.Spawn_f = function() {
 		var _g = quake_PR.entityfields;
 		while(_g1 < _g) {
 			var i = _g1++;
-			ent.v_int[i] = 0;
+			ent._v_int[i] = 0;
 		}
-		ent.v_float[77] = ent.num;
-		ent.v_float[78] = (client.colors & 15) + 1;
-		ent.v_int[74] = quake_PR.netnames + (client.num << 5);
+		ent._v_float[77] = ent.num;
+		ent._v_float[78] = (client.colors & 15) + 1;
+		ent._v_int[74] = quake_PR.netnames + (client.num << 5);
 		var _g2 = 0;
 		while(_g2 < 16) {
 			var i1 = _g2++;
@@ -4201,8 +4201,8 @@ quake_Host.Spawn_f = function() {
 	message.WriteByte(14);
 	message.WriteLong(quake_PR.globals_float[42] | 0);
 	message.WriteByte(10);
-	message.WriteAngle(ent.v_float[19]);
-	message.WriteAngle(ent.v_float[20]);
+	message.WriteAngle(ent._v_float[19]);
+	message.WriteAngle(ent._v_float[20]);
 	message.WriteAngle(0.0);
 	quake_SV.WriteClientdataToMessage(ent,message);
 	message.WriteByte(25);
@@ -4287,94 +4287,94 @@ quake_Host.Give_f = function() {
 	if(t >= 48 && t <= 57) {
 		if(!quake_COM.hipnotic) {
 			if(t >= 50) {
-				var v1 = ent.v_float[58] | 0 | quake_Def.it.shotgun << t - 50;
-				ent.v_float[58] = v1;
+				var v1 = ent._v_float[58] | 0 | quake_Def.it.shotgun << t - 50;
+				ent._v_float[58] = v1;
 			}
 			return;
 		}
 		if(t == 54) {
 			if(HxOverrides.cca(quake_Cmd.argv[1],1) == 97) {
-				var v2 = ent.v_float[58] | 0 | quake_Def.hit.proximity_gun;
-				ent.v_float[58] = v2;
+				var v2 = ent._v_float[58] | 0 | quake_Def.hit.proximity_gun;
+				ent._v_float[58] = v2;
 			} else {
-				var v3 = ent.v_float[58] | 0 | quake_Def.it.grenade_launcher;
-				ent.v_float[58] = v3;
+				var v3 = ent._v_float[58] | 0 | quake_Def.it.grenade_launcher;
+				ent._v_float[58] = v3;
 			}
 			return;
 		}
 		if(t == 57) {
-			var v4 = ent.v_float[58] | 0 | quake_Def.hit.laser_cannon;
-			ent.v_float[58] = v4;
+			var v4 = ent._v_float[58] | 0 | quake_Def.hit.laser_cannon;
+			ent._v_float[58] = v4;
 		} else if(t == 48) {
-			var v5 = ent.v_float[58] | 0 | quake_Def.hit.mjolnir;
-			ent.v_float[58] = v5;
+			var v5 = ent._v_float[58] | 0 | quake_Def.hit.mjolnir;
+			ent._v_float[58] = v5;
 		} else if(t >= 50) {
-			var v6 = ent.v_float[58] | 0 | quake_Def.it.shotgun << t - 50;
-			ent.v_float[58] = v6;
+			var v6 = ent._v_float[58] | 0 | quake_Def.it.shotgun << t - 50;
+			ent._v_float[58] = v6;
 		}
 		return;
 	}
 	var v = quake_Q.atoi(quake_Cmd.argv[2]);
 	if(t == 104) {
-		ent.v_float[48] = v;
+		ent._v_float[48] = v;
 		return;
 	}
 	if(!quake_COM.rogue) {
 		if(t != null) switch(t) {
 		case 115:
-			ent.v_float[54] = v;
+			ent._v_float[54] = v;
 			return;
 		case 110:
-			ent.v_float[55] = v;
+			ent._v_float[55] = v;
 			return;
 		case 114:
-			ent.v_float[56] = v;
+			ent._v_float[56] = v;
 			return;
 		case 99:
-			ent.v_float[57] = v;
+			ent._v_float[57] = v;
 			break;
 		}
 		return;
 	}
 	if(t != null) switch(t) {
 	case 115:
-		if(quake__$PR_EntVarOfs_$Impl_$.ammo_shells1 != null) ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_shells1] = v;
-		ent.v_float[54] = v;
+		if(quake__$PR_EntVarOfs_$Impl_$.ammo_shells1 != null) ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_shells1] = v;
+		ent._v_float[54] = v;
 		return;
 	case 110:
 		if(quake__$PR_EntVarOfs_$Impl_$.ammo_nails1 != null) {
-			ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_nails1] = v;
-			if(ent.v_float[50] <= quake_Def.it.lightning) ent.v_float[55] = v;
+			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_nails1] = v;
+			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[55] = v;
 		}
 		return;
 	case 108:
 		if(quake__$PR_EntVarOfs_$Impl_$.ammo_lava_nails != null) {
-			ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_lava_nails] = v;
-			if(ent.v_float[50] > quake_Def.it.lightning) ent.v_float[55] = v;
+			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_lava_nails] = v;
+			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[55] = v;
 		}
 		return;
 	case 114:
 		if(quake__$PR_EntVarOfs_$Impl_$.ammo_rockets1 != null) {
-			ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_rockets1] = v;
-			if(ent.v_float[50] <= quake_Def.it.lightning) ent.v_float[56] = v;
+			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_rockets1] = v;
+			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[56] = v;
 		}
 		return;
 	case 109:
 		if(quake__$PR_EntVarOfs_$Impl_$.ammo_multi_rockets != null) {
-			ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_multi_rockets] = v;
-			if(ent.v_float[50] > quake_Def.it.lightning) ent.v_float[56] = v;
+			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_multi_rockets] = v;
+			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[56] = v;
 		}
 		return;
 	case 99:
 		if(quake__$PR_EntVarOfs_$Impl_$.ammo_cells1 != null) {
-			ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_cells1] = v;
-			if(ent.v_float[50] <= quake_Def.it.lightning) ent.v_float[57] = v;
+			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_cells1] = v;
+			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[57] = v;
 		}
 		return;
 	case 112:
 		if(quake__$PR_EntVarOfs_$Impl_$.ammo_plasma != null) {
-			ent.v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_plasma] = v;
-			if(ent.v_float[50] > quake_Def.it.lightning) ent.v_float[57] = v;
+			ent._v_float[quake__$PR_EntVarOfs_$Impl_$.ammo_plasma] = v;
+			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[57] = v;
 		}
 		break;
 	}
@@ -4386,7 +4386,7 @@ quake_Host.FindViewthing = function() {
 		while(_g1 < _g) {
 			var i = _g1++;
 			var e = quake_SV.server.edicts[i];
-			if(quake_PR.GetString(e.v_int[28]) == "viewthing") return e;
+			if(quake_PR.GetString(e._v_int[28]) == "viewthing") return e;
 		}
 	}
 	quake_Console.Print("No viewthing on map\n");
@@ -4401,33 +4401,33 @@ quake_Host.Viewmodel_f = function() {
 		quake_Console.Print("Can't load " + quake_Cmd.argv[1] + "\n");
 		return;
 	}
-	ent.v_float[30] = 0.0;
-	quake_CL.state.model_precache[ent.v_float[0] | 0] = m;
+	ent._v_float[30] = 0.0;
+	quake_CL.state.model_precache[ent._v_float[0] | 0] = m;
 };
 quake_Host.Viewframe_f = function() {
 	var ent = quake_Host.FindViewthing();
 	if(ent == null) return;
-	var m = quake_CL.state.model_precache[ent.v_float[0] | 0];
+	var m = quake_CL.state.model_precache[ent._v_float[0] | 0];
 	var f = quake_Q.atoi(quake_Cmd.argv[1]);
 	if(f >= m.frames.length) f = m.frames.length - 1;
-	ent.v_float[30] = f;
+	ent._v_float[30] = f;
 };
 quake_Host.Viewnext_f = function() {
 	var ent = quake_Host.FindViewthing();
 	if(ent == null) return;
-	var m = quake_CL.state.model_precache[ent.v_float[0] | 0];
-	var f = (ent.v_float[30] | 0) + 1;
+	var m = quake_CL.state.model_precache[ent._v_float[0] | 0];
+	var f = (ent._v_float[30] | 0) + 1;
 	if(f >= m.frames.length) f = m.frames.length - 1;
-	ent.v_float[30] = f;
+	ent._v_float[30] = f;
 	quake_Console.Print("frame " + f + ": " + m.frames[f].name + "\n");
 };
 quake_Host.Viewprev_f = function() {
 	var ent = quake_Host.FindViewthing();
 	if(ent == null) return;
-	var m = quake_CL.state.model_precache[ent.v_float[0] | 0];
-	var f = (ent.v_float[30] | 0) - 1;
+	var m = quake_CL.state.model_precache[ent._v_float[0] | 0];
+	var f = (ent._v_float[30] | 0) - 1;
 	if(f < 0) f = 0;
-	ent.v_float[30] = f;
+	ent._v_float[30] = f;
 	quake_Console.Print("frame " + f + ": " + m.frames[f].name + "\n");
 };
 quake_Host.Startdemos_f = function() {
@@ -7540,14 +7540,14 @@ quake_PR.ExecuteProgram = function(fnum) {
 			break;
 		case 37:case 40:case 41:case 39:case 42:
 			var ptr = quake_PR.globals_int[st.b];
-			quake_SV.server.edicts[Math.floor(ptr / quake_PR.edict_size)].v_int[ptr % quake_PR.edict_size - 96 >> 2] = quake_PR.globals_int[st.a];
+			quake_SV.server.edicts[Math.floor(ptr / quake_PR.edict_size)]._v_int[ptr % quake_PR.edict_size - 96 >> 2] = quake_PR.globals_int[st.a];
 			break;
 		case 38:
 			var ed = quake_SV.server.edicts[Math.floor(quake_PR.globals_int[st.b] / quake_PR.edict_size)];
 			var ptr1 = quake_PR.globals_int[st.b] % quake_PR.edict_size - 96 >> 2;
-			ed.v_int[ptr1] = quake_PR.globals_int[st.a];
-			ed.v_int[ptr1 + 1] = quake_PR.globals_int[st.a + 1];
-			ed.v_int[ptr1 + 2] = quake_PR.globals_int[st.a + 2];
+			ed._v_int[ptr1] = quake_PR.globals_int[st.a];
+			ed._v_int[ptr1 + 1] = quake_PR.globals_int[st.a + 1];
+			ed._v_int[ptr1 + 2] = quake_PR.globals_int[st.a + 2];
 			break;
 		case 30:
 			var ed1 = quake_PR.globals_int[st.a];
@@ -7555,14 +7555,14 @@ quake_PR.ExecuteProgram = function(fnum) {
 			quake_PR.globals_int[st.c] = ed1 * quake_PR.edict_size + 96 + (quake_PR.globals_int[st.b] << 2);
 			break;
 		case 24:case 28:case 27:case 26:case 29:
-			quake_PR.globals_int[st.c] = quake_SV.server.edicts[quake_PR.globals_int[st.a]].v_int[quake_PR.globals_int[st.b]];
+			quake_PR.globals_int[st.c] = quake_SV.server.edicts[quake_PR.globals_int[st.a]]._v_int[quake_PR.globals_int[st.b]];
 			break;
 		case 25:
 			var ed2 = quake_SV.server.edicts[quake_PR.globals_int[st.a]];
 			var ptr2 = quake_PR.globals_int[st.b];
-			quake_PR.globals_int[st.c] = ed2.v_int[ptr2];
-			quake_PR.globals_int[st.c + 1] = ed2.v_int[ptr2 + 1];
-			quake_PR.globals_int[st.c + 2] = ed2.v_int[ptr2 + 2];
+			quake_PR.globals_int[st.c] = ed2._v_int[ptr2];
+			quake_PR.globals_int[st.c + 1] = ed2._v_int[ptr2 + 1];
+			quake_PR.globals_int[st.c + 2] = ed2._v_int[ptr2 + 2];
 			break;
 		case 50:
 			if(quake_PR.globals_int[st.a] == 0) s += st.b - 1;
@@ -7594,9 +7594,9 @@ quake_PR.ExecuteProgram = function(fnum) {
 			break;
 		case 60:
 			var ed3 = quake_SV.server.edicts[quake_PR.globals_int[28]];
-			ed3.v_float[46] = quake_PR.globals_float[31] + 0.1;
-			ed3.v_float[30] = quake_PR.globals_float[st.a];
-			ed3.v_int[44] = quake_PR.globals_int[st.b];
+			ed3._v_float[46] = quake_PR.globals_float[31] + 0.1;
+			ed3._v_float[30] = quake_PR.globals_float[st.a];
+			ed3._v_int[44] = quake_PR.globals_int[st.b];
 			break;
 		default:
 			quake_PR.RunError("Bad opcode " + st.op);
@@ -9049,9 +9049,9 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 	if((field_mask & 2) != 0) datagram.WriteByte(Math.floor(attenuation * 64.0));
 	datagram.WriteShort((entity.num << 3) + channel);
 	datagram.WriteByte(i);
-	datagram.WriteCoord(entity.v_float[10] + 0.5 * (entity.v_float[33] + entity.v_float[36]));
-	datagram.WriteCoord(entity.v_float[11] + 0.5 * (entity.v_float[34] + entity.v_float[37]));
-	datagram.WriteCoord(entity.v_float[12] + 0.5 * (entity.v_float[35] + entity.v_float[38]));
+	datagram.WriteCoord(entity._v_float[10] + 0.5 * (entity._v_float[33] + entity._v_float[36]));
+	datagram.WriteCoord(entity._v_float[11] + 0.5 * (entity._v_float[34] + entity._v_float[37]));
+	datagram.WriteCoord(entity._v_float[12] + 0.5 * (entity._v_float[35] + entity._v_float[38]));
 };
 quake_SV.SendServerinfo = function(client) {
 	var message = client.message;
@@ -9061,7 +9061,7 @@ quake_SV.SendServerinfo = function(client) {
 	message.WriteLong(15);
 	message.WriteByte(quake_SV.svs.maxclients);
 	message.WriteByte(quake_Host.coop.value == 0 && quake_Host.deathmatch.value != 0?1:0);
-	message.WriteString(quake_PR.GetString(quake_SV.server.edicts[0].v_int[99]));
+	message.WriteString(quake_PR.GetString(quake_SV.server.edicts[0]._v_int[99]));
 	var _g1 = 1;
 	var _g = quake_SV.server.model_precache.length;
 	while(_g1 < _g) {
@@ -9077,8 +9077,8 @@ quake_SV.SendServerinfo = function(client) {
 	}
 	message.WriteByte(0);
 	message.WriteByte(32);
-	message.WriteByte(quake_SV.server.edicts[0].v_float[100] | 0);
-	message.WriteByte(quake_SV.server.edicts[0].v_float[100] | 0);
+	message.WriteByte(quake_SV.server.edicts[0]._v_float[100] | 0);
+	message.WriteByte(quake_SV.server.edicts[0]._v_float[100] | 0);
 	message.WriteByte(5);
 	message.WriteShort(client.edict.num);
 	message.WriteByte(25);
@@ -9106,7 +9106,7 @@ quake_SV.ConnectClient = function(clientnum) {
 	client.wishdir = [0.0,0.0,0.0];
 	client.message.cursize = 0;
 	client.edict = quake_SV.server.edicts[clientnum + 1];
-	client.edict.v_int[74] = quake_PR.netnames + (clientnum << 5);
+	client.edict._v_int[74] = quake_PR.netnames + (clientnum << 5);
 	quake_SV.SetClientName(client,"unconnected");
 	client.colors = 0;
 	client.ping_times = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
@@ -9177,7 +9177,7 @@ quake_SV.FatPVS = function(org) {
 	quake_SV.AddToFatPVS(org,quake_SV.server.worldmodel.nodes[0]);
 };
 quake_SV.WriteEntitiesToClient = function(clent,msg) {
-	quake_SV.FatPVS([clent.v_float[10] + clent.v_float[62],clent.v_float[11] + clent.v_float[63],clent.v_float[12] + clent.v_float[64]]);
+	quake_SV.FatPVS([clent._v_float[10] + clent._v_float[62],clent._v_float[11] + clent._v_float[63],clent._v_float[12] + clent._v_float[64]]);
 	var pvs = quake_SV.fatpvs;
 	var _g1 = 1;
 	var _g = quake_SV.server.num_edicts;
@@ -9185,7 +9185,7 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		var e = _g1++;
 		var ent = quake_SV.server.edicts[e];
 		if(ent != clent) {
-			if(ent.v_float[0] == 0.0 || quake_PR.strings[ent.v_int[29]] == 0) continue;
+			if(ent._v_float[0] == 0.0 || quake_PR.strings[ent._v_int[29]] == 0) continue;
 			var i = 0;
 			while(i < ent.leafnums.length) {
 				if((pvs[ent.leafnums[i] >> 3] & 1 << (ent.leafnums[i] & 7)) != 0) break;
@@ -9201,96 +9201,96 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		var _g2 = 0;
 		while(_g2 < 3) {
 			var i1 = _g2++;
-			var miss = ent.v_float[10 + i1] - ent.baseline.origin[i1];
+			var miss = ent._v_float[10 + i1] - ent.baseline.origin[i1];
 			if(miss < -0.1 || miss > 0.1) bits += 2 << i1;
 		}
-		if(ent.v_float[19] != ent.baseline.angles[0]) bits += 256;
-		if(ent.v_float[20] != ent.baseline.angles[1]) bits += 16;
-		if(ent.v_float[21] != ent.baseline.angles[2]) bits += 512;
-		if(ent.v_float[8] == 4) bits += 32;
-		if(ent.baseline.colormap != ent.v_float[77]) bits += 2048;
-		if(ent.baseline.skin != ent.v_float[31]) bits += 4096;
-		if(ent.baseline.frame != ent.v_float[30]) bits += 64;
-		if(ent.baseline.effects != ent.v_float[32]) bits += 8192;
-		if(ent.baseline.modelindex != ent.v_float[0]) bits += 1024;
+		if(ent._v_float[19] != ent.baseline.angles[0]) bits += 256;
+		if(ent._v_float[20] != ent.baseline.angles[1]) bits += 16;
+		if(ent._v_float[21] != ent.baseline.angles[2]) bits += 512;
+		if(ent._v_float[8] == 4) bits += 32;
+		if(ent.baseline.colormap != ent._v_float[77]) bits += 2048;
+		if(ent.baseline.skin != ent._v_float[31]) bits += 4096;
+		if(ent.baseline.frame != ent._v_float[30]) bits += 64;
+		if(ent.baseline.effects != ent._v_float[32]) bits += 8192;
+		if(ent.baseline.modelindex != ent._v_float[0]) bits += 1024;
 		if(e >= 256) bits += 16384;
 		if(bits >= 256) bits += 1;
 		msg.WriteByte(bits + 128);
 		if((bits & 1) != 0) msg.WriteByte(bits >> 8);
 		if((bits & 16384) != 0) msg.WriteShort(e); else msg.WriteByte(e);
-		if((bits & 1024) != 0) msg.WriteByte(ent.v_float[0] | 0);
-		if((bits & 64) != 0) msg.WriteByte(ent.v_float[30] | 0);
-		if((bits & 2048) != 0) msg.WriteByte(ent.v_float[77] | 0);
-		if((bits & 4096) != 0) msg.WriteByte(ent.v_float[31] | 0);
-		if((bits & 8192) != 0) msg.WriteByte(ent.v_float[32] | 0);
-		if((bits & 2) != 0) msg.WriteCoord(ent.v_float[10] | 0);
-		if((bits & 256) != 0) msg.WriteAngle(ent.v_float[19] | 0);
-		if((bits & 4) != 0) msg.WriteCoord(ent.v_float[11] | 0);
-		if((bits & 16) != 0) msg.WriteAngle(ent.v_float[20] | 0);
-		if((bits & 8) != 0) msg.WriteCoord(ent.v_float[12] | 0);
-		if((bits & 512) != 0) msg.WriteAngle(ent.v_float[21] | 0);
+		if((bits & 1024) != 0) msg.WriteByte(ent._v_float[0] | 0);
+		if((bits & 64) != 0) msg.WriteByte(ent._v_float[30] | 0);
+		if((bits & 2048) != 0) msg.WriteByte(ent._v_float[77] | 0);
+		if((bits & 4096) != 0) msg.WriteByte(ent._v_float[31] | 0);
+		if((bits & 8192) != 0) msg.WriteByte(ent._v_float[32] | 0);
+		if((bits & 2) != 0) msg.WriteCoord(ent._v_float[10] | 0);
+		if((bits & 256) != 0) msg.WriteAngle(ent._v_float[19] | 0);
+		if((bits & 4) != 0) msg.WriteCoord(ent._v_float[11] | 0);
+		if((bits & 16) != 0) msg.WriteAngle(ent._v_float[20] | 0);
+		if((bits & 8) != 0) msg.WriteCoord(ent._v_float[12] | 0);
+		if((bits & 512) != 0) msg.WriteAngle(ent._v_float[21] | 0);
 	}
 };
 quake_SV.WriteClientdataToMessage = function(ent,msg) {
-	if(ent.v_float[92] != 0.0 || ent.v_float[93] != 0.0) {
-		var other = quake_SV.server.edicts[ent.v_int[94]];
+	if(ent._v_float[92] != 0.0 || ent._v_float[93] != 0.0) {
+		var other = quake_SV.server.edicts[ent._v_int[94]];
 		msg.WriteByte(19);
-		msg.WriteByte(ent.v_float[93] | 0);
-		msg.WriteByte(ent.v_float[92] | 0);
-		msg.WriteCoord(other.v_float[10] + 0.5 * (other.v_float[33] + other.v_float[36]));
-		msg.WriteCoord(other.v_float[11] + 0.5 * (other.v_float[34] + other.v_float[37]));
-		msg.WriteCoord(other.v_float[12] + 0.5 * (other.v_float[35] + other.v_float[38]));
-		ent.v_float[92] = 0.0;
-		ent.v_float[93] = 0.0;
+		msg.WriteByte(ent._v_float[93] | 0);
+		msg.WriteByte(ent._v_float[92] | 0);
+		msg.WriteCoord(other._v_float[10] + 0.5 * (other._v_float[33] + other._v_float[36]));
+		msg.WriteCoord(other._v_float[11] + 0.5 * (other._v_float[34] + other._v_float[37]));
+		msg.WriteCoord(other._v_float[12] + 0.5 * (other._v_float[35] + other._v_float[38]));
+		ent._v_float[92] = 0.0;
+		ent._v_float[93] = 0.0;
 	}
 	quake_SV.SetIdealPitch();
-	if(ent.v_float[69] != 0.0) {
+	if(ent._v_float[69] != 0.0) {
 		msg.WriteByte(10);
-		msg.WriteAngle(ent.v_float[19]);
-		msg.WriteAngle(ent.v_float[20]);
-		msg.WriteAngle(ent.v_float[21]);
-		ent.v_float[69] = 0.0;
+		msg.WriteAngle(ent._v_float[19]);
+		msg.WriteAngle(ent._v_float[20]);
+		msg.WriteAngle(ent._v_float[21]);
+		ent._v_float[69] = 0.0;
 	}
 	var bits = 512 + 16384;
-	if(ent.v_float[64] != 22) bits = bits + 1;
-	if(ent.v_float[73] != 0.0) bits = bits + 2;
+	if(ent._v_float[64] != 22) bits = bits + 1;
+	if(ent._v_float[73] != 0.0) bits = bits + 2;
 	var val = quake__$PR_EntVarOfs_$Impl_$.items2;
 	var items;
 	if(val != null) {
-		if(ent.v_float[val] != 0.0) items = (ent.v_float[58] | 0 | 0) + ((ent.v_float[val] | 0) << 23 >>> 0); else items = (ent.v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
-	} else items = (ent.v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
-	if(((ent.v_float[76] | 0) & 512) != 0) bits = bits + 1024;
-	if(ent.v_float[83] >= 2.0) bits = bits + 2048;
-	if(ent.v_float[25] != 0.0) bits = bits + 4;
-	if(ent.v_float[16] != 0.0) bits = bits + 32;
-	if(ent.v_float[26] != 0.0) bits = bits + 8;
-	if(ent.v_float[17] != 0.0) bits = bits + 64;
-	if(ent.v_float[27] != 0.0) bits = bits + 16;
-	if(ent.v_float[18] != 0.0) bits = bits + 128;
-	if(ent.v_float[52] != 0.0) bits = bits + 4096;
-	if(ent.v_float[82] != 0.0) bits = bits + 8192;
+		if(ent._v_float[val] != 0.0) items = (ent._v_float[58] | 0 | 0) + ((ent._v_float[val] | 0) << 23 >>> 0); else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
+	} else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
+	if(((ent._v_float[76] | 0) & 512) != 0) bits = bits + 1024;
+	if(ent._v_float[83] >= 2.0) bits = bits + 2048;
+	if(ent._v_float[25] != 0.0) bits = bits + 4;
+	if(ent._v_float[16] != 0.0) bits = bits + 32;
+	if(ent._v_float[26] != 0.0) bits = bits + 8;
+	if(ent._v_float[17] != 0.0) bits = bits + 64;
+	if(ent._v_float[27] != 0.0) bits = bits + 16;
+	if(ent._v_float[18] != 0.0) bits = bits + 128;
+	if(ent._v_float[52] != 0.0) bits = bits + 4096;
+	if(ent._v_float[82] != 0.0) bits = bits + 8192;
 	msg.WriteByte(15);
 	msg.WriteShort(bits);
-	if((bits & 1) != 0) msg.WriteChar(ent.v_float[64] | 0);
-	if((bits & 2) != 0) msg.WriteChar(ent.v_float[73] | 0);
-	if((bits & 4) != 0) msg.WriteChar(ent.v_float[25] | 0);
-	if((bits & 32) != 0) msg.WriteChar(ent.v_float[16] * 0.0625 | 0);
-	if((bits & 8) != 0) msg.WriteChar(ent.v_float[26] | 0);
-	if((bits & 64) != 0) msg.WriteChar(ent.v_float[17] * 0.0625 | 0);
-	if((bits & 16) != 0) msg.WriteChar(ent.v_float[27] | 0);
-	if((bits & 128) != 0) msg.WriteChar(ent.v_float[18] * 0.0625 | 0);
+	if((bits & 1) != 0) msg.WriteChar(ent._v_float[64] | 0);
+	if((bits & 2) != 0) msg.WriteChar(ent._v_float[73] | 0);
+	if((bits & 4) != 0) msg.WriteChar(ent._v_float[25] | 0);
+	if((bits & 32) != 0) msg.WriteChar(ent._v_float[16] * 0.0625 | 0);
+	if((bits & 8) != 0) msg.WriteChar(ent._v_float[26] | 0);
+	if((bits & 64) != 0) msg.WriteChar(ent._v_float[17] * 0.0625 | 0);
+	if((bits & 16) != 0) msg.WriteChar(ent._v_float[27] | 0);
+	if((bits & 128) != 0) msg.WriteChar(ent._v_float[18] * 0.0625 | 0);
 	msg.WriteLong(items);
-	if((bits & 4096) != 0) msg.WriteByte(ent.v_float[52] | 0);
-	if((bits & 8192) != 0) msg.WriteByte(ent.v_float[82] | 0);
-	msg.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[51])));
-	msg.WriteShort(ent.v_float[48] | 0);
-	msg.WriteByte(ent.v_float[53] | 0);
-	msg.WriteByte(ent.v_float[54] | 0);
-	msg.WriteByte(ent.v_float[55] | 0);
-	msg.WriteByte(ent.v_float[56] | 0);
-	msg.WriteByte(ent.v_float[57] | 0);
-	if(quake_COM.standard_quake) msg.WriteByte(ent.v_float[50] | 0); else {
-		var weapon = ent.v_float[50] | 0;
+	if((bits & 4096) != 0) msg.WriteByte(ent._v_float[52] | 0);
+	if((bits & 8192) != 0) msg.WriteByte(ent._v_float[82] | 0);
+	msg.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent._v_int[51])));
+	msg.WriteShort(ent._v_float[48] | 0);
+	msg.WriteByte(ent._v_float[53] | 0);
+	msg.WriteByte(ent._v_float[54] | 0);
+	msg.WriteByte(ent._v_float[55] | 0);
+	msg.WriteByte(ent._v_float[56] | 0);
+	msg.WriteByte(ent._v_float[57] | 0);
+	if(quake_COM.standard_quake) msg.WriteByte(ent._v_float[50] | 0); else {
+		var weapon = ent._v_float[50] | 0;
 		var _g = 0;
 		while(_g < 32) {
 			var i = _g++;
@@ -9322,8 +9322,8 @@ quake_SV.UpdateToReliableMessages = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		quake_Host.client = quake_SV.svs.clients[i];
-		quake_Host.client.edict.v_float[49] = quake_Host.client.edict.v_float[49] | 0;
-		var frags = quake_Host.client.edict.v_float[49] | 0;
+		quake_Host.client.edict._v_float[49] = quake_Host.client.edict._v_float[49] | 0;
+		var frags = quake_Host.client.edict._v_float[49] | 0;
 		if(quake_Host.client.old_frags == frags) continue;
 		var _g3 = 0;
 		var _g2 = quake_SV.svs.maxclients;
@@ -9382,7 +9382,7 @@ quake_SV.SendClientMessages = function() {
 	var _g2 = quake_SV.server.num_edicts;
 	while(_g11 < _g2) {
 		var i1 = _g11++;
-		quake_SV.server.edicts[i1].v_float[32] = (quake_SV.server.edicts[i1].v_float[32] | 0) & ~2 >>> 0;
+		quake_SV.server.edicts[i1]._v_float[32] = (quake_SV.server.edicts[i1]._v_float[32] | 0) & ~2 >>> 0;
 	}
 };
 quake_SV.ModelIndex = function(name) {
@@ -9406,18 +9406,18 @@ quake_SV.CreateBaseline = function() {
 		var i = _g1++;
 		var svent = quake_SV.server.edicts[i];
 		if(svent.free) continue;
-		if(i > quake_SV.svs.maxclients && svent.v_int[0] == 0) continue;
+		if(i > quake_SV.svs.maxclients && svent._v_int[0] == 0) continue;
 		var baseline = svent.baseline;
 		baseline.origin = quake_ED.Vector(svent,10);
 		baseline.angles = quake_ED.Vector(svent,19);
-		baseline.frame = svent.v_float[30] | 0;
-		baseline.skin = svent.v_float[31] | 0;
+		baseline.frame = svent._v_float[30] | 0;
+		baseline.skin = svent._v_float[31] | 0;
 		if(i > 0 && i <= quake_SV.svs.maxclients) {
 			baseline.colormap = i;
 			baseline.modelindex = player;
 		} else {
 			baseline.colormap = 0;
-			baseline.modelindex = quake_SV.ModelIndex(quake_PR.GetString(svent.v_int[29]));
+			baseline.modelindex = quake_SV.ModelIndex(quake_PR.GetString(svent._v_int[29]));
 		}
 		signon.WriteByte(22);
 		signon.WriteShort(i);
@@ -9479,12 +9479,12 @@ quake_SV.SpawnServer = function(server) {
 		e.leafnums = [];
 		e.baseline = new quake_REntityState();
 		e.freetime = 0.0;
-		e.v = new ArrayBuffer(quake_PR.entityfields << 2);
+		e._v = new ArrayBuffer(quake_PR.entityfields << 2);
 		tmp = e;
 		var ed = tmp;
 		ed.area.ent = ed;
-		ed.v_float = new Float32Array(ed.v);
-		ed.v_int = new Int32Array(ed.v);
+		ed._v_float = new Float32Array(ed._v);
+		ed._v_int = new Int32Array(ed._v);
 		quake_SV.server.edicts[i] = ed;
 	}
 	quake_SV.server.datagram.cursize = 0;
@@ -9530,10 +9530,10 @@ quake_SV.SpawnServer = function(server) {
 		quake_SV.server.lightstyles[i3] = "";
 	}
 	var ent = quake_SV.server.edicts[0];
-	ent.v_int[29] = quake_PR.NewString(quake_SV.server.modelname,64);
-	ent.v_float[0] = 1.0;
-	ent.v_float[9] = 4;
-	ent.v_float[8] = 7;
+	ent._v_int[29] = quake_PR.NewString(quake_SV.server.modelname,64);
+	ent._v_float[0] = 1.0;
+	ent._v_float[9] = 4;
+	ent._v_float[8] = 7;
 	if(quake_Host.coop.value != 0) quake_PR.globals_float[36] = quake_Host.coop.value; else quake_PR.globals_float[35] = quake_Host.deathmatch.value;
 	quake_PR.globals_int[34] = quake_PR.NewString(server,64);
 	quake_PR.globals_float[38] = quake_SV.svs.serverflags;
@@ -9550,7 +9550,7 @@ quake_SV.SpawnServer = function(server) {
 		var i4 = _g13++;
 		quake_Host.client = quake_SV.svs.clients[i4];
 		if(!quake_Host.client.active) continue;
-		quake_Host.client.edict.v_int[74] = quake_PR.netnames + (i4 << 5);
+		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i4 << 5);
 		quake_SV.SendServerinfo(quake_Host.client);
 	}
 	quake_Console.DPrint("Server spawned.\n");
@@ -9565,11 +9565,11 @@ quake_SV.SetClientName = function(client,name) {
 	quake_PR.strings[ofs + i] = 0;
 };
 quake_SV.CheckBottom = function(ent) {
-	var mins_0 = ent.v_float[10] + ent.v_float[33];
-	var mins_1 = ent.v_float[11] + ent.v_float[34];
-	var mins_2 = ent.v_float[12] + ent.v_float[35];
-	var maxs_0 = ent.v_float[10] + ent.v_float[36];
-	var maxs_1 = ent.v_float[11] + ent.v_float[37];
+	var mins_0 = ent._v_float[10] + ent._v_float[33];
+	var mins_1 = ent._v_float[11] + ent._v_float[34];
+	var mins_2 = ent._v_float[12] + ent._v_float[35];
+	var maxs_0 = ent._v_float[10] + ent._v_float[36];
+	var maxs_1 = ent._v_float[11] + ent._v_float[37];
 	while(true) {
 		if(quake_SV.PointContents([mins_0,mins_1,mins_2 - 1.0]) != -2) break;
 		if(quake_SV.PointContents([mins_0,maxs_1,mins_2 - 1.0]) != -2) break;
@@ -9605,24 +9605,24 @@ quake_SV.movestep = function(ent,move,relink) {
 	var mins = quake_ED.Vector(ent,33);
 	var maxs = quake_ED.Vector(ent,36);
 	var trace;
-	if(((ent.v_float[76] | 0) & 2 + 1) != 0) {
-		var enemy = ent.v_int[75];
+	if(((ent._v_float[76] | 0) & 2 + 1) != 0) {
+		var enemy = ent._v_int[75];
 		var _g = 0;
 		while(_g < 2) {
 			var i = _g++;
-			neworg[0] = ent.v_float[10] + move[0];
-			neworg[1] = ent.v_float[11] + move[1];
-			neworg[2] = ent.v_float[12];
+			neworg[0] = ent._v_float[10] + move[0];
+			neworg[1] = ent._v_float[11] + move[1];
+			neworg[2] = ent._v_float[12];
 			if(i == 0 && enemy != 0) {
-				var dz = ent.v_float[12] - quake_SV.server.edicts[enemy].v_float[12];
+				var dz = ent._v_float[12] - quake_SV.server.edicts[enemy]._v_float[12];
 				if(dz > 40.0) neworg[2] -= 8.0; else if(dz < 30.0) neworg[2] += 8.0;
 			}
 			trace = quake_SV.Move(quake_ED.Vector(ent,10),mins,maxs,neworg,0,ent);
 			if(trace.fraction == 1.0) {
-				if(((ent.v_float[76] | 0) & 2) != 0 && quake_SV.PointContents(trace.endpos) == -1) return false;
-				ent.v_float[10] = trace.endpos[0];
-				ent.v_float[11] = trace.endpos[1];
-				ent.v_float[12] = trace.endpos[2];
+				if(((ent._v_float[76] | 0) & 2) != 0 && quake_SV.PointContents(trace.endpos) == -1) return false;
+				ent._v_float[10] = trace.endpos[0];
+				ent._v_float[11] = trace.endpos[1];
+				ent._v_float[12] = trace.endpos[2];
 				if(relink) quake_SV.LinkEdict(ent,true);
 				return true;
 			}
@@ -9630,9 +9630,9 @@ quake_SV.movestep = function(ent,move,relink) {
 		}
 		return false;
 	}
-	neworg[0] = ent.v_float[10] + move[0];
-	neworg[1] = ent.v_float[11] + move[1];
-	neworg[2] = ent.v_float[12] + 18.0;
+	neworg[0] = ent._v_float[10] + move[0];
+	neworg[1] = ent._v_float[11] + move[1];
+	neworg[2] = ent._v_float[12] + 18.0;
 	var end = [neworg[0],neworg[1],neworg[2] - 36.0];
 	trace = quake_SV.Move(neworg,mins,maxs,end,0,ent);
 	if(trace.allsolid) return false;
@@ -9642,40 +9642,40 @@ quake_SV.movestep = function(ent,move,relink) {
 		if(trace.allsolid || trace.startsolid) return false;
 	}
 	if(trace.fraction == 1.0) {
-		if(((ent.v_float[76] | 0) & 1024) == 0) return false;
-		ent.v_float[10] += move[0];
-		ent.v_float[11] += move[1];
+		if(((ent._v_float[76] | 0) & 1024) == 0) return false;
+		ent._v_float[10] += move[0];
+		ent._v_float[11] += move[1];
 		if(relink) quake_SV.LinkEdict(ent,true);
-		var v = (ent.v_float[76] | 0) & ~512;
-		ent.v_float[76] = v;
+		var v = (ent._v_float[76] | 0) & ~512;
+		ent._v_float[76] = v;
 		return true;
 	}
-	ent.v_float[10] = trace.endpos[0];
-	ent.v_float[11] = trace.endpos[1];
-	ent.v_float[12] = trace.endpos[2];
+	ent._v_float[10] = trace.endpos[0];
+	ent._v_float[11] = trace.endpos[1];
+	ent._v_float[12] = trace.endpos[2];
 	if(!quake_SV.CheckBottom(ent)) {
-		if(((ent.v_float[76] | 0) & 1024) != 0) {
+		if(((ent._v_float[76] | 0) & 1024) != 0) {
 			if(relink) quake_SV.LinkEdict(ent,true);
 			return true;
 		}
-		ent.v_float[10] = oldorg[0];
-		ent.v_float[11] = oldorg[1];
-		ent.v_float[12] = oldorg[2];
+		ent._v_float[10] = oldorg[0];
+		ent._v_float[11] = oldorg[1];
+		ent._v_float[12] = oldorg[2];
 		return false;
 	}
-	var v1 = (ent.v_float[76] | 0) & ~1024;
-	ent.v_float[76] = v1;
-	ent.v_int[47] = trace.ent.num;
+	var v1 = (ent._v_float[76] | 0) & ~1024;
+	ent._v_float[76] = v1;
+	ent._v_int[47] = trace.ent.num;
 	if(relink) quake_SV.LinkEdict(ent,true);
 	return true;
 };
 quake_SV.StepDirection = function(ent,yaw,dist) {
-	ent.v_float[85] = yaw;
+	ent._v_float[85] = yaw;
 	quake_PF.changeyaw();
 	yaw *= Math.PI / 180.0;
 	var oldorigin = quake_ED.Vector(ent,10);
 	if(quake_SV.movestep(ent,[Math.cos(yaw) * dist,Math.sin(yaw) * dist],false)) {
-		var delta = ent.v_float[20] - ent.v_float[85];
+		var delta = ent._v_float[20] - ent._v_float[85];
 		if(delta > 45.0 && delta < 315.0) quake_ED.SetVector(ent,10,oldorigin);
 		quake_SV.LinkEdict(ent,true);
 		return true;
@@ -9684,10 +9684,10 @@ quake_SV.StepDirection = function(ent,yaw,dist) {
 	return false;
 };
 quake_SV.NewChaseDir = function(actor,enemy,dist) {
-	var olddir = quake__$Vec_Vec_$Impl_$.Anglemod((actor.v_float[85] / 45.0 | 0) * 45.0);
+	var olddir = quake__$Vec_Vec_$Impl_$.Anglemod((actor._v_float[85] / 45.0 | 0) * 45.0);
 	var turnaround = quake__$Vec_Vec_$Impl_$.Anglemod(olddir - 180.0);
-	var deltax = enemy.v_float[10] - actor.v_float[10];
-	var deltay = enemy.v_float[11] - actor.v_float[11];
+	var deltax = enemy._v_float[10] - actor._v_float[10];
+	var deltay = enemy._v_float[11] - actor._v_float[11];
 	var dx;
 	var dy;
 	if(deltax > 10.0) dx = 0.0; else if(deltax < -10.0) dx = 180.0; else dx = -1;
@@ -9719,18 +9719,18 @@ quake_SV.NewChaseDir = function(actor,enemy,dist) {
 		}
 	}
 	if(turnaround != -1 && quake_SV.StepDirection(actor,turnaround,dist)) return;
-	actor.v_float[85] = olddir;
+	actor._v_float[85] = olddir;
 	if(!quake_SV.CheckBottom(actor)) {
-		var v = actor.v_float[76] | 0 | 1024;
-		actor.v_float[76] = v;
+		var v = actor._v_float[76] | 0 | 1024;
+		actor._v_float[76] = v;
 	}
 };
 quake_SV.CloseEnough = function(ent,goal,dist) {
 	var _g = 0;
 	while(_g < 3) {
 		var i = _g++;
-		if(goal.v_float[1 + i] > ent.v_float[4 + i] + dist) return false;
-		if(goal.v_float[4 + i] < ent.v_float[1 + i] - dist) return false;
+		if(goal._v_float[1 + i] > ent._v_float[4 + i] + dist) return false;
+		if(goal._v_float[4 + i] < ent._v_float[1 + i] - dist) return false;
 	}
 	return true;
 };
@@ -9738,43 +9738,43 @@ quake_SV.CheckVelocity = function(ent) {
 	var _g = 0;
 	while(_g < 3) {
 		var i = _g++;
-		var velocity = ent.v_float[16 + i];
+		var velocity = ent._v_float[16 + i];
 		if(isNaN(velocity)) {
-			quake_Console.Print("Got a NaN velocity on " + quake_PR.GetString(ent.v_int[28]) + "\n");
+			quake_Console.Print("Got a NaN velocity on " + quake_PR.GetString(ent._v_int[28]) + "\n");
 			velocity = 0.0;
 		}
-		if(isNaN(ent.v_float[10 + i])) {
-			quake_Console.Print("Got a NaN origin on " + quake_PR.GetString(ent.v_int[28]) + "\n");
-			ent.v_float[10 + i] = 0.0;
+		if(isNaN(ent._v_float[10 + i])) {
+			quake_Console.Print("Got a NaN origin on " + quake_PR.GetString(ent._v_int[28]) + "\n");
+			ent._v_float[10 + i] = 0.0;
 		}
 		if(velocity > quake_SV.maxvelocity.value) velocity = quake_SV.maxvelocity.value; else if(velocity < -quake_SV.maxvelocity.value) velocity = -quake_SV.maxvelocity.value;
-		ent.v_float[16 + i] = velocity;
+		ent._v_float[16 + i] = velocity;
 	}
 };
 quake_SV.RunThink = function(ent) {
-	var thinktime = ent.v_float[46];
+	var thinktime = ent._v_float[46];
 	if(thinktime <= 0.0 || thinktime > quake_SV.server.time + quake_Host.frametime) return true;
 	if(thinktime < quake_SV.server.time) thinktime = quake_SV.server.time;
-	ent.v_float[46] = 0.0;
+	ent._v_float[46] = 0.0;
 	quake_PR.globals_float[31] = thinktime;
 	quake_PR.globals_int[28] = ent.num;
 	quake_PR.globals_int[29] = 0;
-	quake_PR.ExecuteProgram(ent.v_int[44]);
+	quake_PR.ExecuteProgram(ent._v_int[44]);
 	return !ent.free;
 };
 quake_SV.Impact = function(e1,e2) {
 	var old_self = quake_PR.globals_int[28];
 	var old_other = quake_PR.globals_int[29];
 	quake_PR.globals_float[31] = quake_SV.server.time;
-	if(e1.v_int[42] != 0 && e1.v_float[9] != 0) {
+	if(e1._v_int[42] != 0 && e1._v_float[9] != 0) {
 		quake_PR.globals_int[28] = e1.num;
 		quake_PR.globals_int[29] = e2.num;
-		quake_PR.ExecuteProgram(e1.v_int[42]);
+		quake_PR.ExecuteProgram(e1._v_int[42]);
 	}
-	if(e2.v_int[42] != 0 && e2.v_float[9] != 0) {
+	if(e2._v_int[42] != 0 && e2._v_float[9] != 0) {
 		quake_PR.globals_int[28] = e2.num;
 		quake_PR.globals_int[29] = e1.num;
-		quake_PR.ExecuteProgram(e2.v_int[42]);
+		quake_PR.ExecuteProgram(e2._v_int[42]);
 	}
 	quake_PR.globals_int[28] = old_self;
 	quake_PR.globals_int[29] = old_other;
@@ -9804,10 +9804,10 @@ quake_SV.FlyMove = function(ent,time) {
 	var _g = 0;
 	while(_g < 4) {
 		_g++;
-		if(ent.v_float[16] == 0.0 && ent.v_float[17] == 0.0 && ent.v_float[18] == 0.0) break;
-		end[0] = ent.v_float[10] + time_left * ent.v_float[16];
-		end[1] = ent.v_float[11] + time_left * ent.v_float[17];
-		end[2] = ent.v_float[12] + time_left * ent.v_float[18];
+		if(ent._v_float[16] == 0.0 && ent._v_float[17] == 0.0 && ent._v_float[18] == 0.0) break;
+		end[0] = ent._v_float[10] + time_left * ent._v_float[16];
+		end[1] = ent._v_float[11] + time_left * ent._v_float[17];
+		end[2] = ent._v_float[12] + time_left * ent._v_float[18];
 		trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),end,0,ent);
 		if(trace.allsolid) {
 			quake_ED.SetVector(ent,16,quake__$Vec_Vec_$Impl_$.origin);
@@ -9822,10 +9822,10 @@ quake_SV.FlyMove = function(ent,time) {
 		if(trace.ent == null) quake_Sys.Error("SV.FlyMove: !trace.ent");
 		if(trace.plane.normal[2] > 0.7) {
 			blocked |= 1;
-			if(trace.ent.v_float[9] == 4) {
-				var v = ent.v_float[76] | 0 | 512;
-				ent.v_float[76] = v;
-				ent.v_int[47] = trace.ent.num;
+			if(trace.ent._v_float[9] == 4) {
+				var v = ent._v_float[76] | 0 | 512;
+				ent._v_float[76] = v;
+				ent._v_int[47] = trace.ent.num;
 			}
 		} else if(trace.plane.normal[2] == 0.0) {
 			blocked |= 2;
@@ -9859,12 +9859,12 @@ quake_SV.FlyMove = function(ent,time) {
 				return 7;
 			}
 			dir = quake__$Vec_Vec_$Impl_$.CrossProduct(planes[0],planes[1]);
-			d = dir[0] * ent.v_float[16] + dir[1] * ent.v_float[17] + dir[2] * ent.v_float[18];
-			ent.v_float[16] = dir[0] * d;
-			ent.v_float[17] = dir[1] * d;
-			ent.v_float[18] = dir[2] * d;
+			d = dir[0] * ent._v_float[16] + dir[1] * ent._v_float[17] + dir[2] * ent._v_float[18];
+			ent._v_float[16] = dir[0] * d;
+			ent._v_float[17] = dir[1] * d;
+			ent._v_float[18] = dir[2] * d;
 		}
-		if(ent.v_float[16] * primal_velocity[0] + ent.v_float[17] * primal_velocity[1] + ent.v_float[18] * primal_velocity[2] <= 0.0) {
+		if(ent._v_float[16] * primal_velocity[0] + ent._v_float[17] * primal_velocity[1] + ent._v_float[18] * primal_velocity[2] <= 0.0) {
 			quake_ED.SetVector(ent,16,quake__$Vec_Vec_$Impl_$.origin);
 			return blocked;
 		}
@@ -9874,14 +9874,14 @@ quake_SV.FlyMove = function(ent,time) {
 quake_SV.AddGravity = function(ent) {
 	var val = quake__$PR_EntVarOfs_$Impl_$.gravity;
 	var ent_gravity;
-	if(val != null) ent_gravity = ent.v_float[val] != 0.0?ent.v_float[val]:1.0; else ent_gravity = 1.0;
-	ent.v_float[18] -= ent_gravity * quake_SV.gravity.value * quake_Host.frametime;
+	if(val != null) ent_gravity = ent._v_float[val] != 0.0?ent._v_float[val]:1.0; else ent_gravity = 1.0;
+	ent._v_float[18] -= ent_gravity * quake_SV.gravity.value * quake_Host.frametime;
 };
 quake_SV.PushEntity = function(ent,push) {
-	var end = [ent.v_float[10] + push[0],ent.v_float[11] + push[1],ent.v_float[12] + push[2]];
+	var end = [ent._v_float[10] + push[0],ent._v_float[11] + push[1],ent._v_float[12] + push[2]];
 	var nomonsters;
-	var solid = ent.v_float[9];
-	if(ent.v_float[8] == 9) nomonsters = 2; else if(solid == 1 || solid == 0) nomonsters = 1; else nomonsters = 0;
+	var solid = ent._v_float[9];
+	if(ent._v_float[8] == 9) nomonsters = 2; else if(solid == 1 || solid == 0) nomonsters = 1; else nomonsters = 0;
 	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),end,nomonsters,ent);
 	quake_ED.SetVector(ent,10,trace.endpos);
 	quake_SV.LinkEdict(ent,true);
@@ -9889,22 +9889,22 @@ quake_SV.PushEntity = function(ent,push) {
 	return trace;
 };
 quake_SV.PushMove = function(pusher,movetime) {
-	if(pusher.v_float[16] == 0.0 && pusher.v_float[17] == 0.0 && pusher.v_float[18] == 0.0) {
-		pusher.v_float[7] += movetime;
+	if(pusher._v_float[16] == 0.0 && pusher._v_float[17] == 0.0 && pusher._v_float[18] == 0.0) {
+		pusher._v_float[7] += movetime;
 		return;
 	}
-	var move = [pusher.v_float[16] * movetime,pusher.v_float[17] * movetime,pusher.v_float[18] * movetime];
-	var mins_0 = pusher.v_float[1] + move[0];
-	var mins_1 = pusher.v_float[2] + move[1];
-	var mins_2 = pusher.v_float[3] + move[2];
-	var maxs_0 = pusher.v_float[4] + move[0];
-	var maxs_1 = pusher.v_float[5] + move[1];
-	var maxs_2 = pusher.v_float[6] + move[2];
+	var move = [pusher._v_float[16] * movetime,pusher._v_float[17] * movetime,pusher._v_float[18] * movetime];
+	var mins_0 = pusher._v_float[1] + move[0];
+	var mins_1 = pusher._v_float[2] + move[1];
+	var mins_2 = pusher._v_float[3] + move[2];
+	var maxs_0 = pusher._v_float[4] + move[0];
+	var maxs_1 = pusher._v_float[5] + move[1];
+	var maxs_2 = pusher._v_float[6] + move[2];
 	var pushorig = quake_ED.Vector(pusher,10);
-	pusher.v_float[10] += move[0];
-	pusher.v_float[11] += move[1];
-	pusher.v_float[12] += move[2];
-	pusher.v_float[7] += movetime;
+	pusher._v_float[10] += move[0];
+	pusher._v_float[11] += move[1];
+	pusher._v_float[12] += move[2];
+	pusher._v_float[7] += movetime;
 	quake_SV.LinkEdict(pusher,false);
 	var moved = [];
 	var _g1 = 1;
@@ -9913,50 +9913,50 @@ quake_SV.PushMove = function(pusher,movetime) {
 		var e = _g1++;
 		var check = quake_SV.server.edicts[e];
 		if(check.free) continue;
-		var movetype = check.v_float[8];
+		var movetype = check._v_float[8];
 		if(movetype == 7 || movetype == 0 || movetype == 8) continue;
-		if(((check.v_float[76] | 0) & 512) == 0 || check.v_int[47] != pusher.num) {
-			if(check.v_float[1] >= maxs_0 || check.v_float[2] >= maxs_1 || check.v_float[3] >= maxs_2 || check.v_float[4] <= mins_0 || check.v_float[5] <= mins_1 || check.v_float[6] <= mins_2) continue;
+		if(((check._v_float[76] | 0) & 512) == 0 || check._v_int[47] != pusher.num) {
+			if(check._v_float[1] >= maxs_0 || check._v_float[2] >= maxs_1 || check._v_float[3] >= maxs_2 || check._v_float[4] <= mins_0 || check._v_float[5] <= mins_1 || check._v_float[6] <= mins_2) continue;
 			if(!quake_SV.TestEntityPosition(check)) continue;
 		}
 		if(movetype != 3) {
-			var v = (check.v_float[76] | 0) & ~512;
-			check.v_float[76] = v;
+			var v = (check._v_float[76] | 0) & ~512;
+			check._v_float[76] = v;
 		}
 		var entorig = quake_ED.Vector(check,10);
 		moved[moved.length] = [entorig[0],entorig[1],entorig[2],check];
-		pusher.v_float[9] = 0;
+		pusher._v_float[9] = 0;
 		quake_SV.PushEntity(check,move);
-		pusher.v_float[9] = 4;
+		pusher._v_float[9] = 4;
 		if(quake_SV.TestEntityPosition(check)) {
-			if(check.v_float[33] == check.v_float[36]) continue;
-			if(check.v_float[9] == 0 || check.v_float[9] == 1) {
-				check.v_float[33] = check.v_float[36] = 0.0;
-				check.v_float[34] = check.v_float[37] = 0.0;
-				check.v_float[38] = check.v_float[35];
+			if(check._v_float[33] == check._v_float[36]) continue;
+			if(check._v_float[9] == 0 || check._v_float[9] == 1) {
+				check._v_float[33] = check._v_float[36] = 0.0;
+				check._v_float[34] = check._v_float[37] = 0.0;
+				check._v_float[38] = check._v_float[35];
 				continue;
 			}
-			check.v_float[10] = entorig[0];
-			check.v_float[11] = entorig[1];
-			check.v_float[12] = entorig[2];
+			check._v_float[10] = entorig[0];
+			check._v_float[11] = entorig[1];
+			check._v_float[12] = entorig[2];
 			quake_SV.LinkEdict(check,true);
-			pusher.v_float[10] = pushorig[0];
-			pusher.v_float[11] = pushorig[1];
-			pusher.v_float[12] = pushorig[2];
+			pusher._v_float[10] = pushorig[0];
+			pusher._v_float[11] = pushorig[1];
+			pusher._v_float[12] = pushorig[2];
 			quake_SV.LinkEdict(pusher,false);
-			pusher.v_float[7] -= movetime;
-			if(pusher.v_int[45] != 0) {
+			pusher._v_float[7] -= movetime;
+			if(pusher._v_int[45] != 0) {
 				quake_PR.globals_int[28] = pusher.num;
 				quake_PR.globals_int[29] = check.num;
-				quake_PR.ExecuteProgram(pusher.v_int[45]);
+				quake_PR.ExecuteProgram(pusher._v_int[45]);
 			}
 			var _g2 = 0;
 			while(_g2 < moved.length) {
 				var moved_edict = moved[_g2];
 				++_g2;
-				moved_edict[3].v_float[10] = moved_edict[0];
-				moved_edict[3].v_float[11] = moved_edict[1];
-				moved_edict[3].v_float[12] = moved_edict[2];
+				moved_edict[3]._v_float[10] = moved_edict[0];
+				moved_edict[3]._v_float[11] = moved_edict[1];
+				moved_edict[3]._v_float[12] = moved_edict[2];
 				quake_SV.LinkEdict(moved_edict[3],false);
 			}
 			return;
@@ -9964,32 +9964,32 @@ quake_SV.PushMove = function(pusher,movetime) {
 	}
 };
 quake_SV.Physics_Pusher = function(ent) {
-	var oldltime = ent.v_float[7];
-	var thinktime = ent.v_float[46];
+	var oldltime = ent._v_float[7];
+	var thinktime = ent._v_float[46];
 	var movetime;
 	if(thinktime < oldltime + quake_Host.frametime) {
 		movetime = thinktime - oldltime;
 		if(movetime < 0.0) movetime = 0.0;
 	} else movetime = quake_Host.frametime;
 	if(movetime != 0.0) quake_SV.PushMove(ent,movetime);
-	if(thinktime <= oldltime || thinktime > ent.v_float[7]) return;
-	ent.v_float[46] = 0.0;
+	if(thinktime <= oldltime || thinktime > ent._v_float[7]) return;
+	ent._v_float[46] = 0.0;
 	quake_PR.globals_float[31] = quake_SV.server.time;
 	quake_PR.globals_int[28] = ent.num;
 	quake_PR.globals_int[29] = 0;
-	quake_PR.ExecuteProgram(ent.v_int[44]);
+	quake_PR.ExecuteProgram(ent._v_int[44]);
 };
 quake_SV.CheckStuck = function(ent) {
 	if(!quake_SV.TestEntityPosition(ent)) {
-		ent.v_float[13] = ent.v_float[10];
-		ent.v_float[14] = ent.v_float[11];
-		ent.v_float[15] = ent.v_float[12];
+		ent._v_float[13] = ent._v_float[10];
+		ent._v_float[14] = ent._v_float[11];
+		ent._v_float[15] = ent._v_float[12];
 		return;
 	}
 	var org = quake_ED.Vector(ent,10);
-	ent.v_float[10] = ent.v_float[13];
-	ent.v_float[11] = ent.v_float[14];
-	ent.v_float[12] = ent.v_float[15];
+	ent._v_float[10] = ent._v_float[13];
+	ent._v_float[11] = ent._v_float[14];
+	ent._v_float[12] = ent._v_float[15];
 	if(!quake_SV.TestEntityPosition(ent)) {
 		quake_Console.DPrint("Unstuck.\n");
 		quake_SV.LinkEdict(ent,true);
@@ -10004,9 +10004,9 @@ quake_SV.CheckStuck = function(ent) {
 			var _g2 = -1;
 			while(_g2 < 2) {
 				var j = _g2++;
-				ent.v_float[10] = org[0] + i;
-				ent.v_float[11] = org[1] + j;
-				ent.v_float[12] = org[2] + z;
+				ent._v_float[10] = org[0] + i;
+				ent._v_float[11] = org[1] + j;
+				ent._v_float[12] = org[2] + z;
 				if(!quake_SV.TestEntityPosition(ent)) {
 					quake_Console.DPrint("Unstuck.\n");
 					quake_SV.LinkEdict(ent,true);
@@ -10019,22 +10019,22 @@ quake_SV.CheckStuck = function(ent) {
 	quake_Console.DPrint("player is stuck.\n");
 };
 quake_SV.CheckWater = function(ent) {
-	var point = [ent.v_float[10],ent.v_float[11],ent.v_float[12] + ent.v_float[35] + 1.0];
-	ent.v_float[83] = 0.0;
-	ent.v_float[84] = -1;
+	var point = [ent._v_float[10],ent._v_float[11],ent._v_float[12] + ent._v_float[35] + 1.0];
+	ent._v_float[83] = 0.0;
+	ent._v_float[84] = -1;
 	var cont = quake_SV.PointContents(point);
 	if(cont > -3) return false;
-	ent.v_float[84] = cont;
-	ent.v_float[83] = 1.0;
-	point[2] = ent.v_float[12] + (ent.v_float[35] + ent.v_float[38]) * 0.5;
+	ent._v_float[84] = cont;
+	ent._v_float[83] = 1.0;
+	point[2] = ent._v_float[12] + (ent._v_float[35] + ent._v_float[38]) * 0.5;
 	cont = quake_SV.PointContents(point);
 	if(cont <= -3) {
-		ent.v_float[83] = 2.0;
-		point[2] = ent.v_float[12] + ent.v_float[64];
+		ent._v_float[83] = 2.0;
+		point[2] = ent._v_float[12] + ent._v_float[64];
 		cont = quake_SV.PointContents(point);
-		if(cont <= -3) ent.v_float[83] = 3.0;
+		if(cont <= -3) ent._v_float[83] = 3.0;
 	}
-	return ent.v_float[83] > 1.0;
+	return ent._v_float[83] > 1.0;
 };
 quake_SV.WallFriction = function(ent,trace) {
 	var forward = [];
@@ -10043,9 +10043,9 @@ quake_SV.WallFriction = function(ent,trace) {
 	var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
 	if(d >= 0.0) return;
 	d += 1.0;
-	var i = normal[0] * ent.v_float[16] + normal[1] * ent.v_float[17] + normal[2] * ent.v_float[18];
-	ent.v_float[16] = (ent.v_float[16] - normal[0] * i) * d;
-	ent.v_float[17] = (ent.v_float[17] - normal[1] * i) * d;
+	var i = normal[0] * ent._v_float[16] + normal[1] * ent._v_float[17] + normal[2] * ent._v_float[18];
+	ent._v_float[16] = (ent._v_float[16] - normal[0] * i) * d;
+	ent._v_float[17] = (ent._v_float[17] - normal[1] * i) * d;
 };
 quake_SV.TryUnstick = function(ent,oldvel) {
 	var oldorg = quake_ED.Vector(ent,10);
@@ -10084,46 +10084,46 @@ quake_SV.TryUnstick = function(ent,oldvel) {
 			break;
 		}
 		quake_SV.PushEntity(ent,dir);
-		ent.v_float[16] = oldvel[0];
-		ent.v_float[17] = oldvel[1];
-		ent.v_float[18] = 0.0;
+		ent._v_float[16] = oldvel[0];
+		ent._v_float[17] = oldvel[1];
+		ent._v_float[18] = 0.0;
 		var clip = quake_SV.FlyMove(ent,0.1);
-		if(Math.abs(oldorg[1] - ent.v_float[11]) > 4.0 || Math.abs(oldorg[0] - ent.v_float[10]) > 4.0) return clip;
+		if(Math.abs(oldorg[1] - ent._v_float[11]) > 4.0 || Math.abs(oldorg[0] - ent._v_float[10]) > 4.0) return clip;
 		quake_ED.SetVector(ent,10,oldorg);
 	}
 	quake_ED.SetVector(ent,16,quake__$Vec_Vec_$Impl_$.origin);
 	return 7;
 };
 quake_SV.WalkMove = function(ent) {
-	var oldonground = (ent.v_float[76] | 0) & 512;
-	var v = (ent.v_float[76] | 0) ^ oldonground;
-	ent.v_float[76] = v;
+	var oldonground = (ent._v_float[76] | 0) & 512;
+	var v = (ent._v_float[76] | 0) ^ oldonground;
+	ent._v_float[76] = v;
 	var oldorg = quake_ED.Vector(ent,10);
 	var oldvel = quake_ED.Vector(ent,16);
 	var clip = quake_SV.FlyMove(ent,quake_Host.frametime);
 	if((clip & 2) == 0) return;
-	if(oldonground == 0 && ent.v_float[83] == 0.0) return;
-	if(ent.v_float[8] != 3) return;
+	if(oldonground == 0 && ent._v_float[83] == 0.0) return;
+	if(ent._v_float[8] != 3) return;
 	if(quake_SV.nostep.value != 0) return;
-	if(((quake_SV.player.v_float[76] | 0) & 2048) != 0) return;
+	if(((quake_SV.player._v_float[76] | 0) & 2048) != 0) return;
 	var nosteporg = quake_ED.Vector(ent,10);
 	var nostepvel = quake_ED.Vector(ent,16);
 	quake_ED.SetVector(ent,10,oldorg);
 	quake_SV.PushEntity(ent,[0.0,0.0,18.0]);
-	ent.v_float[16] = oldvel[0];
-	ent.v_float[17] = oldvel[1];
-	ent.v_float[18] = 0.0;
+	ent._v_float[16] = oldvel[0];
+	ent._v_float[17] = oldvel[1];
+	ent._v_float[18] = 0.0;
 	clip = quake_SV.FlyMove(ent,quake_Host.frametime);
 	if(clip != 0) {
-		if(Math.abs(oldorg[1] - ent.v_float[11]) < 0.03125 && Math.abs(oldorg[0] - ent.v_float[10]) < 0.03125) clip = quake_SV.TryUnstick(ent,oldvel);
+		if(Math.abs(oldorg[1] - ent._v_float[11]) < 0.03125 && Math.abs(oldorg[0] - ent._v_float[10]) < 0.03125) clip = quake_SV.TryUnstick(ent,oldvel);
 		if((clip & 2) != 0) quake_SV.WallFriction(ent,quake_SV.steptrace);
 	}
 	var downtrace = quake_SV.PushEntity(ent,[0.0,0.0,oldvel[2] * quake_Host.frametime - 18.0]);
 	if(downtrace.plane.normal[2] > 0.7) {
-		if(ent.v_float[9] == 4) {
-			var v1 = ent.v_float[76] | 0 | 512;
-			ent.v_float[76] = v1;
-			ent.v_int[47] = downtrace.ent.num;
+		if(ent._v_float[9] == 4) {
+			var v1 = ent._v_float[76] | 0 | 512;
+			ent._v_float[76] = v1;
+			ent._v_int[47] = downtrace.ent.num;
 		}
 		return;
 	}
@@ -10136,14 +10136,14 @@ quake_SV.Physics_Client = function(ent) {
 	quake_PR.globals_int[28] = ent.num;
 	quake_PR.ExecuteProgram(quake_PR.globals_int[84]);
 	quake_SV.CheckVelocity(ent);
-	var movetype = ent.v_float[8] | 0;
+	var movetype = ent._v_float[8] | 0;
 	if(movetype == 6 || movetype == 10) quake_SV.Physics_Toss(ent); else {
 		if(!quake_SV.RunThink(ent)) return;
 		switch(movetype) {
 		case 0:
 			break;
 		case 3:
-			if(!quake_SV.CheckWater(ent) && ((ent.v_float[76] | 0) & 2048) == 0) quake_SV.AddGravity(ent);
+			if(!quake_SV.CheckWater(ent) && ((ent._v_float[76] | 0) & 2048) == 0) quake_SV.AddGravity(ent);
 			quake_SV.CheckStuck(ent);
 			quake_SV.WalkMove(ent);
 			break;
@@ -10151,9 +10151,9 @@ quake_SV.Physics_Client = function(ent) {
 			quake_SV.FlyMove(ent,quake_Host.frametime);
 			break;
 		case 8:
-			ent.v_float[10] += quake_Host.frametime * ent.v_float[16];
-			ent.v_float[11] += quake_Host.frametime * ent.v_float[17];
-			ent.v_float[12] += quake_Host.frametime * ent.v_float[18];
+			ent._v_float[10] += quake_Host.frametime * ent._v_float[16];
+			ent._v_float[11] += quake_Host.frametime * ent._v_float[17];
+			ent._v_float[12] += quake_Host.frametime * ent._v_float[18];
 			break;
 		default:
 			quake_Sys.Error("SV.Physics_Client: bad movetype " + movetype);
@@ -10166,54 +10166,54 @@ quake_SV.Physics_Client = function(ent) {
 };
 quake_SV.CheckWaterTransition = function(ent) {
 	var cont = quake_SV.PointContents(quake_ED.Vector(ent,10));
-	if(ent.v_float[84] == 0.0) {
-		ent.v_float[84] = cont;
-		ent.v_float[83] = 1.0;
+	if(ent._v_float[84] == 0.0) {
+		ent._v_float[84] = cont;
+		ent._v_float[83] = 1.0;
 		return;
 	}
 	if(cont <= -3) {
-		if(ent.v_float[84] == -1) quake_SV.StartSound(ent,0,"misc/h2ohit1.wav",255,1.0);
-		ent.v_float[84] = cont;
-		ent.v_float[83] = 1.0;
+		if(ent._v_float[84] == -1) quake_SV.StartSound(ent,0,"misc/h2ohit1.wav",255,1.0);
+		ent._v_float[84] = cont;
+		ent._v_float[83] = 1.0;
 		return;
 	}
-	if(ent.v_float[84] != -1) quake_SV.StartSound(ent,0,"misc/h2ohit1.wav",255,1.0);
-	ent.v_float[84] = -1;
-	ent.v_float[83] = cont;
+	if(ent._v_float[84] != -1) quake_SV.StartSound(ent,0,"misc/h2ohit1.wav",255,1.0);
+	ent._v_float[84] = -1;
+	ent._v_float[83] = cont;
 };
 quake_SV.Physics_Toss = function(ent) {
 	if(!quake_SV.RunThink(ent)) return;
-	if(((ent.v_float[76] | 0) & 512) != 0) return;
+	if(((ent._v_float[76] | 0) & 512) != 0) return;
 	quake_SV.CheckVelocity(ent);
-	var movetype = ent.v_float[8];
+	var movetype = ent._v_float[8];
 	if(movetype != 5 && movetype != 9) quake_SV.AddGravity(ent);
-	ent.v_float[19] += quake_Host.frametime * ent.v_float[22];
-	ent.v_float[20] += quake_Host.frametime * ent.v_float[23];
-	ent.v_float[21] += quake_Host.frametime * ent.v_float[24];
-	var trace = quake_SV.PushEntity(ent,[ent.v_float[16] * quake_Host.frametime,ent.v_float[17] * quake_Host.frametime,ent.v_float[18] * quake_Host.frametime]);
+	ent._v_float[19] += quake_Host.frametime * ent._v_float[22];
+	ent._v_float[20] += quake_Host.frametime * ent._v_float[23];
+	ent._v_float[21] += quake_Host.frametime * ent._v_float[24];
+	var trace = quake_SV.PushEntity(ent,[ent._v_float[16] * quake_Host.frametime,ent._v_float[17] * quake_Host.frametime,ent._v_float[18] * quake_Host.frametime]);
 	if(trace.fraction == 1.0 || ent.free) return;
 	var velocity = [];
 	quake_SV.ClipVelocity(quake_ED.Vector(ent,16),trace.plane.normal,velocity,movetype == 10?1.5:1.0);
 	quake_ED.SetVector(ent,16,velocity);
 	if(trace.plane.normal[2] > 0.7) {
-		if(ent.v_float[18] < 60.0 || movetype != 10) {
-			var v = ent.v_float[76] | 0 | 512;
-			ent.v_float[76] = v;
-			ent.v_int[47] = trace.ent.num;
-			ent.v_float[16] = ent.v_float[17] = ent.v_float[18] = 0.0;
-			ent.v_float[22] = ent.v_float[23] = ent.v_float[24] = 0.0;
+		if(ent._v_float[18] < 60.0 || movetype != 10) {
+			var v = ent._v_float[76] | 0 | 512;
+			ent._v_float[76] = v;
+			ent._v_int[47] = trace.ent.num;
+			ent._v_float[16] = ent._v_float[17] = ent._v_float[18] = 0.0;
+			ent._v_float[22] = ent._v_float[23] = ent._v_float[24] = 0.0;
 		}
 	}
 	quake_SV.CheckWaterTransition(ent);
 };
 quake_SV.Physics_Step = function(ent) {
-	if(((ent.v_float[76] | 0) & 512 + 1 + 2) == 0) {
-		var hitsound = ent.v_float[18] < quake_SV.gravity.value * -0.1;
+	if(((ent._v_float[76] | 0) & 512 + 1 + 2) == 0) {
+		var hitsound = ent._v_float[18] < quake_SV.gravity.value * -0.1;
 		quake_SV.AddGravity(ent);
 		quake_SV.CheckVelocity(ent);
 		quake_SV.FlyMove(ent,quake_Host.frametime);
 		quake_SV.LinkEdict(ent,true);
-		if(((ent.v_float[76] | 0) & 512) != 0 && hitsound) quake_SV.StartSound(ent,0,"demon/dland2.wav",255,1.0);
+		if(((ent._v_float[76] | 0) & 512) != 0 && hitsound) quake_SV.StartSound(ent,0,"demon/dland2.wav",255,1.0);
 	}
 	quake_SV.RunThink(ent);
 	quake_SV.CheckWaterTransition(ent);
@@ -10234,7 +10234,7 @@ quake_SV.Physics = function() {
 			quake_SV.Physics_Client(ent);
 			continue;
 		}
-		var _g2 = ent.v_float[8];
+		var _g2 = ent._v_float[8];
 		switch(_g2) {
 		case 7:
 			quake_SV.Physics_Pusher(ent);
@@ -10252,7 +10252,7 @@ quake_SV.Physics = function() {
 			quake_SV.Physics_Toss(ent);
 			break;
 		default:
-			quake_Sys.Error("SV.Physics: bad movetype " + (ent.v_float[8] | 0));
+			quake_Sys.Error("SV.Physics: bad movetype " + (ent._v_float[8] | 0));
 		}
 	}
 	if(quake_PR.globals_float[33] != 0.0) --quake_PR.globals_float[33];
@@ -10260,18 +10260,18 @@ quake_SV.Physics = function() {
 };
 quake_SV.SetIdealPitch = function() {
 	var ent = quake_SV.player;
-	if(((ent.v_float[76] | 0) & 512) == 0) return;
-	var angleval = ent.v_float[20] * (Math.PI / 180.0);
+	if(((ent._v_float[76] | 0) & 512) == 0) return;
+	var angleval = ent._v_float[20] * (Math.PI / 180.0);
 	var sinval = Math.sin(angleval);
 	var cosval = Math.cos(angleval);
-	var top = [0.0,0.0,ent.v_float[12] + ent.v_float[64]];
+	var top = [0.0,0.0,ent._v_float[12] + ent._v_float[64]];
 	var bottom = [0.0,0.0,top[2] - 160.0];
 	var z = [];
 	var _g = 0;
 	while(_g < 6) {
 		var i = _g++;
-		top[0] = bottom[0] = ent.v_float[10] + cosval * (i + 3) * 12.0;
-		top[1] = bottom[1] = ent.v_float[11] + sinval * (i + 3) * 12.0;
+		top[0] = bottom[0] = ent._v_float[10] + cosval * (i + 3) * 12.0;
+		top[1] = bottom[1] = ent._v_float[11] + sinval * (i + 3) * 12.0;
 		var tr = quake_SV.Move(top,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,bottom,1,ent);
 		if(tr.allsolid || tr.fraction == 1.0) return;
 		z[i] = top[2] - tr.fraction * 160.0;
@@ -10288,39 +10288,39 @@ quake_SV.SetIdealPitch = function() {
 		dir = step;
 	}
 	if(dir == 0.0) {
-		ent.v_float[73] = 0.0;
+		ent._v_float[73] = 0.0;
 		return;
 	}
-	if(steps >= 2) ent.v_float[73] = -dir * quake_SV.idealpitchscale.value;
+	if(steps >= 2) ent._v_float[73] = -dir * quake_SV.idealpitchscale.value;
 };
 quake_SV.UserFriction = function() {
 	var ent = quake_SV.player;
-	var vel0 = ent.v_float[16];
-	var vel1 = ent.v_float[17];
+	var vel0 = ent._v_float[16];
+	var vel1 = ent._v_float[17];
 	var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
 	if(speed == 0.0) return;
-	var start = [ent.v_float[10] + vel0 / speed * 16.0,ent.v_float[11] + vel1 / speed * 16.0,ent.v_float[12] + ent.v_float[35]];
+	var start = [ent._v_float[10] + vel0 / speed * 16.0,ent._v_float[11] + vel1 / speed * 16.0,ent._v_float[12] + ent._v_float[35]];
 	var friction = quake_SV.friction.value;
 	if(quake_SV.Move(start,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,[start[0],start[1],start[2] - 34.0],1,ent).fraction == 1.0) friction *= quake_SV.edgefriction.value;
 	var newspeed = speed - quake_Host.frametime * (speed < quake_SV.stopspeed.value?quake_SV.stopspeed.value:speed) * friction;
 	if(newspeed < 0.0) newspeed = 0.0;
 	newspeed /= speed;
-	ent.v_float[16] *= newspeed;
-	ent.v_float[17] *= newspeed;
-	ent.v_float[18] *= newspeed;
+	ent._v_float[16] *= newspeed;
+	ent._v_float[17] *= newspeed;
+	ent._v_float[18] *= newspeed;
 };
 quake_SV.Accelerate = function(wishvel,air) {
 	var ent = quake_SV.player;
 	var wishdir = [wishvel[0],wishvel[1],wishvel[2]];
 	var wishspeed = quake__$Vec_Vec_$Impl_$.Normalize(wishdir);
 	if(air && wishspeed > 30.0) wishspeed = 30.0;
-	var addspeed = wishspeed - (ent.v_float[16] * wishdir[0] + ent.v_float[17] * wishdir[1] + ent.v_float[18] * wishdir[2]);
+	var addspeed = wishspeed - (ent._v_float[16] * wishdir[0] + ent._v_float[17] * wishdir[1] + ent._v_float[18] * wishdir[2]);
 	if(addspeed <= 0.0) return;
 	var accelspeed = quake_SV.accelerate.value * quake_Host.frametime * wishspeed;
 	if(accelspeed > addspeed) accelspeed = addspeed;
-	ent.v_float[16] += accelspeed * wishdir[0];
-	ent.v_float[17] += accelspeed * wishdir[1];
-	ent.v_float[18] += accelspeed * wishdir[2];
+	ent._v_float[16] += accelspeed * wishdir[0];
+	ent._v_float[17] += accelspeed * wishdir[1];
+	ent._v_float[18] += accelspeed * wishdir[2];
 };
 quake_SV.WaterMove = function() {
 	var ent = quake_SV.player;
@@ -10342,34 +10342,34 @@ quake_SV.WaterMove = function() {
 		wishspeed = quake_SV.maxspeed.value;
 	}
 	wishspeed *= 0.7;
-	var speed = Math.sqrt(ent.v_float[16] * ent.v_float[16] + ent.v_float[17] * ent.v_float[17] + ent.v_float[18] * ent.v_float[18]);
+	var speed = Math.sqrt(ent._v_float[16] * ent._v_float[16] + ent._v_float[17] * ent._v_float[17] + ent._v_float[18] * ent._v_float[18]);
 	var newspeed;
 	if(speed != 0.0) {
 		newspeed = speed - quake_Host.frametime * speed * quake_SV.friction.value;
 		if(newspeed < 0.0) newspeed = 0.0;
 		scale = newspeed / speed;
-		ent.v_float[16] *= scale;
-		ent.v_float[17] *= scale;
-		ent.v_float[18] *= scale;
+		ent._v_float[16] *= scale;
+		ent._v_float[17] *= scale;
+		ent._v_float[18] *= scale;
 	} else newspeed = 0.0;
 	if(wishspeed == 0.0) return;
 	var addspeed = wishspeed - newspeed;
 	if(addspeed <= 0.0) return;
 	var accelspeed = quake_SV.accelerate.value * wishspeed * quake_Host.frametime;
 	if(accelspeed > addspeed) accelspeed = addspeed;
-	ent.v_float[16] += accelspeed * (wishvel_0 / wishspeed);
-	ent.v_float[17] += accelspeed * (wishvel_1 / wishspeed);
-	ent.v_float[18] += accelspeed * (wishvel_2 / wishspeed);
+	ent._v_float[16] += accelspeed * (wishvel_0 / wishspeed);
+	ent._v_float[17] += accelspeed * (wishvel_1 / wishspeed);
+	ent._v_float[18] += accelspeed * (wishvel_2 / wishspeed);
 };
 quake_SV.WaterJump = function() {
 	var ent = quake_SV.player;
-	if(quake_SV.server.time > ent.v_float[80] || ent.v_float[83] == 0.0) {
-		var v = (ent.v_float[76] | 0) & ~2048;
-		ent.v_float[76] = v;
-		ent.v_float[80] = 0.0;
+	if(quake_SV.server.time > ent._v_float[80] || ent._v_float[83] == 0.0) {
+		var v = (ent._v_float[76] | 0) & ~2048;
+		ent._v_float[76] = v;
+		ent._v_float[80] = 0.0;
 	}
-	ent.v_float[16] = ent.v_float[96];
-	ent.v_float[17] = ent.v_float[97];
+	ent._v_float[16] = ent._v_float[96];
+	ent._v_float[17] = ent._v_float[97];
 };
 quake_SV.AirMove = function() {
 	var ent = quake_SV.player;
@@ -10379,50 +10379,50 @@ quake_SV.AirMove = function() {
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_ED.Vector(ent,19),forward,right);
 	var fmove = cmd.forwardmove;
 	var smove = cmd.sidemove;
-	if(quake_SV.server.time < ent.v_float[80] && fmove < 0.0) fmove = 0.0;
-	var wishvel = [forward[0] * fmove + right[0] * smove,forward[1] * fmove + right[1] * smove,(ent.v_float[8] | 0) != 3?cmd.upmove:0.0];
+	if(quake_SV.server.time < ent._v_float[80] && fmove < 0.0) fmove = 0.0;
+	var wishvel = [forward[0] * fmove + right[0] * smove,forward[1] * fmove + right[1] * smove,(ent._v_float[8] | 0) != 3?cmd.upmove:0.0];
 	var wishdir = [wishvel[0],wishvel[1],wishvel[2]];
 	if(quake__$Vec_Vec_$Impl_$.Normalize(wishdir) > quake_SV.maxspeed.value) {
 		wishvel[0] = wishdir[0] * quake_SV.maxspeed.value;
 		wishvel[1] = wishdir[1] * quake_SV.maxspeed.value;
 		wishvel[2] = wishdir[2] * quake_SV.maxspeed.value;
 	}
-	if(ent.v_float[8] == 8) quake_ED.SetVector(ent,16,wishvel); else if(((ent.v_float[76] | 0) & 512) != 0) {
+	if(ent._v_float[8] == 8) quake_ED.SetVector(ent,16,wishvel); else if(((ent._v_float[76] | 0) & 512) != 0) {
 		quake_SV.UserFriction();
 		quake_SV.Accelerate(wishvel,false);
 	} else quake_SV.Accelerate(wishvel,true);
 };
 quake_SV.ClientThink = function() {
 	var ent = quake_SV.player;
-	if(ent.v_float[8] == 0) return;
+	if(ent._v_float[8] == 0) return;
 	var punchangle = quake_ED.Vector(ent,25);
 	var len = quake__$Vec_Vec_$Impl_$.Normalize(punchangle) - 10.0 * quake_Host.frametime;
 	if(len < 0.0) len = 0.0;
-	ent.v_float[25] = punchangle[0] * len;
-	ent.v_float[26] = punchangle[1] * len;
-	ent.v_float[27] = punchangle[2] * len;
-	if(ent.v_float[48] <= 0.0) return;
-	ent.v_float[21] = quake_V.CalcRoll(quake_ED.Vector(ent,19),quake_ED.Vector(ent,16)) * 4.0;
-	if(quake_SV.player.v_float[69] == 0.0) {
-		ent.v_float[19] = (ent.v_float[70] + ent.v_float[25]) / -3.0;
-		ent.v_float[20] = ent.v_float[71] + ent.v_float[26];
+	ent._v_float[25] = punchangle[0] * len;
+	ent._v_float[26] = punchangle[1] * len;
+	ent._v_float[27] = punchangle[2] * len;
+	if(ent._v_float[48] <= 0.0) return;
+	ent._v_float[21] = quake_V.CalcRoll(quake_ED.Vector(ent,19),quake_ED.Vector(ent,16)) * 4.0;
+	if(quake_SV.player._v_float[69] == 0.0) {
+		ent._v_float[19] = (ent._v_float[70] + ent._v_float[25]) / -3.0;
+		ent._v_float[20] = ent._v_float[71] + ent._v_float[26];
 	}
-	if(((ent.v_float[76] | 0) & 2048) != 0) quake_SV.WaterJump(); else if(ent.v_float[83] >= 2.0 && ent.v_float[8] != 8) quake_SV.WaterMove(); else quake_SV.AirMove();
+	if(((ent._v_float[76] | 0) & 2048) != 0) quake_SV.WaterJump(); else if(ent._v_float[83] >= 2.0 && ent._v_float[8] != 8) quake_SV.WaterMove(); else quake_SV.AirMove();
 };
 quake_SV.ReadClientMove = function() {
 	var client = quake_Host.client;
 	client.ping_times[client.num_pings++ & 15] = quake_SV.server.time - quake_MSG.ReadFloat();
-	client.edict.v_float[70] = quake_MSG.ReadAngle();
-	client.edict.v_float[71] = quake_MSG.ReadAngle();
-	client.edict.v_float[72] = quake_MSG.ReadAngle();
+	client.edict._v_float[70] = quake_MSG.ReadAngle();
+	client.edict._v_float[71] = quake_MSG.ReadAngle();
+	client.edict._v_float[72] = quake_MSG.ReadAngle();
 	client.cmd.forwardmove = quake_MSG.ReadShort();
 	client.cmd.sidemove = quake_MSG.ReadShort();
 	client.cmd.upmove = quake_MSG.ReadShort();
 	var i = quake_MSG.ReadByte();
-	client.edict.v_float[65] = i & 1;
-	client.edict.v_float[67] = (i & 2) >> 1;
+	client.edict._v_float[65] = i & 1;
+	client.edict._v_float[67] = (i & 2) >> 1;
 	i = quake_MSG.ReadByte();
-	if(i != 0) client.edict.v_float[68] = i;
+	if(i != 0) client.edict._v_float[68] = i;
 };
 quake_SV.ReadClientMessage = function() {
 	var ret;
@@ -10515,28 +10515,28 @@ quake_SV.InitBoxHull = function() {
 	}
 };
 quake_SV.HullForEntity = function(ent,mins,maxs,offset) {
-	if(ent.v_float[9] != 4) {
-		quake_SV.box_planes[0].dist = ent.v_float[36] - mins[0];
-		quake_SV.box_planes[1].dist = ent.v_float[33] - maxs[0];
-		quake_SV.box_planes[2].dist = ent.v_float[37] - mins[1];
-		quake_SV.box_planes[3].dist = ent.v_float[34] - maxs[1];
-		quake_SV.box_planes[4].dist = ent.v_float[38] - mins[2];
-		quake_SV.box_planes[5].dist = ent.v_float[35] - maxs[2];
-		offset[0] = ent.v_float[10];
-		offset[1] = ent.v_float[11];
-		offset[2] = ent.v_float[12];
+	if(ent._v_float[9] != 4) {
+		quake_SV.box_planes[0].dist = ent._v_float[36] - mins[0];
+		quake_SV.box_planes[1].dist = ent._v_float[33] - maxs[0];
+		quake_SV.box_planes[2].dist = ent._v_float[37] - mins[1];
+		quake_SV.box_planes[3].dist = ent._v_float[34] - maxs[1];
+		quake_SV.box_planes[4].dist = ent._v_float[38] - mins[2];
+		quake_SV.box_planes[5].dist = ent._v_float[35] - maxs[2];
+		offset[0] = ent._v_float[10];
+		offset[1] = ent._v_float[11];
+		offset[2] = ent._v_float[12];
 		return quake_SV.box_hull;
 	}
-	if(ent.v_float[8] != 7) quake_Sys.Error("SOLID_BSP without MOVETYPE_PUSH");
-	var model = quake_SV.server.models[ent.v_float[0] | 0];
+	if(ent._v_float[8] != 7) quake_Sys.Error("SOLID_BSP without MOVETYPE_PUSH");
+	var model = quake_SV.server.models[ent._v_float[0] | 0];
 	if(model == null) quake_Sys.Error("MOVETYPE_PUSH with a non bsp model");
 	if(model.type != 0) quake_Sys.Error("MOVETYPE_PUSH with a non bsp model");
 	var size = maxs[0] - mins[0];
 	var hull;
 	if(size < 3.0) hull = model.hulls[0]; else if(size <= 32.0) hull = model.hulls[1]; else hull = model.hulls[2];
-	offset[0] = hull.clip_mins[0] - mins[0] + ent.v_float[10];
-	offset[1] = hull.clip_mins[1] - mins[1] + ent.v_float[11];
-	offset[2] = hull.clip_mins[2] - mins[2] + ent.v_float[12];
+	offset[0] = hull.clip_mins[0] - mins[0] + ent._v_float[10];
+	offset[1] = hull.clip_mins[1] - mins[1] + ent._v_float[11];
+	offset[2] = hull.clip_mins[2] - mins[2] + ent._v_float[12];
 	return hull;
 };
 quake_SV.CreateAreaNode = function(depth,mins,maxs) {
@@ -10571,20 +10571,20 @@ quake_SV.TouchLinks = function(ent,node) {
 		var touch = l.ent;
 		l = next;
 		if(touch == ent) continue;
-		if(touch.v_int[42] == 0 || touch.v_float[9] != 1) continue;
-		if(ent.v_float[1] > touch.v_float[4] || ent.v_float[2] > touch.v_float[5] || ent.v_float[3] > touch.v_float[6] || ent.v_float[4] < touch.v_float[1] || ent.v_float[5] < touch.v_float[2] || ent.v_float[6] < touch.v_float[3]) continue;
+		if(touch._v_int[42] == 0 || touch._v_float[9] != 1) continue;
+		if(ent._v_float[1] > touch._v_float[4] || ent._v_float[2] > touch._v_float[5] || ent._v_float[3] > touch._v_float[6] || ent._v_float[4] < touch._v_float[1] || ent._v_float[5] < touch._v_float[2] || ent._v_float[6] < touch._v_float[3]) continue;
 		var old_self = quake_PR.globals_int[28];
 		var old_other = quake_PR.globals_int[29];
 		quake_PR.globals_int[28] = touch.num;
 		quake_PR.globals_int[29] = ent.num;
 		quake_PR.globals_float[31] = quake_SV.server.time;
-		quake_PR.ExecuteProgram(touch.v_int[42]);
+		quake_PR.ExecuteProgram(touch._v_int[42]);
 		quake_PR.globals_int[28] = old_self;
 		quake_PR.globals_int[29] = old_other;
 	}
 	if(node.axis == -1) return;
-	if(ent.v_float[4 + node.axis] > node.dist) quake_SV.TouchLinks(ent,node.children[0]);
-	if(ent.v_float[1 + node.axis] < node.dist) quake_SV.TouchLinks(ent,node.children[1]);
+	if(ent._v_float[4 + node.axis] > node.dist) quake_SV.TouchLinks(ent,node.children[0]);
+	if(ent._v_float[1 + node.axis] < node.dist) quake_SV.TouchLinks(ent,node.children[1]);
 };
 quake_SV.FindTouchedLeafs = function(ent,node) {
 	if(node.contents == -2) return;
@@ -10593,37 +10593,37 @@ quake_SV.FindTouchedLeafs = function(ent,node) {
 		ent.leafnums[ent.leafnums.length] = node.num - 1;
 		return;
 	}
-	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide([ent.v_float[1],ent.v_float[2],ent.v_float[3]],[ent.v_float[4],ent.v_float[5],ent.v_float[6]],node.plane);
+	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide([ent._v_float[1],ent._v_float[2],ent._v_float[3]],[ent._v_float[4],ent._v_float[5],ent._v_float[6]],node.plane);
 	if((sides & 1) != 0) quake_SV.FindTouchedLeafs(ent,node.children[0]);
 	if((sides & 2) != 0) quake_SV.FindTouchedLeafs(ent,node.children[1]);
 };
 quake_SV.LinkEdict = function(ent,touch_triggers) {
 	if(ent == quake_SV.server.edicts[0] || ent.free) return;
 	quake_SV.UnlinkEdict(ent);
-	ent.v_float[1] = ent.v_float[10] + ent.v_float[33] - 1.0;
-	ent.v_float[2] = ent.v_float[11] + ent.v_float[34] - 1.0;
-	ent.v_float[3] = ent.v_float[12] + ent.v_float[35];
-	ent.v_float[4] = ent.v_float[10] + ent.v_float[36] + 1.0;
-	ent.v_float[5] = ent.v_float[11] + ent.v_float[37] + 1.0;
-	ent.v_float[6] = ent.v_float[12] + ent.v_float[38];
-	if(((ent.v_float[76] | 0) & 256) != 0) {
-		ent.v_float[1] -= 14.0;
-		ent.v_float[2] -= 14.0;
-		ent.v_float[4] += 14.0;
-		ent.v_float[5] += 14.0;
+	ent._v_float[1] = ent._v_float[10] + ent._v_float[33] - 1.0;
+	ent._v_float[2] = ent._v_float[11] + ent._v_float[34] - 1.0;
+	ent._v_float[3] = ent._v_float[12] + ent._v_float[35];
+	ent._v_float[4] = ent._v_float[10] + ent._v_float[36] + 1.0;
+	ent._v_float[5] = ent._v_float[11] + ent._v_float[37] + 1.0;
+	ent._v_float[6] = ent._v_float[12] + ent._v_float[38];
+	if(((ent._v_float[76] | 0) & 256) != 0) {
+		ent._v_float[1] -= 14.0;
+		ent._v_float[2] -= 14.0;
+		ent._v_float[4] += 14.0;
+		ent._v_float[5] += 14.0;
 	} else {
-		ent.v_float[3] -= 1.0;
-		ent.v_float[6] += 1.0;
+		ent._v_float[3] -= 1.0;
+		ent._v_float[6] += 1.0;
 	}
 	ent.leafnums = [];
-	if(ent.v_float[0] != 0.0) quake_SV.FindTouchedLeafs(ent,quake_SV.server.worldmodel.nodes[0]);
-	if(ent.v_float[9] == 0) return;
+	if(ent._v_float[0] != 0.0) quake_SV.FindTouchedLeafs(ent,quake_SV.server.worldmodel.nodes[0]);
+	if(ent._v_float[9] == 0) return;
 	var node = quake_SV.areanodes[0];
 	while(true) {
 		if(node.axis == -1) break;
-		if(ent.v_float[1 + node.axis] > node.dist) node = node.children[0]; else if(ent.v_float[4 + node.axis] < node.dist) node = node.children[1]; else break;
+		if(ent._v_float[1 + node.axis] > node.dist) node = node.children[0]; else if(ent._v_float[4 + node.axis] < node.dist) node = node.children[1]; else break;
 	}
-	var before = ent.v_float[9] == 1?node.trigger_edicts:node.solid_edicts;
+	var before = ent._v_float[9] == 1?node.trigger_edicts:node.solid_edicts;
 	ent.area.next = before;
 	ent.area.prev = before.prev;
 	ent.area.prev.next = ent.area;
@@ -10732,21 +10732,21 @@ quake_SV.ClipToLinks = function(node,clip) {
 	while(l != node.solid_edicts) {
 		var touch = l.ent;
 		l = l.next;
-		var solid = touch.v_float[9];
+		var solid = touch._v_float[9];
 		if(solid == 0 || touch == clip.passedict) continue;
 		if(solid == 1) quake_Sys.Error("Trigger in clipping list");
 		if(clip.type == 1 && solid != 4) continue;
-		if(clip.boxmins[0] > touch.v_float[4] || clip.boxmins[1] > touch.v_float[5] || clip.boxmins[2] > touch.v_float[6] || clip.boxmaxs[0] < touch.v_float[1] || clip.boxmaxs[1] < touch.v_float[2] || clip.boxmaxs[2] < touch.v_float[3]) continue;
+		if(clip.boxmins[0] > touch._v_float[4] || clip.boxmins[1] > touch._v_float[5] || clip.boxmins[2] > touch._v_float[6] || clip.boxmaxs[0] < touch._v_float[1] || clip.boxmaxs[1] < touch._v_float[2] || clip.boxmaxs[2] < touch._v_float[3]) continue;
 		if(clip.passedict != null) {
-			if(clip.passedict.v_float[39] != 0.0 && touch.v_float[39] == 0.0) continue;
+			if(clip.passedict._v_float[39] != 0.0 && touch._v_float[39] == 0.0) continue;
 		}
 		if(clip.trace.allsolid) return;
 		if(clip.passedict != null) {
-			if(quake_SV.server.edicts[touch.v_int[95]] == clip.passedict) continue;
-			if(quake_SV.server.edicts[clip.passedict.v_int[95]] == touch) continue;
+			if(quake_SV.server.edicts[touch._v_int[95]] == clip.passedict) continue;
+			if(quake_SV.server.edicts[clip.passedict._v_int[95]] == touch) continue;
 		}
 		var trace;
-		if(((touch.v_float[76] | 0) & 32) != 0) trace = quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins2,clip.maxs2,clip.end); else trace = quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins,clip.maxs,clip.end);
+		if(((touch._v_float[76] | 0) & 32) != 0) trace = quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins2,clip.maxs2,clip.end); else trace = quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins,clip.maxs,clip.end);
 		if(trace.allsolid || trace.startsolid || trace.fraction < clip.trace.fraction) {
 			trace.ent = touch;
 			clip.trace = trace;
@@ -12587,18 +12587,18 @@ quake_PF.makevectors = function() {
 };
 quake_PF.setorigin = function() {
 	var e = quake_SV.server.edicts[quake_PR.globals_int[4]];
-	e.v_float[10] = quake_PR.globals_float[7];
-	e.v_float[11] = quake_PR.globals_float[8];
-	e.v_float[12] = quake_PR.globals_float[9];
+	e._v_float[10] = quake_PR.globals_float[7];
+	e._v_float[11] = quake_PR.globals_float[8];
+	e._v_float[12] = quake_PR.globals_float[9];
 	quake_SV.LinkEdict(e,false);
 };
 quake_PF.SetMinMaxSize = function(e,min,max) {
 	if(min[0] > max[0] || min[1] > max[1] || min[2] > max[2]) quake_PR.RunError("backwards mins/maxs");
 	quake_ED.SetVector(e,33,min);
 	quake_ED.SetVector(e,36,max);
-	e.v_float[39] = max[0] - min[0];
-	e.v_float[40] = max[1] - min[1];
-	e.v_float[41] = max[2] - min[2];
+	e._v_float[39] = max[0] - min[0];
+	e._v_float[40] = max[1] - min[1];
+	e._v_float[41] = max[2] - min[2];
 	quake_SV.LinkEdict(e,false);
 };
 quake_PF.setsize = function() {
@@ -12613,8 +12613,8 @@ quake_PF.setmodel = function() {
 		i++;
 	}
 	if(i == quake_SV.server.model_precache.length) quake_PR.RunError("no precache: " + m + "\n");
-	e.v_int[29] = quake_PR.globals_int[7];
-	e.v_float[0] = i;
+	e._v_int[29] = quake_PR.globals_int[7];
+	e._v_float[0] = i;
 	var mod = quake_SV.server.models[i];
 	if(mod != null) quake_PF.SetMinMaxSize(e,mod.mins,mod.maxs); else quake_PF.SetMinMaxSize(e,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin);
 };
@@ -12750,13 +12750,13 @@ quake_PF.newcheckclient = function(check) {
 			i++;
 			continue;
 		}
-		if(ent.v_float[48] <= 0.0 || ((ent.v_float[76] | 0) & 128) != 0) {
+		if(ent._v_float[48] <= 0.0 || ((ent._v_float[76] | 0) & 128) != 0) {
 			i++;
 			continue;
 		}
 		break;
 	}
-	quake_PF.checkpvs = quake_Mod.LeafPVS(quake_Mod.PointInLeaf([ent.v_float[10] + ent.v_float[62],ent.v_float[11] + ent.v_float[63],ent.v_float[12] + ent.v_float[64]],quake_SV.server.worldmodel),quake_SV.server.worldmodel);
+	quake_PF.checkpvs = quake_Mod.LeafPVS(quake_Mod.PointInLeaf([ent._v_float[10] + ent._v_float[62],ent._v_float[11] + ent._v_float[63],ent._v_float[12] + ent._v_float[64]],quake_SV.server.worldmodel),quake_SV.server.worldmodel);
 	return i;
 };
 quake_PF.checkclient = function() {
@@ -12765,12 +12765,12 @@ quake_PF.checkclient = function() {
 		quake_SV.server.lastchecktime = quake_SV.server.time;
 	}
 	var ent = quake_SV.server.edicts[quake_SV.server.lastcheck];
-	if(ent.free || ent.v_float[48] <= 0.0) {
+	if(ent.free || ent._v_float[48] <= 0.0) {
 		quake_PR.globals_int[1] = 0;
 		return;
 	}
 	var self = quake_SV.server.edicts[quake_PR.globals_int[28]];
-	var l = quake_Mod.PointInLeaf([self.v_float[10] + self.v_float[62],self.v_float[11] + self.v_float[63],self.v_float[12] + self.v_float[64]],quake_SV.server.worldmodel).num - 1;
+	var l = quake_Mod.PointInLeaf([self._v_float[10] + self._v_float[62],self._v_float[11] + self._v_float[63],self._v_float[12] + self._v_float[64]],quake_SV.server.worldmodel).num - 1;
 	if(l < 0 || (quake_PF.checkpvs[l >> 3] & 1 << (l & 7)) == 0) {
 		quake_PR.globals_int[1] = 0;
 		return;
@@ -12813,12 +12813,12 @@ quake_PF.findradius = function() {
 		var i = _g1++;
 		var ent = quake_SV.server.edicts[i];
 		if(ent.free) continue;
-		if(ent.v_float[9] == 0) continue;
-		eorg[0] = org_0 - (ent.v_float[10] + (ent.v_float[33] + ent.v_float[36]) * 0.5);
-		eorg[1] = org_1 - (ent.v_float[11] + (ent.v_float[34] + ent.v_float[37]) * 0.5);
-		eorg[2] = org_2 - (ent.v_float[12] + (ent.v_float[35] + ent.v_float[38]) * 0.5);
+		if(ent._v_float[9] == 0) continue;
+		eorg[0] = org_0 - (ent._v_float[10] + (ent._v_float[33] + ent._v_float[36]) * 0.5);
+		eorg[1] = org_1 - (ent._v_float[11] + (ent._v_float[34] + ent._v_float[37]) * 0.5);
+		eorg[2] = org_2 - (ent._v_float[12] + (ent._v_float[35] + ent._v_float[38]) * 0.5);
 		if(Math.sqrt(eorg[0] * eorg[0] + eorg[1] * eorg[1] + eorg[2] * eorg[2]) > rad) continue;
-		ent.v_int[60] = chain;
+		ent._v_int[60] = chain;
 		chain = i;
 	}
 	quake_PR.globals_int[1] = chain;
@@ -12854,7 +12854,7 @@ quake_PF.Find = function() {
 		var e1 = _g1++;
 		var ed = quake_SV.server.edicts[e1];
 		if(ed.free) continue;
-		if(quake_PR.GetString(ed.v_int[f]) == s) {
+		if(quake_PR.GetString(ed._v_int[f]) == s) {
 			quake_PR.globals_int[1] = ed.num;
 			return;
 		}
@@ -12863,14 +12863,14 @@ quake_PF.Find = function() {
 };
 quake_PF.MoveToGoal = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[28]];
-	if(((ent.v_float[76] | 0) & 512 + 1 + 2) == 0) {
+	if(((ent._v_float[76] | 0) & 512 + 1 + 2) == 0) {
 		quake_PR.globals_float[1] = 0.0;
 		return;
 	}
-	var goal = quake_SV.server.edicts[ent.v_int[88]];
+	var goal = quake_SV.server.edicts[ent._v_int[88]];
 	var dist = quake_PR.globals_float[4];
-	if(ent.v_int[75] != 0 && quake_SV.CloseEnough(ent,goal,dist)) return;
-	if(Math.random() >= 0.75 || !quake_SV.StepDirection(ent,ent.v_float[85],dist)) quake_SV.NewChaseDir(ent,goal,dist);
+	if(ent._v_int[75] != 0 && quake_SV.CloseEnough(ent,goal,dist)) return;
+	if(Math.random() >= 0.75 || !quake_SV.StepDirection(ent,ent._v_float[85],dist)) quake_SV.NewChaseDir(ent,goal,dist);
 };
 quake_PF.precache_file = function() {
 	quake_PR.globals_int[1] = quake_PR.globals_int[4];
@@ -12913,7 +12913,7 @@ quake_PF.eprint = function() {
 };
 quake_PF.walkmove = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[28]];
-	if(((ent.v_float[76] | 0) & 512 + 1 + 2) == 0) {
+	if(((ent._v_float[76] | 0) & 512 + 1 + 2) == 0) {
 		quake_PR.globals_float[1] = 0.0;
 		return;
 	}
@@ -12929,16 +12929,16 @@ quake_PF.walkmove = function() {
 };
 quake_PF.droptofloor = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[28]];
-	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),[ent.v_float[10],ent.v_float[11],ent.v_float[12] - 256.0],0,ent);
+	var trace = quake_SV.Move(quake_ED.Vector(ent,10),quake_ED.Vector(ent,33),quake_ED.Vector(ent,36),[ent._v_float[10],ent._v_float[11],ent._v_float[12] - 256.0],0,ent);
 	if(trace.fraction == 1.0 || trace.allsolid) {
 		quake_PR.globals_float[1] = 0.0;
 		return;
 	}
 	quake_ED.SetVector(ent,10,trace.endpos);
 	quake_SV.LinkEdict(ent,false);
-	var v = ent.v_float[76] | 0 | 512;
-	ent.v_float[76] = v;
-	ent.v_int[47] = trace.ent.num;
+	var v = ent._v_float[76] | 0 | 512;
+	ent._v_float[76] = v;
+	ent._v_int[47] = trace.ent.num;
 	quake_PR.globals_float[1] = 1.0;
 };
 quake_PF.lightstyle = function() {
@@ -12990,16 +12990,16 @@ quake_PF.nextent = function() {
 };
 quake_PF.aim = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[4]];
-	var start = [ent.v_float[10],ent.v_float[11],ent.v_float[12] + 20.0];
+	var start = [ent._v_float[10],ent._v_float[11],ent._v_float[12] + 20.0];
 	var dir = [quake_PR.globals_float[59],quake_PR.globals_float[60],quake_PR.globals_float[61]];
 	var end = [start[0] + 2048.0 * dir[0],start[1] + 2048.0 * dir[1],start[2] + 2048.0 * dir[2]];
 	var tr = quake_SV.Move(start,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,end,0,ent);
 	if(tr.ent != null) {
 		var tmp;
-		if(tr.ent.v_float[59] == 2) {
+		if(tr.ent._v_float[59] == 2) {
 			var tmp1;
-			if(!(quake_Host.teamplay.value == 0)) tmp1 = ent.v_float[78] <= 0; else tmp1 = true;
-			if(!tmp1) tmp = ent.v_float[78] != tr.ent.v_float[78]; else tmp = true;
+			if(!(quake_Host.teamplay.value == 0)) tmp1 = ent._v_float[78] <= 0; else tmp1 = true;
+			if(!tmp1) tmp = ent._v_float[78] != tr.ent._v_float[78]; else tmp = true;
 		} else tmp = false;
 		if(tmp) {
 			quake_PR.globals_float[1] = dir[0];
@@ -13019,12 +13019,12 @@ quake_PF.aim = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var check = quake_SV.server.edicts[i];
-		if(check.v_float[59] != 2) continue;
+		if(check._v_float[59] != 2) continue;
 		if(check == ent) continue;
-		if(quake_Host.teamplay.value != 0 && ent.v_float[78] > 0 && ent.v_float[78] == check.v_float[78]) continue;
-		end1[0] = check.v_float[10] + 0.5 * (check.v_float[33] + check.v_float[36]);
-		end1[1] = check.v_float[11] + 0.5 * (check.v_float[34] + check.v_float[37]);
-		end1[2] = check.v_float[12] + 0.5 * (check.v_float[35] + check.v_float[38]);
+		if(quake_Host.teamplay.value != 0 && ent._v_float[78] > 0 && ent._v_float[78] == check._v_float[78]) continue;
+		end1[0] = check._v_float[10] + 0.5 * (check._v_float[33] + check._v_float[36]);
+		end1[1] = check._v_float[11] + 0.5 * (check._v_float[34] + check._v_float[37]);
+		end1[2] = check._v_float[12] + 0.5 * (check._v_float[35] + check._v_float[38]);
 		dir[0] = end1[0] - start[0];
 		dir[1] = end1[1] - start[1];
 		dir[2] = end1[2] - start[2];
@@ -13038,9 +13038,9 @@ quake_PF.aim = function() {
 		}
 	}
 	if(bestent != null) {
-		dir[0] = bestent.v_float[10] - ent.v_float[10];
-		dir[1] = bestent.v_float[11] - ent.v_float[11];
-		dir[2] = bestent.v_float[12] - ent.v_float[12];
+		dir[0] = bestent._v_float[10] - ent._v_float[10];
+		dir[1] = bestent._v_float[11] - ent._v_float[11];
+		dir[2] = bestent._v_float[12] - ent._v_float[12];
 		var dist1 = dir[0] * bestdir_0 + dir[1] * bestdir_1 + dir[2] * bestdir_2;
 		end1[0] = bestdir_0 * dist1;
 		end1[1] = bestdir_1 * dist1;
@@ -13057,18 +13057,18 @@ quake_PF.aim = function() {
 };
 quake_PF.changeyaw = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[28]];
-	var current = quake__$Vec_Vec_$Impl_$.Anglemod(ent.v_float[20]);
-	var ideal = ent.v_float[85];
+	var current = quake__$Vec_Vec_$Impl_$.Anglemod(ent._v_float[20]);
+	var ideal = ent._v_float[85];
 	if(current == ideal) return;
 	var move = ideal - current;
 	if(ideal > current) {
 		if(move >= 180.0) move -= 360.0;
 	} else if(move <= -180.0) move += 360.0;
-	var speed = ent.v_float[86];
+	var speed = ent._v_float[86];
 	if(move > 0.0) {
 		if(move > speed) move = speed;
 	} else if(move < -speed) move = -speed;
-	ent.v_float[20] = quake__$Vec_Vec_$Impl_$.Anglemod(current + move);
+	ent._v_float[20] = quake__$Vec_Vec_$Impl_$.Anglemod(current + move);
 };
 quake_PF.WriteDest = function() {
 	var _g = quake_PR.globals_float[4] | 0;
@@ -13116,16 +13116,16 @@ quake_PF.makestatic = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals_int[4]];
 	var message = quake_SV.server.signon;
 	message.WriteByte(20);
-	message.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent.v_int[29])));
-	message.WriteByte(ent.v_float[30] | 0);
-	message.WriteByte(ent.v_float[77] | 0);
-	message.WriteByte(ent.v_float[31] | 0);
-	message.WriteCoord(ent.v_float[10]);
-	message.WriteAngle(ent.v_float[19]);
-	message.WriteCoord(ent.v_float[11]);
-	message.WriteAngle(ent.v_float[20]);
-	message.WriteCoord(ent.v_float[12]);
-	message.WriteAngle(ent.v_float[21]);
+	message.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent._v_int[29])));
+	message.WriteByte(ent._v_float[30] | 0);
+	message.WriteByte(ent._v_float[77] | 0);
+	message.WriteByte(ent._v_float[31] | 0);
+	message.WriteCoord(ent._v_float[10]);
+	message.WriteAngle(ent._v_float[19]);
+	message.WriteCoord(ent._v_float[11]);
+	message.WriteAngle(ent._v_float[20]);
+	message.WriteCoord(ent._v_float[12]);
+	message.WriteAngle(ent._v_float[21]);
 	quake_ED.Free(ent);
 };
 quake_PF.setspawnparms = function() {

@@ -17,20 +17,20 @@ class Edict {
 	var num:Int;
 	var free:Bool;
 	var freetime:Float;
-	var v:ArrayBuffer;
-	var v_int:Int32Array;
-	var v_float:Float32Array;
+	var _v:ArrayBuffer;
+	var _v_int:Int32Array;
+	var _v_float:Float32Array;
 	var leafnums:Array<Int>;
 	var baseline:REntityState;
 	var area:MLink;
 
 	var flags(get,set):EntFlag;
-	inline function get_flags():EntFlag return cast Std.int(v_float[EntVarOfs.flags]);
-	inline function set_flags(v:EntFlag):EntFlag return {v_float[EntVarOfs.flags] = v; v;}
+	inline function get_flags():EntFlag return cast Std.int(_v_float[EntVarOfs.flags]);
+	inline function set_flags(v:EntFlag):EntFlag return {_v_float[EntVarOfs.flags] = v; v;}
 
 	var items(get,set):Int;
-	inline function get_items():Int return Std.int(v_float[EntVarOfs.items]);
-	inline function set_items(v:Int):Int return {v_float[EntVarOfs.items] = v; v;}
+	inline function get_items():Int return Std.int(_v_float[EntVarOfs.items]);
+	inline function set_items(v:Int):Int return {_v_float[EntVarOfs.items] = v; v;}
 
 	function new() {}
 }
@@ -42,7 +42,7 @@ class Edict {
 class ED {
 	static function ClearEdict(e:Edict):Void {
 		for (i in 0...PR.entityfields)
-			e.v_int[i] = 0;
+			e._v_int[i] = 0;
 		e.free = false;
 	}
 
@@ -66,16 +66,16 @@ class ED {
 	static function Free(ed:Edict):Void {
 		SV.UnlinkEdict(ed);
 		ed.free = true;
-		ed.v_int[EntVarOfs.model] = 0;
-		ed.v_float[EntVarOfs.takedamage] = 0.0;
-		ed.v_float[EntVarOfs.modelindex] = 0.0;
-		ed.v_float[EntVarOfs.colormap] = 0.0;
-		ed.v_float[EntVarOfs.skin] = 0.0;
-		ed.v_float[EntVarOfs.frame] = 0.0;
+		ed._v_int[EntVarOfs.model] = 0;
+		ed._v_float[EntVarOfs.takedamage] = 0.0;
+		ed._v_float[EntVarOfs.modelindex] = 0.0;
+		ed._v_float[EntVarOfs.colormap] = 0.0;
+		ed._v_float[EntVarOfs.skin] = 0.0;
+		ed._v_float[EntVarOfs.frame] = 0.0;
 		SetVector(ed, EntVarOfs.origin, Vec.origin);
 		SetVector(ed, EntVarOfs.angles, Vec.origin);
-		ed.v_float[EntVarOfs.nextthink] = -1.0;
-		ed.v_float[EntVarOfs.solid] = 0.0;
+		ed._v_float[EntVarOfs.nextthink] = -1.0;
+		ed._v_float[EntVarOfs.solid] = 0.0;
 		ed.freetime = SV.server.time;
 	}
 
@@ -131,9 +131,9 @@ class ED {
 			if (name.charCodeAt(name.length - 2) == 95)
 				continue;
 			var v = d.ofs;
-			if (ed.v_int[v] == 0) {
+			if (ed._v_int[v] == 0) {
 				if ((d.type & 0x7fff) == 3) {
-					if ((ed.v_int[v + 1] == 0) && (ed.v_int[v + 2] == 0))
+					if ((ed._v_int[v + 1] == 0) && (ed._v_int[v + 2] == 0))
 						continue;
 				} else {
 					continue;
@@ -141,7 +141,7 @@ class ED {
 			}
 			while (name.length <= 14)
 				name += ' ';
-			Console.Print(name + PR.ValueString(d.type, ed.v, v) + '\n');
+			Console.Print(name + PR.ValueString(d.type, ed._v, v) + '\n');
 		}
 	}
 
@@ -170,11 +170,11 @@ class ED {
 			if (ent.free)
 				continue;
 			++active;
-			if (ent.v_float[EntVarOfs.solid] != 0.0)
+			if (ent._v_float[EntVarOfs.solid] != 0.0)
 				++solid;
-			if (ent.v_int[EntVarOfs.model] != 0)
+			if (ent._v_int[EntVarOfs.model] != 0)
 				++models;
-			if (ent.v_float[EntVarOfs.movetype] == MoveType.step)
+			if (ent._v_float[EntVarOfs.movetype] == MoveType.step)
 				++step;
 		}
 		var num_edicts = SV.server.num_edicts;
@@ -266,7 +266,7 @@ class ED {
 	static function ParseEdict(data:String, ent:Edict):String {
 		if (ent != SV.server.edicts[0]) {
 			for (i in 0...PR.entityfields)
-				ent.v_int[i] = 0;
+				ent._v_int[i] = 0;
 		}
 		var init = false;
 		while (true) {
@@ -306,7 +306,7 @@ class ED {
 			}
 			if (anglehack)
 				COM.token = '0 ' + COM.token + ' 0';
-			if (!ParseEpair(ent.v, key, COM.token))
+			if (!ParseEpair(ent._v, key, COM.token))
 				Host.Error('ED.ParseEdict: parse error');
 		}
 		if (!init)
@@ -331,7 +331,7 @@ class ED {
 				ent = Alloc();
 			data = ParseEdict(data, ent);
 
-			var spawnflags = Std.int(ent.v_float[EntVarOfs.spawnflags]);
+			var spawnflags = Std.int(ent._v_float[EntVarOfs.spawnflags]);
 			if (Host.deathmatch.value != 0) {
 				if ((spawnflags & 2048) != 0) {
 					Free(ent);
@@ -347,14 +347,14 @@ class ED {
 				continue;
 			}
 
-			if (ent.v_int[EntVarOfs.classname] == 0) {
+			if (ent._v_int[EntVarOfs.classname] == 0) {
 				Console.Print('No classname for:\n');
 				Print(ent);
 				Free(ent);
 				continue;
 			}
 
-			var func = FindFunction(PR.GetString(ent.v_int[EntVarOfs.classname]));
+			var func = FindFunction(PR.GetString(ent._v_int[EntVarOfs.classname]));
 			if (func == null) {
 				Console.Print('No spawn function for:\n');
 				Print(ent);
@@ -370,12 +370,12 @@ class ED {
 	}
 
 	static function Vector(e:Edict, o:Int):Vec {
-		return [e.v_float[o], e.v_float[o + 1], e.v_float[o + 2]];
+		return [e._v_float[o], e._v_float[o + 1], e._v_float[o + 2]];
 	}
 
 	static function SetVector(e:Edict, o:Int, v:Vec):Void {
-		e.v_float[o] = v[0];
-		e.v_float[o + 1] = v[1];
-		e.v_float[o + 2] = v[2];
+		e._v_float[o] = v[0];
+		e._v_float[o + 1] = v[1];
+		e._v_float[o + 2] = v[2];
 	}
 }

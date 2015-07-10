@@ -805,26 +805,26 @@ class PR {
 					PR.globals_int[st.b + 2] = PR.globals_int[st.a + 2];
 				case PROp.storep_f | PROp.storep_ent | PROp.storep_fld | PROp.storep_s | PROp.storep_fnc:
 					var ptr = PR.globals_int[st.b];
-					SV.server.edicts[Math.floor(ptr / PR.edict_size)].v_int[((ptr % PR.edict_size) - 96) >> 2] = PR.globals_int[st.a];
+					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = PR.globals_int[st.a];
 				case PROp.storep_v:
 					var ed:Edict = SV.server.edicts[Math.floor(PR.globals_int[st.b] / PR.edict_size)];
 					var ptr = ((PR.globals_int[st.b] % PR.edict_size) - 96) >> 2;
-					ed.v_int[ptr] = PR.globals_int[st.a];
-					ed.v_int[ptr + 1] = PR.globals_int[st.a + 1];
-					ed.v_int[ptr + 2] = PR.globals_int[st.a + 2];
+					ed._v_int[ptr] = PR.globals_int[st.a];
+					ed._v_int[ptr + 1] = PR.globals_int[st.a + 1];
+					ed._v_int[ptr + 2] = PR.globals_int[st.a + 2];
 				case PROp.address:
 					var ed = PR.globals_int[st.a];
 					if (ed == 0 && !SV.server.loading)
 						PR.RunError('assignment to world entity');
 					PR.globals_int[st.c] = ed * PR.edict_size + 96 + (PR.globals_int[st.b] << 2);
 				case PROp.load_f | PROp.load_fld | PROp.load_ent | PROp.load_s | PROp.load_fnc:
-					PR.globals_int[st.c] = SV.server.edicts[PR.globals_int[st.a]].v_int[PR.globals_int[st.b]];
+					PR.globals_int[st.c] = SV.server.edicts[PR.globals_int[st.a]]._v_int[PR.globals_int[st.b]];
 				case PROp.load_v:
 					var ed:Edict = SV.server.edicts[PR.globals_int[st.a]];
 					var ptr = PR.globals_int[st.b];
-					PR.globals_int[st.c] = ed.v_int[ptr];
-					PR.globals_int[st.c + 1] = ed.v_int[ptr + 1];
-					PR.globals_int[st.c + 2] = ed.v_int[ptr + 2];
+					PR.globals_int[st.c] = ed._v_int[ptr];
+					PR.globals_int[st.c + 1] = ed._v_int[ptr + 1];
+					PR.globals_int[st.c + 2] = ed._v_int[ptr + 2];
 				case PROp.jz:
 					if (PR.globals_int[st.a] == 0)
 						s += st.b - 1;
@@ -855,9 +855,9 @@ class PR {
 						return;
 				case PROp.state:
 					var ed:Edict = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-					ed.v_float[EntVarOfs.nextthink] = PR.globals_float[GlobalVarOfs.time] + 0.1;
-					ed.v_float[EntVarOfs.frame] = PR.globals_float[st.a];
-					ed.v_int[EntVarOfs.think] = PR.globals_int[st.b];
+					ed._v_float[EntVarOfs.nextthink] = PR.globals_float[GlobalVarOfs.time] + 0.1;
+					ed._v_float[EntVarOfs.frame] = PR.globals_float[st.a];
+					ed._v_int[EntVarOfs.think] = PR.globals_int[st.b];
 				default:
 					PR.RunError('Bad opcode ' + st.op);
 			}

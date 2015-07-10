@@ -698,23 +698,8 @@ class SV {
         PR.LoadProgs();
 
         SV.server.edicts = [];
-        for (i in 0...Def.max_edicts) {
-            var ed = {
-                var e = new Edict();
-                e.num = i;
-                e.free = false;
-                e.area = new MLink();
-                e.leafnums = [];
-                e.baseline = new REntityState();
-                e.freetime = 0.0;
-                e._v = new ArrayBuffer(PR.entityfields << 2);
-                e;
-            };
-            ed.area.ent = ed;
-            ed._v_float = new Float32Array(ed._v);
-            ed._v_int = new Int32Array(ed._v);
-            SV.server.edicts[i] = ed;
-        }
+        for (i in 0...Def.max_edicts)
+            SV.server.edicts.push(new Edict(i));
 
         SV.server.datagram.cursize = 0;
         SV.server.reliable_datagram.cursize = 0;

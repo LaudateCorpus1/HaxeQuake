@@ -2991,7 +2991,17 @@ quake_ED.SetVector = function(e,o,v) {
 	e._v_float[o + 1] = v[1];
 	e._v_float[o + 2] = v[2];
 };
-var quake_Edict = function() {
+var quake_Edict = function(num) {
+	this.num = num;
+	this.free = false;
+	this.area = new quake_MLink();
+	this.area.ent = this;
+	this.leafnums = [];
+	this.baseline = new quake_REntityState();
+	this.freetime = 0.0;
+	this._v = new ArrayBuffer(quake_PR.entityfields << 2);
+	this._v_float = new Float32Array(this._v);
+	this._v_int = new Int32Array(this._v);
 };
 quake_Edict.__name__ = true;
 var quake__$EdictVarOfs_EdictVarOfs_$Impl_$ = {};
@@ -9470,21 +9480,7 @@ quake_SV.SpawnServer = function(server) {
 	var _g = quake_Def.max_edicts;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var tmp;
-		var e = new quake_Edict();
-		e.num = i;
-		e.free = false;
-		e.area = new quake_MLink();
-		e.leafnums = [];
-		e.baseline = new quake_REntityState();
-		e.freetime = 0.0;
-		e._v = new ArrayBuffer(quake_PR.entityfields << 2);
-		tmp = e;
-		var ed = tmp;
-		ed.area.ent = ed;
-		ed._v_float = new Float32Array(ed._v);
-		ed._v_int = new Int32Array(ed._v);
-		quake_SV.server.edicts[i] = ed;
+		quake_SV.server.edicts.push(new quake_Edict(i));
 	}
 	quake_SV.server.datagram.cursize = 0;
 	quake_SV.server.reliable_datagram.cursize = 0;

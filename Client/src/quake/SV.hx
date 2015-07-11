@@ -409,17 +409,17 @@ class SV {
             if ((bits & U.effects) != 0)
                 msg.WriteByte(Std.int(ent.v.effects));
             if ((bits & U.origin1) != 0)
-                msg.WriteCoord(Std.int(ent.v.origin));
+                msg.WriteCoord(ent.v.origin);
             if ((bits & U.angle1) != 0)
-                msg.WriteAngle(Std.int(ent.v.angles));
+                msg.WriteAngle(ent.v.angles);
             if ((bits & U.origin2) != 0)
-                msg.WriteCoord(Std.int(ent.v.origin1));
+                msg.WriteCoord(ent.v.origin1);
             if ((bits & U.angle2) != 0)
-                msg.WriteAngle(Std.int(ent.v.angles1));
+                msg.WriteAngle(ent.v.angles1);
             if ((bits & U.origin3) != 0)
-                msg.WriteCoord(Std.int(ent.v.origin2));
+                msg.WriteCoord(ent.v.origin2);
             if ((bits & U.angle3) != 0)
-                msg.WriteAngle(Std.int(ent.v.angles2));
+                msg.WriteAngle(ent.v.angles2);
         }
     }
 

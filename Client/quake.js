@@ -9573,12 +9573,12 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		if((bits & 2048) != 0) msg.WriteByte(ent._v_float[77] | 0);
 		if((bits & 4096) != 0) msg.WriteByte(ent._v_float[31] | 0);
 		if((bits & 8192) != 0) msg.WriteByte(ent._v_float[32] | 0);
-		if((bits & 2) != 0) msg.WriteCoord(ent._v_float[10] | 0);
-		if((bits & 256) != 0) msg.WriteAngle(ent._v_float[19] | 0);
-		if((bits & 4) != 0) msg.WriteCoord(ent._v_float[11] | 0);
-		if((bits & 16) != 0) msg.WriteAngle(ent._v_float[20] | 0);
-		if((bits & 8) != 0) msg.WriteCoord(ent._v_float[12] | 0);
-		if((bits & 512) != 0) msg.WriteAngle(ent._v_float[21] | 0);
+		if((bits & 2) != 0) msg.WriteCoord(ent._v_float[10]);
+		if((bits & 256) != 0) msg.WriteAngle(ent._v_float[19]);
+		if((bits & 4) != 0) msg.WriteCoord(ent._v_float[11]);
+		if((bits & 16) != 0) msg.WriteAngle(ent._v_float[20]);
+		if((bits & 8) != 0) msg.WriteCoord(ent._v_float[12]);
+		if((bits & 512) != 0) msg.WriteAngle(ent._v_float[21]);
 	}
 };
 quake_SV.WriteClientdataToMessage = function(ent,msg) {

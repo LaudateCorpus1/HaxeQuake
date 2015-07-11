@@ -133,28 +133,29 @@ class SV {
     static var fatbytes:Int;
 
     static function Init() {
-        SV.maxvelocity = Cvar.RegisterVariable('sv_maxvelocity', '2000');
-        SV.gravity = Cvar.RegisterVariable('sv_gravity', '800', false, true);
-        SV.friction = Cvar.RegisterVariable('sv_friction', '4', false, true);
-        SV.edgefriction = Cvar.RegisterVariable('edgefriction', '2');
-        SV.stopspeed = Cvar.RegisterVariable('sv_stopspeed', '100');
-        SV.maxspeed = Cvar.RegisterVariable('sv_maxspeed', '320', false, true);
-        SV.accelerate = Cvar.RegisterVariable('sv_accelerate', '10');
-        SV.idealpitchscale = Cvar.RegisterVariable('sv_idealpitchscale', '0.8');
-        SV.aim = Cvar.RegisterVariable('sv_aim', '0.93');
-        SV.nostep = Cvar.RegisterVariable('sv_nostep', '0');
+        maxvelocity = Cvar.RegisterVariable('sv_maxvelocity', '2000');
+        gravity = Cvar.RegisterVariable('sv_gravity', '800', false, true);
+        friction = Cvar.RegisterVariable('sv_friction', '4', false, true);
+        edgefriction = Cvar.RegisterVariable('edgefriction', '2');
+        stopspeed = Cvar.RegisterVariable('sv_stopspeed', '100');
+        maxspeed = Cvar.RegisterVariable('sv_maxspeed', '320', false, true);
+        accelerate = Cvar.RegisterVariable('sv_accelerate', '10');
+        idealpitchscale = Cvar.RegisterVariable('sv_idealpitchscale', '0.8');
+        aim = Cvar.RegisterVariable('sv_aim', '0.93');
+        nostep = Cvar.RegisterVariable('sv_nostep', '0');
 
-        SV.nop = new MSG(4, 1);
-        (new Uint8Array(SV.nop.data))[0] = SVC.nop;
-        SV.reconnect = new MSG(128);
-        SV.reconnect.WriteByte(SVC.stufftext);
-        SV.reconnect.WriteString('reconnect\n');
+        nop = new MSG(4, 1);
+        new Uint8Array(SV.nop.data)[0] = SVC.nop;
 
-        SV.InitBoxHull();
+        reconnect = new MSG(128);
+        reconnect.WriteByte(SVC.stufftext);
+        reconnect.WriteString('reconnect\n');
+
+        InitBoxHull();
     }
 
     static function StartParticle(org:Vec, dir:Vec, color:Int, count:Int):Void {
-        var datagram = SV.server.datagram;
+        var datagram = server.datagram;
         if (datagram.cursize >= 1009)
             return;
         datagram.WriteByte(SVC.particle);
@@ -174,14 +175,14 @@ class SV {
     }
 
     static function StartSound(entity:Edict, channel:Int, sample:String, volume:Int, attenuation:Float):Void {
-        if ((volume < 0) || (volume > 255))
+        if (volume < 0 || volume > 255)
             Sys.Error('SV.StartSound: volume = ' + volume);
-        if ((attenuation < 0.0) || (attenuation > 4.0))
+        if (attenuation < 0.0 || attenuation > 4.0)
             Sys.Error('SV.StartSound: attenuation = ' + attenuation);
-        if ((channel < 0) || (channel > 7))
+        if (channel < 0 || channel > 7)
             Sys.Error('SV.StartSound: channel = ' + channel);
 
-        var datagram = SV.server.datagram;
+        var datagram = server.datagram;
         if (datagram.cursize >= 1009)
             return;
 
@@ -210,12 +211,9 @@ class SV {
             datagram.WriteByte(Math.floor(attenuation * 64.0));
         datagram.WriteShort((entity.num << 3) + channel);
         datagram.WriteByte(i);
-        datagram.WriteCoord(entity.v.origin + 0.5 *
-            (entity.v.mins + entity.v.maxs));
-        datagram.WriteCoord(entity.v.origin1 + 0.5 *
-            (entity.v.mins1 + entity.v.maxs1));
-        datagram.WriteCoord(entity.v.origin2 + 0.5 *
-            (entity.v.mins2 + entity.v.maxs2));
+        datagram.WriteCoord(entity.v.origin + 0.5 * (entity.v.mins + entity.v.maxs));
+        datagram.WriteCoord(entity.v.origin1 + 0.5 * (entity.v.mins1 + entity.v.maxs1));
+        datagram.WriteCoord(entity.v.origin2 + 0.5 * (entity.v.mins2 + entity.v.maxs2));
     }
 
     static function SendServerinfo(client:HClient):Void {

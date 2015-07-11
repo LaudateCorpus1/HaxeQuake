@@ -1224,7 +1224,7 @@ quake_CL.KeepaliveMessage = function() {
 	}
 	quake_NET.message.cursize = oldsize;
 	new Uint8Array(quake_NET.message.data,0,oldsize).set(olddata.subarray(0,oldsize));
-	var time = quake_Sys.FloatTime();
+	var time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	if(time - quake_CL.lastmsg < 5.0) return;
 	quake_CL.lastmsg = time;
 	quake_Console.Print("--> client to server keepalive\n");
@@ -2015,10 +2015,10 @@ quake_COM.WriteFile = function(filename,data,len) {
 		quake_COM.localStorage.setItem("Quake." + quake_COM.searchpaths[quake_COM.searchpaths.length - 1].filename + "/" + filename,dest.join(""));
 	} catch( e ) {
 		if (e instanceof js__$Boot_HaxeError) e = e.val;
-		quake_Sys.Print("COM.WriteFile: failed on " + filename + "\n");
+		console.log("COM.WriteFile: failed on " + filename + "\n");
 		return false;
 	}
-	quake_Sys.Print("COM.WriteFile: " + filename + "\n");
+	console.log("COM.WriteFile: " + filename + "\n");
 	return true;
 };
 quake_COM.WriteTextFile = function(filename,data) {
@@ -2027,10 +2027,10 @@ quake_COM.WriteTextFile = function(filename,data) {
 		quake_COM.localStorage.setItem("Quake." + quake_COM.searchpaths[quake_COM.searchpaths.length - 1].filename + "/" + filename,data);
 	} catch( e ) {
 		if (e instanceof js__$Boot_HaxeError) e = e.val;
-		quake_Sys.Print("COM.WriteTextFile: failed on " + filename + "\n");
+		console.log("COM.WriteTextFile: failed on " + filename + "\n");
 		return false;
 	}
-	quake_Sys.Print("COM.WriteTextFile: " + filename + "\n");
+	console.log("COM.WriteTextFile: " + filename + "\n");
 	return true;
 };
 quake_COM.LoadFile = function(filename) {
@@ -2044,7 +2044,7 @@ quake_COM.LoadFile = function(filename) {
 		var netpath = search.filename + "/" + filename;
 		var data = quake_COM.localStorage.getItem("Quake." + netpath);
 		if(data != null) {
-			quake_Sys.Print("FindFile: " + netpath + "\n");
+			console.log("FindFile: " + netpath + "\n");
 			quake_Draw.EndDisc();
 			return quake_Q.strmem(data);
 		}
@@ -2064,7 +2064,7 @@ quake_COM.LoadFile = function(filename) {
 				xhr.setRequestHeader("Range","bytes=" + file.filepos + "-" + (file.filepos + file.filelen - 1));
 				xhr.send();
 				if(xhr.status >= 200 && xhr.status <= 299 && xhr.responseText.length == file.filelen) {
-					quake_Sys.Print("PackFile: " + search.filename + "/pak" + j + ".pak : " + filename + "\n");
+					console.log("PackFile: " + search.filename + "/pak" + j + ".pak : " + filename + "\n");
 					quake_Draw.EndDisc();
 					return quake_Q.strmem(xhr.responseText);
 				}
@@ -2075,12 +2075,12 @@ quake_COM.LoadFile = function(filename) {
 		xhr.open("GET",netpath,false);
 		xhr.send();
 		if(xhr.status >= 200 && xhr.status <= 299) {
-			quake_Sys.Print("FindFile: " + netpath + "\n");
+			console.log("FindFile: " + netpath + "\n");
 			quake_Draw.EndDisc();
 			return quake_Q.strmem(xhr.responseText);
 		}
 	}
-	quake_Sys.Print("FindFile: can't find " + filename + "\n");
+	console.log("FindFile: can't find " + filename + "\n");
 	quake_Draw.EndDisc();
 	return null;
 };
@@ -3551,7 +3551,8 @@ quake_Host.DropClient = function(crash) {
 			quake_PR.ExecuteProgram(quake_PR.globals_int[89]);
 			quake_PR.globals_int[28] = saveSelf;
 		}
-		quake_Sys.Print("Client " + quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " removed\n");
+		var text = "Client " + quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " removed\n";
+		console.log(text);
 	}
 	quake_NET.Close(client.netconnection);
 	client.netconnection = null;
@@ -3581,7 +3582,7 @@ quake_Host.ShutdownServer = function(crash) {
 	if(!quake_SV.server.active) return;
 	quake_SV.server.active = false;
 	if(quake_CL.cls.state == 2) quake_CL.Disconnect();
-	var start = quake_Sys.FloatTime();
+	var start = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	var count = 0;
 	while(true) {
 		var _g1 = 0;
@@ -3598,7 +3599,7 @@ quake_Host.ShutdownServer = function(crash) {
 			quake_NET.GetMessage(quake_Host.client.netconnection);
 			++count;
 		}
-		if(quake_Sys.FloatTime() - start > 3.0) break;
+		if(new Date().getTime() * 0.001 - quake_Sys.oldtime - start > 3.0) break;
 		if(!(count != 0)) break;
 	}
 	var buf = new quake_MSG(4,1);
@@ -3626,7 +3627,7 @@ quake_Host.ServerFrame = function() {
 };
 quake_Host._Frame = function() {
 	Math.random();
-	quake_Host.realtime = quake_Sys.FloatTime();
+	quake_Host.realtime = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_Host.frametime = quake_Host.realtime - quake_Host.oldrealtime;
 	quake_Host.oldrealtime = quake_Host.realtime;
 	if(quake_Host.framerate.value > 0) quake_Host.frametime = quake_Host.framerate.value; else if(quake_Host.frametime > 0.1) quake_Host.frametime = 0.1; else if(quake_Host.frametime < 0.001) quake_Host.frametime = 0.001;
@@ -3645,9 +3646,9 @@ quake_Host._Frame = function() {
 	quake_CL.SendCmd();
 	if(quake_SV.server.active) quake_Host.ServerFrame();
 	if(quake_CL.cls.state == 2) quake_CL.ReadFromServer();
-	if(quake_Host.speeds.value != 0) time1 = quake_Sys.FloatTime();
+	if(quake_Host.speeds.value != 0) time1 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_SCR.UpdateScreen();
-	if(quake_Host.speeds.value != 0) time2 = quake_Sys.FloatTime();
+	if(quake_Host.speeds.value != 0) time2 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	if(quake_CL.cls.signon == 4) {
 		quake_S.Update(quake_R.refdef.vieworg,quake_R.vpn,quake_R.vright,quake_R.vup);
 		quake_CL.DecayLights();
@@ -3655,7 +3656,7 @@ quake_Host._Frame = function() {
 	quake_CDAudio.Update();
 	if(quake_Host.speeds.value != 0) {
 		pass1 = (time1 - quake_Host.time3) * 1000.0;
-		quake_Host.time3 = quake_Sys.FloatTime();
+		quake_Host.time3 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 		pass2 = (time2 - time1) * 1000.0;
 		pass3 = (quake_Host.time3 - time2) * 1000.0;
 		tot = Math.floor(pass1 + pass2 + pass3);
@@ -3672,9 +3673,9 @@ quake_Host.Frame = function() {
 		quake_Host._Frame();
 		return;
 	}
-	var time1 = quake_Sys.FloatTime();
+	var time1 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_Host._Frame();
-	quake_Host.timetotal += quake_Sys.FloatTime() - time1;
+	quake_Host.timetotal += new Date().getTime() * 0.001 - quake_Sys.oldtime - time1;
 	if(++quake_Host.timecount <= 999) return;
 	var m = quake_Host.timetotal * 1000.0 / quake_Host.timecount | 0;
 	quake_Host.timecount = 0;
@@ -3689,7 +3690,7 @@ quake_Host.Frame = function() {
 	quake_Console.Print("serverprofile: " + (c <= 9?" ":"") + c + " clients " + (m <= 9?" ":"") + m + " msec\n");
 };
 quake_Host.Init = function() {
-	quake_Host.oldrealtime = quake_Sys.FloatTime();
+	quake_Host.oldrealtime = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_Cmd.Init();
 	quake_V.Init();
 	quake_Chase.Init();
@@ -3715,11 +3716,11 @@ quake_Host.Init = function() {
 	quake_IN.Init();
 	quake_Cmd.text = "exec quake.rc\n" + quake_Cmd.text;
 	quake_Host.initialized = true;
-	quake_Sys.Print("======Quake Initialized======\n");
+	console.log("======Quake Initialized======\n");
 };
 quake_Host.Shutdown = function() {
 	if(quake_Host.isdown) {
-		quake_Sys.Print("recursive shutdown\n");
+		console.log("recursive shutdown\n");
 		return;
 	}
 	quake_Host.isdown = true;
@@ -4145,7 +4146,8 @@ quake_Host.Say = function(teamonly) {
 		quake_Host.ClientPrint(text);
 	}
 	quake_Host.client = save;
-	quake_Sys.Print(text.substring(1));
+	var text1 = text.substring(1);
+	console.log(text1);
 };
 quake_Host.Say_Team_f = function() {
 	quake_Host.Say(true);
@@ -4274,7 +4276,10 @@ quake_Host.Spawn_f = function() {
 		quake_PR.globals_float[31] = quake_SV.server.time;
 		quake_PR.globals_int[28] = ent.num;
 		quake_PR.ExecuteProgram(quake_PR.globals_int[87]);
-		if(quake_Sys.FloatTime() - client.netconnection.connecttime <= quake_SV.server.time) quake_Sys.Print(quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " entered the game\n");
+		if(new Date().getTime() * 0.001 - quake_Sys.oldtime - client.netconnection.connecttime <= quake_SV.server.time) {
+			var text = quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " entered the game\n";
+			console.log(text);
+		}
 		quake_PR.ExecuteProgram(quake_PR.globals_int[88]);
 	}
 	var message = client.message;
@@ -7057,7 +7062,7 @@ quake_NET.NewQSocket_quake__NET_WEBS_WEBSNETSocket = function() {
 	return sock;
 };
 quake_NET.Connect = function(host) {
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	if(host == "local") {
 		quake_NET.driverlevel = 0;
 		return quake_NET_$Loop.Connect(host);
@@ -7082,7 +7087,7 @@ quake_NET.Connect = function(host) {
 	return null;
 };
 quake_NET.CheckForResend = function() {
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	var dfunc = quake_NET.drivers[quake_NET.newsocket.driver];
 	if(quake_NET.reps <= 2) {
 		if(quake_NET.time - quake_NET.start_time >= 2.5 * (quake_NET.reps + 1)) {
@@ -7110,7 +7115,7 @@ quake_NET.CheckForResend = function() {
 	}
 };
 quake_NET.CheckNewConnections = function() {
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	var _g1 = 0;
 	var _g = quake_NET.drivers.length;
 	while(_g1 < _g) {
@@ -7126,7 +7131,7 @@ quake_NET.CheckNewConnections = function() {
 quake_NET.Close = function(sock) {
 	if(sock == null) return;
 	if(sock.disconnected) return;
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_NET.drivers[sock.driver].Close(sock);
 	sock.disconnected = true;
 };
@@ -7136,7 +7141,7 @@ quake_NET.GetMessage = function(sock) {
 		quake_Console.Print("NET.GetMessage: disconnected socket\n");
 		return -1;
 	}
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	var ret = quake_NET.drivers[sock.driver].GetMessage(sock);
 	if(sock.driver != 0) {
 		if(ret == 0) {
@@ -7154,7 +7159,7 @@ quake_NET.SendMessage = function(sock,data) {
 		quake_Console.Print("NET.SendMessage: disconnected socket\n");
 		return -1;
 	}
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	return quake_NET.drivers[sock.driver].SendMessage(sock,data);
 };
 quake_NET.SendUnreliableMessage = function(sock,data) {
@@ -7163,13 +7168,13 @@ quake_NET.SendUnreliableMessage = function(sock,data) {
 		quake_Console.Print("NET.SendUnreliableMessage: disconnected socket\n");
 		return -1;
 	}
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	return quake_NET.drivers[sock.driver].SendUnreliableMessage(sock,data);
 };
 quake_NET.CanSendMessage = function(sock) {
 	if(sock == null) return false;
 	if(sock.disconnected) return false;
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	return quake_NET.drivers[sock.driver].CanSendMessage(sock);
 };
 quake_NET.SendToAll = function(data) {
@@ -7194,7 +7199,7 @@ quake_NET.SendToAll = function(data) {
 		++count;
 		state1[i] = state2[i] = false;
 	}
-	var start = quake_Sys.FloatTime();
+	var start = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	while(count != 0) {
 		count = 0;
 		var _g11 = 0;
@@ -7215,12 +7220,12 @@ quake_NET.SendToAll = function(data) {
 				++count;
 			}
 		}
-		if(quake_Sys.FloatTime() - start > 5.0) return count;
+		if(new Date().getTime() * 0.001 - quake_Sys.oldtime - start > 5.0) return count;
 	}
 	return count;
 };
 quake_NET.Init = function() {
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_NET.messagetimeout = quake_Cvar.RegisterVariable("net_messagetimeout","300");
 	quake_NET.hostname = quake_Cvar.RegisterVariable("hostname","UNNAMED");
 	quake_NET.drivers = [quake_NET_$Loop,quake_NET_$WEBS];
@@ -7233,7 +7238,7 @@ quake_NET.Init = function() {
 	}
 };
 quake_NET.Shutdown = function() {
-	quake_NET.time = quake_Sys.FloatTime();
+	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	var _g1 = 0;
 	var _g = quake_NET.activeSockets.length;
 	while(_g1 < _g) {
@@ -7981,354 +7986,6 @@ quake_VID.Init = function() {
 	window.document.getElementById("progress").style.display = "none";
 	quake_GL.Init();
 	quake_VID.SetPalette();
-};
-var quake_Sys = function() { };
-quake_Sys.__name__ = true;
-quake_Sys.clearEvents = function() {
-	window.onbeforeunload = null;
-	window.oncontextmenu = null;
-	window.onfocus = null;
-	window.onkeydown = null;
-	window.onkeyup = null;
-	window.onmousedown = null;
-	window.onmouseup = null;
-	window.onunload = null;
-	window.onwheel = null;
-};
-quake_Sys.Quit = function() {
-	if(quake_Sys.frame != null) window.clearInterval(quake_Sys.frame);
-	quake_Sys.clearEvents();
-	quake_Host.Shutdown();
-	window.document.body.style.cursor = "auto";
-	quake_VID.mainwindow.style.display = "none";
-	if(quake_COM.registered.value != 0) window.document.getElementById("end2").style.display = "inline"; else window.document.getElementById("end1").style.display = "inline";
-	throw new Error();
-};
-quake_Sys.Print = function(text) {
-	if(window.console != null) window.console.log(text);
-};
-quake_Sys.Error = function(text) {
-	if(quake_Sys.frame != null) window.clearInterval(quake_Sys.frame);
-	quake_Sys.clearEvents();
-	if(quake_Host.initialized) quake_Host.Shutdown();
-	window.document.body.style.cursor = "auto";
-	var i = quake_Console.text.length - 25;
-	if(i < 0) i = 0;
-	if(window.console != null) while(i < quake_Console.text.length) window.console.log(quake_Console.text[i++].text);
-	window.alert(text);
-	throw new Error(text);
-};
-quake_Sys.FloatTime = function() {
-	return new Date().getTime() * 0.001 - quake_Sys.oldtime;
-};
-quake_Sys.main = function() {
-	window.onload = function() {
-		var tmp;
-		var s = window.document.location.search;
-		tmp = decodeURIComponent(s.split("+").join(" "));
-		var cmdline = tmp;
-		var location = window.document.location;
-		var argv = [location.href.substring(0,location.href.length - location.search.length)];
-		if(HxOverrides.cca(cmdline,0) == 63) {
-			var text = "";
-			var quotes = false;
-			var _g1 = 1;
-			var _g = cmdline.length;
-			while(_g1 < _g) {
-				var i = _g1++;
-				var c = HxOverrides.cca(cmdline,i);
-				if(c < 32 || c > 127) continue;
-				if(c == 34) {
-					quotes = !quotes;
-					continue;
-				}
-				if(quotes == false && c == 32) {
-					if(text.length == 0) continue;
-					argv[argv.length] = text;
-					text = "";
-					continue;
-				}
-				text += cmdline.charAt(i);
-			}
-			if(text.length != 0) argv[argv.length] = text;
-		}
-		quake_COM.InitArgv(argv);
-		var elem = window.document.documentElement;
-		quake_VID.width = elem.clientWidth <= 320?320:elem.clientWidth;
-		quake_VID.height = elem.clientHeight <= 200?200:elem.clientHeight;
-		quake_Sys.scantokey = new haxe_ds_IntMap();
-		var v = 127;
-		quake_Sys.scantokey.h[8] = v;
-		v;
-		var v1 = 9;
-		quake_Sys.scantokey.h[9] = v1;
-		v1;
-		var v2 = 13;
-		quake_Sys.scantokey.h[13] = v2;
-		v2;
-		var v3 = 134;
-		quake_Sys.scantokey.h[16] = v3;
-		v3;
-		var v4 = 133;
-		quake_Sys.scantokey.h[17] = v4;
-		v4;
-		var v5 = 132;
-		quake_Sys.scantokey.h[18] = v5;
-		v5;
-		var v6 = 255;
-		quake_Sys.scantokey.h[19] = v6;
-		v6;
-		var v7 = 27;
-		quake_Sys.scantokey.h[27] = v7;
-		v7;
-		var v8 = 32;
-		quake_Sys.scantokey.h[32] = v8;
-		v8;
-		var tmp10;
-		var v10 = 150;
-		quake_Sys.scantokey.h[105] = v10;
-		tmp10 = v10;
-		var v9 = tmp10;
-		quake_Sys.scantokey.h[33] = v9;
-		v9;
-		var tmp11;
-		var v12 = 149;
-		quake_Sys.scantokey.h[99] = v12;
-		tmp11 = v12;
-		var v11 = tmp11;
-		quake_Sys.scantokey.h[34] = v11;
-		v11;
-		var tmp12;
-		var v14 = 152;
-		quake_Sys.scantokey.h[97] = v14;
-		tmp12 = v14;
-		var v13 = tmp12;
-		quake_Sys.scantokey.h[35] = v13;
-		v13;
-		var tmp13;
-		var v16 = 151;
-		quake_Sys.scantokey.h[103] = v16;
-		tmp13 = v16;
-		var v15 = tmp13;
-		quake_Sys.scantokey.h[36] = v15;
-		v15;
-		var tmp14;
-		var v18 = 130;
-		quake_Sys.scantokey.h[100] = v18;
-		tmp14 = v18;
-		var v17 = tmp14;
-		quake_Sys.scantokey.h[37] = v17;
-		v17;
-		var tmp15;
-		var v20 = 128;
-		quake_Sys.scantokey.h[104] = v20;
-		tmp15 = v20;
-		var v19 = tmp15;
-		quake_Sys.scantokey.h[38] = v19;
-		v19;
-		var tmp16;
-		var v22 = 131;
-		quake_Sys.scantokey.h[102] = v22;
-		tmp16 = v22;
-		var v21 = tmp16;
-		quake_Sys.scantokey.h[39] = v21;
-		v21;
-		var tmp17;
-		var v24 = 129;
-		quake_Sys.scantokey.h[98] = v24;
-		tmp17 = v24;
-		var v23 = tmp17;
-		quake_Sys.scantokey.h[40] = v23;
-		v23;
-		var tmp18;
-		var v26 = 147;
-		quake_Sys.scantokey.h[96] = v26;
-		tmp18 = v26;
-		var v25 = tmp18;
-		quake_Sys.scantokey.h[45] = v25;
-		v25;
-		var tmp19;
-		var v28 = 148;
-		quake_Sys.scantokey.h[110] = v28;
-		tmp19 = v28;
-		var v27 = tmp19;
-		quake_Sys.scantokey.h[46] = v27;
-		v27;
-		var _g2 = 48;
-		while(_g2 < 58) {
-			var i1 = _g2++;
-			var tmp20;
-			quake_Sys.scantokey.h[i1] = i1;
-			tmp20 = i1;
-			tmp20;
-		}
-		var tmp21;
-		quake_Sys.scantokey.h[186] = 59;
-		tmp21 = 59;
-		var v29 = tmp21;
-		quake_Sys.scantokey.h[59] = v29;
-		v29;
-		var tmp22;
-		quake_Sys.scantokey.h[187] = 61;
-		tmp22 = 61;
-		var v30 = tmp22;
-		quake_Sys.scantokey.h[61] = v30;
-		v30;
-		var _g3 = 65;
-		while(_g3 < 91) {
-			var i2 = _g3++;
-			var v31 = i2 + 32;
-			quake_Sys.scantokey.h[i2] = v31;
-			v31;
-		}
-		var tmp1;
-		quake_Sys.scantokey.h[106] = 42;
-		tmp1 = 42;
-		tmp1;
-		var tmp2;
-		quake_Sys.scantokey.h[107] = 43;
-		tmp2 = 43;
-		tmp2;
-		var tmp23;
-		var tmp24;
-		quake_Sys.scantokey.h[189] = 45;
-		tmp24 = 45;
-		var v33 = tmp24;
-		quake_Sys.scantokey.h[173] = v33;
-		tmp23 = v33;
-		var v32 = tmp23;
-		quake_Sys.scantokey.h[109] = v32;
-		v32;
-		var tmp25;
-		quake_Sys.scantokey.h[191] = 47;
-		tmp25 = 47;
-		var v34 = tmp25;
-		quake_Sys.scantokey.h[111] = v34;
-		v34;
-		var _g4 = 112;
-		while(_g4 < 124) {
-			var i3 = _g4++;
-			var v35 = i3 - 112 + 135;
-			quake_Sys.scantokey.h[i3] = v35;
-			v35;
-		}
-		var tmp3;
-		quake_Sys.scantokey.h[188] = 44;
-		tmp3 = 44;
-		tmp3;
-		var tmp4;
-		quake_Sys.scantokey.h[190] = 46;
-		tmp4 = 46;
-		tmp4;
-		var tmp5;
-		quake_Sys.scantokey.h[192] = 96;
-		tmp5 = 96;
-		tmp5;
-		var tmp6;
-		quake_Sys.scantokey.h[219] = 91;
-		tmp6 = 91;
-		tmp6;
-		var tmp7;
-		quake_Sys.scantokey.h[220] = 92;
-		tmp7 = 92;
-		tmp7;
-		var tmp8;
-		quake_Sys.scantokey.h[221] = 93;
-		tmp8 = 93;
-		tmp8;
-		var tmp9;
-		quake_Sys.scantokey.h[222] = 39;
-		tmp9 = 39;
-		tmp9;
-		quake_Sys.oldtime = new Date().getTime() * 0.001;
-		quake_Sys.Print("Host.Init\n");
-		quake_Host.Init();
-		window.onbeforeunload = quake_Sys.onbeforeunload;
-		window.oncontextmenu = quake_Sys.oncontextmenu;
-		window.onfocus = quake_Sys.onfocus;
-		window.onkeydown = quake_Sys.onkeydown;
-		window.onkeyup = quake_Sys.onkeyup;
-		window.onmousedown = quake_Sys.onmousedown;
-		window.onmouseup = quake_Sys.onmouseup;
-		window.onunload = quake_Sys.onunload;
-		window.onwheel = quake_Sys.onwheel;
-		quake_Sys.frame = window.setInterval(quake_Host.Frame,16);
-	};
-};
-quake_Sys.onbeforeunload = function(_) {
-	return "Are you sure you want to quit?";
-};
-quake_Sys.oncontextmenu = function(e) {
-	e.preventDefault();
-};
-quake_Sys.onfocus = function() {
-	var _g = 0;
-	while(_g < 256) {
-		var i = _g++;
-		quake_Key.Event(i);
-		quake_Key.down[i] = false;
-	}
-};
-quake_Sys.onkeydown = function(e) {
-	var key = quake_Sys.scantokey.h[e.keyCode];
-	if(key == null) return;
-	quake_Key.Event(key,true);
-	e.preventDefault();
-};
-quake_Sys.onkeyup = function(e) {
-	var key = quake_Sys.scantokey.h[e.keyCode];
-	if(key == null) return;
-	quake_Key.Event(key);
-	e.preventDefault();
-};
-quake_Sys.onmousedown = function(e) {
-	var tmp;
-	var _g = e.which;
-	switch(_g) {
-	case 1:
-		tmp = 200;
-		break;
-	case 2:
-		tmp = 202;
-		break;
-	case 3:
-		tmp = 201;
-		break;
-	default:
-		return;
-	}
-	var key = tmp;
-	quake_Key.Event(key,true);
-	e.preventDefault();
-};
-quake_Sys.onmouseup = function(e) {
-	var tmp;
-	var _g = e.which;
-	switch(_g) {
-	case 1:
-		tmp = 200;
-		break;
-	case 2:
-		tmp = 202;
-		break;
-	case 3:
-		tmp = 201;
-		break;
-	default:
-		return;
-	}
-	var key = tmp;
-	quake_Key.Event(key);
-	e.preventDefault();
-};
-quake_Sys.onunload = function() {
-	quake_Host.Shutdown();
-};
-quake_Sys.onwheel = function(e) {
-	var key = e.deltaY < 0?239:240;
-	quake_Key.Event(key,true);
-	quake_Key.Event(key);
-	e.preventDefault();
 };
 var quake_Q = function() { };
 quake_Q.__name__ = true;
@@ -9083,6 +8740,348 @@ var quake__$PR_PRStackItem = function(s,f) {
 	this.func = f;
 };
 quake__$PR_PRStackItem.__name__ = true;
+var quake_Sys = function() { };
+quake_Sys.__name__ = true;
+quake_Sys.clearEvents = function() {
+	window.onbeforeunload = null;
+	window.oncontextmenu = null;
+	window.onfocus = null;
+	window.onkeydown = null;
+	window.onkeyup = null;
+	window.onmousedown = null;
+	window.onmouseup = null;
+	window.onunload = null;
+	window.onwheel = null;
+};
+quake_Sys.Quit = function() {
+	if(quake_Sys.frame != null) window.clearInterval(quake_Sys.frame);
+	quake_Sys.clearEvents();
+	quake_Host.Shutdown();
+	window.document.body.style.cursor = "auto";
+	quake_VID.mainwindow.style.display = "none";
+	if(quake_COM.registered.value != 0) window.document.getElementById("end2").style.display = "inline"; else window.document.getElementById("end1").style.display = "inline";
+	throw new Error();
+};
+quake_Sys.Error = function(text) {
+	if(quake_Sys.frame != null) window.clearInterval(quake_Sys.frame);
+	quake_Sys.clearEvents();
+	if(quake_Host.initialized) quake_Host.Shutdown();
+	window.document.body.style.cursor = "auto";
+	var i = quake_Console.text.length - 25;
+	if(i < 0) i = 0;
+	if(window.console != null) while(i < quake_Console.text.length) window.console.log(quake_Console.text[i++].text);
+	window.alert(text);
+	throw new Error(text);
+};
+quake_Sys.main = function() {
+	window.onload = function() {
+		var tmp;
+		var s = window.document.location.search;
+		tmp = decodeURIComponent(s.split("+").join(" "));
+		var cmdline = tmp;
+		var location = window.document.location;
+		var argv = [location.href.substring(0,location.href.length - location.search.length)];
+		if(HxOverrides.cca(cmdline,0) == 63) {
+			var text = "";
+			var quotes = false;
+			var _g1 = 1;
+			var _g = cmdline.length;
+			while(_g1 < _g) {
+				var i = _g1++;
+				var c = HxOverrides.cca(cmdline,i);
+				if(c < 32 || c > 127) continue;
+				if(c == 34) {
+					quotes = !quotes;
+					continue;
+				}
+				if(quotes == false && c == 32) {
+					if(text.length == 0) continue;
+					argv[argv.length] = text;
+					text = "";
+					continue;
+				}
+				text += cmdline.charAt(i);
+			}
+			if(text.length != 0) argv[argv.length] = text;
+		}
+		quake_COM.InitArgv(argv);
+		var elem = window.document.documentElement;
+		quake_VID.width = elem.clientWidth <= 320?320:elem.clientWidth;
+		quake_VID.height = elem.clientHeight <= 200?200:elem.clientHeight;
+		quake_Sys.scantokey = new haxe_ds_IntMap();
+		var v = 127;
+		quake_Sys.scantokey.h[8] = v;
+		v;
+		var v1 = 9;
+		quake_Sys.scantokey.h[9] = v1;
+		v1;
+		var v2 = 13;
+		quake_Sys.scantokey.h[13] = v2;
+		v2;
+		var v3 = 134;
+		quake_Sys.scantokey.h[16] = v3;
+		v3;
+		var v4 = 133;
+		quake_Sys.scantokey.h[17] = v4;
+		v4;
+		var v5 = 132;
+		quake_Sys.scantokey.h[18] = v5;
+		v5;
+		var v6 = 255;
+		quake_Sys.scantokey.h[19] = v6;
+		v6;
+		var v7 = 27;
+		quake_Sys.scantokey.h[27] = v7;
+		v7;
+		var v8 = 32;
+		quake_Sys.scantokey.h[32] = v8;
+		v8;
+		var tmp10;
+		var v10 = 150;
+		quake_Sys.scantokey.h[105] = v10;
+		tmp10 = v10;
+		var v9 = tmp10;
+		quake_Sys.scantokey.h[33] = v9;
+		v9;
+		var tmp11;
+		var v12 = 149;
+		quake_Sys.scantokey.h[99] = v12;
+		tmp11 = v12;
+		var v11 = tmp11;
+		quake_Sys.scantokey.h[34] = v11;
+		v11;
+		var tmp12;
+		var v14 = 152;
+		quake_Sys.scantokey.h[97] = v14;
+		tmp12 = v14;
+		var v13 = tmp12;
+		quake_Sys.scantokey.h[35] = v13;
+		v13;
+		var tmp13;
+		var v16 = 151;
+		quake_Sys.scantokey.h[103] = v16;
+		tmp13 = v16;
+		var v15 = tmp13;
+		quake_Sys.scantokey.h[36] = v15;
+		v15;
+		var tmp14;
+		var v18 = 130;
+		quake_Sys.scantokey.h[100] = v18;
+		tmp14 = v18;
+		var v17 = tmp14;
+		quake_Sys.scantokey.h[37] = v17;
+		v17;
+		var tmp15;
+		var v20 = 128;
+		quake_Sys.scantokey.h[104] = v20;
+		tmp15 = v20;
+		var v19 = tmp15;
+		quake_Sys.scantokey.h[38] = v19;
+		v19;
+		var tmp16;
+		var v22 = 131;
+		quake_Sys.scantokey.h[102] = v22;
+		tmp16 = v22;
+		var v21 = tmp16;
+		quake_Sys.scantokey.h[39] = v21;
+		v21;
+		var tmp17;
+		var v24 = 129;
+		quake_Sys.scantokey.h[98] = v24;
+		tmp17 = v24;
+		var v23 = tmp17;
+		quake_Sys.scantokey.h[40] = v23;
+		v23;
+		var tmp18;
+		var v26 = 147;
+		quake_Sys.scantokey.h[96] = v26;
+		tmp18 = v26;
+		var v25 = tmp18;
+		quake_Sys.scantokey.h[45] = v25;
+		v25;
+		var tmp19;
+		var v28 = 148;
+		quake_Sys.scantokey.h[110] = v28;
+		tmp19 = v28;
+		var v27 = tmp19;
+		quake_Sys.scantokey.h[46] = v27;
+		v27;
+		var _g2 = 48;
+		while(_g2 < 58) {
+			var i1 = _g2++;
+			var tmp20;
+			quake_Sys.scantokey.h[i1] = i1;
+			tmp20 = i1;
+			tmp20;
+		}
+		var tmp21;
+		quake_Sys.scantokey.h[186] = 59;
+		tmp21 = 59;
+		var v29 = tmp21;
+		quake_Sys.scantokey.h[59] = v29;
+		v29;
+		var tmp22;
+		quake_Sys.scantokey.h[187] = 61;
+		tmp22 = 61;
+		var v30 = tmp22;
+		quake_Sys.scantokey.h[61] = v30;
+		v30;
+		var _g3 = 65;
+		while(_g3 < 91) {
+			var i2 = _g3++;
+			var v31 = i2 + 32;
+			quake_Sys.scantokey.h[i2] = v31;
+			v31;
+		}
+		var tmp1;
+		quake_Sys.scantokey.h[106] = 42;
+		tmp1 = 42;
+		tmp1;
+		var tmp2;
+		quake_Sys.scantokey.h[107] = 43;
+		tmp2 = 43;
+		tmp2;
+		var tmp23;
+		var tmp24;
+		quake_Sys.scantokey.h[189] = 45;
+		tmp24 = 45;
+		var v33 = tmp24;
+		quake_Sys.scantokey.h[173] = v33;
+		tmp23 = v33;
+		var v32 = tmp23;
+		quake_Sys.scantokey.h[109] = v32;
+		v32;
+		var tmp25;
+		quake_Sys.scantokey.h[191] = 47;
+		tmp25 = 47;
+		var v34 = tmp25;
+		quake_Sys.scantokey.h[111] = v34;
+		v34;
+		var _g4 = 112;
+		while(_g4 < 124) {
+			var i3 = _g4++;
+			var v35 = i3 - 112 + 135;
+			quake_Sys.scantokey.h[i3] = v35;
+			v35;
+		}
+		var tmp3;
+		quake_Sys.scantokey.h[188] = 44;
+		tmp3 = 44;
+		tmp3;
+		var tmp4;
+		quake_Sys.scantokey.h[190] = 46;
+		tmp4 = 46;
+		tmp4;
+		var tmp5;
+		quake_Sys.scantokey.h[192] = 96;
+		tmp5 = 96;
+		tmp5;
+		var tmp6;
+		quake_Sys.scantokey.h[219] = 91;
+		tmp6 = 91;
+		tmp6;
+		var tmp7;
+		quake_Sys.scantokey.h[220] = 92;
+		tmp7 = 92;
+		tmp7;
+		var tmp8;
+		quake_Sys.scantokey.h[221] = 93;
+		tmp8 = 93;
+		tmp8;
+		var tmp9;
+		quake_Sys.scantokey.h[222] = 39;
+		tmp9 = 39;
+		tmp9;
+		quake_Sys.oldtime = new Date().getTime() * 0.001;
+		console.log("Host.Init\n");
+		quake_Host.Init();
+		window.onbeforeunload = quake_Sys.onbeforeunload;
+		window.oncontextmenu = quake_Sys.oncontextmenu;
+		window.onfocus = quake_Sys.onfocus;
+		window.onkeydown = quake_Sys.onkeydown;
+		window.onkeyup = quake_Sys.onkeyup;
+		window.onmousedown = quake_Sys.onmousedown;
+		window.onmouseup = quake_Sys.onmouseup;
+		window.onunload = quake_Sys.onunload;
+		window.onwheel = quake_Sys.onwheel;
+		quake_Sys.frame = window.setInterval(quake_Host.Frame,16);
+	};
+};
+quake_Sys.onbeforeunload = function(_) {
+	return "Are you sure you want to quit?";
+};
+quake_Sys.oncontextmenu = function(e) {
+	e.preventDefault();
+};
+quake_Sys.onfocus = function() {
+	var _g = 0;
+	while(_g < 256) {
+		var i = _g++;
+		quake_Key.Event(i);
+		quake_Key.down[i] = false;
+	}
+};
+quake_Sys.onkeydown = function(e) {
+	var key = quake_Sys.scantokey.h[e.keyCode];
+	if(key == null) return;
+	quake_Key.Event(key,true);
+	e.preventDefault();
+};
+quake_Sys.onkeyup = function(e) {
+	var key = quake_Sys.scantokey.h[e.keyCode];
+	if(key == null) return;
+	quake_Key.Event(key);
+	e.preventDefault();
+};
+quake_Sys.onmousedown = function(e) {
+	var tmp;
+	var _g = e.which;
+	switch(_g) {
+	case 1:
+		tmp = 200;
+		break;
+	case 2:
+		tmp = 202;
+		break;
+	case 3:
+		tmp = 201;
+		break;
+	default:
+		return;
+	}
+	var key = tmp;
+	quake_Key.Event(key,true);
+	e.preventDefault();
+};
+quake_Sys.onmouseup = function(e) {
+	var tmp;
+	var _g = e.which;
+	switch(_g) {
+	case 1:
+		tmp = 200;
+		break;
+	case 2:
+		tmp = 202;
+		break;
+	case 3:
+		tmp = 201;
+		break;
+	default:
+		return;
+	}
+	var key = tmp;
+	quake_Key.Event(key);
+	e.preventDefault();
+};
+quake_Sys.onunload = function() {
+	quake_Host.Shutdown();
+};
+quake_Sys.onwheel = function(e) {
+	var key = e.deltaY < 0?239:240;
+	quake_Key.Event(key,true);
+	quake_Key.Event(key);
+	e.preventDefault();
+};
 var quake_SCR = function() { };
 quake_SCR.__name__ = true;
 quake_SCR.CenterPrint = function(str) {
@@ -11116,7 +11115,7 @@ quake_SV.ReadClientMessage = function() {
 	while(true) {
 		ret = quake_NET.GetMessage(quake_Host.client.netconnection);
 		if(ret == -1) {
-			quake_Sys.Print("SV.ReadClientMessage: NET.GetMessage failed\n");
+			console.log("SV.ReadClientMessage: NET.GetMessage failed\n");
 			return false;
 		}
 		if(ret == 0) return true;
@@ -11124,7 +11123,7 @@ quake_SV.ReadClientMessage = function() {
 		while(true) {
 			if(!quake_Host.client.active) return false;
 			if(quake_MSG.badread) {
-				quake_Sys.Print("SV.ReadClientMessage: badread\n");
+				console.log("SV.ReadClientMessage: badread\n");
 				return false;
 			}
 			var cmd = quake_MSG.ReadChar();
@@ -11146,7 +11145,7 @@ quake_SV.ReadClientMessage = function() {
 				}
 				if(i == quake_SV.readClientCmds.length) quake_Console.DPrint(quake_PR.GetString(quake_PR.netnames + (quake_Host.client.num << 5)) + " tried to " + s);
 			} else if(cmd == 2) return false; else if(cmd == 3) quake_SV.ReadClientMove(); else {
-				quake_Sys.Print("SV.ReadClientMessage: unknown command char\n");
+				console.log("SV.ReadClientMessage: unknown command char\n");
 				return false;
 			}
 		}
@@ -12134,13 +12133,13 @@ quake_R.RenderScene = function() {
 quake_R.RenderView = function() {
 	quake_GL.gl.finish();
 	var time1;
-	if(quake_R.speeds.value != 0) time1 = quake_Sys.FloatTime();
+	if(quake_R.speeds.value != 0) time1 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_R.c_brush_verts = 0;
 	quake_R.c_alias_polys = 0;
 	quake_GL.gl.clear(16640);
 	quake_R.RenderScene();
 	if(quake_R.speeds.value != 0) {
-		var time2 = Math.floor((quake_Sys.FloatTime() - time1) * 1000.0);
+		var time2 = Math.floor((new Date().getTime() * 0.001 - quake_Sys.oldtime - time1) * 1000.0);
 		var c_brush_polys = quake_R.c_brush_verts / 3;
 		var c_alias_polys = quake_R.c_alias_polys;
 		var msg = (time2 >= 100?"":time2 >= 10?" ":"  ") + time2 + " ms  ";
@@ -12517,7 +12516,7 @@ quake_R.NewMap = function() {
 };
 quake_R.TimeRefresh_f = function() {
 	quake_GL.gl.finish();
-	var start = quake_Sys.FloatTime();
+	var start = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	var _g = 0;
 	while(_g < 128) {
 		var i = _g++;
@@ -12525,7 +12524,7 @@ quake_R.TimeRefresh_f = function() {
 		quake_R.RenderView();
 	}
 	quake_GL.gl.finish();
-	var time = quake_Sys.FloatTime() - start;
+	var time = new Date().getTime() * 0.001 - quake_Sys.oldtime - start;
 	quake_Console.Print(time.toFixed(6) + " seconds (" + (128.0 / time).toFixed(6) + " fps)\n");
 };
 quake_R.InitParticles = function() {

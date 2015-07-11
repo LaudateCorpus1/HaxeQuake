@@ -9,8 +9,6 @@ import js.html.MouseEvent;
 import js.html.WheelEvent;
 import quake.Key.KeyCode;
 
-
-@:publicFields
 class Sys {
     static var oldtime:Float;
     static var frame:Int;
@@ -28,7 +26,7 @@ class Sys {
         window.onwheel = null;
     }
 
-    static function Quit():Void {
+    public static function Quit():Void {
         if (frame != null)
             window.clearInterval(frame);
 
@@ -44,12 +42,11 @@ class Sys {
         throw new Error();
     }
 
-    static function Print(text:String):Void {
-        if (window.console != null)
-            window.console.log(text);
+    public static inline function Print(text:String):Void {
+        trace(text);
     }
 
-    static function Error(text:String):Void {
+    public static function Error(text:String):Void {
         if (frame != null)
             window.clearInterval(frame);
 
@@ -69,7 +66,7 @@ class Sys {
         throw new Error(text);
     }
 
-    static function FloatTime():Float {
+    public static inline function FloatTime():Float {
         return Date.now().getTime() * 0.001 - oldtime;
     }
 

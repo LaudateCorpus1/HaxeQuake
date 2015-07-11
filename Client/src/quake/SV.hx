@@ -127,6 +127,8 @@ class SV {
     static var box_planes:Array<Plane>;
     static var box_hull:MHull;
 
+    static var player:Edict;
+
     static function Init() {
         SV.maxvelocity = Cvar.RegisterVariable('sv_maxvelocity', '2000');
         SV.gravity = Cvar.RegisterVariable('sv_gravity', '800', false, true);
@@ -1615,10 +1617,8 @@ class SV {
 
     // user
 
-    static var player:Edict;
-
-    static function SetIdealPitch() {
-        var ent = SV.player;
+    static function SetIdealPitch():Void {
+        var ent = player;
         if ((ent.flags & EntFlag.onground) == 0)
             return;
         var angleval = ent.v.angles1 * (Math.PI / 180.0);
@@ -1630,19 +1630,19 @@ class SV {
         for (i in 0...6) {
             top[0] = bottom[0] = ent.v.origin + cosval * (i + 3) * 12.0;
             top[1] = bottom[1] = ent.v.origin1 + sinval * (i + 3) * 12.0;
-            var tr = SV.Move(top, Vec.origin, Vec.origin, bottom, 1, ent);
-            if ((tr.allsolid) || (tr.fraction == 1.0))
+            var tr = Move(top, Vec.origin, Vec.origin, bottom, 1, ent);
+            if (tr.allsolid || tr.fraction == 1.0)
                 return;
             z[i] = top[2] - tr.fraction * 160.0;
         }
         var dir = 0.0, steps = 0;
         for (i in 1...6) {
             var step = z[i] - z[i - 1];
-            if ((step > -0.1) && (step < 0.1))
+            if (step > -0.1 && step < 0.1)
                 continue;
-            if ((dir != 0.0) && (((step - dir) > 0.1) || ((step - dir) < -0.1)))
+            if (dir != 0.0 && ((step - dir) > 0.1 || (step - dir) < -0.1))
                 return;
-            ++steps;
+            steps++;
             dir = step;
         }
         if (dir == 0.0) {
@@ -1650,7 +1650,7 @@ class SV {
             return;
         }
         if (steps >= 2)
-            ent.v.idealpitch = -dir * SV.idealpitchscale.value;
+            ent.v.idealpitch = -dir * idealpitchscale.value;
     }
 
     static function UserFriction():Void {

@@ -10893,7 +10893,7 @@ quake_SV.SetIdealPitch = function() {
 		var step = z[i1] - z[i1 - 1];
 		if(step > -0.1 && step < 0.1) continue;
 		if(dir != 0.0 && (step - dir > 0.1 || step - dir < -0.1)) return;
-		++steps;
+		steps++;
 		dir = step;
 	}
 	if(dir == 0.0) {

@@ -1696,49 +1696,49 @@ class SV {
         ent.v.velocity2 += accelspeed * wishdir[2];
     }
 
-    static function WaterMove() {
-        var ent = SV.player, cmd = Host.client.cmd;
-        var forward = new Vec(), right = new Vec();
+    static function WaterMove():Void {
+        var ent = player;
+        var cmd = Host.client.cmd;
+        var forward = new Vec();
+        var right = new Vec();
         Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.v_angle), forward, right);
         var wishvel = [
             forward[0] * cmd.forwardmove + right[0] * cmd.sidemove,
             forward[1] * cmd.forwardmove + right[1] * cmd.sidemove,
             forward[2] * cmd.forwardmove + right[2] * cmd.sidemove
         ];
-        if ((cmd.forwardmove == 0.0) && (cmd.sidemove == 0.0) && (cmd.upmove == 0.0))
+        if (cmd.forwardmove == 0.0 && cmd.sidemove == 0.0 && cmd.upmove == 0.0)
             wishvel[2] -= 60.0;
         else
             wishvel[2] += cmd.upmove;
         var wishspeed = Math.sqrt(wishvel[0] * wishvel[0] + wishvel[1] * wishvel[1] + wishvel[2] * wishvel[2]);
-        var scale;
-        if (wishspeed > SV.maxspeed.value) {
-            scale = SV.maxspeed.value / wishspeed;
+        if (wishspeed > maxspeed.value) {
+            var scale = maxspeed.value / wishspeed;
             wishvel[0] *= scale;
             wishvel[1] *= scale;
             wishvel[2] *= scale;
-            wishspeed = SV.maxspeed.value;
+            wishspeed = maxspeed.value;
         }
         wishspeed *= 0.7;
-        var speed = Math.sqrt(ent.v.velocity * ent.v.velocity
-            + ent.v.velocity1 * ent.v.velocity1
-            + ent.v.velocity2 * ent.v.velocity2
-        ), newspeed;
+        var speed = Math.sqrt(ent.v.velocity * ent.v.velocity + ent.v.velocity1 * ent.v.velocity1 + ent.v.velocity2 * ent.v.velocity2);
+        var newspeed;
         if (speed != 0.0) {
-            newspeed = speed - Host.frametime * speed * SV.friction.value;
+            newspeed = speed - Host.frametime * speed * friction.value;
             if (newspeed < 0.0)
                 newspeed = 0.0;
-            scale = newspeed / speed;
+            var scale = newspeed / speed;
             ent.v.velocity *= scale;
             ent.v.velocity1 *= scale;
             ent.v.velocity2 *= scale;
-        } else
+        } else {
             newspeed = 0.0;
+        }
         if (wishspeed == 0.0)
             return;
         var addspeed = wishspeed - newspeed;
         if (addspeed <= 0.0)
             return;
-        var accelspeed = SV.accelerate.value * wishspeed * Host.frametime;
+        var accelspeed = accelerate.value * wishspeed * Host.frametime;
         if (accelspeed > addspeed)
             accelspeed = addspeed;
         ent.v.velocity += accelspeed * (wishvel[0] / wishspeed);
@@ -1746,17 +1746,17 @@ class SV {
         ent.v.velocity2 += accelspeed * (wishvel[2] / wishspeed);
     }
 
-    static function WaterJump() {
-        var ent = SV.player;
-        if ((SV.server.time > ent.v.teleport_time) || (ent.v.waterlevel == 0.0)) {
-            ent.flags = ent.flags & ~EntFlag.waterjump;
+    static function WaterJump():Void {
+        var ent = player;
+        if (server.time > ent.v.teleport_time || ent.v.waterlevel == 0.0) {
+            ent.flags &= ~EntFlag.waterjump;
             ent.v.teleport_time = 0.0;
         }
         ent.v.velocity = ent.v.movedir;
         ent.v.velocity1 = ent.v.movedir1;
     }
 
-    static function AirMove() {
+    static function AirMove():Void {
         var ent = player;
         var cmd = Host.client.cmd;
         var forward = new Vec();

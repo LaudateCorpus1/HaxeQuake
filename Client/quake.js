@@ -10961,9 +10961,8 @@ quake_SV.WaterMove = function() {
 	var wishvel_2 = forward[2] * cmd.forwardmove + right[2] * cmd.sidemove;
 	if(cmd.forwardmove == 0.0 && cmd.sidemove == 0.0 && cmd.upmove == 0.0) wishvel_2 -= 60.0; else wishvel_2 += cmd.upmove;
 	var wishspeed = Math.sqrt(wishvel_0 * wishvel_0 + wishvel_1 * wishvel_1 + wishvel_2 * wishvel_2);
-	var scale;
 	if(wishspeed > quake_SV.maxspeed.value) {
-		scale = quake_SV.maxspeed.value / wishspeed;
+		var scale = quake_SV.maxspeed.value / wishspeed;
 		wishvel_0 *= scale;
 		wishvel_1 *= scale;
 		wishvel_2 *= scale;
@@ -10975,10 +10974,10 @@ quake_SV.WaterMove = function() {
 	if(speed != 0.0) {
 		newspeed = speed - quake_Host.frametime * speed * quake_SV.friction.value;
 		if(newspeed < 0.0) newspeed = 0.0;
-		scale = newspeed / speed;
-		ent._v_float[16] *= scale;
-		ent._v_float[17] *= scale;
-		ent._v_float[18] *= scale;
+		var scale1 = newspeed / speed;
+		ent._v_float[16] *= scale1;
+		ent._v_float[17] *= scale1;
+		ent._v_float[18] *= scale1;
 	} else newspeed = 0.0;
 	if(wishspeed == 0.0) return;
 	var addspeed = wishspeed - newspeed;

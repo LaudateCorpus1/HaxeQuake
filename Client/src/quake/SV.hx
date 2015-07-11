@@ -1568,51 +1568,51 @@ class SV {
 
     static function Physics_Step(ent:Edict):Void {
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
-            var hitsound = (ent.v.velocity2 < (SV.gravity.value * -0.1));
-            SV.AddGravity(ent);
-            SV.CheckVelocity(ent);
-            SV.FlyMove(ent, Host.frametime);
-            SV.LinkEdict(ent, true);
-            if (((ent.flags & EntFlag.onground) != 0) && (hitsound))
-                SV.StartSound(ent, 0, 'demon/dland2.wav', 255, 1.0);
+            var hitsound = (ent.v.velocity2 < (gravity.value * -0.1));
+            AddGravity(ent);
+            CheckVelocity(ent);
+            FlyMove(ent, Host.frametime);
+            LinkEdict(ent, true);
+            if (hitsound && (ent.flags & EntFlag.onground) != 0)
+                StartSound(ent, 0, 'demon/dland2.wav', 255, 1.0);
         }
-        SV.RunThink(ent);
-        SV.CheckWaterTransition(ent);
+        RunThink(ent);
+        CheckWaterTransition(ent);
     }
 
-    static function Physics() {
+    static function Physics():Void {
         PR.globals_int[GlobalVarOfs.self] = 0;
         PR.globals_int[GlobalVarOfs.other] = 0;
-        PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+        PR.globals_float[GlobalVarOfs.time] = server.time;
         PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.StartFrame]);
-        for (i in 0...SV.server.num_edicts) {
-            var ent = SV.server.edicts[i];
+        for (i in 0...server.num_edicts) {
+            var ent = server.edicts[i];
             if (ent.free)
                 continue;
             if (PR.globals_float[GlobalVarOfs.force_retouch] != 0.0)
-                SV.LinkEdict(ent, true);
-            if (i > 0 && i <= SV.svs.maxclients) {
-                SV.Physics_Client(ent);
+                LinkEdict(ent, true);
+            if (i > 0 && i <= svs.maxclients) {
+                Physics_Client(ent);
                 continue;
             }
             switch (ent.v.movetype) {
                 case MoveType.push:
-                    SV.Physics_Pusher(ent);
+                    Physics_Pusher(ent);
                 case MoveType.none:
-                    SV.RunThink(ent);
+                    RunThink(ent);
                 case MoveType.noclip:
-                    SV.RunThink(ent);
+                    RunThink(ent);
                 case MoveType.step:
-                    SV.Physics_Step(ent);
+                    Physics_Step(ent);
                 case MoveType.toss | MoveType.bounce | MoveType.fly | MoveType.flymissile:
-                    SV.Physics_Toss(ent);
+                    Physics_Toss(ent);
                 default:
                     Sys.Error('SV.Physics: bad movetype ' + Std.int(ent.v.movetype));
             }
         }
         if (PR.globals_float[GlobalVarOfs.force_retouch] != 0.0)
-            --PR.globals_float[GlobalVarOfs.force_retouch];
-        SV.server.time += Host.frametime;
+            PR.globals_float[GlobalVarOfs.force_retouch]--;
+        server.time += Host.frametime;
     }
 
     // user

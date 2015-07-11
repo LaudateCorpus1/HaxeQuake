@@ -10808,7 +10808,7 @@ quake_SV.Physics_Step = function(ent) {
 		quake_SV.CheckVelocity(ent);
 		quake_SV.FlyMove(ent,quake_Host.frametime);
 		quake_SV.LinkEdict(ent,true);
-		if(((ent._v_float[76] | 0) & 512) != 0 && hitsound) quake_SV.StartSound(ent,0,"demon/dland2.wav",255,1.0);
+		if(hitsound && ((ent._v_float[76] | 0) & 512) != 0) quake_SV.StartSound(ent,0,"demon/dland2.wav",255,1.0);
 	}
 	quake_SV.RunThink(ent);
 	quake_SV.CheckWaterTransition(ent);
@@ -10850,7 +10850,7 @@ quake_SV.Physics = function() {
 			quake_Sys.Error("SV.Physics: bad movetype " + (ent._v_float[8] | 0));
 		}
 	}
-	if(quake_PR.globals_float[33] != 0.0) --quake_PR.globals_float[33];
+	if(quake_PR.globals_float[33] != 0.0) quake_PR.globals_float[33]--;
 	quake_SV.server.time += quake_Host.frametime;
 };
 quake_SV.SetIdealPitch = function() {

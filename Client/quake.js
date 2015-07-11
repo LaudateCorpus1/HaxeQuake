@@ -9485,7 +9485,7 @@ quake_SV.CheckForNewClients = function() {
 		if(i == quake_SV.svs.maxclients) quake_Sys.Error("SV.CheckForNewClients: no free clients");
 		quake_SV.svs.clients[i].netconnection = ret;
 		quake_SV.ConnectClient(i);
-		++quake_NET.activeconnections;
+		quake_NET.activeconnections++;
 	}
 };
 quake_SV.AddToFatPVS = function(org,node) {

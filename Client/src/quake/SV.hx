@@ -129,6 +129,8 @@ class SV {
     static var box_hull:MHull;
     static var steptrace:MTrace;
     static var player:Edict;
+    static var fatpvs = [];
+    static var fatbytes:Int;
 
     static function Init() {
         SV.maxvelocity = Cvar.RegisterVariable('sv_maxvelocity', '2000');
@@ -216,24 +218,24 @@ class SV {
             (entity.v.mins2 + entity.v.maxs2));
     }
 
-    static function SendServerinfo(client:HClient) {
+    static function SendServerinfo(client:HClient):Void {
         var message = client.message;
         message.WriteByte(SVC.print);
         message.WriteString(String.fromCharCode(2) + '\nVERSION 1.09 SERVER (' + PR.crc + ' CRC)');
         message.WriteByte(SVC.serverinfo);
         message.WriteLong(Protocol.version);
-        message.WriteByte(SV.svs.maxclients);
-        message.WriteByte(((Host.coop.value == 0) && (Host.deathmatch.value != 0)) ? 1 : 0);
-        message.WriteString(PR.GetString(SV.server.edicts[0].v.message));
-        for (i in 1...SV.server.model_precache.length)
-            message.WriteString(SV.server.model_precache[i]);
+        message.WriteByte(svs.maxclients);
+        message.WriteByte((Host.coop.value == 0 && Host.deathmatch.value != 0) ? 1 : 0);
+        message.WriteString(PR.GetString(server.edicts[0].v.message));
+        for (i in 1...server.model_precache.length)
+            message.WriteString(server.model_precache[i]);
         message.WriteByte(0);
-        for (i in 1...SV.server.sound_precache.length)
-            message.WriteString(SV.server.sound_precache[i]);
+        for (i in 1...server.sound_precache.length)
+            message.WriteString(server.sound_precache[i]);
         message.WriteByte(0);
         message.WriteByte(SVC.cdtrack);
-        message.WriteByte(Std.int(SV.server.edicts[0].v.sounds));
-        message.WriteByte(Std.int(SV.server.edicts[0].v.sounds));
+        message.WriteByte(Std.int(server.edicts[0].v.sounds));
+        message.WriteByte(Std.int(server.edicts[0].v.sounds));
         message.WriteByte(SVC.setview);
         message.WriteShort(client.edict.num);
         message.WriteByte(SVC.signonnum);
@@ -243,9 +245,9 @@ class SV {
     }
 
     static function ConnectClient(clientnum:Int):Void {
-        var client = SV.svs.clients[clientnum];
+        var client = svs.clients[clientnum];
         var spawn_parms;
-        if (SV.server.loadgame) {
+        if (server.loadgame) {
             spawn_parms = [];
             if (client.spawn_parms == null) {
                 client.spawn_parms = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
@@ -261,19 +263,19 @@ class SV {
         client.cmd = new ClientCmd();
         client.wishdir = new Vec();
         client.message.cursize = 0;
-        client.edict = SV.server.edicts[clientnum + 1];
+        client.edict = server.edicts[clientnum + 1];
         client.edict.v.netname = PR.netnames + (clientnum << 5);
-        SV.SetClientName(client, 'unconnected');
+        SetClientName(client, 'unconnected');
         client.colors = 0;
         client.ping_times = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
         client.num_pings = 0;
-        if (!SV.server.loadgame) {
+        if (!server.loadgame) {
             client.spawn_parms = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
                 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
         }
         client.old_frags = 0;
-        if (SV.server.loadgame) {
+        if (server.loadgame) {
             for (i in 0...16)
                 client.spawn_parms[i] = spawn_parms[i];
         } else {
@@ -281,27 +283,26 @@ class SV {
             for (i in 0...16)
                 client.spawn_parms[i] = PR.globals_float[GlobalVarOfs.parms + i];
         }
-        SV.SendServerinfo(client);
+        SendServerinfo(client);
     }
 
-    static var fatpvs = [];
 
-    static function CheckForNewClients() {
+    static function CheckForNewClients():Void {
         while (true) {
             var ret = NET.CheckNewConnections();
             if (ret == null)
                 return;
             var i = 0;
-            while (i < SV.svs.maxclients) {
-                if (!SV.svs.clients[i].active)
+            while (i < svs.maxclients) {
+                if (!svs.clients[i].active)
                     break;
                 i++;
             }
-            if (i == SV.svs.maxclients)
+            if (i == svs.maxclients)
                 Sys.Error('SV.CheckForNewClients: no free clients');
-            SV.svs.clients[i].netconnection = ret;
-            SV.ConnectClient(i);
-            ++NET.activeconnections;
+            svs.clients[i].netconnection = ret;
+            ConnectClient(i);
+            NET.activeconnections++;
         }
     }
 
@@ -309,31 +310,29 @@ class SV {
         while (true) {
             if (node.contents < 0) {
                 if (node.contents != ModContents.solid) {
-                    var pvs = Mod.LeafPVS(cast node, SV.server.worldmodel);
-                    for (i in 0...SV.fatbytes)
-                        SV.fatpvs[i] |= pvs[i];
+                    var pvs = Mod.LeafPVS(cast node, server.worldmodel);
+                    for (i in 0...fatbytes)
+                        fatpvs[i] |= pvs[i];
                 }
                 return;
             }
             var normal = node.plane.normal;
             var d = org[0] * normal[0] + org[1] * normal[1] + org[2] * normal[2] - node.plane.dist;
-            if (d > 8.0)
+            if (d > 8.0) {
                 node = node.children[0];
-            else {
+            } else {
                 if (d >= -8.0)
-                    SV.AddToFatPVS(org, node.children[0]);
+                    AddToFatPVS(org, node.children[0]);
                 node = node.children[1];
             }
         }
     }
 
-    static var fatbytes:Int;
-
     static function FatPVS(org:Vec):Void {
-        SV.fatbytes = (SV.server.worldmodel.leafs.length + 31) >> 3;
-        for (i in 0...SV.fatbytes)
-            SV.fatpvs[i] = 0;
-        SV.AddToFatPVS(org, SV.server.worldmodel.nodes[0]);
+        fatbytes = (server.worldmodel.leafs.length + 31) >> 3;
+        for (i in 0...fatbytes)
+            fatpvs[i] = 0;
+        AddToFatPVS(org, server.worldmodel.nodes[0]);
     }
 
     static function WriteEntitiesToClient(clent:Edict, msg:MSG):Void {

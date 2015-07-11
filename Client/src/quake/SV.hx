@@ -1653,20 +1653,17 @@ class SV {
             ent.v.idealpitch = -dir * SV.idealpitchscale.value;
     }
 
-    static function UserFriction() {
-        var ent = SV.player;
-        var vel0 = ent.v.velocity, vel1 = ent.v.velocity1;
+    static function UserFriction():Void {
+        var ent = player;
+        var vel0 = ent.v.velocity;
+        var vel1 = ent.v.velocity1;
         var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
         if (speed == 0.0)
             return;
-        var start = Vec.of(
-            ent.v.origin + vel0 / speed * 16.0,
-            ent.v.origin1 + vel1 / speed * 16.0,
-            ent.v.origin2 + ent.v.mins2
-        );
-        var friction = SV.friction.value;
-        if (SV.Move(start, Vec.origin, Vec.origin, Vec.of(start[0], start[1], start[2] - 34.0), 1, ent).fraction == 1.0)
-            friction *= SV.edgefriction.value;
+        var start = Vec.of(ent.v.origin + vel0 / speed * 16.0, ent.v.origin1 + vel1 / speed * 16.0, ent.v.origin2 + ent.v.mins2);
+        var friction = friction.value;
+        if (Move(start, Vec.origin, Vec.origin, Vec.of(start[0], start[1], start[2] - 34.0), 1, ent).fraction == 1.0)
+            friction *= edgefriction.value;
         var newspeed = speed - Host.frametime * (speed < SV.stopspeed.value ? SV.stopspeed.value : speed) * friction;
         if (newspeed < 0.0)
             newspeed = 0.0;
@@ -1676,19 +1673,16 @@ class SV {
         ent.v.velocity2 *= newspeed;
     }
 
-    static function Accelerate(wishvel:Vec, air:Bool) {
-        var ent = SV.player;
+    static function Accelerate(wishvel:Vec, air:Bool):Void {
+        var ent = player;
         var wishdir = wishvel.copy();
         var wishspeed = Vec.Normalize(wishdir);
-        if ((air) && (wishspeed > 30.0))
+        if (air && wishspeed > 30.0)
             wishspeed = 30.0;
-        var addspeed = wishspeed - (ent.v.velocity * wishdir[0]
-            + ent.v.velocity1 * wishdir[1]
-            + ent.v.velocity2 * wishdir[2]
-        );
+        var addspeed = wishspeed - (ent.v.velocity * wishdir[0] + ent.v.velocity1 * wishdir[1] + ent.v.velocity2 * wishdir[2]);
         if (addspeed <= 0.0)
             return;
-        var accelspeed = SV.accelerate.value * Host.frametime * wishspeed;
+        var accelspeed = accelerate.value * Host.frametime * wishspeed;
         if (accelspeed > addspeed)
             accelspeed = addspeed;
         ent.v.velocity += accelspeed * wishdir[0];

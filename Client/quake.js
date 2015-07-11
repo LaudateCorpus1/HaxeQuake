@@ -9607,8 +9607,8 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 	var val = quake__$EdictVarOfs_EdictVarOfs_$Impl_$.items2;
 	var items;
 	if(val != null) {
-		if(ent._v_float[val] != 0.0) items = (ent._v_float[58] | 0 | 0) + ((ent._v_float[val] | 0) << 23 >>> 0); else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
-	} else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28 >>> 0);
+		if(ent._v_float[val] != 0.0) items = (ent._v_float[58] | 0 | 0) + ((ent._v_float[val] | 0) << 23); else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28);
+	} else items = (ent._v_float[58] | 0 | 0) + ((quake_PR.globals_float[38] | 0) << 28);
 	if(((ent._v_float[76] | 0) & 512) != 0) bits = bits + 1024;
 	if(ent._v_float[83] >= 2.0) bits = bits + 2048;
 	if(ent._v_float[25] != 0.0) bits = bits + 4;
@@ -15277,8 +15277,8 @@ quake_SCR.screenshot = false;
 quake_SCR.disabled_for_loading = false;
 quake_SV.server = new quake__$SV_ServerState();
 quake_SV.svs = new quake__$SV_ServerStatic();
-quake_SV.fatpvs = [];
 quake_SV.clientdatagram = new quake_MSG(1024);
+quake_SV.fatpvs = [];
 quake_SV.readClientCmds = ["status","god","notarget","fly","name","noclip","say","say_team","tell","color","kill","pause","spawn","begin","prespawn","kick","ping","give","ban"];
 quake_R.dlightframecount = 0;
 quake_R.lightstylevalue = new Uint8Array(new ArrayBuffer(64));

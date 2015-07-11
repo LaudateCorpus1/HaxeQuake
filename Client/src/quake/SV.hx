@@ -121,6 +121,7 @@ class SV {
 
     static var nop:MSG;
     static var reconnect:MSG;
+    static var clientdatagram = new MSG(1024);
 
     static var areanodes:Array<MAreaNode>;
     static var box_clipnodes:Array<MClipNode>;
@@ -423,8 +424,8 @@ class SV {
     }
 
     static function WriteClientdataToMessage(ent:Edict, msg:MSG):Void {
-        if ((ent.v.dmg_take != 0.0) || (ent.v.dmg_save != 0.0)) {
-            var other = SV.server.edicts[ent.v.dmg_inflictor];
+        if (ent.v.dmg_take != 0.0 || ent.v.dmg_save != 0.0) {
+            var other = server.edicts[ent.v.dmg_inflictor];
             msg.WriteByte(SVC.damage);
             msg.WriteByte(Std.int(ent.v.dmg_save));
             msg.WriteByte(Std.int(ent.v.dmg_take));
@@ -435,7 +436,7 @@ class SV {
             ent.v.dmg_save = 0.0;
         }
 
-        SV.SetIdealPitch();
+        SetIdealPitch();
 
         if (ent.v.fixangle != 0.0) {
             msg.WriteByte(SVC.setangle);
@@ -443,7 +444,7 @@ class SV {
             msg.WriteAngle(ent.v.angles1);
             msg.WriteAngle(ent.v.angles2);
             ent.v.fixangle = 0.0;
-        };
+        }
 
         var bits = SU.items + SU.weapon;
         if (ent.v.view_ofs2 != Protocol.default_viewheight)
@@ -451,14 +452,16 @@ class SV {
         if (ent.v.idealpitch != 0.0)
             bits += SU.idealpitch;
 
-        var val = EdictVarOfs.items2, items;
+        var val = EdictVarOfs.items2;
+        var items;
         if (val != null) {
             if (ent._v_float[val] != 0.0)
-                items = Std.int(ent.items) + ((Std.int(ent._v_float[val]) << 23) >>> 0);
+                items = Std.int(ent.items) + (Std.int(ent._v_float[val]) << 23);
             else
-                items = Std.int(ent.items) + ((Std.int(PR.globals_float[GlobalVarOfs.serverflags]) << 28) >>> 0);
-        } else
-            items = Std.int(ent.items) + ((Std.int(PR.globals_float[GlobalVarOfs.serverflags]) << 28) >>> 0);
+                items = Std.int(ent.items) + (Std.int(PR.globals_float[GlobalVarOfs.serverflags]) << 28);
+        } else {
+            items = Std.int(ent.items) + (Std.int(PR.globals_float[GlobalVarOfs.serverflags]) << 28);
+        }
 
         if ((ent.flags & EntFlag.onground) != 0)
             bits += SU.onground;
@@ -508,16 +511,16 @@ class SV {
             msg.WriteByte(Std.int(ent.v.weaponframe));
         if ((bits & SU.armor) != 0)
             msg.WriteByte(Std.int(ent.v.armorvalue));
-        msg.WriteByte(SV.ModelIndex(PR.GetString(ent.v.weaponmodel)));
+        msg.WriteByte(ModelIndex(PR.GetString(ent.v.weaponmodel)));
         msg.WriteShort(Std.int(ent.v.health));
         msg.WriteByte(Std.int(ent.v.currentammo));
         msg.WriteByte(Std.int(ent.v.ammo_shells));
         msg.WriteByte(Std.int(ent.v.ammo_nails));
         msg.WriteByte(Std.int(ent.v.ammo_rockets));
         msg.WriteByte(Std.int(ent.v.ammo_cells));
-        if (COM.standard_quake)
+        if (COM.standard_quake) {
             msg.WriteByte(Std.int(ent.v.weapon));
-        else {
+        } else {
             var weapon = Std.int(ent.v.weapon);
             for (i in 0...32) {
                 if ((weapon & (1 << i)) != 0) {
@@ -528,17 +531,16 @@ class SV {
         }
     }
 
-    static var clientdatagram = new MSG(1024);
     static function SendClientDatagram():Bool {
         var client = Host.client;
-        var msg = SV.clientdatagram;
+        var msg = clientdatagram;
         msg.cursize = 0;
         msg.WriteByte(SVC.time);
-        msg.WriteFloat(SV.server.time);
-        SV.WriteClientdataToMessage(client.edict, msg);
-        SV.WriteEntitiesToClient(client.edict, msg);
-        if ((msg.cursize + SV.server.datagram.cursize) < msg.data.byteLength)
-            msg.Write(new Uint8Array(SV.server.datagram.data), SV.server.datagram.cursize);
+        msg.WriteFloat(server.time);
+        WriteClientdataToMessage(client.edict, msg);
+        WriteEntitiesToClient(client.edict, msg);
+        if ((msg.cursize + server.datagram.cursize) < msg.data.byteLength)
+            msg.Write(new Uint8Array(server.datagram.data), server.datagram.cursize);
         if (NET.SendUnreliableMessage(client.netconnection, msg) == -1) {
             Host.DropClient(true);
             return false;
@@ -546,7 +548,7 @@ class SV {
         return true;
     }
 
-    static function UpdateToReliableMessages() {
+    static function UpdateToReliableMessages():Void {
         for (i in 0...svs.maxclients) {
             Host.client = svs.clients[i];
             var frags = Std.int(Host.client.edict.v.frags);

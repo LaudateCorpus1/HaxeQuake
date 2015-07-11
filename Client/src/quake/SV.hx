@@ -1423,39 +1423,38 @@ class SV {
 
     static function WalkMove(ent:Edict) {
         var oldonground = ent.flags & EntFlag.onground;
-        ent.flags = ent.flags ^ oldonground;
+        ent.flags ^= oldonground;
         var oldorg = ED.Vector(ent, EdictVarOfs.origin);
         var oldvel = ED.Vector(ent, EdictVarOfs.velocity);
-        var clip = SV.FlyMove(ent, Host.frametime);
+        var clip = FlyMove(ent, Host.frametime);
         if ((clip & 2) == 0)
             return;
-        if ((oldonground == 0) && (ent.v.waterlevel == 0.0))
+        if (oldonground == 0 && ent.v.waterlevel == 0.0)
             return;
         if (ent.v.movetype != MoveType.walk)
             return;
-        if (SV.nostep.value != 0)
+        if (nostep.value != 0)
             return;
-        if ((SV.player.flags & EntFlag.waterjump) != 0)
+        if ((player.flags & EntFlag.waterjump) != 0)
             return;
         var nosteporg = ED.Vector(ent, EdictVarOfs.origin);
         var nostepvel = ED.Vector(ent, EdictVarOfs.velocity);
         ED.SetVector(ent, EdictVarOfs.origin, oldorg);
-        SV.PushEntity(ent, Vec.of(0.0, 0.0, 18.0));
+        PushEntity(ent, Vec.of(0.0, 0.0, 18.0));
         ent.v.velocity = oldvel[0];
         ent.v.velocity1 = oldvel[1];
         ent.v.velocity2 = 0.0;
-        clip = SV.FlyMove(ent, Host.frametime);
+        clip = FlyMove(ent, Host.frametime);
         if (clip != 0) {
-            if ((Math.abs(oldorg[1] - ent.v.origin1) < 0.03125)
-                && (Math.abs(oldorg[0] - ent.v.origin) < 0.03125))
-                clip = SV.TryUnstick(ent, oldvel);
+            if (Math.abs(oldorg[1] - ent.v.origin1) < 0.03125 && Math.abs(oldorg[0] - ent.v.origin) < 0.03125)
+                clip = TryUnstick(ent, oldvel);
             if ((clip & 2) != 0)
-                SV.WallFriction(ent, SV.steptrace);
+                WallFriction(ent, steptrace);
         }
-        var downtrace = SV.PushEntity(ent, Vec.of(0.0, 0.0, oldvel[2] * Host.frametime - 18.0));
+        var downtrace = PushEntity(ent, Vec.of(0.0, 0.0, oldvel[2] * Host.frametime - 18.0));
         if (downtrace.plane.normal[2] > 0.7) {
             if (ent.v.solid == SolidType.bsp) {
-                ent.flags = ent.flags | EntFlag.onground;
+                ent.flags |= EntFlag.onground;
                 ent.v.groundentity = downtrace.ent.num;
             }
             return;

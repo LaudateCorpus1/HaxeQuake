@@ -1176,8 +1176,9 @@ class SV {
         return blocked;
     }
 
-    static function AddGravity(ent:Edict) {
-        var val = EdictVarOfs.gravity, ent_gravity;
+    static function AddGravity(ent:Edict):Void {
+        var val = EdictVarOfs.gravity;
+        var ent_gravity;
         if (val != null)
             ent_gravity = (ent._v_float[val] != 0.0) ? ent._v_float[val] : 1.0;
         else
@@ -1185,7 +1186,7 @@ class SV {
         ent.v.velocity2 -= ent_gravity * SV.gravity.value * Host.frametime;
     }
 
-    static function PushEntity(ent:Edict, push:Vec) {
+    static function PushEntity(ent:Edict, push:Vec):MTrace {
         var end = Vec.of(
             ent.v.origin + push[0],
             ent.v.origin1 + push[1],
@@ -1195,16 +1196,15 @@ class SV {
         var solid = ent.v.solid;
         if (ent.v.movetype == MoveType.flymissile)
             nomonsters = ClipType.missile;
-        else if ((solid == SolidType.trigger) || (solid == SolidType.not))
+        else if (solid == SolidType.trigger || solid == SolidType.not)
             nomonsters = ClipType.nomonsters
         else
             nomonsters = ClipType.normal;
-        var trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins),
-            ED.Vector(ent, EdictVarOfs.maxs), end, nomonsters, ent);
+        var trace = Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), end, nomonsters, ent);
         ED.SetVector(ent, EdictVarOfs.origin, trace.endpos);
-        SV.LinkEdict(ent, true);
+        LinkEdict(ent, true);
         if (trace.ent != null)
-            SV.Impact(ent, trace.ent);
+            Impact(ent, trace.ent);
         return trace;
     }
 

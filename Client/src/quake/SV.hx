@@ -676,14 +676,14 @@ class SV {
         }
     }
 
-    static function SpawnServer(server) {
+    static function SpawnServer(map:String):Void {
         if (NET.hostname.string.length == 0)
             NET.hostname.set('UNNAMED');
 
         SCR.centertime_off = 0.0;
 
-        Console.DPrint('SpawnServer: ' + server + '\n');
-        SV.svs.changelevel_issued = false;
+        Console.DPrint('SpawnServer: $map\n');
+        svs.changelevel_issued = false;
 
         if (SV.server.active) {
             NET.SendToAll(SV.reconnect);
@@ -720,7 +720,7 @@ class SV {
         SV.server.time = 1.0;
         SV.server.lastcheck = 0;
         SV.server.lastchecktime = 0.0;
-        SV.server.modelname = 'maps/' + server + '.bsp';
+        SV.server.modelname = 'maps/' + map + '.bsp';
         SV.server.worldmodel = Mod.ForName(SV.server.modelname, false);
         if (SV.server.worldmodel == null) {
             Console.Print('Couldn\'t spawn server ' + SV.server.modelname + '\n');
@@ -755,7 +755,7 @@ class SV {
         else
             PR.globals_float[GlobalVarOfs.deathmatch] = Host.deathmatch.value;
 
-        PR.globals_int[GlobalVarOfs.mapname] = PR.NewString(server, 64);
+        PR.globals_int[GlobalVarOfs.mapname] = PR.NewString(map, 64);
         PR.globals_float[GlobalVarOfs.serverflags] = SV.svs.serverflags;
         ED.LoadFromFile(SV.server.worldmodel.entities);
         SV.server.active = true;
@@ -802,19 +802,19 @@ class SV {
             ent.v.origin2 + ent.v.maxs2
         ];
         while (true) {
-            if (SV.PointContents(Vec.of(mins[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(mins[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
-            if (SV.PointContents(Vec.of(mins[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(mins[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
-            if (SV.PointContents(Vec.of(maxs[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(maxs[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
-            if (SV.PointContents(Vec.of(maxs[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(maxs[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
                 break;
             return true;
         }
         var start = Vec.of((mins[0] + maxs[0]) * 0.5, (mins[1] + maxs[1]) * 0.5, mins[2]);
         var stop = Vec.of(start[0], start[1], start[2] - 36.0);
-        var trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
+        var trace = Move(start, Vec.origin, Vec.origin, stop, 1, ent);
         if (trace.fraction == 1.0)
             return false;
         var mid, bottom;
@@ -823,10 +823,10 @@ class SV {
             for (y in 0...2) {
                 start[0] = stop[0] = (x != 0) ? maxs[0] : mins[0];
                 start[1] = stop[1] = (y != 0) ? maxs[1] : mins[1];
-                trace = SV.Move(start, Vec.origin, Vec.origin, stop, 1, ent);
-                if ((trace.fraction != 1.0) && (trace.endpos[2] > bottom))
+                trace = Move(start, Vec.origin, Vec.origin, stop, 1, ent);
+                if (trace.fraction != 1.0 && trace.endpos[2] > bottom)
                     bottom = trace.endpos[2];
-                if ((trace.fraction == 1.0) || ((mid - trace.endpos[2]) > 18.0))
+                if (trace.fraction == 1.0 || (mid - trace.endpos[2]) > 18.0)
                     return false;
             }
         }

@@ -9814,10 +9814,10 @@ quake_SV.SaveSpawnparms = function() {
 		}
 	}
 };
-quake_SV.SpawnServer = function(server) {
+quake_SV.SpawnServer = function(map) {
 	if(quake_NET.hostname.string.length == 0) quake_NET.hostname.set("UNNAMED");
 	quake_SCR.centertime_off = 0.0;
-	quake_Console.DPrint("SpawnServer: " + server + "\n");
+	quake_Console.DPrint("SpawnServer: " + map + "\n");
 	quake_SV.svs.changelevel_issued = false;
 	if(quake_SV.server.active) {
 		quake_NET.SendToAll(quake_SV.reconnect);
@@ -9853,7 +9853,7 @@ quake_SV.SpawnServer = function(server) {
 	quake_SV.server.time = 1.0;
 	quake_SV.server.lastcheck = 0;
 	quake_SV.server.lastchecktime = 0.0;
-	quake_SV.server.modelname = "maps/" + server + ".bsp";
+	quake_SV.server.modelname = "maps/" + map + ".bsp";
 	quake_SV.server.worldmodel = quake_Mod.ForName(quake_SV.server.modelname,false);
 	if(quake_SV.server.worldmodel == null) {
 		quake_Console.Print("Couldn't spawn server " + quake_SV.server.modelname + "\n");
@@ -9885,7 +9885,7 @@ quake_SV.SpawnServer = function(server) {
 	ent._v_float[9] = 4;
 	ent._v_float[8] = 7;
 	if(quake_Host.coop.value != 0) quake_PR.globals_float[36] = quake_Host.coop.value; else quake_PR.globals_float[35] = quake_Host.deathmatch.value;
-	quake_PR.globals_int[34] = quake_PR.NewString(server,64);
+	quake_PR.globals_int[34] = quake_PR.NewString(map,64);
 	quake_PR.globals_float[38] = quake_SV.svs.serverflags;
 	quake_ED.LoadFromFile(quake_SV.server.worldmodel.entities);
 	quake_SV.server.active = true;

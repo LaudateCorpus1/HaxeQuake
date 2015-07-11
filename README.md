@@ -4,7 +4,7 @@
 
 **HaxeQuake** is [Haxe](http://haxe.org/) port of a [HTML5 WebGL port](https://github.com/SiPlus/WebQuake) of the game Quake by id Software.
 
-Client is fully ported to Haxe and perfectly playable, you can try playing shareware Quake version right from this repository: [here](nadako.github.io/HaxeQuake/Client/WebQuake.htm). It was tested and probably only works on Google Chrome.
+Client is fully ported to Haxe and perfectly playable, you can try playing shareware Quake version right from this repository: [here](http://nadako.github.io/HaxeQuake/Client/WebQuake.htm). It was tested and probably only works on Google Chrome.
 
 ## Roadmap
 

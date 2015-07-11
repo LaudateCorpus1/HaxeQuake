@@ -176,7 +176,7 @@ class ED {
 				Console.Print('\'' + keyname + '\' is not a global\n');
 				continue;
 			}
-			if (!ParseEpair(PR.globals, key, COM.token))
+			if (!ParseEpair(PR._globals, key, COM.token))
 				Host.Error('ED.ParseGlobals: parse error');
 		}
 	}
@@ -289,7 +289,7 @@ class ED {
 
 	static function LoadFromFile(data:String):Void {
 		var ent, inhibit = 0;
-		PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+		PR._globals_float[GlobalVarOfs.time] = SV.server.time;
 
 		while (true) {
 			data = COM.Parse(data);
@@ -335,7 +335,7 @@ class ED {
 				continue;
 			}
 
-			PR.globals_int[GlobalVarOfs.self] = ent.num;
+			PR._globals_int[GlobalVarOfs.self] = ent.num;
 			PR.ExecuteProgram(func);
 		}
 

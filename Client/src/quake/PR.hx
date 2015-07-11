@@ -225,9 +225,9 @@ class PR {
 	static var statements:Array<PRStatement>;
 	static var globaldefs:Array<PRDef>;
 	static var fielddefs:Array<PRDef>;
-	static var globals:ArrayBuffer;
-	static var globals_float:Float32Array;
-	static var globals_int:Int32Array;
+	static var _globals:ArrayBuffer;
+	static var _globals_float:Float32Array;
+	static var _globals_int:Int32Array;
 	static var crc:Int;
 	static var trace:Bool;
 	static var entityfields:Int;
@@ -317,7 +317,7 @@ class PR {
 		var def = ED.GlobalAtOfs(ofs);
 		var line;
 		if (def != null)
-			line = ofs + '(' + PR.GetString(def.name) + ')' + PR.ValueString(def.type, PR.globals, ofs);
+			line = ofs + '(' + PR.GetString(def.name) + ')' + PR.ValueString(def.type, PR._globals, ofs);
 		else
 			line = ofs + '(???)';
 		while (line.length <= 20)
@@ -404,11 +404,11 @@ class PR {
 
 		ofs = view.getUint32(48, true);
 		num = view.getUint32(52, true);
-		PR.globals = new ArrayBuffer(num << 2);
-		PR.globals_float = new Float32Array(PR.globals);
-		PR.globals_int = new Int32Array(PR.globals);
+		PR._globals = new ArrayBuffer(num << 2);
+		PR._globals_float = new Float32Array(PR._globals);
+		PR._globals_int = new Int32Array(PR._globals);
 		for (i in 0...num)
-			PR.globals_int[i] = view.getInt32(ofs + (i << 2), true);
+			PR._globals_int[i] = view.getInt32(ofs + (i << 2), true);
 
 		PR.entityfields = view.getUint32(56, true);
 		PR.edict_size = 96 + (PR.entityfields << 2);
@@ -553,12 +553,12 @@ class PR {
 		if ((PR.localstack_used + c) > PR.localstack_size)
 			PR.RunError('PR.EnterFunction: locals stack overflow\n');
 		for (i in 0...c)
-			PR.localstack[PR.localstack_used + i] = PR.globals_int[f.parm_start + i];
+			PR.localstack[PR.localstack_used + i] = PR._globals_int[f.parm_start + i];
 		PR.localstack_used += c;
 		var o = f.parm_start;
 		for (i in 0...f.numparms) {
 			for (j in 0...f.parm_size[i])
-				PR.globals_int[o++] = PR.globals_int[4 + i * 3 + j];
+				PR._globals_int[o++] = PR._globals_int[4 + i * 3 + j];
 		}
 		PR.xfunction = f;
 		return f.first_statement - 1;
@@ -573,7 +573,7 @@ class PR {
 			PR.RunError('PR.LeaveFunction: locals stack underflow\n');
 		c--;
 		while (c >= 0) {
-			PR.globals_int[PR.xfunction.parm_start + c] = PR.localstack[PR.localstack_used + c];
+			PR._globals_int[PR.xfunction.parm_start + c] = PR.localstack[PR.localstack_used + c];
 			c--;
 		}
 		PR.xfunction = PR.stack[--PR.depth].func;
@@ -582,8 +582,8 @@ class PR {
 
 	static function ExecuteProgram(fnum:Int):Void {
 		if ((fnum == 0) || (fnum >= PR.functions.length)) {
-			if (PR.globals_int[GlobalVarOfs.self] != 0)
-				ED.Print(SV.server.edicts[PR.globals_int[GlobalVarOfs.self]]);
+			if (PR._globals_int[GlobalVarOfs.self] != 0)
+				ED.Print(SV.server.edicts[PR._globals_int[GlobalVarOfs.self]]);
 			Host.Error('PR.ExecuteProgram: NULL function');
 		}
 		var runaway = 100000;
@@ -602,123 +602,123 @@ class PR {
 				PR.PrintStatement(st);
 			switch (st.op) {
 				case PROp.add_f:
-					PR.globals_float[st.c] = PR.globals_float[st.a] + PR.globals_float[st.b];
+					PR._globals_float[st.c] = PR._globals_float[st.a] + PR._globals_float[st.b];
 				case PROp.add_v:
-					PR.globals_float[st.c] = PR.globals_float[st.a] + PR.globals_float[st.b];
-					PR.globals_float[st.c + 1] = PR.globals_float[st.a + 1] + PR.globals_float[st.b + 1];
-					PR.globals_float[st.c + 2] = PR.globals_float[st.a + 2] + PR.globals_float[st.b + 2];
+					PR._globals_float[st.c] = PR._globals_float[st.a] + PR._globals_float[st.b];
+					PR._globals_float[st.c + 1] = PR._globals_float[st.a + 1] + PR._globals_float[st.b + 1];
+					PR._globals_float[st.c + 2] = PR._globals_float[st.a + 2] + PR._globals_float[st.b + 2];
 				case PROp.sub_f:
-					PR.globals_float[st.c] = PR.globals_float[st.a] - PR.globals_float[st.b];
+					PR._globals_float[st.c] = PR._globals_float[st.a] - PR._globals_float[st.b];
 				case PROp.sub_v:
-					PR.globals_float[st.c] = PR.globals_float[st.a] - PR.globals_float[st.b];
-					PR.globals_float[st.c + 1] = PR.globals_float[st.a + 1] - PR.globals_float[st.b + 1];
-					PR.globals_float[st.c + 2] = PR.globals_float[st.a + 2] - PR.globals_float[st.b + 2];
+					PR._globals_float[st.c] = PR._globals_float[st.a] - PR._globals_float[st.b];
+					PR._globals_float[st.c + 1] = PR._globals_float[st.a + 1] - PR._globals_float[st.b + 1];
+					PR._globals_float[st.c + 2] = PR._globals_float[st.a + 2] - PR._globals_float[st.b + 2];
 				case PROp.mul_f:
-					PR.globals_float[st.c] = PR.globals_float[st.a] * PR.globals_float[st.b];
+					PR._globals_float[st.c] = PR._globals_float[st.a] * PR._globals_float[st.b];
 				case PROp.mul_v:
-					PR.globals_float[st.c] = PR.globals_float[st.a] * PR.globals_float[st.b] +
-						PR.globals_float[st.a + 1] * PR.globals_float[st.b + 1] +
-						PR.globals_float[st.a + 2] * PR.globals_float[st.b + 2];
+					PR._globals_float[st.c] = PR._globals_float[st.a] * PR._globals_float[st.b] +
+						PR._globals_float[st.a + 1] * PR._globals_float[st.b + 1] +
+						PR._globals_float[st.a + 2] * PR._globals_float[st.b + 2];
 				case PROp.mul_fv:
-					PR.globals_float[st.c] = PR.globals_float[st.a] * PR.globals_float[st.b];
-					PR.globals_float[st.c + 1] = PR.globals_float[st.a] * PR.globals_float[st.b + 1];
-					PR.globals_float[st.c + 2] = PR.globals_float[st.a] * PR.globals_float[st.b + 2];
+					PR._globals_float[st.c] = PR._globals_float[st.a] * PR._globals_float[st.b];
+					PR._globals_float[st.c + 1] = PR._globals_float[st.a] * PR._globals_float[st.b + 1];
+					PR._globals_float[st.c + 2] = PR._globals_float[st.a] * PR._globals_float[st.b + 2];
 				case PROp.mul_vf:
-					PR.globals_float[st.c] = PR.globals_float[st.b] * PR.globals_float[st.a];
-					PR.globals_float[st.c + 1] = PR.globals_float[st.b] * PR.globals_float[st.a + 1];
-					PR.globals_float[st.c + 2] = PR.globals_float[st.b] * PR.globals_float[st.a + 2];
+					PR._globals_float[st.c] = PR._globals_float[st.b] * PR._globals_float[st.a];
+					PR._globals_float[st.c + 1] = PR._globals_float[st.b] * PR._globals_float[st.a + 1];
+					PR._globals_float[st.c + 2] = PR._globals_float[st.b] * PR._globals_float[st.a + 2];
 				case PROp.div_f:
-					PR.globals_float[st.c] = PR.globals_float[st.a] / PR.globals_float[st.b];
+					PR._globals_float[st.c] = PR._globals_float[st.a] / PR._globals_float[st.b];
 				case PROp.bitand:
-					PR.globals_float[st.c] = Std.int(PR.globals_float[st.a]) & Std.int(PR.globals_float[st.b]);
+					PR._globals_float[st.c] = Std.int(PR._globals_float[st.a]) & Std.int(PR._globals_float[st.b]);
 				case PROp.bitor:
-					PR.globals_float[st.c] = Std.int(PR.globals_float[st.a]) | Std.int(PR.globals_float[st.b]);
+					PR._globals_float[st.c] = Std.int(PR._globals_float[st.a]) | Std.int(PR._globals_float[st.b]);
 				case PROp.ge:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] >= PR.globals_float[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] >= PR._globals_float[st.b]) ? 1.0 : 0.0;
 				case PROp.le:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] <= PR.globals_float[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] <= PR._globals_float[st.b]) ? 1.0 : 0.0;
 				case PROp.gt:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] > PR.globals_float[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] > PR._globals_float[st.b]) ? 1.0 : 0.0;
 				case PROp.lt:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] < PR.globals_float[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] < PR._globals_float[st.b]) ? 1.0 : 0.0;
 				case PROp.and:
-					PR.globals_float[st.c] = ((PR.globals_float[st.a] != 0.0) && (PR.globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = ((PR._globals_float[st.a] != 0.0) && (PR._globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
 				case PROp.or:
-					PR.globals_float[st.c] = ((PR.globals_float[st.a] != 0.0) || (PR.globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = ((PR._globals_float[st.a] != 0.0) || (PR._globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
 				case PROp.not_f:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] == 0.0) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] == 0.0) ? 1.0 : 0.0;
 				case PROp.not_v:
-					PR.globals_float[st.c] = ((PR.globals_float[st.a] == 0.0) &&
-						(PR.globals_float[st.a + 1] == 0.0) &&
-						(PR.globals_float[st.a + 2] == 0.0)) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = ((PR._globals_float[st.a] == 0.0) &&
+						(PR._globals_float[st.a + 1] == 0.0) &&
+						(PR._globals_float[st.a + 2] == 0.0)) ? 1.0 : 0.0;
 				case PROp.not_s:
-					if (PR.globals_int[st.a] != 0)
-						PR.globals_float[st.c] = (PR.strings[PR.globals_int[st.a]] == 0) ? 1.0 : 0.0;
+					if (PR._globals_int[st.a] != 0)
+						PR._globals_float[st.c] = (PR.strings[PR._globals_int[st.a]] == 0) ? 1.0 : 0.0;
 					else
-						PR.globals_float[st.c] = 1.0;
+						PR._globals_float[st.c] = 1.0;
 				case PROp.not_fnc | PROp.not_ent:
-					PR.globals_float[st.c] = (PR.globals_int[st.a] == 0) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_int[st.a] == 0) ? 1.0 : 0.0;
 				case PROp.eq_f:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] == PR.globals_float[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] == PR._globals_float[st.b]) ? 1.0 : 0.0;
 				case PROp.eq_v:
-					PR.globals_float[st.c] = ((PR.globals_float[st.a] == PR.globals_float[st.b])
-						&& (PR.globals_float[st.a + 1] == PR.globals_float[st.b + 1])
-						&& (PR.globals_float[st.a + 2] == PR.globals_float[st.b + 2])) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = ((PR._globals_float[st.a] == PR._globals_float[st.b])
+						&& (PR._globals_float[st.a + 1] == PR._globals_float[st.b + 1])
+						&& (PR._globals_float[st.a + 2] == PR._globals_float[st.b + 2])) ? 1.0 : 0.0;
 				case PROp.eq_s:
-					PR.globals_float[st.c] = (PR.GetString(PR.globals_int[st.a]) == PR.GetString(PR.globals_int[st.b])) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR.GetString(PR._globals_int[st.a]) == PR.GetString(PR._globals_int[st.b])) ? 1.0 : 0.0;
 				case PROp.eq_e | PROp.eq_fnc:
-					PR.globals_float[st.c] = (PR.globals_int[st.a] == PR.globals_int[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_int[st.a] == PR._globals_int[st.b]) ? 1.0 : 0.0;
 				case PROp.ne_f:
-					PR.globals_float[st.c] = (PR.globals_float[st.a] != PR.globals_float[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_float[st.a] != PR._globals_float[st.b]) ? 1.0 : 0.0;
 				case PROp.ne_v:
-					PR.globals_float[st.c] = ((PR.globals_float[st.a] != PR.globals_float[st.b])
-						|| (PR.globals_float[st.a + 1] != PR.globals_float[st.b + 1])
-						|| (PR.globals_float[st.a + 2] != PR.globals_float[st.b + 2])) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = ((PR._globals_float[st.a] != PR._globals_float[st.b])
+						|| (PR._globals_float[st.a + 1] != PR._globals_float[st.b + 1])
+						|| (PR._globals_float[st.a + 2] != PR._globals_float[st.b + 2])) ? 1.0 : 0.0;
 				case PROp.ne_s:
-					PR.globals_float[st.c] = (PR.GetString(PR.globals_int[st.a]) != PR.GetString(PR.globals_int[st.b])) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR.GetString(PR._globals_int[st.a]) != PR.GetString(PR._globals_int[st.b])) ? 1.0 : 0.0;
 				case PROp.ne_e | PROp.ne_fnc:
-					PR.globals_float[st.c] = (PR.globals_int[st.a] != PR.globals_int[st.b]) ? 1.0 : 0.0;
+					PR._globals_float[st.c] = (PR._globals_int[st.a] != PR._globals_int[st.b]) ? 1.0 : 0.0;
 				case PROp.store_f | PROp.store_ent | PROp.store_fld | PROp.store_s |PROp.store_fnc:
-					PR.globals_int[st.b] = PR.globals_int[st.a];
+					PR._globals_int[st.b] = PR._globals_int[st.a];
 				case PROp.store_v:
-					PR.globals_int[st.b] = PR.globals_int[st.a];
-					PR.globals_int[st.b + 1] = PR.globals_int[st.a + 1];
-					PR.globals_int[st.b + 2] = PR.globals_int[st.a + 2];
+					PR._globals_int[st.b] = PR._globals_int[st.a];
+					PR._globals_int[st.b + 1] = PR._globals_int[st.a + 1];
+					PR._globals_int[st.b + 2] = PR._globals_int[st.a + 2];
 				case PROp.storep_f | PROp.storep_ent | PROp.storep_fld | PROp.storep_s | PROp.storep_fnc:
-					var ptr = PR.globals_int[st.b];
-					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = PR.globals_int[st.a];
+					var ptr = PR._globals_int[st.b];
+					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = PR._globals_int[st.a];
 				case PROp.storep_v:
-					var ed:Edict = SV.server.edicts[Math.floor(PR.globals_int[st.b] / PR.edict_size)];
-					var ptr = ((PR.globals_int[st.b] % PR.edict_size) - 96) >> 2;
-					ed._v_int[ptr] = PR.globals_int[st.a];
-					ed._v_int[ptr + 1] = PR.globals_int[st.a + 1];
-					ed._v_int[ptr + 2] = PR.globals_int[st.a + 2];
+					var ed:Edict = SV.server.edicts[Math.floor(PR._globals_int[st.b] / PR.edict_size)];
+					var ptr = ((PR._globals_int[st.b] % PR.edict_size) - 96) >> 2;
+					ed._v_int[ptr] = PR._globals_int[st.a];
+					ed._v_int[ptr + 1] = PR._globals_int[st.a + 1];
+					ed._v_int[ptr + 2] = PR._globals_int[st.a + 2];
 				case PROp.address:
-					var ed = PR.globals_int[st.a];
+					var ed = PR._globals_int[st.a];
 					if (ed == 0 && !SV.server.loading)
 						PR.RunError('assignment to world entity');
-					PR.globals_int[st.c] = ed * PR.edict_size + 96 + (PR.globals_int[st.b] << 2);
+					PR._globals_int[st.c] = ed * PR.edict_size + 96 + (PR._globals_int[st.b] << 2);
 				case PROp.load_f | PROp.load_fld | PROp.load_ent | PROp.load_s | PROp.load_fnc:
-					PR.globals_int[st.c] = SV.server.edicts[PR.globals_int[st.a]]._v_int[PR.globals_int[st.b]];
+					PR._globals_int[st.c] = SV.server.edicts[PR._globals_int[st.a]]._v_int[PR._globals_int[st.b]];
 				case PROp.load_v:
-					var ed:Edict = SV.server.edicts[PR.globals_int[st.a]];
-					var ptr = PR.globals_int[st.b];
-					PR.globals_int[st.c] = ed._v_int[ptr];
-					PR.globals_int[st.c + 1] = ed._v_int[ptr + 1];
-					PR.globals_int[st.c + 2] = ed._v_int[ptr + 2];
+					var ed:Edict = SV.server.edicts[PR._globals_int[st.a]];
+					var ptr = PR._globals_int[st.b];
+					PR._globals_int[st.c] = ed._v_int[ptr];
+					PR._globals_int[st.c + 1] = ed._v_int[ptr + 1];
+					PR._globals_int[st.c + 2] = ed._v_int[ptr + 2];
 				case PROp.jz:
-					if (PR.globals_int[st.a] == 0)
+					if (PR._globals_int[st.a] == 0)
 						s += st.b - 1;
 				case PROp.jnz:
-					if (PR.globals_int[st.a] != 0)
+					if (PR._globals_int[st.a] != 0)
 						s += st.b - 1;
 				case PROp.jump:
 					s += st.a - 1;
 				case PROp.call0 | PROp.call1 | PROp.call2 | PROp.call3 | PROp.call4 | PROp.call5 | PROp.call6 | PROp.call7 | PROp.call8:
 					PR.argc = st.op - PROp.call0;
-					if (PR.globals_int[st.a] == 0)
+					if (PR._globals_int[st.a] == 0)
 						PR.RunError('NULL function');
-					var newf = PR.functions[PR.globals_int[st.a]];
+					var newf = PR.functions[PR._globals_int[st.a]];
 					if (newf.first_statement < 0) {
 						var ptr = -newf.first_statement;
 						if (ptr >= PF.builtin.length)
@@ -728,17 +728,17 @@ class PR {
 					}
 					s = PR.EnterFunction(newf);
 				case PROp.done | PROp.ret:
-					PR.globals_int[1] = PR.globals_int[st.a];
-					PR.globals_int[2] = PR.globals_int[st.a + 1];
-					PR.globals_int[3] = PR.globals_int[st.a + 2];
+					PR._globals_int[1] = PR._globals_int[st.a];
+					PR._globals_int[2] = PR._globals_int[st.a + 1];
+					PR._globals_int[3] = PR._globals_int[st.a + 2];
 					s = PR.LeaveFunction();
 					if (PR.depth == exitdepth)
 						return;
 				case PROp.state:
-					var ed:Edict = SV.server.edicts[PR.globals_int[GlobalVarOfs.self]];
-					ed.v.nextthink = PR.globals_float[GlobalVarOfs.time] + 0.1;
-					ed.v.frame = PR.globals_float[st.a];
-					ed.v.think = PR.globals_int[st.b];
+					var ed:Edict = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+					ed.v.nextthink = PR._globals_float[GlobalVarOfs.time] + 0.1;
+					ed.v.frame = PR._globals_float[st.a];
+					ed.v.think = PR._globals_int[st.b];
 				default:
 					PR.RunError('Bad opcode ' + st.op);
 			}

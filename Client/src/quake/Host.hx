@@ -139,10 +139,10 @@ class Host {
                 NET.SendMessage(client.netconnection, client.message);
             }
             if ((client.edict != null) && (client.spawned)) {
-                var saveSelf = PR.globals_int[GlobalVarOfs.self];
-                PR.globals_int[GlobalVarOfs.self] = client.edict.num;
-                PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.ClientDisconnect]);
-                PR.globals_int[GlobalVarOfs.self] = saveSelf;
+                var saveSelf = PR._globals_int[GlobalVarOfs.self];
+                PR._globals_int[GlobalVarOfs.self] = client.edict.num;
+                PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.ClientDisconnect]);
+                PR._globals_int[GlobalVarOfs.self] = saveSelf;
             }
             Sys.Print('Client ' + SV.GetClientName(client) + ' removed\n');
         }
@@ -216,7 +216,7 @@ class Host {
     static var oldrealtime:Float;
 
     static function ServerFrame() {
-        PR.globals_float[GlobalVarOfs.frametime] = Host.frametime;
+        PR._globals_float[GlobalVarOfs.frametime] = Host.frametime;
         SV.server.datagram.cursize = 0;
         SV.CheckForNewClients();
         SV.RunClients();
@@ -388,7 +388,7 @@ class Host {
             print = (cast SV).ClientPrint;
         print('host:    ' + NET.hostname.string + '\n');
         print('version: 1.09\n');
-        print('map:     ' + PR.GetString(PR.globals_int[GlobalVarOfs.mapname]) + '\n');
+        print('map:     ' + PR.GetString(PR._globals_int[GlobalVarOfs.mapname]) + '\n');
         print('players: ' + NET.activeconnections + ' active (' + SV.svs.maxclients + ' max)\n\n');
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
@@ -435,7 +435,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
         SV.player.flags = SV.player.flags ^ EntFlag.godmode;
         if ((SV.player.flags & EntFlag.godmode) == 0)
@@ -449,7 +449,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
         SV.player.flags = SV.player.flags ^ EntFlag.notarget;
         if ((SV.player.flags & EntFlag.notarget) == 0)
@@ -463,7 +463,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
         if (SV.player.v.movetype != MoveType.noclip) {
             Host.noclip_anglehack = true;
@@ -481,7 +481,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
         if (SV.player.v.movetype != MoveType.fly) {
             SV.player.v.movetype = MoveType.fly;
@@ -553,7 +553,7 @@ class Host {
 
     static function Restart_f() {
         if (!CL.cls.demoplayback && SV.server.active && !Cmd.client)
-            SV.SpawnServer(PR.GetString(PR.globals_int[GlobalVarOfs.mapname]));
+            SV.SpawnServer(PR.GetString(PR._globals_int[GlobalVarOfs.mapname]));
     }
 
     static function Reconnect_f() {
@@ -626,7 +626,7 @@ class Host {
         var f = ['5\n' + Host.SavegameComment() + '\n'];
         for (i in 0...16)
             f[f.length] = client.spawn_parms[i].toFixed(6) + '\n';
-        f[f.length] = Host.current_skill + '\n' + PR.GetString(PR.globals_int[GlobalVarOfs.mapname]) + '\n' + SV.server.time.toFixed(6) + '\n';
+        f[f.length] = Host.current_skill + '\n' + PR.GetString(PR._globals_int[GlobalVarOfs.mapname]) + '\n' + SV.server.time.toFixed(6) + '\n';
         for (i in 0...64) {
             if (SV.server.lightstyles[i].length != 0)
                 f[f.length] = SV.server.lightstyles[i] + '\n';
@@ -641,7 +641,7 @@ class Host {
             var type:EType = type & 0x7fff;
             if ((type != ev_string) && (type != ev_float) && (type != ev_entity))
                 continue;
-            f[f.length] = '"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR.globals, def.ofs) + '"\n';
+            f[f.length] = '"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR._globals, def.ofs) + '"\n';
         }
         f[f.length] = '}\n';
         for (i in 0...SV.server.num_edicts) {
@@ -736,7 +736,7 @@ class Host {
                 Console.Print('\'' + keyname + '\' is not a global\n');
                 continue;
             }
-            if (!ED.ParseEpair(PR.globals, key, token[3]))
+            if (!ED.ParseEpair(PR._globals, key, token[3]))
                 Host.Error('Host.Loadgame_f: parse error');
         }
 
@@ -908,9 +908,9 @@ class Host {
             Host.ClientPrint('Can\'t suicide -- already dead!\n');
             return;
         }
-        PR.globals_float[GlobalVarOfs.time] = SV.server.time;
-        PR.globals_int[GlobalVarOfs.self] = SV.player.num;
-        PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.ClientKill]);
+        PR._globals_float[GlobalVarOfs.time] = SV.server.time;
+        PR._globals_int[GlobalVarOfs.self] = SV.player.num;
+        PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.ClientKill]);
     }
 
     static function Pause_f() {
@@ -965,13 +965,13 @@ class Host {
             ent.v.team = (client.colors & 15) + 1;
             ent.v.netname = PR.netnames + (client.num << 5);
             for (i in 0...16)
-                PR.globals_float[GlobalVarOfs.parms + i] = client.spawn_parms[i];
-            PR.globals_float[GlobalVarOfs.time] = SV.server.time;
-            PR.globals_int[GlobalVarOfs.self] = ent.num;
-            PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.ClientConnect]);
+                PR._globals_float[GlobalVarOfs.parms + i] = client.spawn_parms[i];
+            PR._globals_float[GlobalVarOfs.time] = SV.server.time;
+            PR._globals_int[GlobalVarOfs.self] = ent.num;
+            PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.ClientConnect]);
             if ((Sys.FloatTime() - client.netconnection.connecttime) <= SV.server.time)
                 Sys.Print(SV.GetClientName(client) + ' entered the game\n');
-            PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.PutClientInServer]);
+            PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.PutClientInServer]);
         }
 
         var message = client.message;
@@ -997,16 +997,16 @@ class Host {
         }
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.totalsecrets);
-        message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.total_secrets]));
+        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.total_secrets]));
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.totalmonsters);
-        message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.total_monsters]));
+        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.total_monsters]));
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.secrets);
-        message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.found_secrets]));
+        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.found_secrets]));
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.monsters);
-        message.WriteLong(Std.int(PR.globals_float[GlobalVarOfs.killed_monsters]));
+        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.killed_monsters]));
         message.WriteByte(SVC.setangle);
         message.WriteAngle(ent.v.angles);
         message.WriteAngle(ent.v.angles1);
@@ -1032,7 +1032,7 @@ class Host {
                 return;
             }
         }
-        else if (PR.globals_float[GlobalVarOfs.deathmatch] != 0.0)
+        else if (PR._globals_float[GlobalVarOfs.deathmatch] != 0.0)
             return;
         var save = Host.client;
         var i, byNumber;
@@ -1103,7 +1103,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR.globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
             return;
         if (Cmd.argv.length <= 1)
             return;

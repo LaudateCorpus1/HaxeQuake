@@ -1307,21 +1307,22 @@ class SV {
             movetime = thinktime - oldltime;
             if (movetime < 0.0)
                 movetime = 0.0;
-        } else
+        } else {
             movetime = Host.frametime;
+        }
         if (movetime != 0.0)
-            SV.PushMove(ent, movetime);
-        if ((thinktime <= oldltime) || (thinktime > ent.v.ltime))
+            PushMove(ent, movetime);
+        if (thinktime <= oldltime || thinktime > ent.v.ltime)
             return;
         ent.v.nextthink = 0.0;
-        PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+        PR.globals_float[GlobalVarOfs.time] = server.time;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
         PR.globals_int[GlobalVarOfs.other] = 0;
         PR.ExecuteProgram(ent.v.think);
     }
 
-    static function CheckStuck(ent:Edict) {
-        if (!SV.TestEntityPosition(ent)) {
+    static function CheckStuck(ent:Edict):Void {
+        if (!TestEntityPosition(ent)) {
             ent.v.oldorigin = ent.v.origin;
             ent.v.oldorigin1 = ent.v.origin1;
             ent.v.oldorigin2 = ent.v.origin2;
@@ -1331,9 +1332,9 @@ class SV {
         ent.v.origin = ent.v.oldorigin;
         ent.v.origin1 = ent.v.oldorigin1;
         ent.v.origin2 = ent.v.oldorigin2;
-        if (!SV.TestEntityPosition(ent)) {
+        if (!TestEntityPosition(ent)) {
             Console.DPrint('Unstuck.\n');
-            SV.LinkEdict(ent, true);
+            LinkEdict(ent, true);
             return;
         }
         for (z in 0...18) {
@@ -1342,9 +1343,9 @@ class SV {
                     ent.v.origin = org[0] + i;
                     ent.v.origin1 = org[1] + j;
                     ent.v.origin2 = org[2] + z;
-                    if (!SV.TestEntityPosition(ent)) {
+                    if (!TestEntityPosition(ent)) {
                         Console.DPrint('Unstuck.\n');
-                        SV.LinkEdict(ent, true);
+                        LinkEdict(ent, true);
                         return;
                     }
                 }
@@ -1355,24 +1356,20 @@ class SV {
     }
 
     static function CheckWater(ent:Edict):Bool {
-        var point = Vec.of(
-            ent.v.origin,
-            ent.v.origin1,
-            ent.v.origin2 + ent.v.mins2 + 1.0
-        );
+        var point = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + ent.v.mins2 + 1.0);
         ent.v.waterlevel = 0.0;
         ent.v.watertype = ModContents.empty;
-        var cont = SV.PointContents(point);
+        var cont = PointContents(point);
         if (cont > ModContents.water)
             return false;
         ent.v.watertype = cont;
         ent.v.waterlevel = 1.0;
         point[2] = ent.v.origin2 + (ent.v.mins2 + ent.v.maxs2) * 0.5;
-        cont = SV.PointContents(point);
+        cont = PointContents(point);
         if (cont <= ModContents.water) {
             ent.v.waterlevel = 2.0;
             point[2] = ent.v.origin2 + ent.v.view_ofs2;
-            cont = SV.PointContents(point);
+            cont = PointContents(point);
             if (cont <= ModContents.water)
                 ent.v.waterlevel = 3.0;
         }
@@ -1387,9 +1384,7 @@ class SV {
         if (d >= 0.0)
             return;
         d += 1.0;
-        var i = normal[0] * ent.v.velocity
-            + normal[1] * ent.v.velocity1
-            + normal[2] * ent.v.velocity2;
+        var i = normal[0] * ent.v.velocity + normal[1] * ent.v.velocity1 + normal[2] * ent.v.velocity2;
         ent.v.velocity = (ent.v.velocity - normal[0] * i) * d; 
         ent.v.velocity1 = (ent.v.velocity1 - normal[1] * i) * d; 
     }
@@ -1399,21 +1394,34 @@ class SV {
         var dir = Vec.of(2.0, 0.0, 0.0);
         for (i in 0...8) {
             switch (i) {
-                case 1: dir[0] = 0.0; dir[1] = 2.0;
-                case 2: dir[0] = -2.0; dir[1] = 0.0;
-                case 3: dir[0] = 0.0; dir[1] = -2.0;
-                case 4: dir[0] = 2.0; dir[1] = 2.0;
-                case 5: dir[0] = -2.0; dir[1] = 2.0;
-                case 6: dir[0] = 2.0; dir[1] = -2.0;
-                case 7: dir[0] = -2.0; dir[1] = -2.0;
+                case 1:
+                    dir[0] = 0.0;
+                    dir[1] = 2.0;
+                case 2:
+                    dir[0] = -2.0;
+                    dir[1] = 0.0;
+                case 3:
+                    dir[0] = 0.0;
+                    dir[1] = -2.0;
+                case 4:
+                    dir[0] = 2.0;
+                    dir[1] = 2.0;
+                case 5:
+                    dir[0] = -2.0;
+                    dir[1] = 2.0;
+                case 6:
+                    dir[0] = 2.0;
+                    dir[1] = -2.0;
+                case 7:
+                    dir[0] = -2.0;
+                    dir[1] = -2.0;
             }
-            SV.PushEntity(ent, dir);
+            PushEntity(ent, dir);
             ent.v.velocity = oldvel[0];
             ent.v.velocity1 = oldvel[1];
             ent.v.velocity2 = 0.0;
-            var clip = SV.FlyMove(ent, 0.1);
-            if ((Math.abs(oldorg[1] - ent.v.origin1) > 4.0)
-                || (Math.abs(oldorg[0] - ent.v.origin) > 4.0))
+            var clip = FlyMove(ent, 0.1);
+            if (Math.abs(oldorg[1] - ent.v.origin1) > 4.0 || Math.abs(oldorg[0] - ent.v.origin) > 4.0)
                 return clip;
             ED.SetVector(ent, EdictVarOfs.origin, oldorg);
         }

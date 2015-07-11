@@ -628,25 +628,25 @@ class SV {
     }
 
     static function CreateBaseline():Void {
-        var player = SV.ModelIndex('progs/player.mdl');
-        var signon = SV.server.signon;
-        for (i in 0...SV.server.num_edicts) {
-            var svent = SV.server.edicts[i];
+        var player = ModelIndex('progs/player.mdl');
+        var signon = server.signon;
+        for (i in 0...server.num_edicts) {
+            var svent = server.edicts[i];
             if (svent.free)
                 continue;
-            if ((i > SV.svs.maxclients) && (svent.v.modelindex == 0))
+            if (i > svs.maxclients && svent.v.modelindex == 0)
                 continue;
             var baseline = svent.baseline;
             baseline.origin = ED.Vector(svent, EdictVarOfs.origin);
             baseline.angles = ED.Vector(svent, EdictVarOfs.angles);
             baseline.frame = Std.int(svent.v.frame);
             baseline.skin = Std.int(svent.v.skin);
-            if ((i > 0) && (i <= SV.svs.maxclients)) {
+            if (i > 0 && i <= svs.maxclients) {
                 baseline.colormap = i;
                 baseline.modelindex = player;
             } else {
                 baseline.colormap = 0;
-                baseline.modelindex = SV.ModelIndex(PR.GetString(svent.v.model));
+                baseline.modelindex = ModelIndex(PR.GetString(svent.v.model));
             }
             signon.WriteByte(SVC.spawnbaseline);
             signon.WriteShort(i);
@@ -664,9 +664,9 @@ class SV {
     }
 
     static function SaveSpawnparms():Void {
-        SV.svs.serverflags = Std.int(PR.globals_float[GlobalVarOfs.serverflags]);
-        for (i in 0...SV.svs.maxclients) {
-            Host.client = SV.svs.clients[i];
+        svs.serverflags = Std.int(PR.globals_float[GlobalVarOfs.serverflags]);
+        for (i in 0...svs.maxclients) {
+            Host.client = svs.clients[i];
             if (!Host.client.active)
                 continue;
             PR.globals_int[GlobalVarOfs.self] = Host.client.edict.num;
@@ -685,8 +685,8 @@ class SV {
         Console.DPrint('SpawnServer: $map\n');
         svs.changelevel_issued = false;
 
-        if (SV.server.active) {
-            NET.SendToAll(SV.reconnect);
+        if (server.active) {
+            NET.SendToAll(reconnect);
             Cmd.ExecuteString('reconnect\n');
         }
 
@@ -704,48 +704,48 @@ class SV {
 
         PR.LoadProgs();
 
-        SV.server.edicts = [];
+        server.edicts = [];
         for (i in 0...Def.max_edicts)
-            SV.server.edicts.push(new Edict(i));
+            server.edicts.push(new Edict(i));
 
-        SV.server.datagram.cursize = 0;
-        SV.server.reliable_datagram.cursize = 0;
-        SV.server.signon.cursize = 0;
-        SV.server.num_edicts = SV.svs.maxclients + 1;
-        for (i in 0...SV.svs.maxclients)
-            SV.svs.clients[i].edict = SV.server.edicts[i + 1];
-        SV.server.loading = true;
-        SV.server.paused = false;
-        SV.server.loadgame = false;
-        SV.server.time = 1.0;
-        SV.server.lastcheck = 0;
-        SV.server.lastchecktime = 0.0;
-        SV.server.modelname = 'maps/' + map + '.bsp';
-        SV.server.worldmodel = Mod.ForName(SV.server.modelname, false);
-        if (SV.server.worldmodel == null) {
-            Console.Print('Couldn\'t spawn server ' + SV.server.modelname + '\n');
-            SV.server.active = false;
+        server.datagram.cursize = 0;
+        server.reliable_datagram.cursize = 0;
+        server.signon.cursize = 0;
+        server.num_edicts = svs.maxclients + 1;
+        for (i in 0...svs.maxclients)
+            svs.clients[i].edict = server.edicts[i + 1];
+        server.loading = true;
+        server.paused = false;
+        server.loadgame = false;
+        server.time = 1.0;
+        server.lastcheck = 0;
+        server.lastchecktime = 0.0;
+        server.modelname = 'maps/' + map + '.bsp';
+        server.worldmodel = Mod.ForName(server.modelname, false);
+        if (server.worldmodel == null) {
+            Console.Print('Couldn\'t spawn server ' + server.modelname + '\n');
+            server.active = false;
             return;
         }
-        SV.server.models = [];
-        SV.server.models[1] = SV.server.worldmodel;
+        server.models = [];
+        server.models[1] = server.worldmodel;
 
-        SV.areanodes = [];
-        SV.CreateAreaNode(0, SV.server.worldmodel.mins, SV.server.worldmodel.maxs);
+        areanodes = [];
+        CreateAreaNode(0, server.worldmodel.mins, server.worldmodel.maxs);
 
-        SV.server.sound_precache = [''];
-        SV.server.model_precache = ['', SV.server.modelname];
-        for (i in 1...SV.server.worldmodel.submodels.length + 1) {
-            SV.server.model_precache[i + 1] = '*' + i;
-            SV.server.models[i + 1] = Mod.ForName('*' + i, false);
+        server.sound_precache = [''];
+        server.model_precache = ['', server.modelname];
+        for (i in 1...server.worldmodel.submodels.length + 1) {
+            server.model_precache[i + 1] = '*' + i;
+            server.models[i + 1] = Mod.ForName('*' + i, false);
         }
 
-        SV.server.lightstyles = [];
+        server.lightstyles = [];
         for (i in 0...64)
-            SV.server.lightstyles[i] = '';
+            server.lightstyles[i] = '';
 
-        var ent = SV.server.edicts[0];
-        ent.v.model = PR.NewString(SV.server.modelname, 64);
+        var ent = server.edicts[0];
+        ent.v.model = PR.NewString(server.modelname, 64);
         ent.v.modelindex = 1.0;
         ent.v.solid = SolidType.bsp;
         ent.v.movetype = MoveType.push;
@@ -756,20 +756,20 @@ class SV {
             PR.globals_float[GlobalVarOfs.deathmatch] = Host.deathmatch.value;
 
         PR.globals_int[GlobalVarOfs.mapname] = PR.NewString(map, 64);
-        PR.globals_float[GlobalVarOfs.serverflags] = SV.svs.serverflags;
-        ED.LoadFromFile(SV.server.worldmodel.entities);
-        SV.server.active = true;
-        SV.server.loading = false;
+        PR.globals_float[GlobalVarOfs.serverflags] = svs.serverflags;
+        ED.LoadFromFile(server.worldmodel.entities);
+        server.active = true;
+        server.loading = false;
         Host.frametime = 0.1;
-        SV.Physics();
-        SV.Physics();
-        SV.CreateBaseline();
-        for (i in 0...SV.svs.maxclients) {
-            Host.client = SV.svs.clients[i];
+        Physics();
+        Physics();
+        CreateBaseline();
+        for (i in 0...svs.maxclients) {
+            Host.client = svs.clients[i];
             if (!Host.client.active)
                 continue;
             Host.client.edict.v.netname = PR.netnames + (i << 5);
-            SV.SendServerinfo(Host.client);
+            SendServerinfo(Host.client);
         }
         Console.DPrint('Server spawned.\n');
     }

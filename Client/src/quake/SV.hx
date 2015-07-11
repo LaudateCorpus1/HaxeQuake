@@ -946,45 +946,45 @@ class SV {
         else
             dy = -1;
         var tdir;
-        if ((dx != -1) && (dy != -1)) {
+        if (dx != -1 && dy != -1) {
             if (dx == 0.0)
                 tdir = (dy == 90.0) ? 45.0 : 315.0;
             else
                 tdir = (dy == 90.0) ? 135.0 : 215.0;
-            if ((tdir != turnaround) && (SV.StepDirection(actor, tdir, dist)))
+            if (tdir != turnaround && StepDirection(actor, tdir, dist))
                 return;
         }
-        if ((Math.random() >= 0.25) || (Math.abs(deltay) > Math.abs(deltax))) {
+        if (Math.random() >= 0.25 || Math.abs(deltay) > Math.abs(deltax)) {
             tdir = dx;
             dx = dy;
             dy = tdir;
         }
-        if ((dx != -1) && (dx != turnaround) && (SV.StepDirection(actor, dx, dist)))
+        if (dx != -1 && dx != turnaround && StepDirection(actor, dx, dist))
             return;
-        if ((dy != -1) && (dy != turnaround) && (SV.StepDirection(actor, dy, dist)))
+        if (dy != -1 && dy != turnaround && StepDirection(actor, dy, dist))
             return;
-        if ((olddir != -1) && (SV.StepDirection(actor, olddir, dist)))
+        if (olddir != -1 && StepDirection(actor, olddir, dist))
             return;
         if (Math.random() >= 0.5) {
             tdir = 0.0;
             while (tdir <= 315.0) {
-                if (tdir != turnaround && SV.StepDirection(actor, tdir, dist))
+                if (tdir != turnaround && StepDirection(actor, tdir, dist))
                     return;
                 tdir += 45.0;
             }
         } else {
             tdir = 315.0;
             while (tdir >= 0.0) {
-                if (tdir != turnaround && SV.StepDirection(actor, tdir, dist))
+                if (tdir != turnaround && StepDirection(actor, tdir, dist))
                     return;
                 tdir -= 45.0;
             }
         }
-        if (turnaround != -1 && SV.StepDirection(actor, turnaround, dist))
+        if (turnaround != -1 && StepDirection(actor, turnaround, dist))
             return;
         actor.v.ideal_yaw = olddir;
-        if (!SV.CheckBottom(actor))
-            actor.flags = actor.flags | EntFlag.partialground;
+        if (!CheckBottom(actor))
+            actor.flags |= EntFlag.partialground;
     }
 
     static function CloseEnough(ent:Edict, goal:Edict, dist:Float):Bool {

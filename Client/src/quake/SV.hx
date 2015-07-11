@@ -1464,28 +1464,28 @@ class SV {
         ED.SetVector(ent, EdictVarOfs.velocity, nostepvel);
     }
 
-    static function Physics_Client(ent:Edict) {
-        if (!SV.svs.clients[ent.num - 1].active)
+    static function Physics_Client(ent:Edict):Void {
+        if (!svs.clients[ent.num - 1].active)
             return;
-        PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+        PR.globals_float[GlobalVarOfs.time] = server.time;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
         PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.PlayerPreThink]);
-        SV.CheckVelocity(ent);
+        CheckVelocity(ent);
         var movetype = Std.int(ent.v.movetype);
         if (movetype == MoveType.toss || movetype == MoveType.bounce) {
-            SV.Physics_Toss(ent);
+            Physics_Toss(ent);
         } else {
-            if (!SV.RunThink(ent))
+            if (!RunThink(ent))
                 return;
             switch (movetype) {
                 case MoveType.none:
                 case MoveType.walk:
-                    if (!SV.CheckWater(ent) && (ent.flags & EntFlag.waterjump) == 0)
-                        SV.AddGravity(ent);
-                    SV.CheckStuck(ent);
-                    SV.WalkMove(ent);
+                    if (!CheckWater(ent) && (ent.flags & EntFlag.waterjump) == 0)
+                        AddGravity(ent);
+                    CheckStuck(ent);
+                    WalkMove(ent);
                 case MoveType.fly:
-                    SV.FlyMove(ent, Host.frametime);
+                    FlyMove(ent, Host.frametime);
                 case MoveType.noclip:
                     ent.v.origin += Host.frametime * ent.v.velocity;
                     ent.v.origin1 += Host.frametime * ent.v.velocity1;
@@ -1494,14 +1494,14 @@ class SV {
                     Sys.Error('SV.Physics_Client: bad movetype ' + movetype);
             }
         }
-        SV.LinkEdict(ent, true);
-        PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+        LinkEdict(ent, true);
+        PR.globals_float[GlobalVarOfs.time] = server.time;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
         PR.ExecuteProgram(PR.globals_int[GlobalVarOfs.PlayerPostThink]);
     }
 
     static function Physics_Noclip(ent:Edict) {
-        if (!SV.RunThink(ent))
+        if (!RunThink(ent))
             return;
         ent.v.angles += Host.frametime * ent.v.avelocity;
         ent.v.angles1 += Host.frametime * ent.v.avelocity1;
@@ -1509,11 +1509,11 @@ class SV {
         ent.v.origin += Host.frametime * ent.v.velocity;
         ent.v.origin1 += Host.frametime * ent.v.velocity1;
         ent.v.origin2 += Host.frametime * ent.v.velocity2;
-        SV.LinkEdict(ent, false);
+        LinkEdict(ent, false);
     }
 
-    static function CheckWaterTransition(ent:Edict) {
-        var cont = SV.PointContents(ED.Vector(ent, EdictVarOfs.origin));
+    static function CheckWaterTransition(ent:Edict):Void {
+        var cont = PointContents(ED.Vector(ent, EdictVarOfs.origin));
         if (ent.v.watertype == 0.0) {
             ent.v.watertype = cont;
             ent.v.waterlevel = 1.0;
@@ -1521,13 +1521,13 @@ class SV {
         }
         if (cont <= ModContents.water) {
             if (ent.v.watertype == ModContents.empty)
-                SV.StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
+                StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
             ent.v.watertype = cont;
             ent.v.waterlevel = 1.0;
             return;
         }
         if (ent.v.watertype != ModContents.empty)
-            SV.StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
+            StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
         ent.v.watertype = ModContents.empty;
         ent.v.waterlevel = cont;
     }

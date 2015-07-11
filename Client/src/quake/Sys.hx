@@ -166,7 +166,7 @@ class Sys {
             window.onunload = onunload;
             window.onwheel = onwheel;
 
-            frame = window.setInterval(Host.Frame, 1000.0 / 60.0);
+            frame = window.setInterval(Host.Frame, Std.int(1000.0 / 60.0));
         }
     }
 

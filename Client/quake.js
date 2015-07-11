@@ -8252,7 +8252,7 @@ quake_Sys.main = function() {
 		window.onmouseup = quake_Sys.onmouseup;
 		window.onunload = quake_Sys.onunload;
 		window.onwheel = quake_Sys.onwheel;
-		quake_Sys.frame = window.setInterval(quake_Host.Frame,null,16.666666666666668);
+		quake_Sys.frame = window.setInterval(quake_Host.Frame,16);
 	};
 };
 quake_Sys.onbeforeunload = function(_) {

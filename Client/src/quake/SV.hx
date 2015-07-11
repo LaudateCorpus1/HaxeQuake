@@ -999,21 +999,21 @@ class SV {
 
     // phys
 
-    static function CheckAllEnts() {
-        for (e in 1...SV.server.num_edicts) {
-            var check = SV.server.edicts[e];
+    static function CheckAllEnts():Void {
+        for (e in 1...server.num_edicts) {
+            var check = server.edicts[e];
             if (check.free)
                 continue;
             switch (check.v.movetype) {
                 case MoveType.push | MoveType.none | MoveType.noclip:
                     continue;
             }
-            if (SV.TestEntityPosition(check))
+            if (TestEntityPosition(check))
                 Console.Print('entity in invalid position\n');
         }
     }
 
-    static function CheckVelocity(ent:Edict) {
+    static function CheckVelocity(ent:Edict):Void {
         for (i in 0...3) {
             var velocity = ent._v_float[EdictVarOfs.velocity + i];
             if (Math.isNaN(velocity)) {
@@ -1024,20 +1024,20 @@ class SV {
                 Console.Print('Got a NaN origin on ' + PR.GetString(ent.v.classname) + '\n');
                 ent._v_float[EdictVarOfs.origin + i] = 0.0;
             }
-            if (velocity > SV.maxvelocity.value)
-                velocity = SV.maxvelocity.value;
-            else if (velocity < -SV.maxvelocity.value)
-                velocity = -SV.maxvelocity.value;
+            if (velocity > maxvelocity.value)
+                velocity = maxvelocity.value;
+            else if (velocity < -maxvelocity.value)
+                velocity = -maxvelocity.value;
             ent._v_float[EdictVarOfs.velocity + i] = velocity;
         }
     }
 
-    static function RunThink(ent:Edict) {
+    static function RunThink(ent:Edict):Bool {
         var thinktime = ent.v.nextthink;
-        if ((thinktime <= 0.0) || (thinktime > (SV.server.time + Host.frametime)))
+        if (thinktime <= 0.0 || thinktime > (server.time + Host.frametime))
             return true;
-        if (thinktime < SV.server.time)
-            thinktime = SV.server.time;
+        if (thinktime < server.time)
+            thinktime = server.time;
         ent.v.nextthink = 0.0;
         PR.globals_float[GlobalVarOfs.time] = thinktime;
         PR.globals_int[GlobalVarOfs.self] = ent.num;
@@ -1049,14 +1049,14 @@ class SV {
     static function Impact(e1:Edict, e2:Edict):Void {
         var old_self = PR.globals_int[GlobalVarOfs.self];
         var old_other = PR.globals_int[GlobalVarOfs.other];
-        PR.globals_float[GlobalVarOfs.time] = SV.server.time;
+        PR.globals_float[GlobalVarOfs.time] = server.time;
 
-        if ((e1.v.touch != 0) && (e1.v.solid != SolidType.not)) {
+        if (e1.v.touch != 0 && e1.v.solid != SolidType.not) {
             PR.globals_int[GlobalVarOfs.self] = e1.num;
             PR.globals_int[GlobalVarOfs.other] = e2.num;
             PR.ExecuteProgram(e1.v.touch);
         }
-        if ((e2.v.touch != 0) && (e2.v.solid != SolidType.not)) {
+        if (e2.v.touch != 0 && e2.v.solid != SolidType.not) {
             PR.globals_int[GlobalVarOfs.self] = e2.num;
             PR.globals_int[GlobalVarOfs.other] = e1.num;
             PR.ExecuteProgram(e2.v.touch);
@@ -1070,13 +1070,13 @@ class SV {
         var backoff = (vec[0] * normal[0] + vec[1] * normal[1] + vec[2] * normal[2]) * overbounce;
 
         out[0] = vec[0] - normal[0] * backoff;
-        if ((out[0] > -0.1) && (out[0] < 0.1))
+        if (out[0] > -0.1 && out[0] < 0.1)
             out[0] = 0.0;
         out[1] = vec[1] - normal[1] * backoff;
-        if ((out[1] > -0.1) && (out[1] < 0.1))
+        if (out[1] > -0.1 && out[1] < 0.1)
             out[1] = 0.0;
         out[2] = vec[2] - normal[2] * backoff;
-        if ((out[2] > -0.1) && (out[2] < 0.1))
+        if (out[2] > -0.1 && out[2] < 0.1)
             out[2] = 0.0;
     }
 

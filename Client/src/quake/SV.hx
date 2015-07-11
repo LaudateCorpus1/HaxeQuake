@@ -337,14 +337,14 @@ class SV {
     }
 
     static function WriteEntitiesToClient(clent:Edict, msg:MSG):Void {
-        SV.FatPVS(Vec.of(
+        FatPVS(Vec.of(
             clent.v.origin + clent.v.view_ofs,
             clent.v.origin1 + clent.v.view_ofs1,
             clent.v.origin2 + clent.v.view_ofs2
         ));
-        var pvs = SV.fatpvs;
-        for (e in 1...SV.server.num_edicts) {
-            var ent = SV.server.edicts[e];
+        var pvs = fatpvs;
+        for (e in 1...server.num_edicts) {
+            var ent = server.edicts[e];
             if (ent != clent) {
                 if (ent.v.modelindex == 0.0 || PR.strings[ent.v.model] == 0)
                     continue;
@@ -365,7 +365,7 @@ class SV {
             var bits = 0;
             for (i in 0...3) {
                 var miss = ent._v_float[EdictVarOfs.origin + i] - ent.baseline.origin[i];
-                if ((miss < -0.1) || (miss > 0.1))
+                if (miss < -0.1 || miss > 0.1)
                     bits += U.origin1 << i;
             }
             if (ent.v.angles != ent.baseline.angles[0])

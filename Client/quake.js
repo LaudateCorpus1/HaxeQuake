@@ -9672,8 +9672,8 @@ quake_SV.UpdateToReliableMessages = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		quake_Host.client = quake_SV.svs.clients[i];
-		quake_Host.client.edict._v_float[49] = quake_Host.client.edict._v_float[49] | 0;
 		var frags = quake_Host.client.edict._v_float[49] | 0;
+		quake_Host.client.edict._v_float[49] = frags;
 		if(quake_Host.client.old_frags == frags) continue;
 		var _g3 = 0;
 		var _g2 = quake_SV.svs.maxclients;

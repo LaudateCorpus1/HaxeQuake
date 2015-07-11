@@ -547,15 +547,14 @@ class SV {
     }
 
     static function UpdateToReliableMessages() {
-
-        for (i in 0...SV.svs.maxclients) {
-            Host.client = SV.svs.clients[i];
-            Host.client.edict.v.frags = Std.int(Host.client.edict.v.frags) >> 0;
+        for (i in 0...svs.maxclients) {
+            Host.client = svs.clients[i];
             var frags = Std.int(Host.client.edict.v.frags);
+            Host.client.edict.v.frags = frags;
             if (Host.client.old_frags == frags)
                 continue;
-            for (j in 0...SV.svs.maxclients) {
-                var client = SV.svs.clients[j];
+            for (j in 0...svs.maxclients) {
+                var client = svs.clients[j];
                 if (!client.active)
                     continue;
                 client.message.WriteByte(SVC.updatefrags);
@@ -565,8 +564,8 @@ class SV {
             Host.client.old_frags = frags;
         }
 
-        for (i in 0...SV.svs.maxclients) {
-            var client = SV.svs.clients[i];
+        for (i in 0...svs.maxclients) {
+            var client = svs.clients[i];
             if (client.active)
                 client.message.Write(new Uint8Array(SV.server.reliable_datagram.data), SV.server.reliable_datagram.cursize);
         }

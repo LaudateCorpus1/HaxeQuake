@@ -1,7 +1,6 @@
 package quake;
 
 import quake.Protocol.SVC;
-import quake.PR.GlobalVarOfs;
 import quake.SV.EntFlag;
 import quake.SV.DamageType;
 import quake.SV.SolidType;
@@ -20,13 +19,13 @@ class PF {
 
     static function error() {
         Console.Print('====SERVER ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
-        ED.Print(SV.server.edicts[PR._globals_int[GlobalVarOfs.self]]);
+        ED.Print(SV.server.edicts[PR.globals.self]);
         Host.Error('Program error');
     }
 
     static function objerror() {
         Console.Print('====OBJECT ERROR in ' + PR.GetString(PR.xfunction.name) + '\n' + VarString(0) + '\n');
-        ED.Print(SV.server.edicts[PR._globals_int[GlobalVarOfs.self]]);
+        ED.Print(SV.server.edicts[PR.globals.self]);
         Host.Error('Program error');
     }
 
@@ -219,7 +218,7 @@ class PF {
         PR._globals_float[GlobalVarOfs.trace_plane_normal1] = plane.normal[1];
         PR._globals_float[GlobalVarOfs.trace_plane_normal2] = plane.normal[2];
         PR._globals_float[GlobalVarOfs.trace_plane_dist] = plane.dist;
-        PR._globals_int[GlobalVarOfs.trace_ent] = (trace.ent != null) ? trace.ent.num : 0;
+        PR.globals.trace_ent = (trace.ent != null) ? trace.ent.num : 0;
     }
 
     static function newcheckclient(check:Int):Int {
@@ -267,7 +266,7 @@ class PF {
             PR._globals_int[1] = 0;
             return;
         }
-        var self = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+        var self = SV.server.edicts[PR.globals.self];
         var l = Mod.PointInLeaf(Vec.of(
                 self.v.origin + self.v.view_ofs,
                 self.v.origin1 + self.v.view_ofs1,
@@ -372,7 +371,7 @@ class PF {
     }
 
     static function MoveToGoal() {
-        var ent = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+        var ent = SV.server.edicts[PR.globals.self];
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
             PR._globals_float[1] = 0.0;
             return;
@@ -435,7 +434,7 @@ class PF {
     }
 
     static function walkmove() {
-        var ent = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+        var ent = SV.server.edicts[PR.globals.self];
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
             PR._globals_float[1] = 0.0;
             return;
@@ -445,11 +444,11 @@ class PF {
         var oldf = PR.xfunction;
         PR._globals_float[1] = SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), true).toInt();
         PR.xfunction = oldf;
-        PR._globals_int[GlobalVarOfs.self] = ent.num;
+        PR.globals.self = ent.num;
     }
 
     static function droptofloor() {
-        var ent = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+        var ent = SV.server.edicts[PR.globals.self];
         var trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin),
             ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs),
             Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 - 256.0), 0, ent);
@@ -574,7 +573,7 @@ class PF {
     }
 
     static function changeyaw() {
-        var ent = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+        var ent = SV.server.edicts[PR.globals.self];
         var current = Vec.Anglemod(ent.v.angles1);
         var ideal = ent.v.ideal_yaw;
         if (current == ideal)
@@ -601,7 +600,7 @@ class PF {
             case 0: // broadcast
                 return SV.server.datagram;
             case 1: // one
-                var entnum = PR._globals_int[GlobalVarOfs.msg_entity];
+                var entnum = PR.globals.msg_entity;
                 if ((entnum <= 0) || (entnum > SV.svs.maxclients))
                     PR.RunError('WriteDest: not a client');
                 return SV.svs.clients[entnum - 1].message;

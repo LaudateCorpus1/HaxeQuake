@@ -9,7 +9,6 @@ import quake.Host.HClient;
 import quake.Mod;
 import quake.R.REntityState;
 import quake.Protocol;
-import quake.PR.GlobalVarOfs;
 
 @:publicFields
 private class ServerStatic {
@@ -277,7 +276,7 @@ class SV {
             for (i in 0...16)
                 client.spawn_parms[i] = spawn_parms[i];
         } else {
-            PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.SetNewParms]);
+            PR.ExecuteProgram(PR.globals.SetNewParms);
             for (i in 0...16)
                 client.spawn_parms[i] = PR._globals_float[GlobalVarOfs.parms + i];
         }
@@ -667,8 +666,8 @@ class SV {
             Host.client = svs.clients[i];
             if (!Host.client.active)
                 continue;
-            PR._globals_int[GlobalVarOfs.self] = Host.client.edict.num;
-            PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.SetChangeParms]);
+            PR.globals.self = Host.client.edict.num;
+            PR.ExecuteProgram(PR.globals.SetChangeParms);
             for (j in 0...16)
                 Host.client.spawn_parms[j] = PR._globals_float[GlobalVarOfs.parms + j];
         }
@@ -753,7 +752,7 @@ class SV {
         else
             PR._globals_float[GlobalVarOfs.deathmatch] = Host.deathmatch.value;
 
-        PR._globals_int[GlobalVarOfs.mapname] = PR.NewString(map, 64);
+        PR.globals.mapname = PR.NewString(map, 64);
         PR._globals_float[GlobalVarOfs.serverflags] = svs.serverflags;
         ED.LoadFromFile(server.worldmodel.entities);
         server.active = true;
@@ -1038,30 +1037,30 @@ class SV {
             thinktime = server.time;
         ent.v.nextthink = 0.0;
         PR._globals_float[GlobalVarOfs.time] = thinktime;
-        PR._globals_int[GlobalVarOfs.self] = ent.num;
-        PR._globals_int[GlobalVarOfs.other] = 0;
+        PR.globals.self = ent.num;
+        PR.globals.other = 0;
         PR.ExecuteProgram(ent.v.think);
         return !ent.free;
     }
 
     static function Impact(e1:Edict, e2:Edict):Void {
-        var old_self = PR._globals_int[GlobalVarOfs.self];
-        var old_other = PR._globals_int[GlobalVarOfs.other];
+        var old_self = PR.globals.self;
+        var old_other = PR.globals.other;
         PR._globals_float[GlobalVarOfs.time] = server.time;
 
         if (e1.v.touch != 0 && e1.v.solid != SolidType.not) {
-            PR._globals_int[GlobalVarOfs.self] = e1.num;
-            PR._globals_int[GlobalVarOfs.other] = e2.num;
+            PR.globals.self = e1.num;
+            PR.globals.other = e2.num;
             PR.ExecuteProgram(e1.v.touch);
         }
         if (e2.v.touch != 0 && e2.v.solid != SolidType.not) {
-            PR._globals_int[GlobalVarOfs.self] = e2.num;
-            PR._globals_int[GlobalVarOfs.other] = e1.num;
+            PR.globals.self = e2.num;
+            PR.globals.other = e1.num;
             PR.ExecuteProgram(e2.v.touch);
         }
 
-        PR._globals_int[GlobalVarOfs.self] = old_self;
-        PR._globals_int[GlobalVarOfs.other] = old_other;
+        PR.globals.self = old_self;
+        PR.globals.other = old_other;
     }
 
     static function ClipVelocity(vec:Vec, normal:Vec, out:Vec, overbounce:Float):Void {
@@ -1262,8 +1261,8 @@ class SV {
                 LinkEdict(pusher, false);
                 pusher.v.ltime -= movetime;
                 if (pusher.v.blocked != 0) {
-                    PR._globals_int[GlobalVarOfs.self] = pusher.num;
-                    PR._globals_int[GlobalVarOfs.other] = check.num;
+                    PR.globals.self = pusher.num;
+                    PR.globals.other = check.num;
                     PR.ExecuteProgram(pusher.v.blocked);
                 }
                 for (moved_edict in moved) {
@@ -1295,8 +1294,8 @@ class SV {
             return;
         ent.v.nextthink = 0.0;
         PR._globals_float[GlobalVarOfs.time] = server.time;
-        PR._globals_int[GlobalVarOfs.self] = ent.num;
-        PR._globals_int[GlobalVarOfs.other] = 0;
+        PR.globals.self = ent.num;
+        PR.globals.other = 0;
         PR.ExecuteProgram(ent.v.think);
     }
 
@@ -1454,8 +1453,8 @@ class SV {
         if (!svs.clients[ent.num - 1].active)
             return;
         PR._globals_float[GlobalVarOfs.time] = server.time;
-        PR._globals_int[GlobalVarOfs.self] = ent.num;
-        PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.PlayerPreThink]);
+        PR.globals.self = ent.num;
+        PR.ExecuteProgram(PR.globals.PlayerPreThink);
         CheckVelocity(ent);
         var movetype = Std.int(ent.v.movetype);
         if (movetype == MoveType.toss || movetype == MoveType.bounce) {
@@ -1482,8 +1481,8 @@ class SV {
         }
         LinkEdict(ent, true);
         PR._globals_float[GlobalVarOfs.time] = server.time;
-        PR._globals_int[GlobalVarOfs.self] = ent.num;
-        PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.PlayerPostThink]);
+        PR.globals.self = ent.num;
+        PR.ExecuteProgram(PR.globals.PlayerPostThink);
     }
 
     static function Physics_Noclip(ent:Edict) {
@@ -1562,10 +1561,10 @@ class SV {
     }
 
     static function Physics():Void {
-        PR._globals_int[GlobalVarOfs.self] = 0;
-        PR._globals_int[GlobalVarOfs.other] = 0;
+        PR.globals.self = 0;
+        PR.globals.other = 0;
         PR._globals_float[GlobalVarOfs.time] = server.time;
-        PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.StartFrame]);
+        PR.ExecuteProgram(PR.globals.StartFrame);
         for (i in 0...server.num_edicts) {
             var ent = server.edicts[i];
             if (ent.free)
@@ -2017,14 +2016,14 @@ class SV {
             if (ent.v.absmin > touch.v.absmax || ent.v.absmin1 > touch.v.absmax1 || ent.v.absmin2 > touch.v.absmax2 ||
                 ent.v.absmax < touch.v.absmin || ent.v.absmax1 < touch.v.absmin1 || ent.v.absmax2 < touch.v.absmin2)
                 continue;
-            var old_self = PR._globals_int[GlobalVarOfs.self];
-            var old_other = PR._globals_int[GlobalVarOfs.other];
-            PR._globals_int[GlobalVarOfs.self] = touch.num;
-            PR._globals_int[GlobalVarOfs.other] = ent.num;
+            var old_self = PR.globals.self;
+            var old_other = PR.globals.other;
+            PR.globals.self = touch.num;
+            PR.globals.other = ent.num;
             PR._globals_float[GlobalVarOfs.time] = server.time;
             PR.ExecuteProgram(touch.v.touch);
-            PR._globals_int[GlobalVarOfs.self] = old_self;
-            PR._globals_int[GlobalVarOfs.other] = old_other;
+            PR.globals.self = old_self;
+            PR.globals.other = old_other;
         }
         if (node.axis == -1)
             return;

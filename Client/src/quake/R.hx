@@ -12,7 +12,6 @@ import js.html.webgl.RenderingContext;
 import quake.Mod;
 import quake.GL.gl;
 import quake.Mod.MSurface;
-import quake.PR.GlobalVarOfs;
 import quake.Def.ClientStat;
 using Tools;
 
@@ -1343,7 +1342,7 @@ class R {
     static function ReadPointFile_f() {
         if (!SV.server.active)
             return;
-        var name = 'maps/' + PR.GetString(PR._globals_int[GlobalVarOfs.mapname]) + '.pts';
+        var name = 'maps/' + PR.GetString(PR.globals.mapname) + '.pts';
         var f = COM.LoadTextFile(name);
         if (f == null) {
             Console.Print('couldn\'t open ' + name + '\n');

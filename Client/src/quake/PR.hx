@@ -160,57 +160,6 @@ private class PRStackItem {
 }
 
 
-@:enum abstract GlobalVarOfs(Int) to Int {
-	var self = 28; // edict
-	var other = 29; // edict
-	var world = 30; // edict
-	var time = 31; // float
-	var frametime = 32; // float
-	var force_retouch = 33; // float
-	var mapname = 34; // string
-	var deathmatch = 35; // float
-	var coop = 36; // float
-	var teamplay = 37; // float
-	var serverflags = 38; // float
-	var total_secrets = 39; // float
-	var total_monsters = 40; // float
-	var found_secrets = 41; // float
-	var killed_monsters = 42; // float
-	var parms = 43; // float[16]
-	var v_forward = 59; // vec3
-	var v_forward1 = 60;
-	var v_forward2 = 61;
-	var v_up = 62; // vec3
-	var v_up1 = 63;
-	var v_up2 = 64;
-	var v_right = 65; // vec3,
-	var v_right1 = 66;
-	var v_right2 = 67;
-	var trace_allsolid = 68; // float
-	var trace_startsolid = 69; // float
-	var trace_fraction = 70; // float
-	var trace_endpos = 71; // vec3
-	var trace_endpos1 = 72;
-	var trace_endpos2 = 73;
-	var trace_plane_normal = 74; // vec3
-	var trace_plane_normal1 = 75;
-	var trace_plane_normal2 = 76;
-	var trace_plane_dist = 77; // float
-	var trace_ent = 78; // edict
-	var trace_inopen = 79; // float
-	var trace_inwater = 80; // float
-	var msg_entity = 81; // edict
-	var main = 82; // func
-	var StartFrame = 83; // func
-	var PlayerPreThink = 84; // func
-	var PlayerPostThink = 85; // func
-	var ClientKill = 86; // func
-	var ClientConnect = 87; // func
-	var PutClientInServer = 88; // func
-	var ClientDisconnect = 89; // func
-	var SetNewParms = 90; // func
-	var SetChangeParms = 91; // func
-}
 
 @:publicFields
 class PR {
@@ -225,6 +174,7 @@ class PR {
 	static var statements:Array<PRStatement>;
 	static var globaldefs:Array<PRDef>;
 	static var fielddefs:Array<PRDef>;
+	static var globals:GlobalVars;
 	static var _globals:ArrayBuffer;
 	static var _globals_float:Float32Array;
 	static var _globals_int:Int32Array;
@@ -582,8 +532,8 @@ class PR {
 
 	static function ExecuteProgram(fnum:Int):Void {
 		if ((fnum == 0) || (fnum >= PR.functions.length)) {
-			if (PR._globals_int[GlobalVarOfs.self] != 0)
-				ED.Print(SV.server.edicts[PR._globals_int[GlobalVarOfs.self]]);
+			if (PR.globals.self != 0)
+				ED.Print(SV.server.edicts[PR.globals.self]);
 			Host.Error('PR.ExecuteProgram: NULL function');
 		}
 		var runaway = 100000;
@@ -735,7 +685,7 @@ class PR {
 					if (PR.depth == exitdepth)
 						return;
 				case PROp.state:
-					var ed:Edict = SV.server.edicts[PR._globals_int[GlobalVarOfs.self]];
+					var ed:Edict = SV.server.edicts[PR.globals.self];
 					ed.v.nextthink = PR._globals_float[GlobalVarOfs.time] + 0.1;
 					ed.v.frame = PR._globals_float[st.a];
 					ed.v.think = PR._globals_int[st.b];

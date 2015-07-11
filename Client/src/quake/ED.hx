@@ -6,7 +6,6 @@ import js.html.Int32Array;
 import quake.Mod.MLink;
 import quake.PR.EType;
 import quake.PR.PRDef;
-import quake.PR.GlobalVarOfs;
 import quake.R.REntityState;
 import quake.SV.MoveType;
 import quake.SV.EntFlag;
@@ -335,7 +334,7 @@ class ED {
 				continue;
 			}
 
-			PR._globals_int[GlobalVarOfs.self] = ent.num;
+			PR.globals.self = ent.num;
 			PR.ExecuteProgram(func);
 		}
 

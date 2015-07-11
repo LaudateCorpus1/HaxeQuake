@@ -6,7 +6,6 @@ import quake.CL.ClientCmd;
 import quake.Mod.MModel;
 import quake.NET.INETSocket;
 import quake.PR.EType;
-import quake.PR.GlobalVarOfs;
 import quake.Protocol.SVC;
 import quake.SV.MoveType;
 import quake.SV.EntFlag;
@@ -139,10 +138,10 @@ class Host {
                 NET.SendMessage(client.netconnection, client.message);
             }
             if ((client.edict != null) && (client.spawned)) {
-                var saveSelf = PR._globals_int[GlobalVarOfs.self];
-                PR._globals_int[GlobalVarOfs.self] = client.edict.num;
-                PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.ClientDisconnect]);
-                PR._globals_int[GlobalVarOfs.self] = saveSelf;
+                var saveSelf = PR.globals.self;
+                PR.globals.self = client.edict.num;
+                PR.ExecuteProgram(PR.globals.ClientDisconnect);
+                PR.globals.self = saveSelf;
             }
             Sys.Print('Client ' + SV.GetClientName(client) + ' removed\n');
         }
@@ -388,7 +387,7 @@ class Host {
             print = (cast SV).ClientPrint;
         print('host:    ' + NET.hostname.string + '\n');
         print('version: 1.09\n');
-        print('map:     ' + PR.GetString(PR._globals_int[GlobalVarOfs.mapname]) + '\n');
+        print('map:     ' + PR.GetString(PR.globals.mapname) + '\n');
         print('players: ' + NET.activeconnections + ' active (' + SV.svs.maxclients + ' max)\n\n');
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
@@ -553,7 +552,7 @@ class Host {
 
     static function Restart_f() {
         if (!CL.cls.demoplayback && SV.server.active && !Cmd.client)
-            SV.SpawnServer(PR.GetString(PR._globals_int[GlobalVarOfs.mapname]));
+            SV.SpawnServer(PR.GetString(PR.globals.mapname));
     }
 
     static function Reconnect_f() {
@@ -626,7 +625,7 @@ class Host {
         var f = ['5\n' + Host.SavegameComment() + '\n'];
         for (i in 0...16)
             f[f.length] = client.spawn_parms[i].toFixed(6) + '\n';
-        f[f.length] = Host.current_skill + '\n' + PR.GetString(PR._globals_int[GlobalVarOfs.mapname]) + '\n' + SV.server.time.toFixed(6) + '\n';
+        f[f.length] = Host.current_skill + '\n' + PR.GetString(PR.globals.mapname) + '\n' + SV.server.time.toFixed(6) + '\n';
         for (i in 0...64) {
             if (SV.server.lightstyles[i].length != 0)
                 f[f.length] = SV.server.lightstyles[i] + '\n';
@@ -909,8 +908,8 @@ class Host {
             return;
         }
         PR._globals_float[GlobalVarOfs.time] = SV.server.time;
-        PR._globals_int[GlobalVarOfs.self] = SV.player.num;
-        PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.ClientKill]);
+        PR.globals.self = SV.player.num;
+        PR.ExecuteProgram(PR.globals.ClientKill);
     }
 
     static function Pause_f() {
@@ -967,11 +966,11 @@ class Host {
             for (i in 0...16)
                 PR._globals_float[GlobalVarOfs.parms + i] = client.spawn_parms[i];
             PR._globals_float[GlobalVarOfs.time] = SV.server.time;
-            PR._globals_int[GlobalVarOfs.self] = ent.num;
-            PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.ClientConnect]);
+            PR.globals.self = ent.num;
+            PR.ExecuteProgram(PR.globals.ClientConnect);
             if ((Sys.FloatTime() - client.netconnection.connecttime) <= SV.server.time)
                 Sys.Print(SV.GetClientName(client) + ' entered the game\n');
-            PR.ExecuteProgram(PR._globals_int[GlobalVarOfs.PutClientInServer]);
+            PR.ExecuteProgram(PR.globals.PutClientInServer);
         }
 
         var message = client.message;

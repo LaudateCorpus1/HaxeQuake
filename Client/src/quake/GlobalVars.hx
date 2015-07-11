@@ -4,19 +4,18 @@ package quake;
 import haxe.macro.Context;
 import haxe.macro.Expr;
 import haxe.macro.Type;
-typedef Edict = Dynamic;
 #end
 
-abstract EdictVars(Edict) {
-    public inline function new(e) this = e;
+abstract GlobalVars(Void) {
+    public inline function new() this = null;
 
     @:resolve
     macro function resolve(ethis:Expr, field:String):Expr {
-        var eIndex = macro EdictVarOfs.$field;
+        var eIndex = macro GlobalVarOfs.$field;
         var viewField = switch (Context.typeof(eIndex)) {
             case TAbstract(_, [TInst(_.get() => {kind: KExpr({expr: EConst(CString(s))})}, _)]): s;
             default: throw false;
         }
-        return macro @:pos(Context.currentPos()) (@:privateAccess (cast $ethis : Edict).$viewField)[$eIndex];
+        return macro @:pos(Context.currentPos()) PR.$viewField[$eIndex];
     }
 }

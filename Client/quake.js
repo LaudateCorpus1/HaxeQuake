@@ -9732,7 +9732,7 @@ quake_SV.SendClientMessages = function() {
 	var _g2 = quake_SV.server.num_edicts;
 	while(_g11 < _g2) {
 		var i1 = _g11++;
-		quake_SV.server.edicts[i1]._v_float[32] = (quake_SV.server.edicts[i1]._v_float[32] | 0) & ~2 >>> 0;
+		quake_SV.server.edicts[i1]._v_float[32] = (quake_SV.server.edicts[i1]._v_float[32] | 0) & ~2;
 	}
 };
 quake_SV.ModelIndex = function(name) {
@@ -9745,7 +9745,7 @@ quake_SV.ModelIndex = function(name) {
 		if(quake_SV.server.model_precache[i] == name) return i;
 	}
 	quake_Sys.Error("SV.ModelIndex: model " + name + " not precached");
-	return null;
+	return 0;
 };
 quake_SV.CreateBaseline = function() {
 	var player = quake_SV.ModelIndex("progs/player.mdl");

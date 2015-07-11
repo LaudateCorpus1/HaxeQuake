@@ -575,17 +575,17 @@ class SV {
     }
 
     static function SendClientMessages():Void {
-        SV.UpdateToReliableMessages();
-        for (i in 0...SV.svs.maxclients) {
-            var client = Host.client = SV.svs.clients[i];
+        UpdateToReliableMessages();
+        for (i in 0...svs.maxclients) {
+            var client = Host.client = svs.clients[i];
             if (!client.active)
                 continue;
             if (client.spawned) {
-                if (!SV.SendClientDatagram())
+                if (!SendClientDatagram())
                     continue;
             } else if (!client.sendsignon) {
                 if ((Host.realtime - client.last_message) > 5.0) {
-                    if (NET.SendUnreliableMessage(client.netconnection, SV.nop) == -1)
+                    if (NET.SendUnreliableMessage(client.netconnection, nop) == -1)
                         Host.DropClient(true);
                     client.last_message = Host.realtime;
                 }
@@ -610,8 +610,8 @@ class SV {
             }
         }
 
-        for (i in 1...SV.server.num_edicts)
-            SV.server.edicts[i].v.effects = Std.int(SV.server.edicts[i].v.effects) & (~EntEffect.muzzleflash >>> 0);
+        for (i in 1...server.num_edicts)
+            server.edicts[i].v.effects = Std.int(SV.server.edicts[i].v.effects) & ~EntEffect.muzzleflash;
     }
 
     static function ModelIndex(name:String):Int {
@@ -619,12 +619,12 @@ class SV {
             return 0;
         if (name.length == 0)
             return 0;
-        for (i in 0...SV.server.model_precache.length) {
-            if (SV.server.model_precache[i] == name)
+        for (i in 0...server.model_precache.length) {
+            if (server.model_precache[i] == name)
                 return i;
         }
         Sys.Error('SV.ModelIndex: model ' + name + ' not precached');
-        return null;
+        return 0;
     }
 
     static function CreateBaseline():Void {

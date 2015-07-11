@@ -10767,6 +10767,16 @@ quake_SV.Physics_Client = function(ent) {
 	quake_PR._globals_int[28] = ent.num;
 	quake_PR.ExecuteProgram(quake_PR._globals_int[85]);
 };
+quake_SV.Physics_Noclip = function(ent) {
+	if(!quake_SV.RunThink(ent)) return;
+	ent._v_float[19] += quake_Host.frametime * ent._v_float[22];
+	ent._v_float[20] += quake_Host.frametime * ent._v_float[23];
+	ent._v_float[21] += quake_Host.frametime * ent._v_float[24];
+	ent._v_float[10] += quake_Host.frametime * ent._v_float[16];
+	ent._v_float[11] += quake_Host.frametime * ent._v_float[17];
+	ent._v_float[12] += quake_Host.frametime * ent._v_float[18];
+	quake_SV.LinkEdict(ent,false);
+};
 quake_SV.CheckWaterTransition = function(ent) {
 	var tmp;
 	var o = 10;
@@ -10866,7 +10876,7 @@ quake_SV.Physics = function() {
 			quake_SV.RunThink(ent);
 			break;
 		case 8:
-			quake_SV.RunThink(ent);
+			quake_SV.Physics_Noclip(ent);
 			break;
 		case 4:
 			quake_SV.Physics_Step(ent);

@@ -1581,7 +1581,7 @@ class SV {
                 case MoveType.none:
                     RunThink(ent);
                 case MoveType.noclip:
-                    RunThink(ent);
+                    Physics_Noclip(ent);
                 case MoveType.step:
                     Physics_Step(ent);
                 case MoveType.toss | MoveType.bounce | MoveType.fly | MoveType.flymissile:

@@ -10456,7 +10456,7 @@ quake_SV.PushMove = function(pusher,movetime) {
 		v3[2] = check._v_float[o1 + 2];
 		tmp2 = v3;
 		var entorig = tmp2;
-		moved[moved.length] = [entorig[0],entorig[1],entorig[2],check];
+		moved.push([entorig[0],entorig[1],entorig[2],check]);
 		pusher._v_float[9] = 0;
 		quake_SV.PushEntity(check,move);
 		pusher._v_float[9] = 4;
@@ -10486,10 +10486,11 @@ quake_SV.PushMove = function(pusher,movetime) {
 			while(_g2 < moved.length) {
 				var moved_edict = moved[_g2];
 				++_g2;
-				moved_edict[3]._v_float[10] = moved_edict[0];
-				moved_edict[3]._v_float[11] = moved_edict[1];
-				moved_edict[3]._v_float[12] = moved_edict[2];
-				quake_SV.LinkEdict(moved_edict[3],false);
+				var ed = moved_edict[3];
+				ed._v_float[10] = moved_edict[0];
+				ed._v_float[11] = moved_edict[1];
+				ed._v_float[12] = moved_edict[2];
+				quake_SV.LinkEdict(ed,false);
 			}
 			return;
 		}

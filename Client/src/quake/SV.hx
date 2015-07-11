@@ -1209,9 +1209,7 @@ class SV {
     }
 
     static function PushMove(pusher:Edict, movetime:Float):Void {
-        if ((pusher.v.velocity == 0.0) &&
-            (pusher.v.velocity1 == 0.0) &&
-            (pusher.v.velocity2 == 0.0)) {
+        if (pusher.v.velocity == 0.0 && pusher.v.velocity1 == 0.0 && pusher.v.velocity2 == 0.0) {
             pusher.v.ltime += movetime;
             return;
         }
@@ -1235,40 +1233,33 @@ class SV {
         pusher.v.origin1 += move[1];
         pusher.v.origin2 += move[2];
         pusher.v.ltime += movetime;
-        SV.LinkEdict(pusher, false);
-        var moved:Array<Dynamic> = [];
-        for (e in 1...SV.server.num_edicts) {
-            var check = SV.server.edicts[e];
+        LinkEdict(pusher, false);
+        var moved:Array<Array<Dynamic>> = [];
+        for (e in 1...server.num_edicts) {
+            var check = server.edicts[e];
             if (check.free)
                 continue;
             var movetype = check.v.movetype;
-            if ((movetype == MoveType.push)
-                || (movetype == MoveType.none)
-                || (movetype == MoveType.noclip))
+            if (movetype == MoveType.push || movetype == MoveType.none || movetype == MoveType.noclip)
                 continue;
-            if (((check.flags & EntFlag.onground) == 0) ||
-                (check.v.groundentity != pusher.num)) {
-                if ((check.v.absmin >= maxs[0])
-                    || (check.v.absmin1 >= maxs[1])
-                    || (check.v.absmin2 >= maxs[2])
-                    || (check.v.absmax <= mins[0])
-                    || (check.v.absmax1 <= mins[1])
-                    || (check.v.absmax2 <= mins[2]))
+            if ((check.flags & EntFlag.onground) == 0 || check.v.groundentity != pusher.num) {
+                if (check.v.absmin >= maxs[0] || check.v.absmin1 >= maxs[1] || check.v.absmin2 >= maxs[2] ||
+                    check.v.absmax <= mins[0] || check.v.absmax1 <= mins[1] || check.v.absmax2 <= mins[2])
                     continue;
-                if (!SV.TestEntityPosition(check))
+                if (!TestEntityPosition(check))
                     continue;
             }
             if (movetype != MoveType.walk)
-                check.flags = check.flags & ~EntFlag.onground;
+                check.flags &= ~EntFlag.onground;
             var entorig = ED.Vector(check, EdictVarOfs.origin);
-            moved[moved.length] = [entorig[0], entorig[1], entorig[2], check];
+            moved.push([entorig[0], entorig[1], entorig[2], check]);
             pusher.v.solid = SolidType.not;
-            SV.PushEntity(check, move);
+            PushEntity(check, move);
             pusher.v.solid = SolidType.bsp;
-            if (SV.TestEntityPosition(check)) {
+            if (TestEntityPosition(check)) {
                 if (check.v.mins == check.v.maxs)
                     continue;
-                if ((check.v.solid == SolidType.not) || (check.v.solid == SolidType.trigger)) {
+                if (check.v.solid == SolidType.not || check.v.solid == SolidType.trigger) {
                     check.v.mins = check.v.maxs = 0.0;
                     check.v.mins1 = check.v.maxs1 = 0.0;
                     check.v.maxs2 = check.v.mins2;
@@ -1277,11 +1268,11 @@ class SV {
                 check.v.origin = entorig[0];
                 check.v.origin1 = entorig[1];
                 check.v.origin2 = entorig[2];
-                SV.LinkEdict(check, true);
+                LinkEdict(check, true);
                 pusher.v.origin = pushorig[0];
                 pusher.v.origin1 = pushorig[1];
                 pusher.v.origin2 = pushorig[2];
-                SV.LinkEdict(pusher, false);
+                LinkEdict(pusher, false);
                 pusher.v.ltime -= movetime;
                 if (pusher.v.blocked != 0) {
                     PR.globals_int[GlobalVarOfs.self] = pusher.num;
@@ -1289,10 +1280,11 @@ class SV {
                     PR.ExecuteProgram(pusher.v.blocked);
                 }
                 for (moved_edict in moved) {
-                    (moved_edict[3] : Edict).v.origin = moved_edict[0];
-                    (moved_edict[3] : Edict).v.origin1 = moved_edict[1];
-                    (moved_edict[3] : Edict).v.origin2 = moved_edict[2];
-                    SV.LinkEdict(moved_edict[3], false);
+                    var ed:Edict = moved_edict[3];
+                    ed.v.origin = moved_edict[0];
+                    ed.v.origin1 = moved_edict[1];
+                    ed.v.origin2 = moved_edict[2];
+                    LinkEdict(ed, false);
                 }
                 return;
             }

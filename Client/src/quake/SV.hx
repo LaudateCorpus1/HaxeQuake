@@ -145,7 +145,7 @@ class SV {
         nostep = Cvar.RegisterVariable('sv_nostep', '0');
 
         nop = new MSG(4, 1);
-        new Uint8Array(SV.nop.data)[0] = SVC.nop;
+        new Uint8Array(nop.data)[0] = SVC.nop;
 
         reconnect = new MSG(128);
         reconnect.WriteByte(SVC.stufftext);
@@ -187,12 +187,12 @@ class SV {
             return;
 
         var i = 1;
-        while (i < SV.server.sound_precache.length) {
-            if (sample == SV.server.sound_precache[i])
+        while (i < server.sound_precache.length) {
+            if (sample == server.sound_precache[i])
                 break;
             i++;
         }
-        if (i >= SV.server.sound_precache.length) {
+        if (i >= server.sound_precache.length) {
             Console.Print('SV.StartSound: ' + sample + ' not precached\n');
             return;
         }
@@ -566,10 +566,10 @@ class SV {
         for (i in 0...svs.maxclients) {
             var client = svs.clients[i];
             if (client.active)
-                client.message.Write(new Uint8Array(SV.server.reliable_datagram.data), SV.server.reliable_datagram.cursize);
+                client.message.Write(new Uint8Array(server.reliable_datagram.data), server.reliable_datagram.cursize);
         }
 
-        SV.server.reliable_datagram.cursize = 0;
+        server.reliable_datagram.cursize = 0;
     }
 
     static function SendClientMessages():Void {
@@ -609,7 +609,7 @@ class SV {
         }
 
         for (i in 1...server.num_edicts)
-            server.edicts[i].v.effects = Std.int(SV.server.edicts[i].v.effects) & ~EntEffect.muzzleflash;
+            server.edicts[i].v.effects = Std.int(server.edicts[i].v.effects) & ~EntEffect.muzzleflash;
     }
 
     static function ModelIndex(name:String):Int {
@@ -1170,7 +1170,7 @@ class SV {
             ent_gravity = (ent._v_float[val] != 0.0) ? ent._v_float[val] : 1.0;
         else
             ent_gravity = 1.0;
-        ent.v.velocity2 -= ent_gravity * SV.gravity.value * Host.frametime;
+        ent.v.velocity2 -= ent_gravity * gravity.value * Host.frametime;
     }
 
     static function PushEntity(ent:Edict, push:Vec):MTrace {
@@ -1645,7 +1645,7 @@ class SV {
         var friction = friction.value;
         if (Move(start, Vec.origin, Vec.origin, Vec.of(start[0], start[1], start[2] - 34.0), 1, ent).fraction == 1.0)
             friction *= edgefriction.value;
-        var newspeed = speed - Host.frametime * (speed < SV.stopspeed.value ? SV.stopspeed.value : speed) * friction;
+        var newspeed = speed - Host.frametime * (speed < stopspeed.value ? stopspeed.value : speed) * friction;
         if (newspeed < 0.0)
             newspeed = 0.0;
         newspeed /= speed;

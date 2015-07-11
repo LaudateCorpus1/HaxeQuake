@@ -126,7 +126,7 @@ class SV {
     static var box_clipnodes:Array<MClipNode>;
     static var box_planes:Array<Plane>;
     static var box_hull:MHull;
-
+    static var steptrace:MTrace;
     static var player:Edict;
 
     static function Init() {
@@ -1080,29 +1080,22 @@ class SV {
             out[2] = 0.0;
     }
 
-    static var steptrace:MTrace;
-
     static function FlyMove(ent:Edict, time:Float):Int {
-        var numplanes = 0;
-        var dir, d;
-        var planes = new Array<Vec>(), plane;
         var primal_velocity = ED.Vector(ent, EdictVarOfs.velocity);
         var original_velocity = ED.Vector(ent, EdictVarOfs.velocity);
         var new_velocity = new Vec();
-        var i, j;
-        var trace;
         var end = new Vec();
         var time_left = time;
         var blocked = 0;
+        var planes = [];
+        var numplanes = 0;
         for (bumpcount in 0...4) {
-            if ((ent.v.velocity == 0.0) &&
-                (ent.v.velocity1 == 0.0) &&
-                (ent.v.velocity2 == 0.0))
+            if (ent.v.velocity == 0.0 && ent.v.velocity1 == 0.0 && ent.v.velocity2 == 0.0)
                 break;
             end[0] = ent.v.origin + time_left * ent.v.velocity;
             end[1] = ent.v.origin1 + time_left * ent.v.velocity1;
             end[2] = ent.v.origin2 + time_left * ent.v.velocity2;
-            trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), end, 0, ent);
+            var trace = Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), end, 0, ent);
             if (trace.allsolid) {
                 ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
                 return 3;
@@ -1119,14 +1112,14 @@ class SV {
             if (trace.plane.normal[2] > 0.7) {
                 blocked |= 1;
                 if (trace.ent.v.solid == SolidType.bsp) {
-                    ent.flags = ent.flags | EntFlag.onground;
+                    ent.flags |= EntFlag.onground;
                     ent.v.groundentity = trace.ent.num;
                 }
             } else if (trace.plane.normal[2] == 0.0) {
                 blocked |= 2;
-                SV.steptrace = trace;
+                steptrace = trace;
             }
-            SV.Impact(ent, trace.ent);
+            Impact(ent, trace.ent);
             if (ent.free)
                 break;
             time_left -= time_left * trace.fraction;
@@ -1137,11 +1130,11 @@ class SV {
             planes[numplanes++] = Vec.of(trace.plane.normal[0], trace.plane.normal[1], trace.plane.normal[2]);
             var i = 0;
             while (i < numplanes) {
-                SV.ClipVelocity(original_velocity, planes[i], new_velocity, 1.0);
+                ClipVelocity(original_velocity, planes[i], new_velocity, 1.0);
                 var j = 0;
                 while (j < numplanes) {
                     if (j != i) {
-                        plane = planes[j];
+                        var plane = planes[j];
                         if ((new_velocity[0] * plane[0] + new_velocity[1] * plane[1] + new_velocity[2] * plane[2]) < 0.0)
                             break;
                     }
@@ -1151,24 +1144,20 @@ class SV {
                     break;
                 i++;
             }
-            if (i != numplanes)
+            if (i != numplanes) {
                 ED.SetVector(ent, EdictVarOfs.velocity, new_velocity);
-            else {
+            } else {
                 if (numplanes != 2) {
                     ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
                     return 7;
                 }
-                dir = Vec.CrossProduct(planes[0], planes[1]);
-                d = dir[0] * ent.v.velocity +
-                    dir[1] * ent.v.velocity1 +
-                    dir[2] * ent.v.velocity2;
+                var dir = Vec.CrossProduct(planes[0], planes[1]);
+                var d = dir[0] * ent.v.velocity + dir[1] * ent.v.velocity1 + dir[2] * ent.v.velocity2;
                 ent.v.velocity = dir[0] * d;
                 ent.v.velocity1 = dir[1] * d;
                 ent.v.velocity2 = dir[2] * d;
             }
-            if ((ent.v.velocity * primal_velocity[0] +
-                ent.v.velocity1 * primal_velocity[1] +
-                ent.v.velocity2 * primal_velocity[2]) <= 0.0) {
+            if ((ent.v.velocity * primal_velocity[0] + ent.v.velocity1 * primal_velocity[1] + ent.v.velocity2 * primal_velocity[2]) <= 0.0) {
                 ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
                 return blocked;
             }

@@ -10226,11 +10226,6 @@ quake_SV.ClipVelocity = function(vec,normal,out,overbounce) {
 	if(out[2] > -0.1 && out[2] < 0.1) out[2] = 0.0;
 };
 quake_SV.FlyMove = function(ent,time) {
-	var numplanes = 0;
-	var dir;
-	var d;
-	var planes = [];
-	var plane;
 	var tmp;
 	var o = 16;
 	var v = new Float32Array(3);
@@ -10248,10 +10243,11 @@ quake_SV.FlyMove = function(ent,time) {
 	tmp1 = v1;
 	var original_velocity = tmp1;
 	var new_velocity = new Float32Array(3);
-	var trace;
 	var end = new Float32Array(3);
 	var time_left = time;
 	var blocked = 0;
+	var planes = [];
+	var numplanes = 0;
 	var _g = 0;
 	while(_g < 4) {
 		_g++;
@@ -10280,7 +10276,7 @@ quake_SV.FlyMove = function(ent,time) {
 		v4[1] = ent._v_float[o4 + 1];
 		v4[2] = ent._v_float[o4 + 2];
 		tmp4 = v4;
-		trace = quake_SV.Move(tmp2,tmp3,tmp4,end,0,ent);
+		var trace = quake_SV.Move(tmp2,tmp3,tmp4,end,0,ent);
 		if(trace.allsolid) {
 			quake_ED.SetVector(ent,16,quake__$Vec_Vec_$Impl_$.origin);
 			return 3;
@@ -10330,7 +10326,7 @@ quake_SV.FlyMove = function(ent,time) {
 			var j = 0;
 			while(j < numplanes) {
 				if(j != i) {
-					plane = planes[j];
+					var plane = planes[j];
 					if(new_velocity[0] * plane[0] + new_velocity[1] * plane[1] + new_velocity[2] * plane[2] < 0.0) break;
 				}
 				j++;
@@ -10343,8 +10339,8 @@ quake_SV.FlyMove = function(ent,time) {
 				quake_ED.SetVector(ent,16,quake__$Vec_Vec_$Impl_$.origin);
 				return 7;
 			}
-			dir = quake__$Vec_Vec_$Impl_$.CrossProduct(planes[0],planes[1]);
-			d = dir[0] * ent._v_float[16] + dir[1] * ent._v_float[17] + dir[2] * ent._v_float[18];
+			var dir = quake__$Vec_Vec_$Impl_$.CrossProduct(planes[0],planes[1]);
+			var d = dir[0] * ent._v_float[16] + dir[1] * ent._v_float[17] + dir[2] * ent._v_float[18];
 			ent._v_float[16] = dir[0] * d;
 			ent._v_float[17] = dir[1] * d;
 			ent._v_float[18] = dir[2] * d;

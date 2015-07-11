@@ -1185,7 +1185,7 @@ class SV {
         ent.v.velocity2 -= ent_gravity * SV.gravity.value * Host.frametime;
     }
 
-    static function PushEntity(ent:Edict, push) {
+    static function PushEntity(ent:Edict, push:Vec) {
         var end = Vec.of(
             ent.v.origin + push[0],
             ent.v.origin1 + push[1],
@@ -1215,11 +1215,11 @@ class SV {
             pusher.v.ltime += movetime;
             return;
         }
-        var move = [
+        var move = Vec.of(
             pusher.v.velocity * movetime,
             pusher.v.velocity1 * movetime,
             pusher.v.velocity2 * movetime
-        ];
+        );
         var mins = [
             pusher.v.absmin + move[0],
             pusher.v.absmin1 + move[1],
@@ -1396,7 +1396,7 @@ class SV {
 
     static function TryUnstick(ent:Edict, oldvel:Vec):Int {
         var oldorg = ED.Vector(ent, EdictVarOfs.origin);
-        var dir = [2.0, 0.0, 0.0];
+        var dir = Vec.of(2.0, 0.0, 0.0);
         for (i in 0...8) {
             switch (i) {
                 case 1: dir[0] = 0.0; dir[1] = 2.0;
@@ -1440,7 +1440,7 @@ class SV {
         var nosteporg = ED.Vector(ent, EdictVarOfs.origin);
         var nostepvel = ED.Vector(ent, EdictVarOfs.velocity);
         ED.SetVector(ent, EdictVarOfs.origin, oldorg);
-        SV.PushEntity(ent, [0.0, 0.0, 18.0]);
+        SV.PushEntity(ent, Vec.of(0.0, 0.0, 18.0));
         ent.v.velocity = oldvel[0];
         ent.v.velocity1 = oldvel[1];
         ent.v.velocity2 = 0.0;
@@ -1452,7 +1452,7 @@ class SV {
             if ((clip & 2) != 0)
                 SV.WallFriction(ent, SV.steptrace);
         }
-        var downtrace = SV.PushEntity(ent, [0.0, 0.0, oldvel[2] * Host.frametime - 18.0]);
+        var downtrace = SV.PushEntity(ent, Vec.of(0.0, 0.0, oldvel[2] * Host.frametime - 18.0));
         if (downtrace.plane.normal[2] > 0.7) {
             if (ent.v.solid == SolidType.bsp) {
                 ent.flags = ent.flags | EntFlag.onground;
@@ -1532,38 +1532,33 @@ class SV {
         ent.v.waterlevel = cont;
     }
 
-    static function Physics_Toss(ent:Edict) {
-        if (!SV.RunThink(ent))
+    static function Physics_Toss(ent:Edict):Void {
+        if (!RunThink(ent))
             return;
         if ((ent.flags & EntFlag.onground) != 0)
             return;
-        SV.CheckVelocity(ent);
+        CheckVelocity(ent);
         var movetype = ent.v.movetype;
-        if ((movetype != MoveType.fly) && (movetype != MoveType.flymissile))
-            SV.AddGravity(ent);
+        if (movetype != MoveType.fly && movetype != MoveType.flymissile)
+            AddGravity(ent);
         ent.v.angles += Host.frametime * ent.v.avelocity;
         ent.v.angles1 += Host.frametime * ent.v.avelocity1;
         ent.v.angles2 += Host.frametime * ent.v.avelocity2;
-        var trace = SV.PushEntity(ent,
-            [
-                ent.v.velocity * Host.frametime,
-                ent.v.velocity1 * Host.frametime,
-                ent.v.velocity2 * Host.frametime
-            ]);
-        if ((trace.fraction == 1.0) || (ent.free))
+        var trace = PushEntity(ent, Vec.of(ent.v.velocity * Host.frametime, ent.v.velocity1 * Host.frametime, ent.v.velocity2 * Host.frametime));
+        if (trace.fraction == 1.0 || ent.free)
             return;
         var velocity = new Vec();
-        SV.ClipVelocity(ED.Vector(ent, EdictVarOfs.velocity), trace.plane.normal, velocity, (movetype == MoveType.bounce) ? 1.5 : 1.0);
+        ClipVelocity(ED.Vector(ent, EdictVarOfs.velocity), trace.plane.normal, velocity, (movetype == MoveType.bounce) ? 1.5 : 1.0);
         ED.SetVector(ent, EdictVarOfs.velocity, velocity);
         if (trace.plane.normal[2] > 0.7) {
-            if ((ent.v.velocity2 < 60.0) || (movetype != MoveType.bounce)) {
-                ent.flags = ent.flags | EntFlag.onground;
+            if (ent.v.velocity2 < 60.0 || movetype != MoveType.bounce) {
+                ent.flags |= EntFlag.onground;
                 ent.v.groundentity = trace.ent.num;
                 ent.v.velocity = ent.v.velocity1 = ent.v.velocity2 = 0.0;
                 ent.v.avelocity = ent.v.avelocity1 = ent.v.avelocity2 = 0.0;
             }
         }
-        SV.CheckWaterTransition(ent);
+        CheckWaterTransition(ent);
     }
 
     static function Physics_Step(ent:Edict):Void {

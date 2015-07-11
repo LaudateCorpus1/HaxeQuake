@@ -10405,21 +10405,27 @@ quake_SV.PushMove = function(pusher,movetime) {
 		pusher._v_float[7] += movetime;
 		return;
 	}
-	var move = [pusher._v_float[16] * movetime,pusher._v_float[17] * movetime,pusher._v_float[18] * movetime];
+	var tmp;
+	var v = new Float32Array(3);
+	v[0] = pusher._v_float[16] * movetime;
+	v[1] = pusher._v_float[17] * movetime;
+	v[2] = pusher._v_float[18] * movetime;
+	tmp = v;
+	var move = tmp;
 	var mins_0 = pusher._v_float[1] + move[0];
 	var mins_1 = pusher._v_float[2] + move[1];
 	var mins_2 = pusher._v_float[3] + move[2];
 	var maxs_0 = pusher._v_float[4] + move[0];
 	var maxs_1 = pusher._v_float[5] + move[1];
 	var maxs_2 = pusher._v_float[6] + move[2];
-	var tmp;
+	var tmp1;
 	var o = 10;
-	var v = new Float32Array(3);
-	v[0] = pusher._v_float[o];
-	v[1] = pusher._v_float[o + 1];
-	v[2] = pusher._v_float[o + 2];
-	tmp = v;
-	var pushorig = tmp;
+	var v1 = new Float32Array(3);
+	v1[0] = pusher._v_float[o];
+	v1[1] = pusher._v_float[o + 1];
+	v1[2] = pusher._v_float[o + 2];
+	tmp1 = v1;
+	var pushorig = tmp1;
 	pusher._v_float[10] += move[0];
 	pusher._v_float[11] += move[1];
 	pusher._v_float[12] += move[2];
@@ -10439,17 +10445,17 @@ quake_SV.PushMove = function(pusher,movetime) {
 			if(!quake_SV.TestEntityPosition(check)) continue;
 		}
 		if(movetype != 3) {
-			var v1 = (check._v_float[76] | 0) & ~512;
-			check._v_float[76] = v1;
+			var v2 = (check._v_float[76] | 0) & ~512;
+			check._v_float[76] = v2;
 		}
-		var tmp1;
+		var tmp2;
 		var o1 = 10;
-		var v2 = new Float32Array(3);
-		v2[0] = check._v_float[o1];
-		v2[1] = check._v_float[o1 + 1];
-		v2[2] = check._v_float[o1 + 2];
-		tmp1 = v2;
-		var entorig = tmp1;
+		var v3 = new Float32Array(3);
+		v3[0] = check._v_float[o1];
+		v3[1] = check._v_float[o1 + 1];
+		v3[2] = check._v_float[o1 + 2];
+		tmp2 = v3;
+		var entorig = tmp2;
 		moved[moved.length] = [entorig[0],entorig[1],entorig[2],check];
 		pusher._v_float[9] = 0;
 		quake_SV.PushEntity(check,move);
@@ -10602,7 +10608,13 @@ quake_SV.TryUnstick = function(ent,oldvel) {
 	v[2] = ent._v_float[o + 2];
 	tmp = v;
 	var oldorg = tmp;
-	var dir = [2.0,0.0,0.0];
+	var tmp1;
+	var v1 = new Float32Array(3);
+	v1[0] = 2.0;
+	v1[1] = 0.0;
+	v1[2] = 0.0;
+	tmp1 = v1;
+	var dir = tmp1;
 	var _g = 0;
 	while(_g < 8) {
 		var i = _g++;
@@ -10690,7 +10702,13 @@ quake_SV.WalkMove = function(ent) {
 	tmp3 = v4;
 	var nostepvel = tmp3;
 	quake_ED.SetVector(ent,10,oldorg);
-	quake_SV.PushEntity(ent,[0.0,0.0,18.0]);
+	var tmp4;
+	var v5 = new Float32Array(3);
+	v5[0] = 0.0;
+	v5[1] = 0.0;
+	v5[2] = 18.0;
+	tmp4 = v5;
+	quake_SV.PushEntity(ent,tmp4);
 	ent._v_float[16] = oldvel[0];
 	ent._v_float[17] = oldvel[1];
 	ent._v_float[18] = 0.0;
@@ -10699,11 +10717,17 @@ quake_SV.WalkMove = function(ent) {
 		if(Math.abs(oldorg[1] - ent._v_float[11]) < 0.03125 && Math.abs(oldorg[0] - ent._v_float[10]) < 0.03125) clip = quake_SV.TryUnstick(ent,oldvel);
 		if((clip & 2) != 0) quake_SV.WallFriction(ent,quake_SV.steptrace);
 	}
-	var downtrace = quake_SV.PushEntity(ent,[0.0,0.0,oldvel[2] * quake_Host.frametime - 18.0]);
+	var tmp5;
+	var v6 = new Float32Array(3);
+	v6[0] = 0.0;
+	v6[1] = 0.0;
+	v6[2] = oldvel[2] * quake_Host.frametime - 18.0;
+	tmp5 = v6;
+	var downtrace = quake_SV.PushEntity(ent,tmp5);
 	if(downtrace.plane.normal[2] > 0.7) {
 		if(ent._v_float[9] == 4) {
-			var v5 = ent._v_float[76] | 0 | 512;
-			ent._v_float[76] = v5;
+			var v7 = ent._v_float[76] | 0 | 512;
+			ent._v_float[76] = v7;
 			ent._v_int[47] = downtrace.ent.num;
 		}
 		return;
@@ -10778,22 +10802,28 @@ quake_SV.Physics_Toss = function(ent) {
 	ent._v_float[19] += quake_Host.frametime * ent._v_float[22];
 	ent._v_float[20] += quake_Host.frametime * ent._v_float[23];
 	ent._v_float[21] += quake_Host.frametime * ent._v_float[24];
-	var trace = quake_SV.PushEntity(ent,[ent._v_float[16] * quake_Host.frametime,ent._v_float[17] * quake_Host.frametime,ent._v_float[18] * quake_Host.frametime]);
+	var tmp;
+	var v = new Float32Array(3);
+	v[0] = ent._v_float[16] * quake_Host.frametime;
+	v[1] = ent._v_float[17] * quake_Host.frametime;
+	v[2] = ent._v_float[18] * quake_Host.frametime;
+	tmp = v;
+	var trace = quake_SV.PushEntity(ent,tmp);
 	if(trace.fraction == 1.0 || ent.free) return;
 	var velocity = new Float32Array(3);
-	var tmp;
+	var tmp1;
 	var o = 16;
-	var v = new Float32Array(3);
-	v[0] = ent._v_float[o];
-	v[1] = ent._v_float[o + 1];
-	v[2] = ent._v_float[o + 2];
-	tmp = v;
-	quake_SV.ClipVelocity(tmp,trace.plane.normal,velocity,movetype == 10?1.5:1.0);
+	var v1 = new Float32Array(3);
+	v1[0] = ent._v_float[o];
+	v1[1] = ent._v_float[o + 1];
+	v1[2] = ent._v_float[o + 2];
+	tmp1 = v1;
+	quake_SV.ClipVelocity(tmp1,trace.plane.normal,velocity,movetype == 10?1.5:1.0);
 	quake_ED.SetVector(ent,16,velocity);
 	if(trace.plane.normal[2] > 0.7) {
 		if(ent._v_float[18] < 60.0 || movetype != 10) {
-			var v1 = ent._v_float[76] | 0 | 512;
-			ent._v_float[76] = v1;
+			var v2 = ent._v_float[76] | 0 | 512;
+			ent._v_float[76] = v2;
 			ent._v_int[47] = trace.ent.num;
 			ent._v_float[16] = ent._v_float[17] = ent._v_float[18] = 0.0;
 			ent._v_float[22] = ent._v_float[23] = ent._v_float[24] = 0.0;

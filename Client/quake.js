@@ -10013,7 +10013,6 @@ quake_SV.movestep = function(ent,move,relink) {
 	v2[2] = ent._v_float[o2 + 2];
 	tmp2 = v2;
 	var maxs = tmp2;
-	var trace;
 	if(((ent._v_float[76] | 0) & 2 + 1) != 0) {
 		var enemy = ent._v_int[75];
 		var _g = 0;
@@ -10033,12 +10032,12 @@ quake_SV.movestep = function(ent,move,relink) {
 			v3[1] = ent._v_float[o3 + 1];
 			v3[2] = ent._v_float[o3 + 2];
 			tmp4 = v3;
-			trace = quake_SV.Move(tmp4,mins,maxs,neworg,0,ent);
-			if(trace.fraction == 1.0) {
-				if(((ent._v_float[76] | 0) & 2) != 0 && quake_SV.PointContents(trace.endpos) == -1) return false;
-				ent._v_float[10] = trace.endpos[0];
-				ent._v_float[11] = trace.endpos[1];
-				ent._v_float[12] = trace.endpos[2];
+			var trace1 = quake_SV.Move(tmp4,mins,maxs,neworg,0,ent);
+			if(trace1.fraction == 1.0) {
+				if(((ent._v_float[76] | 0) & 2) != 0 && quake_SV.PointContents(trace1.endpos) == -1) return false;
+				ent._v_float[10] = trace1.endpos[0];
+				ent._v_float[11] = trace1.endpos[1];
+				ent._v_float[12] = trace1.endpos[2];
 				if(relink) quake_SV.LinkEdict(ent,true);
 				return true;
 			}
@@ -10056,7 +10055,7 @@ quake_SV.movestep = function(ent,move,relink) {
 	v4[2] = neworg[2] - 36.0;
 	tmp3 = v4;
 	var end = tmp3;
-	trace = quake_SV.Move(neworg,mins,maxs,end,0,ent);
+	var trace = quake_SV.Move(neworg,mins,maxs,end,0,ent);
 	if(trace.allsolid) return false;
 	if(trace.startsolid) {
 		neworg[2] = neworg[2] - 18.0;

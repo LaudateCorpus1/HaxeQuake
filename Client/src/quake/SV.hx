@@ -836,30 +836,30 @@ class SV {
     static function movestep(ent:Edict, move:Vec, relink:Bool):Bool {
         var oldorg = ED.Vector(ent, EdictVarOfs.origin);
         var neworg = new Vec();
-        var mins = ED.Vector(ent, EdictVarOfs.mins), maxs = ED.Vector(ent, EdictVarOfs.maxs);
-        var trace;
+        var mins = ED.Vector(ent, EdictVarOfs.mins);
+        var maxs = ED.Vector(ent, EdictVarOfs.maxs);
         if ((ent.flags & (EntFlag.swim + EntFlag.fly)) != 0) {
             var enemy = ent.v.enemy;
             for (i in 0...2) {
                 neworg[0] = ent.v.origin + move[0];
                 neworg[1] = ent.v.origin1 + move[1];
                 neworg[2] = ent.v.origin2;
-                if ((i == 0) && (enemy != 0)) {
-                    var dz = ent.v.origin2 - SV.server.edicts[enemy].v.origin2;
+                if (i == 0 && enemy != 0) {
+                    var dz = ent.v.origin2 - server.edicts[enemy].v.origin2;
                     if (dz > 40.0)
                         neworg[2] -= 8.0;
                     else if (dz < 30.0)
                         neworg[2] += 8.0;
                 }
-                trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin), mins, maxs, neworg, 0, ent);
+                var trace = Move(ED.Vector(ent, EdictVarOfs.origin), mins, maxs, neworg, 0, ent);
                 if (trace.fraction == 1.0) {
-                    if (((ent.flags & EntFlag.swim) != 0) && (SV.PointContents(trace.endpos) == ModContents.empty))
+                    if ((ent.flags & EntFlag.swim) != 0 && PointContents(trace.endpos) == ModContents.empty)
                         return false;
                     ent.v.origin = trace.endpos[0];
                     ent.v.origin1 = trace.endpos[1];
                     ent.v.origin2 = trace.endpos[2];
                     if (relink)
-                        SV.LinkEdict(ent, true);
+                        LinkEdict(ent, true);
                     return true;
                 }
                 if (enemy == 0)
@@ -871,13 +871,13 @@ class SV {
         neworg[1] = ent.v.origin1 + move[1];
         neworg[2] = ent.v.origin2 + 18.0;
         var end = Vec.of(neworg[0], neworg[1], neworg[2] - 36.0);
-        trace = SV.Move(neworg, mins, maxs, end, 0, ent);
+        var trace = Move(neworg, mins, maxs, end, 0, ent);
         if (trace.allsolid)
             return false;
         if (trace.startsolid) {
             neworg[2] -= 18.0;
-            trace = SV.Move(neworg, mins, maxs, end, 0, ent);
-            if ((trace.allsolid) || (trace.startsolid))
+            trace = Move(neworg, mins, maxs, end, 0, ent);
+            if (trace.allsolid || trace.startsolid)
                 return false;
         }
         if (trace.fraction == 1.0) {
@@ -886,17 +886,17 @@ class SV {
             ent.v.origin += move[0];
             ent.v.origin1 += move[1];
             if (relink)
-                SV.LinkEdict(ent, true);
-            ent.flags = ent.flags & ~EntFlag.onground;
+                LinkEdict(ent, true);
+            ent.flags &= ~EntFlag.onground;
             return true;
         }
         ent.v.origin = trace.endpos[0];
         ent.v.origin1 = trace.endpos[1];
         ent.v.origin2 = trace.endpos[2];
-        if (!SV.CheckBottom(ent)) {
+        if (!CheckBottom(ent)) {
             if ((ent.flags & EntFlag.partialground) != 0) {
                 if (relink)
-                    SV.LinkEdict(ent, true);
+                    LinkEdict(ent, true);
                 return true;
             }
             ent.v.origin = oldorg[0];
@@ -904,10 +904,10 @@ class SV {
             ent.v.origin2 = oldorg[2];
             return false;
         }
-        ent.flags = ent.flags & ~EntFlag.partialground;
+        ent.flags &= ~EntFlag.partialground;
         ent.v.groundentity = trace.ent.num;
         if (relink)
-            SV.LinkEdict(ent, true);
+            LinkEdict(ent, true);
         return true;
     }
 
@@ -916,14 +916,14 @@ class SV {
         PF.changeyaw();
         yaw *= Math.PI / 180.0;
         var oldorigin = ED.Vector(ent, EdictVarOfs.origin);
-        if (SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), false)) {
+        if (movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), false)) {
             var delta = ent.v.angles1 - ent.v.ideal_yaw;
-            if ((delta > 45.0) && (delta < 315.0))
+            if (delta > 45.0 && delta < 315.0)
                 ED.SetVector(ent, EdictVarOfs.origin, oldorigin);
-            SV.LinkEdict(ent, true);
+            LinkEdict(ent, true);
             return true;
         }
-        SV.LinkEdict(ent, true);
+        LinkEdict(ent, true);
         return false;
     }
 

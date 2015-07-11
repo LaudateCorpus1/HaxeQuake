@@ -434,6 +434,7 @@ class S {
 					ch.end = Host.realtime;
 					continue;
 				}
+				ch.end = Host.realtime + sc.length - sc.loopstart;
 			}
 		}
 	}

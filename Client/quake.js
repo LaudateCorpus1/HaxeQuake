@@ -8443,12 +8443,15 @@ quake_S.UpdateStaticSounds = function() {
 			ch3.end = quake_Host.realtime + sc.length;
 			continue;
 		}
-		if(quake_Host.realtime >= ch3.end) try {
-			ch3.audio.currentTime = sc.loopstart;
-		} catch( e ) {
-			if (e instanceof js__$Boot_HaxeError) e = e.val;
-			ch3.end = quake_Host.realtime;
-			continue;
+		if(quake_Host.realtime >= ch3.end) {
+			try {
+				ch3.audio.currentTime = sc.loopstart;
+			} catch( e ) {
+				if (e instanceof js__$Boot_HaxeError) e = e.val;
+				ch3.end = quake_Host.realtime;
+				continue;
+			}
+			ch3.end = quake_Host.realtime + sc.length - sc.loopstart;
 		}
 	}
 };

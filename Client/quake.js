@@ -3713,7 +3713,7 @@ quake_Host.Init = function() {
 	quake_CDAudio.Init();
 	quake_Sbar.Init();
 	quake_CL.Init();
-	quake_IN.Init();
+	quake_IN.StartupMouse();
 	quake_Cmd.text = "exec quake.rc\n" + quake_Cmd.text;
 	quake_Host.initialized = true;
 	console.log("======Quake Initialized======\n");
@@ -4622,9 +4622,6 @@ quake_IN.StartupMouse = function() {
 	window.document.onmousemove = quake_IN.onmousemove;
 	window.document.onpointerlockchange = quake_IN.onpointerlockchange;
 	quake_IN.mouse_avail = true;
-};
-quake_IN.Init = function() {
-	quake_IN.StartupMouse();
 };
 quake_IN.Shutdown = function() {
 	if(quake_IN.mouse_avail) {

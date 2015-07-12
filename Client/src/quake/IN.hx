@@ -4,7 +4,6 @@ import js.Browser.document;
 import js.html.MouseEvent;
 
 
-@:publicFields
 class IN {
 
     static var mouse_x = 0.0;
@@ -24,11 +23,11 @@ class IN {
         mouse_avail = true;
     }
 
-    static function Init():Void {
+    public static inline function Init():Void {
         StartupMouse();
     }
 
-    static function Shutdown():Void {
+    public static function Shutdown():Void {
         if (mouse_avail) {
             VID.mainwindow.onclick = null;
             document.onmousemove = null;
@@ -87,7 +86,7 @@ class IN {
         IN.mouse_x = IN.mouse_y = 0;
     }
 
-    static inline function Move():Void
+    public static inline function Move():Void
     {
         MouseMove();
     }

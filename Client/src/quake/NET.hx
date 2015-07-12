@@ -3,19 +3,18 @@ package quake;
 import js.html.Uint8Array;
 
 @:publicFields
-class NETSocket<T> implements INETSocket {
+class NETSocketBase {
     var disconnected:Bool;
     var address:String;
-    var driverdata:T;
 	var connecttime:Float;
 	var lastMessageTime:Float;
 	var driver:Int;
 
-    function new() {
+    function new(address:String) {
 		connecttime = NET.time;
 		lastMessageTime = NET.time;
 		driver = NET.driverlevel;
-		address = 'UNSET ADDRESS';
+		this.address = address;
     }
 }
 
@@ -25,6 +24,11 @@ interface INETSocket {
 	var lastMessageTime:Float;
 	var connecttime:Float;
 	var address:String;
+	function Close():Void;
+	function GetMessage():Int;
+	function SendMessage(data:MSG):Int;
+	function SendUnreliableMessage(data:MSG):Int;
+	function CanSendMessage():Bool;
 }
 
 private typedef NETDriver = {
@@ -32,12 +36,7 @@ private typedef NETDriver = {
 	function Init():Bool;
 	function Connect(host:String):INETSocket;
 	function CheckNewConnections():INETSocket;
-	function Close(sock:INETSocket):Void;
 	function CheckForResend():Int;
-	function GetMessage(sock:INETSocket):Int;
-	function SendMessage(sock:INETSocket, data:MSG):Int;
-	function SendUnreliableMessage(sock:INETSocket, data:MSG):Int;
-	function CanSendMessage(sock:INETSocket):Bool;
 }
 
 
@@ -56,17 +55,14 @@ class NET {
 	static var messagetimeout:Cvar;
 	static var hostname:Cvar;
 
-	@:generic
-	static function NewQSocket<T:(INETSocket, {function new():Void;})>():T {
+	static function AddNewSocket(sock:INETSocket):Void {
 		var i = 0;
 		while (i < activeSockets.length) {
 			if (activeSockets[i].disconnected)
 				break;
 			i++;
 		}
-		var sock = new T();
 		activeSockets[i] = sock;
-		return sock;
 	}
 
 	static function Connect(host:String):INETSocket {
@@ -149,7 +145,7 @@ class NET {
 		if (sock.disconnected)
 			return;
 		time = Sys.FloatTime();
-		drivers[sock.driver].Close(sock);
+		sock.Close();
 		sock.disconnected = true;
 	}
 
@@ -161,7 +157,7 @@ class NET {
 			return -1;
 		}
 		time = Sys.FloatTime();
-		var ret = drivers[sock.driver].GetMessage(sock);
+		var ret = sock.GetMessage();
 		if (sock.driver != 0) {
 			if (ret == 0) {
 				if ((time - sock.lastMessageTime) > messagetimeout.value) {
@@ -183,7 +179,7 @@ class NET {
 			return -1;
 		}
 		time = Sys.FloatTime();
-		return drivers[sock.driver].SendMessage(sock, data);
+		return sock.SendMessage(data);
 	}
 
 	static function SendUnreliableMessage(sock:INETSocket, data:MSG):Int {
@@ -194,7 +190,7 @@ class NET {
 			return -1;
 		}
 		time = Sys.FloatTime();
-		return drivers[sock.driver].SendUnreliableMessage(sock, data);
+		return sock.SendUnreliableMessage(data);
 	}
 
 	static function CanSendMessage(sock:INETSocket):Bool {
@@ -203,7 +199,7 @@ class NET {
 		if (sock.disconnected)
 			return false;
 		time = Sys.FloatTime();
-		return drivers[sock.driver].CanSendMessage(sock);
+		return sock.CanSendMessage();
 	}
 
 	static function SendToAll(data:MSG):Int {

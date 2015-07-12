@@ -7029,37 +7029,24 @@ quake_Mod.Print = function() {
 		quake_Console.Print(quake_Mod.known[i].name + "\n");
 	}
 };
-var quake_INETSocket = function() { };
-quake_INETSocket.__name__ = true;
-var quake_NETSocket = function() {
+var quake_NETSocketBase = function(address) {
 	this.connecttime = quake_NET.time;
 	this.lastMessageTime = quake_NET.time;
 	this.driver = quake_NET.driverlevel;
-	this.address = "UNSET ADDRESS";
+	this.address = address;
 };
-quake_NETSocket.__name__ = true;
-quake_NETSocket.__interfaces__ = [quake_INETSocket];
+quake_NETSocketBase.__name__ = true;
+var quake_INETSocket = function() { };
+quake_INETSocket.__name__ = true;
 var quake_NET = function() { };
 quake_NET.__name__ = true;
-quake_NET.NewQSocket_quake__NET_Loop_LoopNETSocket = function() {
+quake_NET.AddNewSocket = function(sock) {
 	var i = 0;
 	while(i < quake_NET.activeSockets.length) {
 		if(quake_NET.activeSockets[i].disconnected) break;
 		i++;
 	}
-	var sock = new quake__$NET_$Loop_LoopNETSocket();
 	quake_NET.activeSockets[i] = sock;
-	return sock;
-};
-quake_NET.NewQSocket_quake__NET_WEBS_WEBSNETSocket = function() {
-	var i = 0;
-	while(i < quake_NET.activeSockets.length) {
-		if(quake_NET.activeSockets[i].disconnected) break;
-		i++;
-	}
-	var sock = new quake__$NET_$WEBS_WEBSNETSocket();
-	quake_NET.activeSockets[i] = sock;
-	return sock;
 };
 quake_NET.Connect = function(host) {
 	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
@@ -7132,7 +7119,7 @@ quake_NET.Close = function(sock) {
 	if(sock == null) return;
 	if(sock.disconnected) return;
 	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
-	quake_NET.drivers[sock.driver].Close(sock);
+	sock.Close();
 	sock.disconnected = true;
 };
 quake_NET.GetMessage = function(sock) {
@@ -7142,7 +7129,7 @@ quake_NET.GetMessage = function(sock) {
 		return -1;
 	}
 	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
-	var ret = quake_NET.drivers[sock.driver].GetMessage(sock);
+	var ret = sock.GetMessage();
 	if(sock.driver != 0) {
 		if(ret == 0) {
 			if(quake_NET.time - sock.lastMessageTime > quake_NET.messagetimeout.value) {
@@ -7160,7 +7147,7 @@ quake_NET.SendMessage = function(sock,data) {
 		return -1;
 	}
 	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
-	return quake_NET.drivers[sock.driver].SendMessage(sock,data);
+	return sock.SendMessage(data);
 };
 quake_NET.SendUnreliableMessage = function(sock,data) {
 	if(sock == null) return -1;
@@ -7169,13 +7156,13 @@ quake_NET.SendUnreliableMessage = function(sock,data) {
 		return -1;
 	}
 	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
-	return quake_NET.drivers[sock.driver].SendUnreliableMessage(sock,data);
+	return sock.SendUnreliableMessage(data);
 };
 quake_NET.CanSendMessage = function(sock) {
 	if(sock == null) return false;
 	if(sock.disconnected) return false;
 	quake_NET.time = new Date().getTime() * 0.001 - quake_Sys.oldtime;
-	return quake_NET.drivers[sock.driver].CanSendMessage(sock);
+	return sock.CanSendMessage();
 };
 quake_NET.SendToAll = function(data) {
 	var count = 0;
@@ -7246,12 +7233,69 @@ quake_NET.Shutdown = function() {
 		quake_NET.Close(quake_NET.activeSockets[i]);
 	}
 };
-var quake__$NET_$Loop_LoopNETSocket = function() {
-	quake_NETSocket.call(this);
+var quake__$NET_$Loop_LoopNETSocket = function(address) {
+	quake_NETSocketBase.call(this,address);
+	this.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
 };
 quake__$NET_$Loop_LoopNETSocket.__name__ = true;
-quake__$NET_$Loop_LoopNETSocket.__super__ = quake_NETSocket;
-quake__$NET_$Loop_LoopNETSocket.prototype = $extend(quake_NETSocket.prototype,{
+quake__$NET_$Loop_LoopNETSocket.__interfaces__ = [quake_INETSocket];
+quake__$NET_$Loop_LoopNETSocket.__super__ = quake_NETSocketBase;
+quake__$NET_$Loop_LoopNETSocket.prototype = $extend(quake_NETSocketBase.prototype,{
+	Close: function() {
+		if(this.other_side != null) this.other_side.other_side = null;
+		this.receiveMessageLength = 0;
+		this.canSend = false;
+		if(this == quake_NET_$Loop.client) quake_NET_$Loop.client = null; else quake_NET_$Loop.server = null;
+	}
+	,GetMessage: function() {
+		if(this.receiveMessageLength == 0) return 0;
+		var ret = this.receiveMessage[0];
+		var length = this.receiveMessage[1] + (this.receiveMessage[2] << 8);
+		if(length > quake_NET.message.data.byteLength) quake_Sys.Error("GetMessage: overflow");
+		quake_NET.message.cursize = length;
+		new Uint8Array(quake_NET.message.data).set(this.receiveMessage.subarray(3,length + 3));
+		this.receiveMessageLength -= length;
+		if(this.receiveMessageLength >= 4) {
+			var _g1 = 0;
+			var _g = this.receiveMessageLength;
+			while(_g1 < _g) {
+				var i = _g1++;
+				this.receiveMessage[i] = this.receiveMessage[length + 3 + i];
+			}
+		}
+		this.receiveMessageLength -= 3;
+		if(this.other_side != null && ret == 1) this.other_side.canSend = true;
+		return ret;
+	}
+	,SendMessage: function(data) {
+		if(this.other_side == null) return -1;
+		var bufferLength = this.other_side.receiveMessageLength;
+		this.other_side.receiveMessageLength += data.cursize + 3;
+		if(this.other_side.receiveMessageLength > 8192) quake_Sys.Error("SendMessage: overflow");
+		var buffer = this.other_side.receiveMessage;
+		buffer[bufferLength] = 1;
+		buffer[bufferLength + 1] = data.cursize & 255;
+		buffer[bufferLength + 2] = data.cursize >> 8;
+		buffer.set(new Uint8Array(data.data,0,data.cursize),bufferLength + 3);
+		this.canSend = false;
+		return 1;
+	}
+	,SendUnreliableMessage: function(data) {
+		if(this.other_side == null) return -1;
+		var bufferLength = this.other_side.receiveMessageLength;
+		this.other_side.receiveMessageLength += data.cursize + 3;
+		if(this.other_side.receiveMessageLength > 8192) quake_Sys.Error("SendMessage: overflow");
+		var buffer = this.other_side.receiveMessage;
+		buffer[bufferLength] = 2;
+		buffer[bufferLength + 1] = data.cursize & 255;
+		buffer[bufferLength + 2] = data.cursize >> 8;
+		buffer.set(new Uint8Array(data.data,0,data.cursize),bufferLength + 3);
+		return 1;
+	}
+	,CanSendMessage: function() {
+		if(this.other_side != null) return this.canSend;
+		return false;
+	}
 });
 var quake_NET_$Loop = function() { };
 quake_NET_$Loop.__name__ = true;
@@ -7261,22 +7305,16 @@ quake_NET_$Loop.Init = function() {
 quake_NET_$Loop.Connect = function(host) {
 	if(host != "local") return null;
 	quake_NET_$Loop.localconnectpending = true;
-	if(quake_NET_$Loop.client == null) {
-		quake_NET_$Loop.client = quake_NET.NewQSocket_quake__NET_Loop_LoopNETSocket();
-		quake_NET_$Loop.client.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
-		quake_NET_$Loop.client.address = "localhost";
-	}
+	if(quake_NET_$Loop.client == null) quake_NET_$Loop.client = new quake__$NET_$Loop_LoopNETSocket("localhost");
 	quake_NET_$Loop.client.receiveMessageLength = 0;
 	quake_NET_$Loop.client.canSend = true;
-	if(quake_NET_$Loop.server == null) {
-		quake_NET_$Loop.server = quake_NET.NewQSocket_quake__NET_Loop_LoopNETSocket();
-		quake_NET_$Loop.server.receiveMessage = new Uint8Array(new ArrayBuffer(8192));
-		quake_NET_$Loop.server.address = "LOCAL";
-	}
+	if(quake_NET_$Loop.server == null) quake_NET_$Loop.server = new quake__$NET_$Loop_LoopNETSocket("LOCAL");
 	quake_NET_$Loop.server.receiveMessageLength = 0;
 	quake_NET_$Loop.server.canSend = true;
-	quake_NET_$Loop.client.driverdata = quake_NET_$Loop.server;
-	quake_NET_$Loop.server.driverdata = quake_NET_$Loop.client;
+	quake_NET_$Loop.client.other_side = quake_NET_$Loop.server;
+	quake_NET_$Loop.server.other_side = quake_NET_$Loop.client;
+	quake_NET.AddNewSocket(quake_NET_$Loop.client);
+	quake_NET.AddNewSocket(quake_NET_$Loop.server);
 	return quake_NET_$Loop.client;
 };
 quake_NET_$Loop.CheckNewConnections = function() {
@@ -7288,75 +7326,69 @@ quake_NET_$Loop.CheckNewConnections = function() {
 	quake_NET_$Loop.client.canSend = true;
 	return quake_NET_$Loop.server;
 };
-quake_NET_$Loop.GetMessage = function(sock) {
-	var sock1 = sock;
-	if(sock1.receiveMessageLength == 0) return 0;
-	var ret = sock1.receiveMessage[0];
-	var length = sock1.receiveMessage[1] + (sock1.receiveMessage[2] << 8);
-	if(length > quake_NET.message.data.byteLength) quake_Sys.Error("GetMessage: overflow");
-	quake_NET.message.cursize = length;
-	new Uint8Array(quake_NET.message.data).set(sock1.receiveMessage.subarray(3,length + 3));
-	sock1.receiveMessageLength -= length;
-	if(sock1.receiveMessageLength >= 4) {
-		var _g1 = 0;
-		var _g = sock1.receiveMessageLength;
-		while(_g1 < _g) {
-			var i = _g1++;
-			sock1.receiveMessage[i] = sock1.receiveMessage[length + 3 + i];
-		}
-	}
-	sock1.receiveMessageLength -= 3;
-	if(sock1.driverdata != null && ret == 1) sock1.driverdata.canSend = true;
-	return ret;
-};
-quake_NET_$Loop.SendMessage = function(sock,data) {
-	var sock1 = sock;
-	if(sock1.driverdata == null) return -1;
-	var bufferLength = sock1.driverdata.receiveMessageLength;
-	sock1.driverdata.receiveMessageLength += data.cursize + 3;
-	if(sock1.driverdata.receiveMessageLength > 8192) quake_Sys.Error("SendMessage: overflow");
-	var buffer = sock1.driverdata.receiveMessage;
-	buffer[bufferLength] = 1;
-	buffer[bufferLength + 1] = data.cursize & 255;
-	buffer[bufferLength + 2] = data.cursize >> 8;
-	buffer.set(new Uint8Array(data.data,0,data.cursize),bufferLength + 3);
-	sock1.canSend = false;
-	return 1;
-};
-quake_NET_$Loop.SendUnreliableMessage = function(sock,data) {
-	var sock1 = sock;
-	if(sock1.driverdata == null) return -1;
-	var bufferLength = sock1.driverdata.receiveMessageLength;
-	sock1.driverdata.receiveMessageLength += data.cursize + 3;
-	if(sock1.driverdata.receiveMessageLength > 8192) quake_Sys.Error("SendMessage: overflow");
-	var buffer = sock1.driverdata.receiveMessage;
-	buffer[bufferLength] = 2;
-	buffer[bufferLength + 1] = data.cursize & 255;
-	buffer[bufferLength + 2] = data.cursize >> 8;
-	buffer.set(new Uint8Array(data.data,0,data.cursize),bufferLength + 3);
-	return 1;
-};
-quake_NET_$Loop.CanSendMessage = function(sock) {
-	var sock1 = sock;
-	if(sock1.driverdata != null) return sock1.canSend;
-	return false;
-};
-quake_NET_$Loop.Close = function(sock) {
-	var sock1 = sock;
-	if(sock1.driverdata != null) sock1.driverdata.driverdata = null;
-	sock1.receiveMessageLength = 0;
-	sock1.canSend = false;
-	if(sock1 == quake_NET_$Loop.client) quake_NET_$Loop.client = null; else quake_NET_$Loop.server = null;
-};
 quake_NET_$Loop.CheckForResend = function() {
 	throw new js__$Boot_HaxeError("Not implemented");
 };
-var quake__$NET_$WEBS_WEBSNETSocket = function() {
-	quake_NETSocket.call(this);
+var quake__$NET_$WEBS_WEBSNETSocket = function(address) {
+	quake_NETSocketBase.call(this,address);
+	this.disconnected = true;
+	this.receiveMessage = [];
+	this.native_socket = new WebSocket(address,"quake");
+	this.native_socket.data_socket = this;
+	this.native_socket.binaryType = "arraybuffer";
+	this.native_socket.onerror = $bind(this,this.OnError);
+	this.native_socket.onmessage = $bind(this,this.OnMessage);
 };
 quake__$NET_$WEBS_WEBSNETSocket.__name__ = true;
-quake__$NET_$WEBS_WEBSNETSocket.__super__ = quake_NETSocket;
-quake__$NET_$WEBS_WEBSNETSocket.prototype = $extend(quake_NETSocket.prototype,{
+quake__$NET_$WEBS_WEBSNETSocket.__interfaces__ = [quake_INETSocket];
+quake__$NET_$WEBS_WEBSNETSocket.__super__ = quake_NETSocketBase;
+quake__$NET_$WEBS_WEBSNETSocket.prototype = $extend(quake_NETSocketBase.prototype,{
+	OnError: function() {
+		quake_NET.Close(this);
+	}
+	,OnMessage: function(message) {
+		var data = message.data;
+		if(typeof(data) == "string") return;
+		if(data.byteLength > 8000) return;
+		this.receiveMessage.push(new Uint8Array(data));
+	}
+	,Close: function() {
+		if(this.native_socket != null) this.native_socket.close(1000);
+	}
+	,GetMessage: function() {
+		if(this.native_socket == null) return -1;
+		if(this.native_socket.readyState != 1) return -1;
+		if(this.receiveMessage.length == 0) return 0;
+		var message = this.receiveMessage.shift();
+		quake_NET.message.cursize = message.length - 1;
+		new Uint8Array(quake_NET.message.data).set(message.subarray(1));
+		return message[0];
+	}
+	,SendMessage: function(data) {
+		if(this.native_socket == null) return -1;
+		if(this.native_socket.readyState != 1) return -1;
+		var buf = new ArrayBuffer(data.cursize + 1);
+		var dest = new Uint8Array(buf);
+		dest[0] = 1;
+		dest.set(new Uint8Array(data.data,0,data.cursize),1);
+		this.native_socket.send(buf);
+		return 1;
+	}
+	,SendUnreliableMessage: function(data) {
+		if(this.native_socket == null) return -1;
+		if(this.native_socket.readyState != 1) return -1;
+		var buf = new ArrayBuffer(data.cursize + 1);
+		var dest = new Uint8Array(buf);
+		dest[0] = 2;
+		dest.set(new Uint8Array(data.data,0,data.cursize),1);
+		this.native_socket.send(buf);
+		return 1;
+	}
+	,CanSendMessage: function() {
+		if(this.native_socket == null) return false;
+		if(this.native_socket.readyState == 1) return true;
+		return false;
+	}
 });
 var quake_NET_$WEBS = function() { };
 quake_NET_$WEBS.__name__ = true;
@@ -7370,92 +7402,26 @@ quake_NET_$WEBS.Connect = function(host) {
 	if(HxOverrides.cca(host,5) == 47) return null;
 	if(host.substring(0,5) != "ws://") return null;
 	host = "ws://" + host.split("/")[2];
-	var sock = quake_NET.NewQSocket_quake__NET_WEBS_WEBSNETSocket();
-	sock.disconnected = true;
-	sock.receiveMessage = [];
-	sock.address = host;
+	var tmp;
 	try {
-		sock.driverdata = new WebSocket(host,"quake");
+		tmp = new quake__$NET_$WEBS_WEBSNETSocket(host);
 	} catch( e ) {
 		if (e instanceof js__$Boot_HaxeError) e = e.val;
 		return null;
 	}
-	sock.driverdata.data_socket = sock;
-	sock.driverdata.binaryType = "arraybuffer";
-	var tmp;
-	var a1 = sock;
-	tmp = function() {
-		quake_NET_$WEBS.OnError(a1);
-	};
-	sock.driverdata.onerror = tmp;
-	var tmp1;
-	var a11 = sock;
-	tmp1 = function(a2) {
-		quake_NET_$WEBS.OnMessage(a11,a2);
-	};
-	sock.driverdata.onmessage = tmp1;
+	var sock = tmp;
 	quake_NET.newsocket = sock;
+	quake_NET.AddNewSocket(sock);
 	return 0;
 };
 quake_NET_$WEBS.CheckNewConnections = function() {
 	return null;
 };
-quake_NET_$WEBS.GetMessage = function(sock) {
-	var sock1 = sock;
-	if(sock1.driverdata == null) return -1;
-	if(sock1.driverdata.readyState != 1) return -1;
-	if(sock1.receiveMessage.length == 0) return 0;
-	var message = sock1.receiveMessage.shift();
-	quake_NET.message.cursize = message.length - 1;
-	new Uint8Array(quake_NET.message.data).set(message.subarray(1));
-	return message[0];
-};
-quake_NET_$WEBS.SendMessage = function(sock,data) {
-	var sock1 = sock;
-	if(sock1.driverdata == null) return -1;
-	if(sock1.driverdata.readyState != 1) return -1;
-	var buf = new ArrayBuffer(data.cursize + 1);
-	var dest = new Uint8Array(buf);
-	dest[0] = 1;
-	dest.set(new Uint8Array(data.data,0,data.cursize),1);
-	sock1.driverdata.send(buf);
-	return 1;
-};
-quake_NET_$WEBS.SendUnreliableMessage = function(sock,data) {
-	var sock1 = sock;
-	if(sock1.driverdata == null) return -1;
-	if(sock1.driverdata.readyState != 1) return -1;
-	var buf = new ArrayBuffer(data.cursize + 1);
-	var dest = new Uint8Array(buf);
-	dest[0] = 2;
-	dest.set(new Uint8Array(data.data,0,data.cursize),1);
-	sock1.driverdata.send(buf);
-	return 1;
-};
-quake_NET_$WEBS.CanSendMessage = function(sock) {
-	var sock1 = sock;
-	if(sock1.driverdata == null) return false;
-	if(sock1.driverdata.readyState == 1) return true;
-	return false;
-};
-quake_NET_$WEBS.Close = function(sock) {
-	var sock1 = sock;
-	if(sock1.driverdata != null) sock1.driverdata.close(1000);
-};
 quake_NET_$WEBS.CheckForResend = function() {
 	var sock = quake_NET.newsocket;
-	if(sock.driverdata.readyState == 1) return 1;
-	if(sock.driverdata.readyState != 0) return -1;
+	if(sock.native_socket.readyState == 1) return 1;
+	if(sock.native_socket.readyState != 0) return -1;
 	return null;
-};
-quake_NET_$WEBS.OnError = function(sock) {
-	quake_NET.Close(sock);
-};
-quake_NET_$WEBS.OnMessage = function(sock,message) {
-	var data = message.data;
-	if(typeof(data) == "string") return;
-	if(data.byteLength > 8000) return;
-	sock.receiveMessage.push(new Uint8Array(data));
 };
 var quake_PR = function() { };
 quake_PR.__name__ = true;
@@ -15155,6 +15121,8 @@ quake_W.GetLumpName = function(name) {
 	if(lump == null) quake_Sys.Error("W.GetLumpName: " + name + " not found");
 	return lump;
 };
+var $_, $fid = 0;
+function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.__name__ = true;
 Array.__name__ = true;
 Date.__name__ = ["Date"];

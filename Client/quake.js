@@ -6567,7 +6567,7 @@ quake_Mod.LoadPlanes = function(buf) {
 quake_Mod.LoadBrushModel = function(buffer) {
 	quake_Mod.loadmodel.type = 0;
 	var version = new DataView(buffer).getUint32(0,true);
-	if(version != quake_Mod.version.brush) quake_Sys.Error("Mod.LoadBrushModel: " + quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + quake_Mod.version.brush + ")");
+	if(version != 29) quake_Sys.Error("Mod.LoadBrushModel: " + quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + 29 + ")");
 	quake_Mod.LoadVertexes(buffer);
 	quake_Mod.LoadEdges(buffer);
 	quake_Mod.LoadSurfedges(buffer);
@@ -6771,7 +6771,7 @@ quake_Mod.LoadAliasModel = function(buffer) {
 	quake_Mod.loadmodel.player = quake_Mod.loadmodel.name == "progs/player.mdl";
 	var model = new DataView(buffer);
 	var version = model.getUint32(4,true);
-	if(version != quake_Mod.version.alias) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + quake_Mod.version.alias + ")");
+	if(version != 6) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + 6 + ")");
 	var tmp;
 	var x = model.getFloat32(8,true);
 	var y = model.getFloat32(12,true);
@@ -6986,7 +6986,7 @@ quake_Mod.LoadSpriteModel = function(buffer) {
 	quake_Mod.loadmodel.type = 1;
 	var model = new DataView(buffer);
 	var version = model.getUint32(4,true);
-	if(version != quake_Mod.version.sprite) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + quake_Mod.version.sprite + ")");
+	if(version != 1) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + 1 + ")");
 	quake_Mod.loadmodel.oriented = model.getUint32(8,true) == 3;
 	quake_Mod.loadmodel.boundingradius = model.getFloat32(12,true);
 	quake_Mod.loadmodel.width = model.getUint32(16,true);
@@ -15216,7 +15216,6 @@ quake_M.bindnames = [["+attack","attack"],["impulse 10","change weapon"],["+jump
 quake_M.keys_cursor = 0;
 quake_M.num_help_pages = 6;
 quake_M.quitMessage = [["  Are you gonna quit","  this game just like","   everything else?",""],[" Milord, methinks that","   thou art a lowly"," quitter. Is this true?",""],[" Do I need to bust your","  face open for trying","        to quit?",""],[" Man, I oughta smack you","   for trying to quit!","     Press Y to get","      smacked out."],[" Press Y to quit like a","   big loser in life.","  Press N to stay proud","    and successful!"],["   If you press Y to","  quit, I will summon","  Satan all over your","      hard drive!"],["  Um, Asmodeus dislikes"," his children trying to"," quit. Press Y to return","   to your Tinkertoys."],["  If you quit now, I'll","  throw a blanket-party","   for you next time!",""]];
-quake_Mod.version = { brush : 29, sprite : 1, alias : 6};
 quake_Mod.known = [];
 quake_Mod.lump = { entities : 0, planes : 1, textures : 2, vertexes : 3, visibility : 4, nodes : 5, texinfo : 6, faces : 7, lighting : 8, clipnodes : 9, leafs : 10, marksurfaces : 11, edges : 12, surfedges : 13, models : 14};
 quake_NET.activeSockets = [];

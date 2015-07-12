@@ -19,6 +19,12 @@ import quake.GL.GLTexture;
     var alias = 2;
 }
 
+@:enum abstract ModelVersion(Int) to Int {
+    var brush = 29;
+    var sprite = 1;
+    var alias = 6;
+}
+
 @:publicFields
 class MModel {
     var flags:ModelEffect;
@@ -305,10 +311,6 @@ class MLink {
 
 @:publicFields
 class Mod {
-
-
-    static var version = {brush: 29, sprite: 1, alias: 6};
-
     static var known:Array<MModel> = [];
     static var novis:Array<Int>;
     static var filledcolor:Int;
@@ -958,8 +960,8 @@ class Mod {
     static function LoadBrushModel(buffer) {
         Mod.loadmodel.type = brush;
         var version = (new DataView(buffer)).getUint32(0, true);
-        if (version != Mod.version.brush)
-            Sys.Error('Mod.LoadBrushModel: ' + Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.brush + ')');
+        if (version != ModelVersion.brush)
+            Sys.Error('Mod.LoadBrushModel: ' + Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.brush + ')');
         Mod.LoadVertexes(buffer);
         Mod.LoadEdges(buffer);
         Mod.LoadSurfedges(buffer);
@@ -1179,8 +1181,8 @@ class Mod {
         Mod.loadmodel.player = Mod.loadmodel.name == 'progs/player.mdl';
         var model = new DataView(buffer);
         var version = model.getUint32(4, true);
-        if (version != Mod.version.alias)
-            Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.alias + ')');
+        if (version != ModelVersion.alias)
+            Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.alias + ')');
         Mod.loadmodel.scale = Vec.of(model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true));
         Mod.loadmodel.scale_origin = Vec.of(model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true));
         Mod.loadmodel.boundingradius = model.getFloat32(32, true);
@@ -1368,8 +1370,8 @@ class Mod {
         Mod.loadmodel.type = sprite;
         var model = new DataView(buffer);
         var version = model.getUint32(4, true);
-        if (version != Mod.version.sprite)
-            Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + Mod.version.sprite + ')');
+        if (version != ModelVersion.sprite)
+            Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.sprite + ')');
         Mod.loadmodel.oriented = model.getUint32(8, true) == 3;
         Mod.loadmodel.boundingradius = model.getFloat32(12, true);
         Mod.loadmodel.width = model.getUint32(16, true);

@@ -25,6 +25,24 @@ import quake.GL.GLTexture;
     var alias = 6;
 }
 
+@:enum abstract ModelLumpOffset(Int) to Int {
+    var entities = 0;
+    var planes = 1;
+    var textures = 2;
+    var vertexes = 3;
+    var visibility = 4;
+    var nodes = 5;
+    var texinfo = 6;
+    var faces = 7;
+    var lighting = 8;
+    var clipnodes = 9;
+    var leafs = 10;
+    var marksurfaces = 11;
+    var edges = 12;
+    var surfedges = 13;
+    var models = 14;
+}
+
 @:publicFields
 class MModel {
     var flags:ModelEffect;
@@ -442,30 +460,10 @@ class Mod {
     =====================================================
     */
 
-    static var lump =
-    {
-        entities: 0,
-        planes: 1,
-        textures: 2,
-        vertexes: 3,
-        visibility: 4,
-        nodes: 5,
-        texinfo: 6,
-        faces: 7,
-        lighting: 8,
-        clipnodes: 9,
-        leafs: 10,
-        marksurfaces: 11,
-        edges: 12,
-        surfedges: 13,
-        models: 14
-    }
-
-
     static function LoadTextures(buf:ArrayBuffer):Void {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.textures << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.textures << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.textures << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.textures << 3) + 8, true);
         Mod.loadmodel.textures = [];
         var nummiptex = view.getUint32(fileofs, true);
         var dataofs = fileofs + 4;
@@ -549,8 +547,8 @@ class Mod {
 
     static function LoadLighting(buf:ArrayBuffer) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.lighting << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.lighting << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.lighting << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.lighting << 3) + 8, true);
         if (filelen == 0)
             return;
         Mod.loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
@@ -559,8 +557,8 @@ class Mod {
 
     static function LoadVisibility(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.visibility << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.visibility << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.visibility << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.visibility << 3) + 8, true);
         if (filelen == 0)
             return;
         Mod.loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
@@ -569,15 +567,15 @@ class Mod {
 
     static function LoadEntities(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.entities << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.entities << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.entities << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.entities << 3) + 8, true);
         Mod.loadmodel.entities = Q.memstr(new Uint8Array(buf, fileofs, filelen));
     }
 
     static function LoadVertexes(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.vertexes << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.vertexes << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.vertexes << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.vertexes << 3) + 8, true);
         if ((filelen % 12) != 0)
             Sys.Error('Mod.LoadVisibility: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 12);
@@ -590,8 +588,8 @@ class Mod {
 
     static function LoadSubmodels(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.models << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.models << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.models << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.models << 3) + 8, true);
         var count = filelen >> 6;
         if (count == 0)
             Sys.Error('Mod.LoadSubmodels: funny lump size in ' + Mod.loadmodel.name);
@@ -665,8 +663,8 @@ class Mod {
 
     static function LoadEdges(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.edges << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.edges << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.edges << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.edges << 3) + 8, true);
         if ((filelen & 3) != 0)
             Sys.Error('Mod.LoadEdges: funny lump size in ' + Mod.loadmodel.name);
         var count = filelen >> 2;
@@ -679,8 +677,8 @@ class Mod {
 
     static function LoadTexinfo(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.texinfo << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.texinfo << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.texinfo << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.texinfo << 3) + 8, true);
         if ((filelen % 40) != 0)
             Sys.Error('Mod.LoadTexinfo: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 40);
@@ -705,8 +703,8 @@ class Mod {
 
     static function LoadFaces(buf:ArrayBuffer) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.faces << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.faces << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.faces << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.faces << 3) + 8, true);
         if ((filelen % 20) != 0)
             Sys.Error('Mod.LoadFaces: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 20);
@@ -779,8 +777,8 @@ class Mod {
 
     static function LoadNodes(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.nodes << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.nodes << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.nodes << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.nodes << 3) + 8, true);
         if ((filelen == 0) || ((filelen % 24) != 0))
             Sys.Error('Mod.LoadNodes: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 24);
@@ -818,8 +816,8 @@ class Mod {
 
     static function LoadLeafs(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.leafs << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.leafs << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.leafs << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.leafs << 3) + 8, true);
         if ((filelen % 28) != 0)
             Sys.Error('Mod.LoadLeafs: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 28);
@@ -846,8 +844,8 @@ class Mod {
 
     static function LoadClipnodes(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.clipnodes << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.clipnodes << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.clipnodes << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.clipnodes << 3) + 8, true);
         var count = filelen >> 3;
         Mod.loadmodel.clipnodes = [];
 
@@ -910,8 +908,8 @@ class Mod {
 
     static function LoadMarksurfaces(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.marksurfaces << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.marksurfaces << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.marksurfaces << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.marksurfaces << 3) + 8, true);
         var count = filelen >> 1;
         Mod.loadmodel.marksurfaces = [];
         for (i in 0...count) {
@@ -924,8 +922,8 @@ class Mod {
 
     static function LoadSurfedges(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.surfedges << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.surfedges << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.surfedges << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.surfedges << 3) + 8, true);
         var count = filelen >> 2;
         Mod.loadmodel.surfedges = [];
         for (i in 0...count)
@@ -934,8 +932,8 @@ class Mod {
 
     static function LoadPlanes(buf) {
         var view = new DataView(buf);
-        var fileofs = view.getUint32((Mod.lump.planes << 3) + 4, true);
-        var filelen = view.getUint32((Mod.lump.planes << 3) + 8, true);
+        var fileofs = view.getUint32((ModelLumpOffset.planes << 3) + 4, true);
+        var filelen = view.getUint32((ModelLumpOffset.planes << 3) + 8, true);
         if ((filelen % 20) != 0)
             Sys.Error('Mod.LoadPlanes: funny lump size in ' + Mod.loadmodel.name);
         var count = Std.int(filelen / 20);

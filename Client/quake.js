@@ -1128,7 +1128,7 @@ quake_CL.SendCmd = function() {
 	if(quake_CL.cls.state != 2) return;
 	if(quake_CL.cls.signon == 4) {
 		quake_CL.BaseMove();
-		quake_IN.MouseMove();
+		quake_IN.Move();
 		quake_CL.SendMove();
 	}
 	if(quake_CL.cls.demoplayback) {
@@ -3713,7 +3713,7 @@ quake_Host.Init = function() {
 	quake_CDAudio.Init();
 	quake_Sbar.Init();
 	quake_CL.Init();
-	quake_IN.StartupMouse();
+	quake_IN.Init();
 	quake_Cmd.text = "exec quake.rc\n" + quake_Cmd.text;
 	quake_Host.initialized = true;
 	console.log("======Quake Initialized======\n");
@@ -4615,7 +4615,7 @@ quake_Host.InitCommands = function() {
 };
 var quake_IN = function() { };
 quake_IN.__name__ = true;
-quake_IN.StartupMouse = function() {
+quake_IN.Init = function() {
 	quake_IN.m_filter = quake_Cvar.RegisterVariable("m_filter","1");
 	if(quake_COM.CheckParm("-nomouse") != null) return;
 	quake_VID.mainwindow.onclick = quake_IN.onclick;
@@ -4630,7 +4630,7 @@ quake_IN.Shutdown = function() {
 		window.document.onpointerlockchange = null;
 	}
 };
-quake_IN.MouseMove = function() {
+quake_IN.Move = function() {
 	if(!quake_IN.mouse_avail) return;
 	var mouse_x;
 	var mouse_y;
@@ -4667,7 +4667,7 @@ quake_IN.onmousemove = function(e) {
 quake_IN.onpointerlockchange = function() {
 	if(window.document.pointerLockElement == quake_VID.mainwindow) return;
 	quake_Key.Event(27,true);
-	quake_Key.Event(27);
+	quake_Key.Event(27,false);
 };
 var quake_Key = function() { };
 quake_Key.__name__ = true;
@@ -4876,7 +4876,6 @@ quake_Key.Init = function() {
 	quake_Cmd.AddCommand("unbindall",quake_Key.Unbindall_f);
 };
 quake_Key.Event = function(key,down) {
-	if(down == null) down = false;
 	if(quake_CL.cls.state == 1) return;
 	if(down) {
 		if(key != 127 && key != 255 && quake_Key.down[key]) return;
@@ -8976,7 +8975,7 @@ quake_Sys.onfocus = function() {
 	var _g = 0;
 	while(_g < 256) {
 		var i = _g++;
-		quake_Key.Event(i);
+		quake_Key.Event(i,false);
 		quake_Key.down[i] = false;
 	}
 };
@@ -8989,7 +8988,7 @@ quake_Sys.onkeydown = function(e) {
 quake_Sys.onkeyup = function(e) {
 	var key = quake_Sys.scantokey.h[e.keyCode];
 	if(key == null) return;
-	quake_Key.Event(key);
+	quake_Key.Event(key,false);
 	e.preventDefault();
 };
 quake_Sys.onmousedown = function(e) {
@@ -9029,7 +9028,7 @@ quake_Sys.onmouseup = function(e) {
 		return;
 	}
 	var key = tmp;
-	quake_Key.Event(key);
+	quake_Key.Event(key,false);
 	e.preventDefault();
 };
 quake_Sys.onunload = function() {
@@ -9038,7 +9037,7 @@ quake_Sys.onunload = function() {
 quake_Sys.onwheel = function(e) {
 	var key = e.deltaY < 0?239:240;
 	quake_Key.Event(key,true);
-	quake_Key.Event(key);
+	quake_Key.Event(key,false);
 	e.preventDefault();
 };
 var quake_SCR = function() { };

@@ -337,7 +337,7 @@ class Key {
 		Cmd.AddCommand('unbindall', Key.Unbindall_f);
 	}
 
-	static function Event(key:KeyCode, down = false):Void {
+	static function Event(key:KeyCode, down:Bool):Void {
 		if (CL.cls.state == connecting)
 			return;
 		if (down) {

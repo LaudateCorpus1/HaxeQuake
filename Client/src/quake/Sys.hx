@@ -177,7 +177,7 @@ class Sys {
 
     static function onfocus():Void {
         for (i in 0...256) {
-            Key.Event(i);
+            Key.Event(i, false);
             Key.down[i] = false;
         }
     }
@@ -195,7 +195,7 @@ class Sys {
         var key = scantokey[e.keyCode];
         if (key == null)
             return;
-        Key.Event(key);
+        Key.Event(key, false);
         e.preventDefault();
     }
 
@@ -226,7 +226,7 @@ class Sys {
             default:
                 return;
         };
-        Key.Event(key);
+        Key.Event(key, false);
         e.preventDefault();
     }
 
@@ -237,7 +237,7 @@ class Sys {
     static function onwheel(e:WheelEvent):Void {
         var key = e.deltaY < 0 ? KeyCode.mwheelup : KeyCode.mwheeldown;
         Key.Event(key, true);
-        Key.Event(key);
+        Key.Event(key, false);
         e.preventDefault();
     }
 }

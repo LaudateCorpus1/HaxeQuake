@@ -41,14 +41,50 @@ class GLTexture {
 
 @:publicFields
 private class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
-	var program:Program;
 	var identifier:String;
+	var program:Program;
 	var attribs:Array<String>;
 
-	function new(id) {
-		this.program = GL.gl.createProgram();
-		this.identifier = id;
+	function new(identifier:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>) {
+		var shaderSrc = Shaders.shaders[identifier];
+		if (shaderSrc == null)
+			Sys.Error("Shader not found: " + identifier);
+
+		this.identifier = identifier;
 		this.attribs = [];
+		this.program = GL.gl.createProgram();
+
+		var vsh = GL.gl.createShader(RenderingContext.VERTEX_SHADER);
+		GL.gl.shaderSource(vsh, shaderSrc.vert);
+		GL.gl.compileShader(vsh);
+		if (!GL.gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS))
+			Sys.Error('Error compiling shader: ' + GL.gl.getShaderInfoLog(vsh));
+	
+		var fsh = GL.gl.createShader(RenderingContext.FRAGMENT_SHADER);
+		GL.gl.shaderSource(fsh, shaderSrc.frag);
+		GL.gl.compileShader(fsh);
+		if (!GL.gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS))
+			Sys.Error('Error compiling shader: ' + GL.gl.getShaderInfoLog(fsh));
+
+		GL.gl.attachShader(program, vsh);
+		GL.gl.attachShader(program, fsh);
+
+		GL.gl.linkProgram(program);
+		if (!GL.gl.getProgramParameter(program, RenderingContext.LINK_STATUS))
+			Sys.Error('Error linking program: ' + GL.gl.getProgramInfoLog(program));
+
+		GL.gl.useProgram(program);
+		for (name in uniforms)
+			Reflect.setField(this, name, GL.gl.getUniformLocation(program, name));
+		for (name in attribs) {
+			this.attribs.push(name);
+			Reflect.setField(this, name, GL.gl.getAttribLocation(program, name));
+		}
+		for (i in 0...textures.length) {
+			var name = textures[i];
+			Reflect.setField(this, name, i);
+			GL.gl.uniform1i(GL.gl.getUniformLocation(program, name), i);
+		}
 	}
 }
 
@@ -269,44 +305,7 @@ class GL {
 	}
 
 	static function CreateProgram(identifier:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>):GLProgram {
-		var shaderSrc = Shaders.shaders[identifier];
-		if (shaderSrc == null)
-			Sys.Error("Shader not found: " + identifier);
-
-		var program = new GLProgram(identifier);
-
-		var vsh = gl.createShader(RenderingContext.VERTEX_SHADER);
-		gl.shaderSource(vsh, shaderSrc.vert);
-		gl.compileShader(vsh);
-		if (!gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS))
-			Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(vsh));
-
-		var fsh = gl.createShader(RenderingContext.FRAGMENT_SHADER);
-		gl.shaderSource(fsh, shaderSrc.frag);
-		gl.compileShader(fsh);
-		if (!gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS))
-			Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(fsh));
-
-		gl.attachShader(program.program, vsh);
-		gl.attachShader(program.program, fsh);
-
-		gl.linkProgram(program.program);
-		if (!gl.getProgramParameter(program.program, RenderingContext.LINK_STATUS))
-			Sys.Error('Error linking program: ' + gl.getProgramInfoLog(program.program));
-
-		gl.useProgram(program.program);
-		for (name in uniforms)
-			Reflect.setField(program, name, gl.getUniformLocation(program.program, name));
-		for (name in attribs) {
-			program.attribs.push(name);
-			Reflect.setField(program, name, gl.getAttribLocation(program.program, name));
-		}
-		for (i in 0...textures.length) {
-			var name = textures[i];
-			Reflect.setField(program, name, i);
-			gl.uniform1i(gl.getUniformLocation(program.program, name), i);
-		}
-
+		var program = new GLProgram(identifier, uniforms, attribs, textures);
 		programs.push(program);
 		return program;
 	}

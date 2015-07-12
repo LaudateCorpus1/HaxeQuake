@@ -3147,10 +3147,51 @@ var quake_GLTexture = function(id,w,h) {
 	this.height = h;
 };
 quake_GLTexture.__name__ = true;
-var quake__$GL_GLProgram = function(id) {
-	this.program = quake_GL.gl.createProgram();
-	this.identifier = id;
+var quake__$GL_GLProgram = function(identifier,uniforms,attribs,textures) {
+	var tmp;
+	var _this = quake_Shaders.shaders;
+	if(__map_reserved[identifier] != null) tmp = _this.getReserved(identifier); else tmp = _this.h[identifier];
+	var shaderSrc = tmp;
+	if(shaderSrc == null) quake_Sys.Error("Shader not found: " + identifier);
+	this.identifier = identifier;
 	this.attribs = [];
+	this.program = quake_GL.gl.createProgram();
+	var vsh = quake_GL.gl.createShader(35633);
+	quake_GL.gl.shaderSource(vsh,shaderSrc.vert);
+	quake_GL.gl.compileShader(vsh);
+	if(!quake_GL.gl.getShaderParameter(vsh,35713)) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
+	var fsh = quake_GL.gl.createShader(35632);
+	quake_GL.gl.shaderSource(fsh,shaderSrc.frag);
+	quake_GL.gl.compileShader(fsh);
+	if(!quake_GL.gl.getShaderParameter(fsh,35713)) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
+	quake_GL.gl.attachShader(this.program,vsh);
+	quake_GL.gl.attachShader(this.program,fsh);
+	quake_GL.gl.linkProgram(this.program);
+	if(!quake_GL.gl.getProgramParameter(this.program,35714)) quake_Sys.Error("Error linking program: " + quake_GL.gl.getProgramInfoLog(this.program));
+	quake_GL.gl.useProgram(this.program);
+	var _g = 0;
+	while(_g < uniforms.length) {
+		var name = uniforms[_g];
+		++_g;
+		var value = quake_GL.gl.getUniformLocation(this.program,name);
+		this[name] = value;
+	}
+	var _g1 = 0;
+	while(_g1 < attribs.length) {
+		var name1 = attribs[_g1];
+		++_g1;
+		this.attribs.push(name1);
+		var value1 = quake_GL.gl.getAttribLocation(this.program,name1);
+		this[name1] = value1;
+	}
+	var _g11 = 0;
+	var _g2 = textures.length;
+	while(_g11 < _g2) {
+		var i = _g11++;
+		var name2 = textures[i];
+		this[name2] = i;
+		quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,name2),i);
+	}
 };
 quake__$GL_GLProgram.__name__ = true;
 var quake_GL = function() { };
@@ -3356,48 +3397,7 @@ quake_GL.LoadPicTexture = function(pic) {
 	return texnum;
 };
 quake_GL.CreateProgram = function(identifier,uniforms,attribs,textures) {
-	var tmp;
-	var _this = quake_Shaders.shaders;
-	if(__map_reserved[identifier] != null) tmp = _this.getReserved(identifier); else tmp = _this.h[identifier];
-	var shaderSrc = tmp;
-	if(shaderSrc == null) quake_Sys.Error("Shader not found: " + identifier);
-	var program = new quake__$GL_GLProgram(identifier);
-	var vsh = quake_GL.gl.createShader(35633);
-	quake_GL.gl.shaderSource(vsh,shaderSrc.vert);
-	quake_GL.gl.compileShader(vsh);
-	if(!quake_GL.gl.getShaderParameter(vsh,35713)) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
-	var fsh = quake_GL.gl.createShader(35632);
-	quake_GL.gl.shaderSource(fsh,shaderSrc.frag);
-	quake_GL.gl.compileShader(fsh);
-	if(!quake_GL.gl.getShaderParameter(fsh,35713)) quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
-	quake_GL.gl.attachShader(program.program,vsh);
-	quake_GL.gl.attachShader(program.program,fsh);
-	quake_GL.gl.linkProgram(program.program);
-	if(!quake_GL.gl.getProgramParameter(program.program,35714)) quake_Sys.Error("Error linking program: " + quake_GL.gl.getProgramInfoLog(program.program));
-	quake_GL.gl.useProgram(program.program);
-	var _g = 0;
-	while(_g < uniforms.length) {
-		var name = uniforms[_g];
-		++_g;
-		var value = quake_GL.gl.getUniformLocation(program.program,name);
-		program[name] = value;
-	}
-	var _g1 = 0;
-	while(_g1 < attribs.length) {
-		var name1 = attribs[_g1];
-		++_g1;
-		program.attribs.push(name1);
-		var value1 = quake_GL.gl.getAttribLocation(program.program,name1);
-		program[name1] = value1;
-	}
-	var _g11 = 0;
-	var _g2 = textures.length;
-	while(_g11 < _g2) {
-		var i = _g11++;
-		var name2 = textures[i];
-		program[name2] = i;
-		quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(program.program,name2),i);
-	}
+	var program = new quake__$GL_GLProgram(identifier,uniforms,attribs,textures);
 	quake_GL.programs.push(program);
 	return program;
 };

@@ -7,7 +7,8 @@ import js.html.BinaryType;
 import js.html.Uint8Array;
 import quake.NET.INETSocket;
 
-private class WebSocket extends js.html.WebSocket {
+@:native("WebSocket")
+extern class WebSocket extends js.html.WebSocket {
 	public var data_socket:WEBSNETSocket;
 }
 

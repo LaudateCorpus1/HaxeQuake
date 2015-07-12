@@ -7351,13 +7351,6 @@ quake_NET_$Loop.Close = function(sock) {
 quake_NET_$Loop.CheckForResend = function() {
 	throw new js__$Boot_HaxeError("Not implemented");
 };
-var quake__$NET_$WEBS_WebSocket = function(url,protocols) {
-	WebSocket.call(this,url,protocols);
-};
-quake__$NET_$WEBS_WebSocket.__name__ = true;
-quake__$NET_$WEBS_WebSocket.__super__ = WebSocket;
-quake__$NET_$WEBS_WebSocket.prototype = $extend(WebSocket.prototype,{
-});
 var quake__$NET_$WEBS_WEBSNETSocket = function() {
 	quake_NETSocket.call(this);
 };
@@ -7382,7 +7375,7 @@ quake_NET_$WEBS.Connect = function(host) {
 	sock.receiveMessage = [];
 	sock.address = host;
 	try {
-		sock.driverdata = new quake__$NET_$WEBS_WebSocket(host,"quake");
+		sock.driverdata = new WebSocket(host,"quake");
 	} catch( e ) {
 		if (e instanceof js__$Boot_HaxeError) e = e.val;
 		return null;

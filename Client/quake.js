@@ -208,9 +208,42 @@ js_Browser.getLocalStorage = function() {
 };
 var quake_CDAudio = function() { };
 quake_CDAudio.__name__ = true;
+quake_CDAudio.Init = function() {
+	quake_Cmd.AddCommand("cd",quake_CDAudio.CD_f);
+	if(quake_COM.CheckParm("-nocdaudio") != null) return;
+	quake_CDAudio.known = [];
+	var xhr = new XMLHttpRequest();
+	var _g = 2;
+	while(_g < 100) {
+		var i = _g++;
+		var track = "/music/track" + (i <= 9?"0":"") + i + ".ogg";
+		var j = quake_COM.searchpaths.length - 1;
+		while(j >= 0) {
+			xhr.open("HEAD",quake_COM.searchpaths[j].filename + track,false);
+			xhr.send();
+			if(xhr.status >= 200 && xhr.status <= 299) {
+				quake_CDAudio.known[i - 2] = quake_COM.searchpaths[j].filename + track;
+				break;
+			}
+			j--;
+		}
+		if(j < 0) break;
+	}
+	if(quake_CDAudio.known.length == 0) return;
+	quake_CDAudio.initialized = quake_CDAudio.enabled = true;
+	quake_CDAudio.Update();
+	quake_Console.Print("CD Audio Initialized\n");
+};
+quake_CDAudio.Update = function() {
+	if(!quake_CDAudio.initialized || !quake_CDAudio.enabled) return;
+	if(quake_S.bgmvolume.value == quake_CDAudio.cdvolume) return;
+	if(quake_S.bgmvolume.value < 0.0) quake_S.bgmvolume.setValue(0.0); else if(quake_S.bgmvolume.value > 1.0) quake_S.bgmvolume.setValue(1.0);
+	quake_CDAudio.cdvolume = quake_S.bgmvolume.value;
+	if(quake_CDAudio.cd != null) quake_CDAudio.cd.volume = quake_CDAudio.cdvolume;
+};
 quake_CDAudio.Play = function(track,looping) {
 	if(!quake_CDAudio.initialized || !quake_CDAudio.enabled) return;
-	track -= 1;
+	track -= 2;
 	if(quake_CDAudio.playTrack == track) {
 		if(quake_CDAudio.cd != null) {
 			quake_CDAudio.cd.loop = looping;
@@ -277,38 +310,6 @@ quake_CDAudio.CD_f = function() {
 		quake_Console.Print("Volume is " + quake_CDAudio.cdvolume + "\n");
 		break;
 	}
-};
-quake_CDAudio.Update = function() {
-	if(!quake_CDAudio.initialized || !quake_CDAudio.enabled) return;
-	if(quake_S.bgmvolume.value == quake_CDAudio.cdvolume) return;
-	if(quake_S.bgmvolume.value < 0.0) quake_S.bgmvolume.setValue(0.0); else if(quake_S.bgmvolume.value > 1.0) quake_S.bgmvolume.setValue(1.0);
-	quake_CDAudio.cdvolume = quake_S.bgmvolume.value;
-	if(quake_CDAudio.cd != null) quake_CDAudio.cd.volume = quake_CDAudio.cdvolume;
-};
-quake_CDAudio.Init = function() {
-	quake_Cmd.AddCommand("cd",quake_CDAudio.CD_f);
-	if(quake_COM.CheckParm("-nocdaudio") != null) return;
-	var xhr = new XMLHttpRequest();
-	var _g = 2;
-	while(_g < 100) {
-		var i = _g++;
-		var track = "/music/track" + (i <= 9?"0":"") + i + ".ogg";
-		var j = quake_COM.searchpaths.length - 1;
-		while(j >= 0) {
-			xhr.open("HEAD",quake_COM.searchpaths[j].filename + track,false);
-			xhr.send();
-			if(xhr.status >= 200 && xhr.status <= 299) {
-				quake_CDAudio.known[i - 1] = quake_COM.searchpaths[j].filename + track;
-				break;
-			}
-			j--;
-		}
-		if(j < 0) break;
-	}
-	if(quake_CDAudio.known.length == 0) return;
-	quake_CDAudio.initialized = quake_CDAudio.enabled = true;
-	quake_CDAudio.Update();
-	quake_Console.Print("CD Audio Initialized\n");
 };
 var quake__$CL_Beam = function() {
 	this.endtime = 0.0;
@@ -9385,7 +9386,7 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 quake_SV.SendServerinfo = function(client) {
 	var message = client.message;
 	message.WriteByte(8);
-	message.WriteString("\x02" + "\nVERSION 1.09 SERVER (" + quake_PR.crc + " CRC)");
+	message.WriteString("\x02" + "\nVERSION 1.09 SERVER (" + quake_PR.crc + " CRC)\n");
 	message.WriteByte(11);
 	message.WriteLong(15);
 	message.WriteByte(quake_SV.svs.maxclients);
@@ -15125,7 +15126,6 @@ String.__name__ = true;
 Array.__name__ = true;
 Date.__name__ = ["Date"];
 var __map_reserved = {}
-quake_CDAudio.known = [];
 quake_CL.kbutton = { mlook : 0, klook : 1, left : 2, right : 3, forward : 4, back : 5, lookup : 6, lookdown : 7, moveleft : 8, moveright : 9, strafe : 10, speed : 11, 'use' : 12, jump : 13, attack : 14, moveup : 15, movedown : 16, num : 17};
 quake_CL.kbuttons = [];
 quake_CL.sendmovebuf = new quake_MSG(16);

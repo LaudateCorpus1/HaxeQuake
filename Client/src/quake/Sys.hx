@@ -70,9 +70,12 @@ class Sys {
         return Date.now().getTime() * 0.001 - oldtime;
     }
 
+    static inline function urlDecode(s:String):String
+        return (untyped decodeURIComponent)(s);
+
     static function main():Void {
         window.onload = function() {
-            var cmdline = StringTools.urlDecode(document.location.search);
+            var cmdline = urlDecode(document.location.search);
             var location = document.location;
             var argv = [location.href.substring(0, location.href.length - location.search.length)];
             if (cmdline.charCodeAt(0) == 63)

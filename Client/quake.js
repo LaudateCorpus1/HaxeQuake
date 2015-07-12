@@ -8764,7 +8764,7 @@ quake_Sys.main = function() {
 	window.onload = function() {
 		var tmp;
 		var s = window.document.location.search;
-		tmp = decodeURIComponent(s.split("+").join(" "));
+		tmp = decodeURIComponent(s);
 		var cmdline = tmp;
 		var location = window.document.location;
 		var argv = [location.href.substring(0,location.href.length - location.search.length)];

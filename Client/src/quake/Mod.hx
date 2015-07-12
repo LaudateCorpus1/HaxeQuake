@@ -955,31 +955,34 @@ class Mod {
         }
     }
 
-    static function LoadBrushModel(buffer) {
-        Mod.loadmodel.type = brush;
-        var version = (new DataView(buffer)).getUint32(0, true);
-        if (version != ModelVersion.brush)
-            Sys.Error('Mod.LoadBrushModel: ' + Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.brush + ')');
-        Mod.LoadVertexes(buffer);
-        Mod.LoadEdges(buffer);
-        Mod.LoadSurfedges(buffer);
-        Mod.LoadTextures(buffer);
-        Mod.LoadLighting(buffer);
-        Mod.LoadPlanes(buffer);
-        Mod.LoadTexinfo(buffer);
-        Mod.LoadFaces(buffer);
-        Mod.LoadMarksurfaces(buffer);
-        Mod.LoadVisibility(buffer);
-        Mod.LoadLeafs(buffer);
-        Mod.LoadNodes(buffer);
-        Mod.LoadClipnodes(buffer);
-        Mod.MakeHull0();
-        Mod.LoadEntities(buffer);
-        Mod.LoadSubmodels(buffer);
+    static function LoadBrushModel(buffer:ArrayBuffer):Void {
+        loadmodel.type = brush;
 
-        var mins = [0.0, 0.0, 0.0], maxs = [0.0, 0.0, 0.0];
-        for (i in 0...Mod.loadmodel.vertexes.length) {
-            var vert = Mod.loadmodel.vertexes[i];
+        var version = new DataView(buffer).getUint32(0, true);
+        if (version != ModelVersion.brush)
+            Sys.Error('Mod.LoadBrushModel: ' + loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.brush + ')');
+
+        LoadVertexes(buffer);
+        LoadEdges(buffer);
+        LoadSurfedges(buffer);
+        LoadTextures(buffer);
+        LoadLighting(buffer);
+        LoadPlanes(buffer);
+        LoadTexinfo(buffer);
+        LoadFaces(buffer);
+        LoadMarksurfaces(buffer);
+        LoadVisibility(buffer);
+        LoadLeafs(buffer);
+        LoadNodes(buffer);
+        LoadClipnodes(buffer);
+        MakeHull0();
+        LoadEntities(buffer);
+        LoadSubmodels(buffer);
+
+        var mins = [0.0, 0.0, 0.0];
+        var maxs = [0.0, 0.0, 0.0];
+
+        for (vert in loadmodel.vertexes) {
             if (vert[0] < mins[0])
                 mins[0] = vert[0];
             else if (vert[0] > maxs[0])
@@ -994,11 +997,12 @@ class Mod {
                 mins[2] = vert[2];
             else if (vert[2] > maxs[2])
                 maxs[2] = vert[2];
-        };
+        }
+
         Mod.loadmodel.radius = Vec.Length(Vec.of(
-            Math.abs(mins[0]) > Math.abs(maxs[0]) ? Math.abs(mins[0]) : Math.abs(maxs[0]),
-            Math.abs(mins[1]) > Math.abs(maxs[1]) ? Math.abs(mins[1]) : Math.abs(maxs[1]),
-            Math.abs(mins[2]) > Math.abs(maxs[2]) ? Math.abs(mins[2]) : Math.abs(maxs[2])
+            Math.max(Math.abs(mins[0]), Math.abs(maxs[0])),
+            Math.max(Math.abs(mins[1]), Math.abs(maxs[1])),
+            Math.max(Math.abs(mins[2]), Math.abs(maxs[2]))
         ));
     }
 

@@ -6590,20 +6590,20 @@ quake_Mod.LoadBrushModel = function(buffer) {
 	var maxs_0 = 0.0;
 	var maxs_1 = 0.0;
 	var maxs_2 = 0.0;
-	var _g1 = 0;
-	var _g = quake_Mod.loadmodel.vertexes.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var vert = quake_Mod.loadmodel.vertexes[i];
+	var _g = 0;
+	var _g1 = quake_Mod.loadmodel.vertexes;
+	while(_g < _g1.length) {
+		var vert = _g1[_g];
+		++_g;
 		if(vert[0] < mins_0) mins_0 = vert[0]; else if(vert[0] > maxs_0) maxs_0 = vert[0];
 		if(vert[1] < mins_1) mins_1 = vert[1]; else if(vert[1] > maxs_1) maxs_1 = vert[1];
 		if(vert[2] < mins_2) mins_2 = vert[2]; else if(vert[2] > maxs_2) maxs_2 = vert[2];
 	}
 	var tmp;
 	var tmp1;
-	var x = Math.abs(mins_0) > Math.abs(maxs_0)?Math.abs(mins_0):Math.abs(maxs_0);
-	var y = Math.abs(mins_1) > Math.abs(maxs_1)?Math.abs(mins_1):Math.abs(maxs_1);
-	var z = Math.abs(mins_2) > Math.abs(maxs_2)?Math.abs(mins_2):Math.abs(maxs_2);
+	var x = Math.max(Math.abs(mins_0),Math.abs(maxs_0));
+	var y = Math.max(Math.abs(mins_1),Math.abs(maxs_1));
+	var z = Math.max(Math.abs(mins_2),Math.abs(maxs_2));
 	var v1 = new Float32Array(3);
 	v1[0] = x;
 	v1[1] = y;

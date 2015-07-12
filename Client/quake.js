@@ -3194,6 +3194,27 @@ var quake__$GL_GLProgram = function(identifier,uniforms,attribs,textures) {
 	}
 };
 quake__$GL_GLProgram.__name__ = true;
+quake__$GL_GLProgram.prototype = {
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		var _g = 0;
+		var _g1 = this.attribs;
+		while(_g < _g1.length) {
+			var name = _g1[_g];
+			++_g;
+			quake_GL.gl.enableVertexAttribArray(Reflect.field(this,name));
+		}
+	}
+	,unbind: function() {
+		var _g = 0;
+		var _g1 = this.attribs;
+		while(_g < _g1.length) {
+			var name = _g1[_g];
+			++_g;
+			quake_GL.gl.disableVertexAttribArray(Reflect.field(this,name));
+		}
+	}
+};
 var quake_GL = function() { };
 quake_GL.__name__ = true;
 quake_GL.Bind = function(target,texnum) {
@@ -3405,29 +3426,16 @@ quake_GL.UseProgram = function(identifier) {
 	var program = quake_GL.currentprogram;
 	if(program != null) {
 		if(program.identifier == identifier) return program;
-		var _g = 0;
-		var _g1 = program.attribs;
-		while(_g < _g1.length) {
-			var name = _g1[_g];
-			++_g;
-			quake_GL.gl.disableVertexAttribArray(Reflect.field(program,name));
-		}
+		program.unbind();
 	}
-	var _g2 = 0;
-	var _g11 = quake_GL.programs;
-	while(_g2 < _g11.length) {
-		var program1 = _g11[_g2];
-		++_g2;
+	var _g = 0;
+	var _g1 = quake_GL.programs;
+	while(_g < _g1.length) {
+		var program1 = _g1[_g];
+		++_g;
 		if(program1.identifier == identifier) {
 			quake_GL.currentprogram = program1;
-			quake_GL.gl.useProgram(program1.program);
-			var _g21 = 0;
-			var _g3 = program1.attribs;
-			while(_g21 < _g3.length) {
-				var name1 = _g3[_g21];
-				++_g21;
-				quake_GL.gl.enableVertexAttribArray(Reflect.field(program1,name1));
-			}
+			quake_GL.currentprogram["use"]();
 			return program1;
 		}
 	}
@@ -3435,13 +3443,7 @@ quake_GL.UseProgram = function(identifier) {
 };
 quake_GL.UnbindProgram = function() {
 	if(quake_GL.currentprogram == null) return;
-	var _g = 0;
-	var _g1 = quake_GL.currentprogram.attribs;
-	while(_g < _g1.length) {
-		var name = _g1[_g];
-		++_g;
-		quake_GL.gl.disableVertexAttribArray(Reflect.field(quake_GL.currentprogram,name));
-	}
+	quake_GL.currentprogram.unbind();
 	quake_GL.currentprogram = null;
 };
 quake_GL.RotationMatrix = function(pitch,yaw,roll) {

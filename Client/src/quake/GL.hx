@@ -86,10 +86,20 @@ private class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
 			GL.gl.uniform1i(GL.gl.getUniformLocation(program, name), i);
 		}
 	}
+
+	function use() {
+		GL.gl.useProgram(program);
+		for (name in attribs)
+			GL.gl.enableVertexAttribArray(Reflect.field(this, name));
+	}
+
+	function unbind() {
+		for (name in attribs)
+			GL.gl.disableVertexAttribArray(Reflect.field(this, name));
+	}
 }
 
 @:publicFields
-
 class GL {
 	static var gl:RenderingContext;
 	static var rect:Buffer;
@@ -315,15 +325,12 @@ class GL {
 		if (program != null) {
 			if (program.identifier == identifier)
 				return program;
-			for (name in program.attribs)
-				gl.disableVertexAttribArray(Reflect.field(program, name));
+			program.unbind();
 		}
 		for (program in programs) {
 			if (program.identifier == identifier) {
 				currentprogram = program;
-				gl.useProgram(program.program);
-				for (name in program.attribs)
-					gl.enableVertexAttribArray(Reflect.field(program, name));
+				currentprogram.use();
 				return program;
 			}
 		}
@@ -333,8 +340,7 @@ class GL {
 	static function UnbindProgram():Void {
 		if (currentprogram == null)
 			return;
-		for (name in currentprogram.attribs)
-			gl.disableVertexAttribArray(Reflect.field(currentprogram, name));
+		currentprogram.unbind();
 		currentprogram = null;
 	}
 

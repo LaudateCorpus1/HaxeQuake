@@ -3745,7 +3745,7 @@ quake_Host.Status_f = function() {
 			return;
 		}
 		print = quake_Console.Print;
-	} else print = quake_SV.ClientPrint;
+	} else print = quake_Host.ClientPrint;
 	print("host:    " + quake_NET.hostname.string + "\n");
 	print("version: 1.09\n");
 	print("map:     " + quake_PR.GetString(quake_PR._globals_int[34]) + "\n");

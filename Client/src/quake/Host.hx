@@ -384,7 +384,7 @@ class Host {
             print = Console.Print;
         }
         else
-            print = (cast SV).ClientPrint;
+            print = Host.ClientPrint;
         print('host:    ' + NET.hostname.string + '\n');
         print('version: 1.09\n');
         print('map:     ' + PR.GetString(PR.globals.mapname) + '\n');

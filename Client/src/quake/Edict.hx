@@ -4,7 +4,7 @@ import js.html.ArrayBuffer;
 import js.html.Float32Array;
 import js.html.Int32Array;
 import quake.Mod.MLink;
-import quake.R.REntityState;
+import quake.Entity.EntityState;
 import quake.SV.EntFlag;
 
 @:publicFields
@@ -13,7 +13,7 @@ class Edict {
     var free:Bool;
     var area:MLink;
     var leafnums:Array<Int>;
-    var baseline:REntityState;
+    var baseline:EntityState;
     var freetime:Float;
     var _v:ArrayBuffer;
     var _v_int:Int32Array;
@@ -36,7 +36,7 @@ class Edict {
         this.area = new MLink();
         this.area.ent = this;
         this.leafnums = [];
-        this.baseline = new REntityState();
+        this.baseline = new EntityState();
         this.freetime = 0.0;
         this._v = new ArrayBuffer(PR.entityfields << 2);
         this._v_float = new Float32Array(_v);

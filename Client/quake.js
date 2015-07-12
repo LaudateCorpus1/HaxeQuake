@@ -335,7 +335,7 @@ var quake__$CL_Score = function() {
 quake__$CL_Score.__name__ = true;
 var quake__$CL_ClientState = function() {
 	this.cdtrack = 0;
-	this.viewent = new quake_REntity();
+	this.viewent = new quake_Entity();
 	this.num_statics = 0;
 	this.viewentity = 0;
 	this.last_received_message = 0.0;
@@ -1178,7 +1178,7 @@ quake_CL.Init = function() {
 };
 quake_CL.EntityNum = function(num) {
 	if(num < quake_CL.entities.length) return quake_CL.entities[num];
-	while(quake_CL.entities.length <= num) quake_CL.entities.push(new quake_REntity(num));
+	while(quake_CL.entities.length <= num) quake_CL.entities.push(new quake_Entity(num));
 	return quake_CL.entities[num];
 };
 quake_CL.ParseStartSoundPacket = function() {
@@ -1425,7 +1425,7 @@ quake_CL.ParseClientdata = function(bits) {
 	if(quake_COM.standard_quake) quake_CL.state.stats[10] = quake_MSG.ReadByte(); else quake_CL.state.stats[10] = 1 << quake_MSG.ReadByte();
 };
 quake_CL.ParseStatic = function() {
-	var ent = new quake_REntity();
+	var ent = new quake_Entity();
 	quake_CL.static_entities[quake_CL.state.num_statics++] = ent;
 	quake_CL.ParseBaseline(ent);
 	ent.model = quake_CL.state.model_precache[ent.baseline.modelindex];
@@ -1803,7 +1803,7 @@ quake_CL.ParseTEnt = function() {
 	}
 };
 quake_CL.NewTempEntity = function() {
-	var ent = new quake_REntity();
+	var ent = new quake_Entity();
 	quake_CL.temp_entities[quake_CL.num_temp_entities++] = ent;
 	quake_CL.visedicts[quake_CL.numvisedicts++] = ent;
 	return ent;
@@ -3100,7 +3100,7 @@ var quake_Edict = function(num) {
 	this.area = new quake_MLink();
 	this.area.ent = this;
 	this.leafnums = [];
-	this.baseline = new quake_REntityState();
+	this.baseline = new quake_EntityState();
 	this.freetime = 0.0;
 	this._v = new ArrayBuffer(quake_PR.entityfields << 2);
 	this._v_float = new Float32Array(this._v);
@@ -3109,6 +3109,32 @@ var quake_Edict = function(num) {
 quake_Edict.__name__ = true;
 var quake__$EdictVarOfs_EdictVarOfs_$Impl_$ = {};
 quake__$EdictVarOfs_EdictVarOfs_$Impl_$.__name__ = true;
+var quake_Entity = function(n) {
+	if(n == null) n = -1;
+	this.baseline = new quake_EntityState();
+	this.effects = 0;
+	this.msgtime = 0.0;
+	this.skinnum = 0;
+	this.syncbase = 0.0;
+	this.frame = 0;
+	this.msg_origins = [new Float32Array(3),new Float32Array(3)];
+	this.origin = new Float32Array(3);
+	this.msg_angles = [new Float32Array(3),new Float32Array(3)];
+	this.angles = new Float32Array(3);
+	this.leafs = [];
+	this.num = n;
+};
+quake_Entity.__name__ = true;
+var quake_EntityState = function() {
+	this.effects = 0;
+	this.skin = 0;
+	this.colormap = 0;
+	this.frame = 0;
+	this.modelindex = 0;
+	this.angles = new Float32Array(3);
+	this.origin = new Float32Array(3);
+};
+quake_EntityState.__name__ = true;
 var quake__$GL_GLModeSetting = function(min,max) {
 	this.min = min;
 	this.max = max;
@@ -14335,32 +14361,6 @@ var quake__$R_RParticle = function(t) {
 	this.type = t;
 };
 quake__$R_RParticle.__name__ = true;
-var quake_REntity = function(n) {
-	if(n == null) n = -1;
-	this.baseline = new quake_REntityState();
-	this.effects = 0;
-	this.msgtime = 0.0;
-	this.skinnum = 0;
-	this.syncbase = 0.0;
-	this.frame = 0;
-	this.msg_origins = [new Float32Array(3),new Float32Array(3)];
-	this.origin = new Float32Array(3);
-	this.msg_angles = [new Float32Array(3),new Float32Array(3)];
-	this.angles = new Float32Array(3);
-	this.leafs = [];
-	this.num = n;
-};
-quake_REntity.__name__ = true;
-var quake_REntityState = function() {
-	this.effects = 0;
-	this.skin = 0;
-	this.colormap = 0;
-	this.frame = 0;
-	this.modelindex = 0;
-	this.angles = new Float32Array(3);
-	this.origin = new Float32Array(3);
-};
-quake_REntityState.__name__ = true;
 var quake_Sfx = function(n) {
 	this.name = n;
 };

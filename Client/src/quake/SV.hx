@@ -7,7 +7,6 @@ import js.html.Uint8Array;
 import quake.CL.ClientCmd;
 import quake.Host.HClient;
 import quake.Mod;
-import quake.R.REntityState;
 import quake.Protocol;
 
 @:publicFields

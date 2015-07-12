@@ -9,7 +9,6 @@ import quake.Mod.EntEffect;
 import quake.Mod.ModelEffect;
 import quake.NET.INETSocket;
 import quake.Protocol;
-import quake.R.REntity;
 import quake.S.Sfx;
 import quake.Def.ClientStat;
 using Tools;
@@ -108,7 +107,7 @@ private class ClientState {
     var last_received_message = 0.0;
     var viewentity = 0;
     var num_statics = 0;
-    var viewent = new REntity();
+    var viewent = new Entity();
     var cdtrack = 0;
     var looptrack = 0;
     var inwater:Bool;
@@ -580,8 +579,8 @@ class CL {
 
     static var cls = new ClientStatic();
     static var state:ClientState;
-    static var static_entities:Array<REntity> = [];
-    static var visedicts:Array<REntity> = [];
+    static var static_entities:Array<Entity> = [];
+    static var visedicts:Array<Entity> = [];
 
     static function Rcon_f() {
         if (CL.rcon_password.string.length == 0) {
@@ -624,7 +623,7 @@ class CL {
         xhr.send();
     }
 
-    static var entities:Array<REntity>;
+    static var entities:Array<Entity>;
     static var dlights:Array<DLight>;
     static var lightstyle:Array<String>;
     static var beams:Array<Beam>;
@@ -1055,11 +1054,11 @@ class CL {
         'cutscene'
     ];
 
-    static function EntityNum(num:Int):REntity {
+    static function EntityNum(num:Int):Entity {
         if (num < CL.entities.length)
             return CL.entities[num];
         while (CL.entities.length <= num) {
-            CL.entities.push(new REntity(num));
+            CL.entities.push(new Entity(num));
         }
         return CL.entities[num];
     }
@@ -1223,7 +1222,7 @@ class CL {
         }
     }
 
-    static function ParseBaseline(ent:REntity):Void {
+    static function ParseBaseline(ent:Entity):Void {
         ent.baseline.modelindex = MSG.ReadByte();
         ent.baseline.frame = MSG.ReadByte();
         ent.baseline.colormap = MSG.ReadByte();
@@ -1280,7 +1279,7 @@ class CL {
     }
 
     static function ParseStatic() {
-        var ent = new REntity();
+        var ent = new Entity();
         CL.static_entities[CL.state.num_statics++] = ent;
         CL.ParseBaseline(ent);
         ent.model = CL.state.model_precache[ent.baseline.modelindex];
@@ -1597,8 +1596,8 @@ class CL {
         }
     }
 
-    static function NewTempEntity():REntity {
-        var ent = new REntity();
+    static function NewTempEntity():Entity {
+        var ent = new Entity();
         CL.temp_entities[CL.num_temp_entities++] = ent;
         CL.visedicts[CL.numvisedicts++] = ent;
         return ent;

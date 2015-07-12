@@ -41,48 +41,8 @@ private class RParticle {
 }
 
 @:publicFields
-class REntity {
-    var leafs:Array<Int> = [];
-    var model:MModel;
-    var angles= new Vec();
-    var msg_angles = [new Vec(), new Vec()];
-    var origin= new Vec();
-    var msg_origins = [new Vec(), new Vec()];
-    var frame = 0;
-    var syncbase = 0.0;
-    var colormap:Int;
-    var num:Int;
-    var skinnum = 0;
-    var msgtime = 0.0;
-    var forcelink:Bool;
-    var effects = EntEffect.no;
-    var update_type = 0;
-    var visframe = 0;
-    var dlightframe = 0;
-    var dlightbits = 0;
-    var baseline = new REntityState();
-    function new(n = -1) {
-        num = n;
-    }
-}
-
-@:publicFields
-class REntityState {
-    var origin= new Vec();
-    var angles= new Vec();
-    var modelindex = 0;
-    var frame = 0;
-    var colormap = 0;
-    var skin = 0;
-    var effects = EntEffect.no;
-    function new() {}
-}
-
-
-
-@:publicFields
 class R {
-    static var currententity:REntity;
+    static var currententity:Entity;
     static var emins:Vec;
     static var emaxs:Vec;
 
@@ -366,7 +326,7 @@ class R {
         return false;
     }
 
-    static function DrawSpriteModel(e:REntity):Void {
+    static function DrawSpriteModel(e:Entity):Void {
         var program;
         if (e.model.oriented) {
             program = GL.UseProgram('spriteOriented');
@@ -565,7 +525,7 @@ class R {
         [-0.688191, -0.587785, -0.425325]
     ];
 
-    static function DrawAliasModel(e:REntity):Void {
+    static function DrawAliasModel(e:Entity):Void {
         var clmodel = e.model;
 
         if (R.CullBox(
@@ -1303,7 +1263,7 @@ class R {
         GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }
 
-    static function EntityParticles(ent:REntity) {
+    static function EntityParticles(ent:Entity) {
         var allocated = R.AllocParticles(162);
         for (i in 0...allocated.length) {
             var angle = CL.state.time * R.avelocities[i][0];
@@ -1806,7 +1766,7 @@ class R {
         return R.currententity.model.textures[anims[(Math.floor(CL.state.time * 5.0) + frame) % anims.length]];
     }
 
-    static function DrawBrushModel(e:REntity):Void {
+    static function DrawBrushModel(e:Entity):Void {
         var clmodel = e.model;
 
         if (clmodel.submodel) {

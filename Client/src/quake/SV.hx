@@ -217,7 +217,7 @@ class SV {
     static function SendServerinfo(client:HClient):Void {
         var message = client.message;
         message.WriteByte(SVC.print);
-        message.WriteString(String.fromCharCode(2) + '\nVERSION 1.09 SERVER (' + PR.crc + ' CRC)');
+        message.WriteString(String.fromCharCode(2) + '\nVERSION 1.09 SERVER (' + PR.crc + ' CRC)\n');
         message.WriteByte(SVC.serverinfo);
         message.WriteLong(Protocol.version);
         message.WriteByte(svs.maxclients);

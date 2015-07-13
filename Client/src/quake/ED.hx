@@ -152,7 +152,7 @@ class ED {
 	static function ParseGlobals(data:String):Void {
 		while (true) {
 			data = COM.Parse(data);
-			if (COM.token.charCodeAt(0) == 125)
+			if (COM.token.charCodeAt(0) == "}".code)
 				return;
 			if (data == null)
 				Sys.Error('ED.ParseGlobals: EOF without closing brace');
@@ -160,11 +160,11 @@ class ED {
 			data = COM.Parse(data);
 			if (data == null)
 				Sys.Error('ED.ParseGlobals: EOF without closing brace');
-			if (COM.token.charCodeAt(0) == 125)
+			if (COM.token.charCodeAt(0) == "}".code)
 				Sys.Error('ED.ParseGlobals: closing brace without data');
 			var key = FindGlobal(keyname);
 			if (key == null) {
-				Console.Print('\'' + keyname + '\' is not a global\n');
+				Console.Print('\'$keyname\' is not a global\n');
 				continue;
 			}
 			if (!ParseEpair(PR._globals, key, COM.token))

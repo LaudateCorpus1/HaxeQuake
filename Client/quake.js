@@ -8022,7 +8022,7 @@ quake_Q.atoi = function(str) {
 		}
 	}
 	if(c == 39) {
-		if(isNaN(c2)) return 0;
+		if(c2 == null) return 0;
 		return sign * c2;
 	}
 	while(true) {
@@ -8030,7 +8030,7 @@ quake_Q.atoi = function(str) {
 		var index1 = ptr++;
 		tmp1 = HxOverrides.cca(str,index1);
 		c = tmp1;
-		if(isNaN(c) || c <= 47 || c >= 58) return val * sign;
+		if(c == null || c <= 47 || c >= 58) return val * sign;
 		val = val * 10 + c - 48;
 	}
 	return 0;

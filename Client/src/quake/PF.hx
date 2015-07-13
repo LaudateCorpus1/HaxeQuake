@@ -28,9 +28,11 @@ class PF {
         Host.Error('Program error');
     }
 
-    static function makevectors() {
-        var forward = new Vec(), right = new Vec(), up = new Vec();
-        Vec.AngleVectors(Vec.of(PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]), forward, right, up);
+    static function makevectors():Void {
+        var forward = new Vec();
+        var right = new Vec();
+        var up = new Vec();
+        Vec.AngleVectors(Vec.of(PR._globals_float[OFS_PARM0], PR._globals_float[OFS_PARM0 + 1], PR._globals_float[OFS_PARM0 + 2]), forward, right, up);
         for (i in 0...3) {
             PR._globals_float[GlobalVarOfs.v_forward + i] = forward[i];
             PR._globals_float[GlobalVarOfs.v_right + i] = right[i];
@@ -38,11 +40,11 @@ class PF {
         }
     }
 
-    static function setorigin() {
-        var e = SV.server.edicts[PR._globals_int[4]];
-        e.v.origin = PR._globals_float[7];
-        e.v.origin1 = PR._globals_float[8];
-        e.v.origin2 = PR._globals_float[9];
+    static function setorigin():Void {
+        var e = SV.server.edicts[PR._globals_int[OFS_PARM0]];
+        e.v.origin = PR._globals_float[OFS_PARM1];
+        e.v.origin1 = PR._globals_float[OFS_PARM1 + 1];
+        e.v.origin2 = PR._globals_float[OFS_PARM1 + 2];
         SV.LinkEdict(e, false);
     }
 
@@ -57,10 +59,12 @@ class PF {
         SV.LinkEdict(e, false);
     }
 
-    static function setsize() {
-        SetMinMaxSize(SV.server.edicts[PR._globals_int[4]],
-            Vec.of(PR._globals_float[7], PR._globals_float[8], PR._globals_float[9]),
-            Vec.of(PR._globals_float[10], PR._globals_float[11], PR._globals_float[12]));
+    static function setsize():Void {
+        SetMinMaxSize(
+            SV.server.edicts[PR._globals_int[OFS_PARM0]],
+            Vec.of(PR._globals_float[OFS_PARM1], PR._globals_float[OFS_PARM1 + 1], PR._globals_float[OFS_PARM1 + 2]),
+            Vec.of(PR._globals_float[OFS_PARM2], PR._globals_float[OFS_PARM2 + 1], PR._globals_float[OFS_PARM2 + 2])
+        );
     }
 
     static function setmodel() {

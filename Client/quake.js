@@ -13507,8 +13507,8 @@ quake_PF.makevectors = function() {
 	var tmp;
 	var v = new Float32Array(3);
 	v[0] = quake_PR._globals_float[4];
-	v[1] = quake_PR._globals_float[5];
-	v[2] = quake_PR._globals_float[6];
+	v[1] = quake_PR._globals_float[4 + 1];
+	v[2] = quake_PR._globals_float[4 + 2];
 	tmp = v;
 	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward,right,up);
 	var _g = 0;
@@ -13522,8 +13522,8 @@ quake_PF.makevectors = function() {
 quake_PF.setorigin = function() {
 	var e = quake_SV.server.edicts[quake_PR._globals_int[4]];
 	e._v_float[10] = quake_PR._globals_float[7];
-	e._v_float[11] = quake_PR._globals_float[8];
-	e._v_float[12] = quake_PR._globals_float[9];
+	e._v_float[11] = quake_PR._globals_float[7 + 1];
+	e._v_float[12] = quake_PR._globals_float[7 + 2];
 	quake_SV.LinkEdict(e,false);
 };
 quake_PF.SetMinMaxSize = function(e,min,max) {
@@ -13539,14 +13539,14 @@ quake_PF.setsize = function() {
 	var tmp;
 	var v = new Float32Array(3);
 	v[0] = quake_PR._globals_float[7];
-	v[1] = quake_PR._globals_float[8];
-	v[2] = quake_PR._globals_float[9];
+	v[1] = quake_PR._globals_float[7 + 1];
+	v[2] = quake_PR._globals_float[7 + 2];
 	tmp = v;
 	var tmp1;
 	var v1 = new Float32Array(3);
 	v1[0] = quake_PR._globals_float[10];
-	v1[1] = quake_PR._globals_float[11];
-	v1[2] = quake_PR._globals_float[12];
+	v1[1] = quake_PR._globals_float[10 + 1];
+	v1[2] = quake_PR._globals_float[10 + 2];
 	tmp1 = v1;
 	quake_PF.SetMinMaxSize(quake_SV.server.edicts[quake_PR._globals_int[4]],tmp,tmp1);
 };

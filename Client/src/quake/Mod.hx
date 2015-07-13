@@ -327,13 +327,13 @@ class MLink {
     var tracer3 = 128;
 }
 
-@:publicFields
 class Mod {
+    public static var novis(default,null):Array<Int>;
+
     static var known:Array<MModel> = [];
-    static var novis:Array<Int>;
     static var filledcolor:Int;
 
-    static function Init():Void {
+    public static function Init():Void {
         Mod.novis = [];
         for (i in 0...1024)
             Mod.novis[i] = 0xff;
@@ -347,7 +347,7 @@ class Mod {
         }
     }
 
-    static function PointInLeaf(p:Vec, model:MModel):MLeaf {
+    public static function PointInLeaf(p:Vec, model:MModel):MLeaf {
         if (model == null)
             Sys.Error('Mod.PointInLeaf: bad model');
         if (model.nodes == null)
@@ -389,13 +389,13 @@ class Mod {
         return decompressed;
     }
 
-    static function LeafPVS(leaf:MLeaf, model:MModel):Array<Int> {
+    public static function LeafPVS(leaf:MLeaf, model:MModel):Array<Int> {
         if (leaf == model.leafs[0])
-            return Mod.novis;
-        return Mod.DecompressVis(leaf.visofs, model);
+            return novis;
+        return DecompressVis(leaf.visofs, model);
     }
 
-    static function ClearAll():Void {
+    public static function ClearAll():Void {
         for (i in 0...Mod.known.length) {
             var mod = Mod.known[i];
             if (mod.type != brush)
@@ -448,7 +448,7 @@ class Mod {
         return mod;
     }
 
-    static function ForName(name:String, crash:Bool):MModel {
+    public static function ForName(name:String, crash:Bool):MModel {
         return Mod.LoadModel(Mod.FindName(name), crash);
     }
 
@@ -1414,7 +1414,7 @@ class Mod {
         }
     }
 
-    static function Print() {
+    public static function Print() {
         Console.Print('Cached models:\n');
         for (i in 0...Mod.known.length)
             Console.Print(Mod.known[i].name + '\n');

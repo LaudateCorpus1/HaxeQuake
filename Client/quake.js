@@ -6616,9 +6616,9 @@ quake_Mod.LoadBrushModel = function(buffer) {
 quake_Mod.TranslatePlayerSkin = function(data,skin) {
 	if(quake_Mod.loadmodel.skinwidth != 512 || quake_Mod.loadmodel.skinheight != 256) data = quake_GL.ResampleTexture(data,quake_Mod.loadmodel.skinwidth,quake_Mod.loadmodel.skinheight,512,256);
 	var out = new Uint8Array(new ArrayBuffer(524288));
-	var _g = 0;
-	while(_g < 131072) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < 131072) {
+		var i = _g1++;
 		var original = data[i];
 		if(original >> 4 == 1) {
 			out[i << 2] = (original & 15) * 17;

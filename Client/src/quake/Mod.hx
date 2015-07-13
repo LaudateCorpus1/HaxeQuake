@@ -1014,17 +1014,16 @@ class Mod {
     ====================================================
     */
 
-    static function TranslatePlayerSkin(data, skin) {
-        if ((Mod.loadmodel.skinwidth != 512) || (Mod.loadmodel.skinheight != 256))
-            data = GL.ResampleTexture(data, Mod.loadmodel.skinwidth, Mod.loadmodel.skinheight, 512, 256);
-        var out = new Uint8Array(new ArrayBuffer(524288));
-        for (i in 0...131072) {
+    static function TranslatePlayerSkin(data:Uint8Array, skin:MSkin):Void {
+        if (loadmodel.skinwidth != 512 || loadmodel.skinheight != 256)
+            data = GL.ResampleTexture(data, loadmodel.skinwidth, loadmodel.skinheight, 512, 256);
+        var out = new Uint8Array(new ArrayBuffer(512 * 256 * 4));
+        for (i in 0...(512 * 256)) {
             var original = data[i];
             if ((original >> 4) == 1) {
                 out[i << 2] = (original & 15) * 17;
                 out[(i << 2) + 1] = 255;
-            }
-            else if ((original >> 4) == 6) {
+            } else if ((original >> 4) == 6) {
                 out[(i << 2) + 2] = (original & 15) * 17;
                 out[(i << 2) + 3] = 255;
             }

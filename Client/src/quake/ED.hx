@@ -88,16 +88,16 @@ class ED {
 			Console.Print('FREE\n');
 			return;
 		}
-		Console.Print('\nEDICT ' + ed.num + ':\n');
+		Console.Print('\nEDICT ${ed.num}:\n');
 		for (i in 1...PR.fielddefs.length) {
 			var d = PR.fielddefs[i];
 			var name = PR.GetString(d.name);
-			if (name.charCodeAt(name.length - 2) == 95)
+			if (name.charCodeAt(name.length - 2) == "_".code)
 				continue;
 			var v = d.ofs;
 			if (ed._v_int[v] == 0) {
 				if ((d.type & 0x7fff) == 3) {
-					if ((ed._v_int[v + 1] == 0) && (ed._v_int[v + 2] == 0))
+					if (ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0)
 						continue;
 				} else {
 					continue;

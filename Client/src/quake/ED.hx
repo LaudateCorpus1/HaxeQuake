@@ -21,7 +21,7 @@ class ED {
 			}
 		}
 		if (i == Def.max_edicts)
-			Sys.Error('ED.Alloc: no free edicts');
+			Sys.Error('ED.Alloc: no free edicts (max_edicts is ${Def.max_edicts})');
 		var e = SV.server.edicts[SV.server.num_edicts++];
 		e.Clear();
 		return e;

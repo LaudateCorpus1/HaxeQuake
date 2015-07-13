@@ -2811,7 +2811,7 @@ quake_ED.Alloc = function() {
 			return e1;
 		}
 	}
-	if(i == quake_Def.max_edicts) quake_Sys.Error("ED.Alloc: no free edicts");
+	if(i == 2048) quake_Sys.Error("ED.Alloc: no free edicts (max_edicts is " + 2048 + ")");
 	var e = quake_SV.server.edicts[quake_SV.server.num_edicts++];
 	e.Clear();
 	return e;
@@ -3728,7 +3728,7 @@ quake_Host.Init = function() {
 	quake_Mod.Init();
 	quake_NET.Init();
 	quake_SV.Init();
-	quake_Console.Print(quake_Def.timedate);
+	quake_Console.Print("Exe: 12:39:20 Aug  7 2014\n");
 	quake_VID.Init();
 	quake_Draw.Init();
 	quake_SCR.Init();
@@ -4145,7 +4145,7 @@ quake_Host.Name_f = function() {
 };
 quake_Host.Version_f = function() {
 	quake_Console.Print("Version 1.09\n");
-	quake_Console.Print(quake_Def.timedate);
+	quake_Console.Print("Exe: 12:39:20 Aug  7 2014\n");
 };
 quake_Host.Say = function(teamonly) {
 	if(!quake_Cmd.client) {
@@ -9805,20 +9805,19 @@ quake_SV.SpawnServer = function(map) {
 	quake_Mod.ClearAll();
 	quake_PR.LoadProgs();
 	quake_SV.server.edicts = [];
-	var _g1 = 0;
-	var _g = quake_Def.max_edicts;
-	while(_g1 < _g) {
-		var i = _g1++;
+	var _g = 0;
+	while(_g < 2048) {
+		var i = _g++;
 		quake_SV.server.edicts.push(new quake_Edict(i));
 	}
 	quake_SV.server.datagram.cursize = 0;
 	quake_SV.server.reliable_datagram.cursize = 0;
 	quake_SV.server.signon.cursize = 0;
 	quake_SV.server.num_edicts = quake_SV.svs.maxclients + 1;
-	var _g11 = 0;
+	var _g1 = 0;
 	var _g2 = quake_SV.svs.maxclients;
-	while(_g11 < _g2) {
-		var i1 = _g11++;
+	while(_g1 < _g2) {
+		var i1 = _g1++;
 		quake_SV.svs.clients[i1].edict = quake_SV.server.edicts[i1 + 1];
 	}
 	quake_SV.server.loading = true;
@@ -9840,10 +9839,10 @@ quake_SV.SpawnServer = function(map) {
 	quake_SV.CreateAreaNode(0,quake_SV.server.worldmodel.mins,quake_SV.server.worldmodel.maxs);
 	quake_SV.server.sound_precache = [""];
 	quake_SV.server.model_precache = ["",quake_SV.server.modelname];
-	var _g12 = 1;
+	var _g11 = 1;
 	var _g3 = quake_SV.server.worldmodel.submodels.length + 1;
-	while(_g12 < _g3) {
-		var i2 = _g12++;
+	while(_g11 < _g3) {
+		var i2 = _g11++;
 		quake_SV.server.model_precache[i2 + 1] = "*" + i2;
 		quake_SV.server.models[i2 + 1] = quake_Mod.ForName("*" + i2,false);
 	}
@@ -9868,10 +9867,10 @@ quake_SV.SpawnServer = function(map) {
 	quake_SV.Physics();
 	quake_SV.Physics();
 	quake_SV.CreateBaseline();
-	var _g13 = 0;
+	var _g12 = 0;
 	var _g5 = quake_SV.svs.maxclients;
-	while(_g13 < _g5) {
-		var i4 = _g13++;
+	while(_g12 < _g5) {
+		var i4 = _g12++;
 		quake_Host.client = quake_SV.svs.clients[i4];
 		if(!quake_Host.client.active) continue;
 		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i4 << 5);
@@ -14994,8 +14993,6 @@ quake_Console.backscroll = 0;
 quake_Console.text = [];
 quake_Console.current = 0;
 quake_Cvar.vars = new haxe_ds_StringMap();
-quake_Def.timedate = "Exe: 12:39:20 Aug  7 2014\n";
-quake_Def.max_edicts = 600;
 quake_Def.it = { shotgun : 1, super_shotgun : 2, nailgun : 4, super_nailgun : 8, grenade_launcher : 16, rocket_launcher : 32, lightning : 64, super_lightning : 128, shells : 256, nails : 512, rockets : 1024, cells : 2048, axe : 4096, armor1 : 8192, armor2 : 16384, armor3 : 32768, superhealth : 65536, key1 : 131072, key2 : 262144, invisibility : 524288, invulnerability : 1048576, suit : 2097152, quad : 4194304};
 quake_Def.rit = { shells : 128, nails : 256, rockets : 512, cells : 1024, axe : 2048, lava_nailgun : 4096, lava_super_nailgun : 8192, multi_grenade : 16384, multi_rocket : 32768, plasma_gun : 65536, armor1 : 8388608, armor2 : 16777216, armor3 : 33554432, lava_nails : 67108864, plasma_ammo : 134217728, multi_rockets : 268435456, shield : 536870912, antigrav : 1073741824, superhealth : 2147483648};
 quake_Def.hit = { proximity_gun_bit : 16, mjolnir_bit : 7, laser_cannon_bit : 23, proximity_gun : 65536, mjolnir : 128, laser_cannon : 8388608, wetsuit : 33554432, empathy_shields : 67108864};

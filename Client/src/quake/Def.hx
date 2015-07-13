@@ -24,8 +24,8 @@ class Def {
 		return macro $v{haxe.macro.Context.definedValue("version")};
 	}
 
-	static var timedate = 'Exe: 12:39:20 Aug  7 2014\n';
-	static var max_edicts = 600;
+	static inline var timedate = 'Exe: 12:39:20 Aug  7 2014\n';
+	static inline var max_edicts = 2048;
 
 	static var it = {
 		shotgun: 1,

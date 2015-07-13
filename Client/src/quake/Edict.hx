@@ -44,13 +44,11 @@ class Edict {
     }
 
     inline function GetVector(o:Int):Vec {
-        return Vec.of(_v_float[o], _v_float[o + 1], _v_float[o + 2]);
+        return cast new Float32Array(_v_float.buffer.slice(o * 4, (o * 4 + 3 * 4)));
     }
 
-    function SetVector(ofs:Int, v:Vec):Void {
-        _v_float[ofs] = v[0];
-        _v_float[ofs + 1] = v[1];
-        _v_float[ofs + 2] = v[2];
+    inline function SetVector(ofs:Int, v:Vec):Void {
+        _v_float.set(v, ofs);
     }
 
     function Clear():Void {

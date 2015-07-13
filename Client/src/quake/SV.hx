@@ -305,7 +305,7 @@ class SV {
     static function AddToFatPVS(org:Vec, node:MNode):Void {
         while (true) {
             if (node.contents < 0) {
-                if (node.contents != ModContents.solid) {
+                if (node.contents != Contents.solid) {
                     var pvs = Mod.LeafPVS(cast node, server.worldmodel);
                     for (i in 0...fatbytes)
                         fatpvs[i] |= pvs[i];
@@ -798,13 +798,13 @@ class SV {
             ent.v.origin2 + ent.v.maxs2
         ];
         while (true) {
-            if (PointContents(Vec.of(mins[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(mins[0], mins[1], mins[2] - 1.0)) != Contents.solid)
                 break;
-            if (PointContents(Vec.of(mins[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(mins[0], maxs[1], mins[2] - 1.0)) != Contents.solid)
                 break;
-            if (PointContents(Vec.of(maxs[0], mins[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(maxs[0], mins[1], mins[2] - 1.0)) != Contents.solid)
                 break;
-            if (PointContents(Vec.of(maxs[0], maxs[1], mins[2] - 1.0)) != ModContents.solid)
+            if (PointContents(Vec.of(maxs[0], maxs[1], mins[2] - 1.0)) != Contents.solid)
                 break;
             return true;
         }
@@ -849,7 +849,7 @@ class SV {
                 }
                 var trace = Move(ent.GetVector(EdictVarOfs.origin), mins, maxs, neworg, 0, ent);
                 if (trace.fraction == 1.0) {
-                    if ((ent.flags & EntFlag.swim) != 0 && PointContents(trace.endpos) == ModContents.empty)
+                    if ((ent.flags & EntFlag.swim) != 0 && PointContents(trace.endpos) == Contents.empty)
                         return false;
                     ent.v.origin = trace.endpos[0];
                     ent.v.origin1 = trace.endpos[1];
@@ -1335,19 +1335,19 @@ class SV {
     static function CheckWater(ent:Edict):Bool {
         var point = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + ent.v.mins2 + 1.0);
         ent.v.waterlevel = 0.0;
-        ent.v.watertype = ModContents.empty;
+        ent.v.watertype = Contents.empty;
         var cont = PointContents(point);
-        if (cont > ModContents.water)
+        if (cont > Contents.water)
             return false;
         ent.v.watertype = cont;
         ent.v.waterlevel = 1.0;
         point[2] = ent.v.origin2 + (ent.v.mins2 + ent.v.maxs2) * 0.5;
         cont = PointContents(point);
-        if (cont <= ModContents.water) {
+        if (cont <= Contents.water) {
             ent.v.waterlevel = 2.0;
             point[2] = ent.v.origin2 + ent.v.view_ofs2;
             cont = PointContents(point);
-            if (cont <= ModContents.water)
+            if (cont <= Contents.water)
                 ent.v.waterlevel = 3.0;
         }
         return ent.v.waterlevel > 1.0;
@@ -1503,16 +1503,16 @@ class SV {
             ent.v.waterlevel = 1.0;
             return;
         }
-        if (cont <= ModContents.water) {
-            if (ent.v.watertype == ModContents.empty)
+        if (cont <= Contents.water) {
+            if (ent.v.watertype == Contents.empty)
                 StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
             ent.v.watertype = cont;
             ent.v.waterlevel = 1.0;
             return;
         }
-        if (ent.v.watertype != ModContents.empty)
+        if (ent.v.watertype != Contents.empty)
             StartSound(ent, 0, 'misc/h2ohit1.wav', 255, 1.0);
-        ent.v.watertype = ModContents.empty;
+        ent.v.watertype = Contents.empty;
         ent.v.waterlevel = cont;
     }
 
@@ -2033,7 +2033,7 @@ class SV {
     }
 
     static function FindTouchedLeafs(ent:Edict, node:MNode):Void {
-        if (node.contents == ModContents.solid)
+        if (node.contents == Contents.solid)
             return;
 
         if (node.contents < 0) {
@@ -2105,7 +2105,7 @@ class SV {
             TouchLinks(ent, areanodes[0]);
     }
 
-    static function HullPointContents(hull:MHull, num:Int, p:Vec):ModContents {
+    static function HullPointContents(hull:MHull, num:Int, p:Vec):Contents {
         while (num >= 0) {
             if (num < hull.firstclipnode || num > hull.lastclipnode)
                 Sys.Error('SV.HullPointContents: bad node number');
@@ -2124,10 +2124,10 @@ class SV {
         return num;
     }
 
-    static function PointContents(p:Vec):ModContents {
+    static function PointContents(p:Vec):Contents {
         var cont = HullPointContents(server.worldmodel.hulls[0], 0, p);
-        if (cont <= ModContents.current_0 && cont >= ModContents.current_down)
-            return ModContents.water;
+        if (cont <= Contents.current_0 && cont >= Contents.current_down)
+            return Contents.water;
         return cont;
     }
 
@@ -2138,9 +2138,9 @@ class SV {
 
     static function RecursiveHullCheck(hull:MHull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:MTrace):Bool {
         if (num < 0) {
-            if (num != ModContents.solid) {
+            if (num != Contents.solid) {
                 trace.allsolid = false;
-                if (num == ModContents.empty)
+                if (num == Contents.empty)
                     trace.inopen = true;
                 else
                     trace.inwater = true;
@@ -2187,7 +2187,7 @@ class SV {
         if (!RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace))
             return false;
 
-        if (HullPointContents(hull, node.children[1 - side], mid) != ModContents.solid)
+        if (HullPointContents(hull, node.children[1 - side], mid) != Contents.solid)
             return RecursiveHullCheck(hull, node.children[1 - side], midf, p2f, mid, p2, trace);
 
         if (trace.allsolid)
@@ -2201,7 +2201,7 @@ class SV {
             trace.plane.dist = -plane.dist;
         }
 
-        while (HullPointContents(hull, hull.firstclipnode, mid) == ModContents.solid) {
+        while (HullPointContents(hull, hull.firstclipnode, mid) == Contents.solid) {
             frac -= 0.1;
             if (frac < 0.0) {
                 trace.fraction = midf;

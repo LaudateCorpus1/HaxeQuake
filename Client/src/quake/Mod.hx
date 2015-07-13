@@ -147,7 +147,7 @@ class MHull {
 @:publicFields
 class MClipNode {
     var planenum:Int;
-    var children:Array<ModContents>;
+    var children:Array<Contents>;
     function new() {}
 }
 
@@ -184,7 +184,7 @@ class MFrame {
 
 @:publicFields
 class MNode {
-    var contents:ModContents;
+    var contents:Contents;
     var plane:Plane;
     var num:Int;
     var parent:MNode;

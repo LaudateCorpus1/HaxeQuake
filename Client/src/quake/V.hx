@@ -191,7 +191,7 @@ class V {
 		cshift[3] = 50.0;
 	}
 
-	static function SetContentsColor(contents:ModContents):Void {
+	static function SetContentsColor(contents:Contents):Void {
 		switch (contents) {
 			case empty | solid:
 				CL.state.cshifts[CShift.contents] = V.cshift_empty;

@@ -1,6 +1,6 @@
 package quake;
 
-@:enum abstract ModContents(Int) from Int to Int {
+@:enum abstract Contents(Int) from Int to Int {
     var empty = -1;
     var solid = -2;
     var water = -3;
@@ -16,8 +16,8 @@ package quake;
     var current_up = -13;
     var current_down = -14;
 
-    @:op(a<b) static function _(a:ModContents, b:ModContents):Bool;
-    @:op(a>b) static function _(a:ModContents, b:ModContents):Bool;
-    @:op(a<=b) static function _(a:ModContents, b:ModContents):Bool;
-    @:op(a>=b) static function _(a:ModContents, b:ModContents):Bool;
+    @:op(a<b) static function _(a:Contents, b:Contents):Bool;
+    @:op(a>b) static function _(a:Contents, b:Contents):Bool;
+    @:op(a<=b) static function _(a:Contents, b:Contents):Bool;
+    @:op(a>=b) static function _(a:Contents, b:Contents):Bool;
 }

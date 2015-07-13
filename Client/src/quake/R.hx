@@ -839,7 +839,7 @@ class R {
         viewleaf = Mod.PointInLeaf(refdef.vieworg, CL.state.worldmodel);
         V.SetContentsColor(R.viewleaf.contents);
         V.CalcBlend();
-        dowarp = (R.waterwarp.value != 0) && (viewleaf.contents <= ModContents.water);
+        dowarp = (R.waterwarp.value != 0) && (viewleaf.contents <= Contents.water);
 
         SetFrustum();
         SetupGL();
@@ -1840,7 +1840,7 @@ class R {
     }
 
     static function RecursiveWorldNode(node:MNode):Void {
-        if (node.contents == ModContents.solid)
+        if (node.contents == Contents.solid)
             return;
         if (node.contents < 0) {
             if (node.markvisframe != R.visframecount)
@@ -1930,13 +1930,13 @@ class R {
                 break;
             var p = [R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2]];
             var leaf;
-            if (R.viewleaf.contents <= ModContents.water) {
+            if (R.viewleaf.contents <= Contents.water) {
                 leaf = Mod.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0), CL.state.worldmodel);
-                if (leaf.contents <= ModContents.water)
+                if (leaf.contents <= Contents.water)
                     break;
             } else {
                 leaf = Mod.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0), CL.state.worldmodel);
-                if (leaf.contents > ModContents.water)
+                if (leaf.contents > Contents.water)
                     break;
             }
             if (leaf == R.viewleaf)

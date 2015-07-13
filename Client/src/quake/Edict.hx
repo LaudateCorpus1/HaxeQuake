@@ -52,4 +52,10 @@ class Edict {
         _v_float[ofs + 1] = v[1];
         _v_float[ofs + 2] = v[2];
     }
+
+    function Clear():Void {
+        for (i in 0...PR.entityfields)
+            _v_int[i] = 0;
+        free = false;
+    }
 }

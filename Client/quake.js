@@ -2803,28 +2803,18 @@ quake_Draw.PicToDataURL = function(pic) {
 };
 var quake_ED = function() { };
 quake_ED.__name__ = true;
-quake_ED.ClearEdict = function(e) {
-	var _g1 = 0;
-	var _g = quake_PR.entityfields;
-	while(_g1 < _g) {
-		var i = _g1++;
-		e._v_int[i] = 0;
-	}
-	e.free = false;
-};
 quake_ED.Alloc = function() {
 	var i = quake_SV.svs.maxclients + 1;
-	var e;
 	while(i < quake_SV.server.num_edicts) {
-		e = quake_SV.server.edicts[i++];
-		if(e.free && (e.freetime < 2.0 || quake_SV.server.time - e.freetime > 0.5)) {
-			quake_ED.ClearEdict(e);
-			return e;
+		var e1 = quake_SV.server.edicts[i++];
+		if(e1.free && (e1.freetime < 2.0 || quake_SV.server.time - e1.freetime > 0.5)) {
+			e1.Clear();
+			return e1;
 		}
 	}
 	if(i == quake_Def.max_edicts) quake_Sys.Error("ED.Alloc: no free edicts");
-	e = quake_SV.server.edicts[quake_SV.server.num_edicts++];
-	quake_ED.ClearEdict(e);
+	var e = quake_SV.server.edicts[quake_SV.server.num_edicts++];
+	e.Clear();
 	return e;
 };
 quake_ED.Free = function(ed) {
@@ -3108,6 +3098,15 @@ quake_Edict.prototype = {
 		this._v_float[ofs] = v[0];
 		this._v_float[ofs + 1] = v[1];
 		this._v_float[ofs + 2] = v[2];
+	}
+	,Clear: function() {
+		var _g1 = 0;
+		var _g = quake_PR.entityfields;
+		while(_g1 < _g) {
+			var i = _g1++;
+			this._v_int[i] = 0;
+		}
+		this.free = false;
 	}
 };
 var quake__$EdictVarOfs_EdictVarOfs_$Impl_$ = {};

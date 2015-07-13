@@ -11,26 +11,19 @@ import quake.SV.EntFlag;
 
 @:publicFields
 class ED {
-	static function ClearEdict(e:Edict):Void {
-		for (i in 0...PR.entityfields)
-			e._v_int[i] = 0;
-		e.free = false;
-	}
-
 	static function Alloc():Edict {
 		var i = SV.svs.maxclients + 1;
-		var e:Edict;
 		while (i < SV.server.num_edicts) {
-			e = SV.server.edicts[i++];
-			if ((e.free) && ((e.freetime < 2.0) || ((SV.server.time - e.freetime) > 0.5))) {
-				ClearEdict(e);
+			var e = SV.server.edicts[i++];
+			if (e.free && (e.freetime < 2.0 || (SV.server.time - e.freetime) > 0.5)) {
+				e.Clear();
 				return e;
 			}
 		}
 		if (i == Def.max_edicts)
 			Sys.Error('ED.Alloc: no free edicts');
-		e = SV.server.edicts[SV.server.num_edicts++];
-		ClearEdict(e);
+		var e = SV.server.edicts[SV.server.num_edicts++];
+		e.Clear();
 		return e;
 	}
 

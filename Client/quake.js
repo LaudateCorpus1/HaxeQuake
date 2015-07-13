@@ -9067,12 +9067,27 @@ quake_Sys.onwheel = function(e) {
 };
 var quake_SCR = function() { };
 quake_SCR.__name__ = true;
+quake_SCR.Init = function() {
+	quake_SCR.fov = quake_Cvar.RegisterVariable("fov","90");
+	quake_SCR.viewsize = quake_Cvar.RegisterVariable("viewsize","100",true);
+	quake_SCR.conspeed = quake_Cvar.RegisterVariable("scr_conspeed","300");
+	quake_SCR.showturtle = quake_Cvar.RegisterVariable("showturtle","0");
+	quake_SCR.showpause = quake_Cvar.RegisterVariable("showpause","1");
+	quake_SCR.centertime = quake_Cvar.RegisterVariable("scr_centertime","2");
+	quake_SCR.printspeed = quake_Cvar.RegisterVariable("scr_printspeed","8");
+	quake_Cmd.AddCommand("screenshot",quake_SCR.ScreenShot_f);
+	quake_Cmd.AddCommand("sizeup",quake_SCR.SizeUp_f);
+	quake_Cmd.AddCommand("sizedown",quake_SCR.SizeDown_f);
+	quake_SCR.net = new quake_DrawPic(quake_W.GetLumpName("NET"));
+	quake_SCR.turtle = new quake_DrawPic(quake_W.GetLumpName("TURTLE"));
+	quake_SCR.pause = quake_Draw.CachePic("pause");
+};
 quake_SCR.CenterPrint = function(str) {
 	quake_SCR.centerstring = [];
 	var start = 0;
-	var next;
 	var i = 0;
 	while(i < str.length) {
+		var next;
 		if(HxOverrides.cca(str,i) == 10) next = i + 1; else if(i - start >= 40) next = i; else {
 			i++;
 			continue;
@@ -9085,11 +9100,76 @@ quake_SCR.CenterPrint = function(str) {
 	quake_SCR.centertime_off = quake_SCR.centertime.value;
 	quake_SCR.centertime_start = quake_CL.state.time;
 };
+quake_SCR.BeginLoadingPlaque = function() {
+	quake_S.StopAllSounds();
+	if(quake_CL.cls.state != 2 || quake_CL.cls.signon != 4) return;
+	quake_SCR.centertime_off = 0.0;
+	quake_SCR.con_current = 0;
+	quake_SCR.disabled_for_loading = true;
+	quake_SCR.disabled_time = quake_Host.realtime + 60.0;
+};
+quake_SCR.EndLoadingPlaque = function() {
+	quake_SCR.disabled_for_loading = false;
+	quake_Console.ClearNotify();
+};
+quake_SCR.UpdateScreen = function() {
+	if(quake_SCR.disabled_for_loading) {
+		if(quake_Host.realtime <= quake_SCR.disabled_time) return;
+		quake_SCR.disabled_for_loading = false;
+		quake_Console.Print("load failed.\n");
+	}
+	var elem = window.document.documentElement;
+	var width = elem.clientWidth <= 320?320:elem.clientWidth;
+	var height = elem.clientHeight <= 200?200:elem.clientHeight;
+	var pixelRatio = window.devicePixelRatio >= 1.0?window.devicePixelRatio:1.0;
+	if(quake_VID.width != width || quake_VID.height != height || quake_SCR.devicePixelRatio != pixelRatio || quake_Host.framecount == 0) {
+		quake_VID.width = width;
+		quake_VID.height = height;
+		quake_VID.mainwindow.width = width * pixelRatio | 0;
+		quake_VID.mainwindow.height = height * pixelRatio | 0;
+		quake_VID.mainwindow.style.width = width + "px";
+		quake_VID.mainwindow.style.height = height + "px";
+		quake_SCR.devicePixelRatio = pixelRatio;
+		quake_SCR.recalc_refdef = true;
+	}
+	if(quake_SCR.oldfov != quake_SCR.fov.value) {
+		quake_SCR.oldfov = quake_SCR.fov.value;
+		quake_SCR.recalc_refdef = true;
+	}
+	if(quake_SCR.oldscreensize != quake_SCR.viewsize.value) {
+		quake_SCR.oldscreensize = quake_SCR.viewsize.value;
+		quake_SCR.recalc_refdef = true;
+	}
+	if(quake_SCR.recalc_refdef) quake_SCR.CalcRefdef();
+	quake_SCR.SetUpToDrawConsole();
+	quake_V.RenderView();
+	quake_GL.Set2D();
+	if(quake_R.dowarp) quake_R.WarpScreen();
+	if(!quake_Console.forcedup) quake_R.PolyBlend();
+	if(quake_CL.cls.state == 1) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest == 0) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest == 0) {
+		quake_Draw.Pic(quake_VID.width - quake_Sbar.finale.width >> 1,16,quake_Sbar.finale);
+		quake_SCR.DrawCenterString();
+	} else if(quake_CL.state.intermission == 3 && quake_Key.dest == 0) quake_SCR.DrawCenterString(); else {
+		if(quake_V.crosshair.value != 0) quake_Draw.Character(quake_R.refdef.vrect.x + (quake_R.refdef.vrect.width >> 1) + quake_V.crossx.value | 0,quake_R.refdef.vrect.y + (quake_R.refdef.vrect.height >> 1) + quake_V.crossy.value | 0,43);
+		quake_SCR.DrawNet();
+		quake_SCR.DrawTurtle();
+		quake_SCR.DrawPause();
+		quake_SCR.DrawCenterString();
+		quake_Sbar.DrawSbar();
+		quake_SCR.DrawConsole();
+		quake_M.DrawMenu();
+	}
+	quake_GL.gl.disable(3042);
+	if(quake_SCR.screenshot) {
+		quake_SCR.screenshot = false;
+		quake_GL.gl.finish();
+		window.open(quake_VID.mainwindow.toDataURL("image/jpeg"));
+	}
+};
 quake_SCR.DrawCenterString = function() {
 	quake_SCR.centertime_off -= quake_Host.frametime;
 	if(quake_SCR.centertime_off <= 0.0 && quake_CL.state.intermission == 0 || quake_Key.dest != 0) return;
-	var y;
-	if(quake_SCR.centerstring.length <= 4) y = Math.floor(quake_VID.height * 0.35); else y = 48;
+	var y = quake_SCR.centerstring.length <= 4?Math.floor(quake_VID.height * 0.35):48;
 	if(quake_CL.state.intermission != 0) {
 		var remaining = Math.floor(quake_SCR.printspeed.value * (quake_CL.state.time - quake_SCR.centertime_start));
 		var _g = 0;
@@ -9182,21 +9262,6 @@ quake_SCR.SizeDown_f = function() {
 	quake_SCR.viewsize.setValue(quake_SCR.viewsize.value - 10);
 	quake_SCR.recalc_refdef = true;
 };
-quake_SCR.Init = function() {
-	quake_SCR.fov = quake_Cvar.RegisterVariable("fov","90");
-	quake_SCR.viewsize = quake_Cvar.RegisterVariable("viewsize","100",true);
-	quake_SCR.conspeed = quake_Cvar.RegisterVariable("scr_conspeed","300");
-	quake_SCR.showturtle = quake_Cvar.RegisterVariable("showturtle","0");
-	quake_SCR.showpause = quake_Cvar.RegisterVariable("showpause","1");
-	quake_SCR.centertime = quake_Cvar.RegisterVariable("scr_centertime","2");
-	quake_SCR.printspeed = quake_Cvar.RegisterVariable("scr_printspeed","8");
-	quake_Cmd.AddCommand("screenshot",quake_SCR.ScreenShot_f);
-	quake_Cmd.AddCommand("sizeup",quake_SCR.SizeUp_f);
-	quake_Cmd.AddCommand("sizedown",quake_SCR.SizeDown_f);
-	quake_SCR.net = new quake_DrawPic(quake_W.GetLumpName("NET"));
-	quake_SCR.turtle = new quake_DrawPic(quake_W.GetLumpName("TURTLE"));
-	quake_SCR.pause = quake_Draw.CachePic("pause");
-};
 quake_SCR.DrawTurtle = function() {
 	if(quake_SCR.showturtle.value == 0) return;
 	if(quake_Host.frametime < 0.1) {
@@ -9217,8 +9282,7 @@ quake_SCR.SetUpToDrawConsole = function() {
 		quake_SCR.con_current = 200;
 		return;
 	}
-	var conlines;
-	if(quake_Key.dest == 1) conlines = 100; else conlines = 0;
+	var conlines = quake_Key.dest == 1?100:0;
 	if(conlines < quake_SCR.con_current) {
 		quake_SCR.con_current -= quake_SCR.conspeed.value * quake_Host.frametime | 0;
 		if(conlines > quake_SCR.con_current) quake_SCR.con_current = conlines;
@@ -9236,73 +9300,6 @@ quake_SCR.DrawConsole = function() {
 };
 quake_SCR.ScreenShot_f = function() {
 	quake_SCR.screenshot = true;
-};
-quake_SCR.BeginLoadingPlaque = function() {
-	quake_S.StopAllSounds();
-	if(quake_CL.cls.state != 2 || quake_CL.cls.signon != 4) return;
-	quake_SCR.centertime_off = 0.0;
-	quake_SCR.con_current = 0;
-	quake_SCR.disabled_for_loading = true;
-	quake_SCR.disabled_time = quake_Host.realtime + 60.0;
-};
-quake_SCR.EndLoadingPlaque = function() {
-	quake_SCR.disabled_for_loading = false;
-	quake_Console.ClearNotify();
-};
-quake_SCR.UpdateScreen = function() {
-	if(quake_SCR.disabled_for_loading) {
-		if(quake_Host.realtime <= quake_SCR.disabled_time) return;
-		quake_SCR.disabled_for_loading = false;
-		quake_Console.Print("load failed.\n");
-	}
-	var elem = window.document.documentElement;
-	var width = elem.clientWidth <= 320?320:elem.clientWidth;
-	var height = elem.clientHeight <= 200?200:elem.clientHeight;
-	var pixelRatio;
-	if(window.devicePixelRatio >= 1.0) pixelRatio = window.devicePixelRatio; else pixelRatio = 1.0;
-	if(quake_VID.width != width || quake_VID.height != height || quake_SCR.devicePixelRatio != pixelRatio || quake_Host.framecount == 0) {
-		quake_VID.width = width;
-		quake_VID.height = height;
-		quake_VID.mainwindow.width = width * pixelRatio | 0;
-		quake_VID.mainwindow.height = height * pixelRatio | 0;
-		quake_VID.mainwindow.style.width = width + "px";
-		quake_VID.mainwindow.style.height = height + "px";
-		quake_SCR.devicePixelRatio = pixelRatio;
-		quake_SCR.recalc_refdef = true;
-	}
-	if(quake_SCR.oldfov != quake_SCR.fov.value) {
-		quake_SCR.oldfov = quake_SCR.fov.value;
-		quake_SCR.recalc_refdef = true;
-	}
-	if(quake_SCR.oldscreensize != quake_SCR.viewsize.value) {
-		quake_SCR.oldscreensize = quake_SCR.viewsize.value;
-		quake_SCR.recalc_refdef = true;
-	}
-	if(quake_SCR.recalc_refdef) quake_SCR.CalcRefdef();
-	quake_SCR.SetUpToDrawConsole();
-	quake_V.RenderView();
-	quake_GL.Set2D();
-	if(quake_R.dowarp) quake_R.WarpScreen();
-	if(!quake_Console.forcedup) quake_R.PolyBlend();
-	if(quake_CL.cls.state == 1) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest == 0) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest == 0) {
-		quake_Draw.Pic(quake_VID.width - quake_Sbar.finale.width >> 1,16,quake_Sbar.finale);
-		quake_SCR.DrawCenterString();
-	} else if(quake_CL.state.intermission == 3 && quake_Key.dest == 0) quake_SCR.DrawCenterString(); else {
-		if(quake_V.crosshair.value != 0) quake_Draw.Character(quake_R.refdef.vrect.x + (quake_R.refdef.vrect.width >> 1) + quake_V.crossx.value | 0,quake_R.refdef.vrect.y + (quake_R.refdef.vrect.height >> 1) + quake_V.crossy.value | 0,43);
-		quake_SCR.DrawNet();
-		quake_SCR.DrawTurtle();
-		quake_SCR.DrawPause();
-		quake_SCR.DrawCenterString();
-		quake_Sbar.DrawSbar();
-		quake_SCR.DrawConsole();
-		quake_M.DrawMenu();
-	}
-	quake_GL.gl.disable(3042);
-	if(quake_SCR.screenshot) {
-		quake_SCR.screenshot = false;
-		quake_GL.gl.finish();
-		window.open(quake_VID.mainwindow.toDataURL("image/jpeg"));
-	}
 };
 var quake__$SV_ServerState = function() {
 	this.signon = new quake_MSG(8192);
@@ -15074,12 +15071,12 @@ quake_S.listener_up = new Float32Array(3);
 quake_S.known_sfx = [];
 quake__$Vec_Vec_$Impl_$.origin = new Float32Array(3);
 quake_SCR.con_current = 0;
-quake_SCR.centerstring = [];
 quake_SCR.centertime_off = 0.0;
-quake_SCR.count = 0;
 quake_SCR.recalc_refdef = false;
-quake_SCR.screenshot = false;
 quake_SCR.disabled_for_loading = false;
+quake_SCR.centerstring = [];
+quake_SCR.count = 0;
+quake_SCR.screenshot = false;
 quake_SV.server = new quake__$SV_ServerState();
 quake_SV.svs = new quake__$SV_ServerStatic();
 quake_SV.clientdatagram = new quake_MSG(1024);

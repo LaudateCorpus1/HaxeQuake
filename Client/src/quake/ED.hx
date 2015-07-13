@@ -280,7 +280,7 @@ class ED {
 
 	static function LoadFromFile(data:String):Void {
 		var ent, inhibit = 0;
-		PR._globals_float[GlobalVarOfs.time] = SV.server.time;
+		PR.globals.time = SV.server.time;
 
 		while (true) {
 			data = COM.Parse(data);

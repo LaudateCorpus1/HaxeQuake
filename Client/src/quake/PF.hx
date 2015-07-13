@@ -204,19 +204,19 @@ class PF {
         var trace = SV.Move(Vec.of(PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]),
             Vec.origin, Vec.origin, Vec.of(PR._globals_float[7], PR._globals_float[8], PR._globals_float[9]),
             Std.int(PR._globals_float[10]), SV.server.edicts[PR._globals_int[13]]);
-        PR._globals_float[GlobalVarOfs.trace_allsolid] = (trace.allsolid) ? 1.0 : 0.0;
-        PR._globals_float[GlobalVarOfs.trace_startsolid] = (trace.startsolid) ? 1.0 : 0.0;
-        PR._globals_float[GlobalVarOfs.trace_fraction] = trace.fraction;
-        PR._globals_float[GlobalVarOfs.trace_inwater] = (trace.inwater) ? 1.0 : 0.0;
-        PR._globals_float[GlobalVarOfs.trace_inopen] = (trace.inopen) ? 1.0 : 0.0;
-        PR._globals_float[GlobalVarOfs.trace_endpos] = trace.endpos[0];
-        PR._globals_float[GlobalVarOfs.trace_endpos1] = trace.endpos[1];
-        PR._globals_float[GlobalVarOfs.trace_endpos2] = trace.endpos[2];
+        PR.globals.trace_allsolid = (trace.allsolid) ? 1.0 : 0.0;
+        PR.globals.trace_startsolid = (trace.startsolid) ? 1.0 : 0.0;
+        PR.globals.trace_fraction = trace.fraction;
+        PR.globals.trace_inwater = (trace.inwater) ? 1.0 : 0.0;
+        PR.globals.trace_inopen = (trace.inopen) ? 1.0 : 0.0;
+        PR.globals.trace_endpos = trace.endpos[0];
+        PR.globals.trace_endpos1 = trace.endpos[1];
+        PR.globals.trace_endpos2 = trace.endpos[2];
         var plane = trace.plane;
-        PR._globals_float[GlobalVarOfs.trace_plane_normal] = plane.normal[0];
-        PR._globals_float[GlobalVarOfs.trace_plane_normal1] = plane.normal[1];
-        PR._globals_float[GlobalVarOfs.trace_plane_normal2] = plane.normal[2];
-        PR._globals_float[GlobalVarOfs.trace_plane_dist] = plane.dist;
+        PR.globals.trace_plane_normal = plane.normal[0];
+        PR.globals.trace_plane_normal1 = plane.normal[1];
+        PR.globals.trace_plane_normal2 = plane.normal[2];
+        PR.globals.trace_plane_dist = plane.dist;
         PR.globals.trace_ent = (trace.ent != null) ? trace.ent.num : 0;
     }
 
@@ -512,7 +512,7 @@ class PF {
     static function aim() {
         var ent = SV.server.edicts[PR._globals_int[4]];
         var start = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + 20.0);
-        var dir = Vec.of(PR._globals_float[GlobalVarOfs.v_forward], PR._globals_float[GlobalVarOfs.v_forward1], PR._globals_float[GlobalVarOfs.v_forward2]);
+        var dir = Vec.of(PR.globals.v_forward, PR.globals.v_forward1, PR.globals.v_forward2);
         var end = Vec.of(start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]);
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {

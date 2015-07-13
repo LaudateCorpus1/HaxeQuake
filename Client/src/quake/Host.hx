@@ -215,7 +215,7 @@ class Host {
     static var oldrealtime:Float;
 
     static function ServerFrame() {
-        PR._globals_float[GlobalVarOfs.frametime] = Host.frametime;
+        PR.globals.frametime = Host.frametime;
         SV.server.datagram.cursize = 0;
         SV.CheckForNewClients();
         SV.RunClients();
@@ -434,7 +434,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR.globals.deathmatch != 0)
             return;
         SV.player.flags = SV.player.flags ^ EntFlag.godmode;
         if ((SV.player.flags & EntFlag.godmode) == 0)
@@ -448,7 +448,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR.globals.deathmatch != 0)
             return;
         SV.player.flags = SV.player.flags ^ EntFlag.notarget;
         if ((SV.player.flags & EntFlag.notarget) == 0)
@@ -462,7 +462,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR.globals.deathmatch != 0)
             return;
         if (SV.player.v.movetype != MoveType.noclip) {
             Host.noclip_anglehack = true;
@@ -480,7 +480,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR.globals.deathmatch != 0)
             return;
         if (SV.player.v.movetype != MoveType.fly) {
             SV.player.v.movetype = MoveType.fly;
@@ -907,7 +907,7 @@ class Host {
             Host.ClientPrint('Can\'t suicide -- already dead!\n');
             return;
         }
-        PR._globals_float[GlobalVarOfs.time] = SV.server.time;
+        PR.globals.time = SV.server.time;
         PR.globals.self = SV.player.num;
         PR.ExecuteProgram(PR.globals.ClientKill);
     }
@@ -965,7 +965,7 @@ class Host {
             ent.v.netname = PR.netnames + (client.num << 5);
             for (i in 0...16)
                 PR._globals_float[GlobalVarOfs.parms + i] = client.spawn_parms[i];
-            PR._globals_float[GlobalVarOfs.time] = SV.server.time;
+            PR.globals.time = SV.server.time;
             PR.globals.self = ent.num;
             PR.ExecuteProgram(PR.globals.ClientConnect);
             if ((Sys.FloatTime() - client.netconnection.connecttime) <= SV.server.time)
@@ -996,16 +996,16 @@ class Host {
         }
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.totalsecrets);
-        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.total_secrets]));
+        message.WriteLong(Std.int(PR.globals.total_secrets));
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.totalmonsters);
-        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.total_monsters]));
+        message.WriteLong(Std.int(PR.globals.total_monsters));
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.secrets);
-        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.found_secrets]));
+        message.WriteLong(Std.int(PR.globals.found_secrets));
         message.WriteByte(SVC.updatestat);
         message.WriteByte(ClientStat.monsters);
-        message.WriteLong(Std.int(PR._globals_float[GlobalVarOfs.killed_monsters]));
+        message.WriteLong(Std.int(PR.globals.killed_monsters));
         message.WriteByte(SVC.setangle);
         message.WriteAngle(ent.v.angles);
         message.WriteAngle(ent.v.angles1);
@@ -1031,7 +1031,7 @@ class Host {
                 return;
             }
         }
-        else if (PR._globals_float[GlobalVarOfs.deathmatch] != 0.0)
+        else if (PR.globals.deathmatch != 0.0)
             return;
         var save = Host.client;
         var i, byNumber;
@@ -1102,7 +1102,7 @@ class Host {
             Cmd.ForwardToServer();
             return;
         }
-        if (PR._globals_float[GlobalVarOfs.deathmatch] != 0)
+        if (PR.globals.deathmatch != 0)
             return;
         if (Cmd.argv.length <= 1)
             return;

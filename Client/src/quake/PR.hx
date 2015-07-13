@@ -699,7 +699,7 @@ class PR {
 						return;
 				case PROp.state:
 					var ed:Edict = SV.server.edicts[PR.globals.self];
-					ed.v.nextthink = PR._globals_float[GlobalVarOfs.time] + 0.1;
+					ed.v.nextthink = PR.globals.time + 0.1;
 					ed.v.frame = PR._globals_float[st.a];
 					ed.v.think = PR._globals_int[st.b];
 				default:

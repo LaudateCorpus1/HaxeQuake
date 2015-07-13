@@ -527,7 +527,7 @@ class M {
 
 	// Options menu
 	static var options_cursor = 0;
-	static var options_items = 11;
+	static var options_items = 12;
 
 	static function Menu_Options_f() {
 		Key.dest = menu;

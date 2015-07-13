@@ -7,9 +7,9 @@ import quake.Mod.EntEffect;
 class Entity {
     var leafs:Array<Int> = [];
     var model:MModel;
-    var angles= new Vec();
+    var angles = new Vec();
     var msg_angles = [new Vec(), new Vec()];
-    var origin= new Vec();
+    var origin = new Vec();
     var msg_origins = [new Vec(), new Vec()];
     var frame = 0;
     var syncbase = 0.0;
@@ -31,8 +31,8 @@ class Entity {
 
 @:publicFields
 class EntityState {
-    var origin= new Vec();
-    var angles= new Vec();
+    var origin = new Vec();
+    var angles = new Vec();
     var modelindex = 0;
     var frame = 0;
     var colormap = 0;

@@ -1284,7 +1284,7 @@ quake_CL.ParseServerInfo = function() {
 	var _g3 = 1;
 	while(_g3 < nummodels) {
 		var i2 = _g3++;
-		quake_CL.state.model_precache[i2] = quake_Mod.ForName(model_precache[i2],false);
+		quake_CL.state.model_precache[i2] = quake_Mod.LoadModel(quake_Mod.FindName(model_precache[i2]),false);
 		if(quake_CL.state.model_precache[i2] == null) {
 			quake_Console.Print("Model " + model_precache[i2] + " not found\n");
 			return;
@@ -1728,16 +1728,16 @@ quake_CL.ParseTEnt = function() {
 	var type = quake_MSG.ReadByte();
 	switch(type) {
 	case 5:
-		quake_CL.ParseBeam(quake_Mod.ForName("progs/bolt.mdl",true));
+		quake_CL.ParseBeam(quake_Mod.LoadModel(quake_Mod.FindName("progs/bolt.mdl"),true));
 		return;
 	case 6:
-		quake_CL.ParseBeam(quake_Mod.ForName("progs/bolt2.mdl",true));
+		quake_CL.ParseBeam(quake_Mod.LoadModel(quake_Mod.FindName("progs/bolt2.mdl"),true));
 		return;
 	case 9:
-		quake_CL.ParseBeam(quake_Mod.ForName("progs/bolt3.mdl",true));
+		quake_CL.ParseBeam(quake_Mod.LoadModel(quake_Mod.FindName("progs/bolt3.mdl"),true));
 		return;
 	case 13:
-		quake_CL.ParseBeam(quake_Mod.ForName("progs/beam.mdl",true));
+		quake_CL.ParseBeam(quake_Mod.LoadModel(quake_Mod.FindName("progs/beam.mdl"),true));
 		return;
 	default:
 	}
@@ -4541,7 +4541,7 @@ quake_Host.Viewmodel_f = function() {
 	if(quake_Cmd.argv.length != 2) return;
 	var ent = quake_Host.FindViewthing();
 	if(ent == null) return;
-	var m = quake_Mod.ForName(quake_Cmd.argv[1],false);
+	var m = quake_Mod.LoadModel(quake_Mod.FindName(quake_Cmd.argv[1]),false);
 	if(m == null) {
 		quake_Console.Print("Can't load " + quake_Cmd.argv[1] + "\n");
 		return;
@@ -5837,15 +5837,15 @@ quake_Mod.Init = function() {
 	quake_Mod.novis = [];
 	var _g = 0;
 	while(_g < 1024) {
-		var i = _g++;
-		quake_Mod.novis[i] = 255;
+		_g++;
+		quake_Mod.novis.push(255);
 	}
 	quake_Mod.filledcolor = 0;
 	var _g1 = 0;
 	while(_g1 < 256) {
-		var i1 = _g1++;
-		if(quake_VID.d_8to24table[i1] == 0) {
-			quake_Mod.filledcolor = i1;
+		var i = _g1++;
+		if(quake_VID.d_8to24table[i] == 0) {
+			quake_Mod.filledcolor = i;
 			break;
 		}
 	}
@@ -5856,8 +5856,10 @@ quake_Mod.PointInLeaf = function(p,model) {
 	var node = model.nodes[0];
 	while(true) {
 		if(node.contents < 0) return node;
-		var normal = node.plane.normal;
-		if(p[0] * normal[0] + p[1] * normal[1] + p[2] * normal[2] - node.plane.dist > 0) node = node.children[0]; else node = node.children[1];
+		var tmp;
+		var v2 = node.plane.normal;
+		tmp = p[0] * v2[0] + p[1] * v2[1] + p[2] * v2[2];
+		if(tmp - node.plane.dist > 0) node = node.children[0]; else node = node.children[1];
 	}
 };
 quake_Mod.DecompressVis = function(i,model) {
@@ -5903,20 +5905,20 @@ quake_Mod.ClearAll = function() {
 };
 quake_Mod.FindName = function(name) {
 	if(name.length == 0) quake_Sys.Error("Mod.FindName: NULL name");
-	var _g1 = 0;
-	var _g = quake_Mod.known.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		if(quake_Mod.known[i] == null) continue;
-		if(quake_Mod.known[i].name == name) return quake_Mod.known[i];
+	var _g = 0;
+	var _g1 = quake_Mod.known;
+	while(_g < _g1.length) {
+		var mod = _g1[_g];
+		++_g;
+		if(mod == null) continue;
+		if(mod.name == name) return mod;
 	}
 	var _g11 = 0;
 	var _g2 = quake_Mod.known.length + 1;
 	while(_g11 < _g2) {
-		var i1 = _g11++;
-		if(quake_Mod.known[i1] != null) continue;
-		quake_Mod.known[i1] = new quake_MModel(name);
-		return quake_Mod.known[i1];
+		var i = _g11++;
+		if(quake_Mod.known[i] != null) continue;
+		return quake_Mod.known[i] = new quake_MModel(name);
 	}
 	return null;
 };
@@ -5941,9 +5943,6 @@ quake_Mod.LoadModel = function(mod,crash) {
 		quake_Mod.LoadBrushModel(buf);
 	}
 	return mod;
-};
-quake_Mod.ForName = function(name,crash) {
-	return quake_Mod.LoadModel(quake_Mod.FindName(name),crash);
 };
 quake_Mod.LoadTextures = function(buf) {
 	var view = new DataView(buf);
@@ -9824,7 +9823,7 @@ quake_SV.SpawnServer = function(map) {
 	quake_SV.server.lastcheck = 0;
 	quake_SV.server.lastchecktime = 0.0;
 	quake_SV.server.modelname = "maps/" + map + ".bsp";
-	quake_SV.server.worldmodel = quake_Mod.ForName(quake_SV.server.modelname,false);
+	quake_SV.server.worldmodel = quake_Mod.LoadModel(quake_Mod.FindName(quake_SV.server.modelname),false);
 	if(quake_SV.server.worldmodel == null) {
 		quake_Console.Print("Couldn't spawn server " + quake_SV.server.modelname + "\n");
 		quake_SV.server.active = false;
@@ -9841,7 +9840,7 @@ quake_SV.SpawnServer = function(map) {
 	while(_g11 < _g3) {
 		var i2 = _g11++;
 		quake_SV.server.model_precache[i2 + 1] = "*" + i2;
-		quake_SV.server.models[i2 + 1] = quake_Mod.ForName("*" + i2,false);
+		quake_SV.server.models[i2 + 1] = quake_Mod.LoadModel(quake_Mod.FindName("*" + i2),false);
 	}
 	quake_SV.server.lightstyles = [];
 	var _g4 = 0;
@@ -13884,7 +13883,7 @@ quake_PF.precache_model = function() {
 		i++;
 	}
 	quake_SV.server.model_precache[i] = s;
-	quake_SV.server.models[i] = quake_Mod.ForName(s,true);
+	quake_SV.server.models[i] = quake_Mod.LoadModel(quake_Mod.FindName(s),true);
 };
 quake_PF.coredump = function() {
 	quake_ED.PrintEdicts();

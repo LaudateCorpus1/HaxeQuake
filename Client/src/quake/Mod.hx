@@ -334,14 +334,14 @@ class Mod {
     static var filledcolor:Int;
 
     public static function Init():Void {
-        Mod.novis = [];
+        novis = [];
         for (i in 0...1024)
-            Mod.novis[i] = 0xff;
+            novis.push(0xff);
 
-        Mod.filledcolor = 0;
+        filledcolor = 0;
         for (i in 0...256) {
             if (VID.d_8to24table[i] == 0) {
-                Mod.filledcolor = i;
+                filledcolor = i;
                 break;
             }
         }
@@ -356,8 +356,7 @@ class Mod {
         while (true) {
             if (node.contents < 0)
                 return cast node;
-            var normal = node.plane.normal;
-            if ((p[0] * normal[0] + p[1] * normal[1] + p[2] * normal[2] - node.plane.dist) > 0)
+            if ((Vec.DotProduct(p, node.plane.normal) - node.plane.dist) > 0)
                 node = node.children[0];
             else
                 node = node.children[1];
@@ -365,7 +364,9 @@ class Mod {
     }
 
     static function DecompressVis(i:Int, model:MModel):Array<Int> {
-        var decompressed = [], out = 0, row = (model.leafs.length + 7) >> 3;
+        var decompressed = [];
+        var out = 0;
+        var row = (model.leafs.length + 7) >> 3;
         if (model.visdata == null) {
             while (row >= 0) {
                 decompressed[out++] = 0xff;
@@ -396,30 +397,29 @@ class Mod {
     }
 
     public static function ClearAll():Void {
-        for (i in 0...Mod.known.length) {
-            var mod = Mod.known[i];
+        for (i in 0...known.length) {
+            var mod = known[i];
             if (mod.type != brush)
                 continue;
             if (mod.cmds != null)
                 gl.deleteBuffer(mod.cmds);
-            Mod.known[i] = new MModel(mod.name);
+            known[i] = new MModel(mod.name);
         }
     }
 
     static function FindName(name:String):MModel {
         if (name.length == 0)
             Sys.Error('Mod.FindName: NULL name');
-        for (i in 0...Mod.known.length) {
-            if (Mod.known[i] == null)
+        for (mod in known) {
+            if (mod == null)
                 continue;
-            if (Mod.known[i].name == name)
-                return Mod.known[i];
+            if (mod.name == name)
+                return mod;
         }
-        for (i in 0...Mod.known.length+1) {
-            if (Mod.known[i] != null)
+        for (i in 0...known.length + 1) {
+            if (known[i] != null)
                 continue;
-            Mod.known[i] = new MModel(name);
-            return Mod.known[i];
+            return known[i] = new MModel(name);
         }
         return null;
     }
@@ -448,7 +448,7 @@ class Mod {
         return mod;
     }
 
-    public static function ForName(name:String, crash:Bool):MModel {
+    public static inline function ForName(name:String, crash:Bool):MModel {
         return Mod.LoadModel(Mod.FindName(name), crash);
     }
 

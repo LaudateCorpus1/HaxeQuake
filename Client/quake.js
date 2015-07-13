@@ -11451,8 +11451,11 @@ quake_R.RenderDlights = function() {
 };
 quake_R.MarkLights = function(light,bit,node) {
 	if(node.contents < 0) return;
-	var normal = node.plane.normal;
-	var dist = light.origin[0] * normal[0] + light.origin[1] * normal[1] + light.origin[2] * normal[2] - node.plane.dist;
+	var tmp;
+	var v1 = light.origin;
+	var v2 = node.plane.normal;
+	tmp = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+	var dist = tmp - node.plane.dist;
 	if(dist > light.radius) {
 		quake_R.MarkLights(light,bit,node.children[0]);
 		return;

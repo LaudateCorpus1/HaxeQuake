@@ -151,8 +151,7 @@ class R {
     static function MarkLights(light:DLight, bit:Int, node:MNode):Void {
         if (node.contents < 0)
             return;
-        var normal = node.plane.normal;
-        var dist = light.origin[0] * normal[0] + light.origin[1] * normal[1] + light.origin[2] * normal[2] - node.plane.dist;
+        var dist = Vec.DotProduct(light.origin, node.plane.normal) - node.plane.dist;
         if (dist > light.radius) {
             R.MarkLights(light, bit, node.children[0]);
             return;

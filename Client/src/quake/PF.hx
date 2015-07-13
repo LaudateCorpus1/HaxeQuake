@@ -4,6 +4,7 @@ import quake.Protocol.SVC;
 import quake.SV.EntFlag;
 import quake.SV.DamageType;
 import quake.SV.SolidType;
+import quake.PR.PROffset;
 using Tools;
 
 class PF {
@@ -11,7 +12,7 @@ class PF {
     static function VarString(first:Int) {
         var out = '';
         for (i in first...PR.argc)
-            out += PR.GetString(PR._globals_int[4 + i * 3]);
+            out += PR.GetString(PR._globals_int[OFS_PARM0 + i * 3]);
         return out;
     }
 
@@ -371,7 +372,7 @@ class PF {
     static function MoveToGoal() {
         var ent = SV.server.edicts[PR.globals.self];
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
-            PR._globals_float[1] = 0.0;
+            PR._globals_float[OFS_RETURN] = 0.0;
             return;
         }
         var goal = SV.server.edicts[ent.v.goalentity];

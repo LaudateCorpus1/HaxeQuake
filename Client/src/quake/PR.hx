@@ -159,6 +159,19 @@ private class PRStackItem {
 	}
 }
 
+@:enum abstract PROffset(Int) to Int {
+	var OFS_NULL     = 0;
+	var OFS_RETURN   = 1;
+	var OFS_PARM0    = 4;		// leave 3 ofs for each parm to hold vectors
+	var OFS_PARM1    = 7;
+	var OFS_PARM2    = 10;
+	var OFS_PARM3    = 13;
+	var OFS_PARM4    = 16;
+	var OFS_PARM5    = 19;
+	var OFS_PARM6    = 22;
+	var OFS_PARM7    = 25;
+	var RESERVED_OFS = 28;
+}
 
 
 @:publicFields
@@ -678,9 +691,9 @@ class PR {
 					}
 					s = PR.EnterFunction(newf);
 				case PROp.done | PROp.ret:
-					PR._globals_int[1] = PR._globals_int[st.a];
-					PR._globals_int[2] = PR._globals_int[st.a + 1];
-					PR._globals_int[3] = PR._globals_int[st.a + 2];
+					PR._globals_int[OFS_RETURN] = PR._globals_int[st.a];
+					PR._globals_int[OFS_RETURN + 1] = PR._globals_int[st.a + 1];
+					PR._globals_int[OFS_RETURN + 2] = PR._globals_int[st.a + 2];
 					s = PR.LeaveFunction();
 					if (PR.depth == exitdepth)
 						return;

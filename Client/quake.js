@@ -7898,8 +7898,8 @@ quake_PR.ExecuteProgram = function(fnum) {
 			break;
 		case 0:case 43:
 			quake_PR._globals_int[1] = quake_PR._globals_int[st.a];
-			quake_PR._globals_int[2] = quake_PR._globals_int[st.a + 1];
-			quake_PR._globals_int[3] = quake_PR._globals_int[st.a + 2];
+			quake_PR._globals_int[1 + 1] = quake_PR._globals_int[st.a + 1];
+			quake_PR._globals_int[1 + 2] = quake_PR._globals_int[st.a + 2];
 			s = quake_PR.LeaveFunction();
 			if(quake_PR.depth == exitdepth) return;
 			break;

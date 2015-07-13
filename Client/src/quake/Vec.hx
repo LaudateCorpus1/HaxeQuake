@@ -166,6 +166,10 @@ abstract Vec(Float32Array) to Float32Array {
         return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
     }
 
+    public static inline function Add(v1:Vec, v2:Vec):Vec {
+        return Vec.of(v1[0] + v1[2], v1[1] + v2[1], v1[2] + v2[2]);
+    }
+
     public static inline function Copy(v1:Vec, v2:Vec):Void {
         v2[0] = v1[0];
         v2[1] = v1[1];

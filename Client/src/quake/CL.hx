@@ -1286,11 +1286,11 @@ class CL {
         ent.frame = ent.baseline.frame;
         ent.skinnum = ent.baseline.skin;
         ent.effects = ent.baseline.effects;
-        ent.origin = Vec.of(ent.baseline.origin[0], ent.baseline.origin[1], ent.baseline.origin[2]);
-        ent.angles = Vec.of(ent.baseline.angles[0], ent.baseline.angles[1], ent.baseline.angles[2]);
+        ent.origin = ent.baseline.origin.copy();
+        ent.angles = ent.baseline.angles.copy();
         R.currententity = ent;
-        R.emins = Vec.of(ent.origin[0] + ent.model.mins[0], ent.origin[1] + ent.model.mins[1], ent.origin[2] + ent.model.mins[2]);
-        R.emaxs = Vec.of(ent.origin[0] + ent.model.maxs[0], ent.origin[1] + ent.model.maxs[1], ent.origin[2] + ent.model.maxs[2]);
+        R.emins = Vec.Add(ent.origin, ent.model.mins);
+        R.emaxs = Vec.Add(ent.origin, ent.model.maxs);
         R.SplitEntityOnNode(CL.state.worldmodel.nodes[0]);
     }
 

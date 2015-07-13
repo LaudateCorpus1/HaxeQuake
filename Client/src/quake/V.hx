@@ -3,6 +3,12 @@ package quake;
 import quake.CL.CShift;
 import quake.Def.ClientStat;
 
+@:enum abstract ViewAngle(Int) to Int {
+	var PITCH = 0;
+	var YAW = 0;
+	var ROLL = 0;
+}
+
 @:publicFields
 class V {
 	static var cshift_empty = [130.0, 80.0, 50.0, 0.0];
@@ -54,19 +60,16 @@ class V {
 	}
 
 	static function CalcBob():Float {
-		if ((V.bobcycle.value <= 0.0)
-			|| (V.bobcycle.value >= 1.0)
-			|| (V.bobup.value <= 0.0)
-			|| (V.bobup.value >= 1.0)
-			|| (V.bob.value == 0.0))
+		if (bobcycle.value <= 0.0 || bobcycle.value >= 1.0 || bobup.value <= 0.0 || bobup.value >= 1.0 || bob.value == 0.0)
 			return 0.0;
 
-		var cycle = (CL.state.time - Math.floor(CL.state.time / V.bobcycle.value) * V.bobcycle.value) / V.bobcycle.value;
-		if (cycle < V.bobup.value)
-			cycle = Math.PI * cycle / V.bobup.value;
+		var cycle = (CL.state.time - Std.int(CL.state.time / bobcycle.value) * bobcycle.value) / bobcycle.value;
+		if (cycle < bobup.value)
+			cycle = Math.PI * cycle / bobup.value;
 		else
-			cycle = Math.PI + Math.PI * (cycle - V.bobup.value) / (1.0 - V.bobup.value);
-		var bob = Math.sqrt(CL.state.velocity[0] * CL.state.velocity[0] + CL.state.velocity[1] * CL.state.velocity[1]) * V.bob.value;
+			cycle = Math.PI + Math.PI * (cycle - bobup.value) / (1.0 - bobup.value);
+
+		var bob = Math.sqrt(CL.state.velocity[0] * CL.state.velocity[0] + CL.state.velocity[1] * CL.state.velocity[1]) * bob.value;
 		bob = bob * 0.3 + bob * 0.7 * Math.sin(cycle);
 		if (bob > 4.0)
 			bob = 4.0;
@@ -78,8 +81,8 @@ class V {
 	static function StartPitchDrift():Void {
 		if (CL.state.laststop == CL.state.time)
 			return;
-		if ((CL.state.nodrift) || (CL.state.pitchvel == 0.0)) {
-			CL.state.pitchvel = V.centerspeed.value;
+		if (CL.state.nodrift || CL.state.pitchvel == 0.0) {
+			CL.state.pitchvel = centerspeed.value;
 			CL.state.nodrift = false;
 			CL.state.driftmove = 0.0;
 		}
@@ -103,33 +106,32 @@ class V {
 				CL.state.driftmove = 0.0;
 			else
 				CL.state.driftmove += Host.frametime;
-			if (CL.state.driftmove > V.centermove.value)
+			if (CL.state.driftmove > centermove.value)
 				StartPitchDrift();
 			return;
 		}
 
-		var delta = CL.state.idealpitch - CL.state.viewangles[0];
+		var delta = CL.state.idealpitch - CL.state.viewangles[ViewAngle.PITCH];
 		if (delta == 0.0) {
 			CL.state.pitchvel = 0.0;
 			return;
 		}
 
 		var move = Host.frametime * CL.state.pitchvel;
-		CL.state.pitchvel += Host.frametime * V.centerspeed.value;
+		CL.state.pitchvel += Host.frametime * centerspeed.value;
 
 		if (delta > 0) {
 			if (move > delta) {
 				CL.state.pitchvel = 0.0;
 				move = delta;
 			}
-			CL.state.viewangles[0] += move;
-		}
-		else if (delta < 0) {
+			CL.state.viewangles[ViewAngle.PITCH] += move;
+		} else if (delta < 0) {
 			if (move > -delta) {
 				CL.state.pitchvel = 0.0;
 				move = -delta;
 			}
-			CL.state.viewangles[0] -= move;
+			CL.state.viewangles[ViewAngle.PITCH] -= move;
 		}
 	}
 

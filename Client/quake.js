@@ -14786,7 +14786,7 @@ quake_V.CalcRoll = function(angles,velocity) {
 };
 quake_V.CalcBob = function() {
 	if(quake_V.bobcycle.value <= 0.0 || quake_V.bobcycle.value >= 1.0 || quake_V.bobup.value <= 0.0 || quake_V.bobup.value >= 1.0 || quake_V.bob.value == 0.0) return 0.0;
-	var cycle = (quake_CL.state.time - Math.floor(quake_CL.state.time / quake_V.bobcycle.value) * quake_V.bobcycle.value) / quake_V.bobcycle.value;
+	var cycle = (quake_CL.state.time - (quake_CL.state.time / quake_V.bobcycle.value | 0) * quake_V.bobcycle.value) / quake_V.bobcycle.value;
 	if(cycle < quake_V.bobup.value) cycle = Math.PI * cycle / quake_V.bobup.value; else cycle = Math.PI + Math.PI * (cycle - quake_V.bobup.value) / (1.0 - quake_V.bobup.value);
 	var bob = Math.sqrt(quake_CL.state.velocity[0] * quake_CL.state.velocity[0] + quake_CL.state.velocity[1] * quake_CL.state.velocity[1]) * quake_V.bob.value;
 	bob = bob * 0.3 + bob * 0.7 * Math.sin(cycle);

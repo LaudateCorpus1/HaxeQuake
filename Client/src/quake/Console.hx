@@ -12,19 +12,31 @@ private class ConsoleEntry {
     }
 }
 
-
-@:publicFields
 class Console {
+    public static var backscroll = 0;
+    public static var text(default,null):Array<ConsoleEntry> = [];
+    public static var sfx_talk(null,default):Sfx;
+    public static var forcedup:Bool;
+
     static var debuglog:Bool;
-    static var backscroll = 0;
     static var current = 0;
     static var vislines:Int;
-    static var text:Array<ConsoleEntry> = [];
-    static var sfx_talk:Sfx;
     static var notifytime:Cvar;
-    static var forcedup:Bool;
 
-    static function ToggleConsole_f():Void {
+    public static function Init():Void {
+        debuglog = (COM.CheckParm('-condebug') != null);
+        if (debuglog)
+            COM.WriteTextFile('qconsole.log', '');
+        Print('Console initialized.\n');
+
+        notifytime = Cvar.RegisterVariable('con_notifytime', '3');
+        Cmd.AddCommand('toggleconsole', ToggleConsole_f);
+        Cmd.AddCommand('messagemode', MessageMode_f);
+        Cmd.AddCommand('messagemode2', MessageMode2_f);
+        Cmd.AddCommand('clear', Clear_f);
+    }
+
+    public static function ToggleConsole_f():Void {
         SCR.EndLoadingPlaque();
         if (Key.dest == console) {
             if (CL.cls.state != connected) {
@@ -39,18 +51,6 @@ class Console {
         Key.dest = console;
     }
 
-    static function Clear_f():Void {
-        backscroll = 0;
-        current = 0;
-        text = [];
-    }
-
-    static function ClearNotify():Void {
-        var i = text.length - 4;
-        for (i in (i < 0 ? 0 : i)...text.length)
-            text[i].time = 0.0;
-    }
-
     static function MessageMode_f():Void {
         Key.dest = message;
         Key.team_message = false;
@@ -61,20 +61,13 @@ class Console {
         Key.team_message = true;
     }
 
-    static function Init():Void {
-        debuglog = (COM.CheckParm('-condebug') != null);
-        if (debuglog)
-            COM.WriteTextFile('qconsole.log', '');
-        Print('Console initialized.\n');
-
-        notifytime = Cvar.RegisterVariable('con_notifytime', '3');
-        Cmd.AddCommand('toggleconsole', ToggleConsole_f);
-        Cmd.AddCommand('messagemode', MessageMode_f);
-        Cmd.AddCommand('messagemode2', MessageMode2_f);
-        Cmd.AddCommand('clear', Clear_f);
+    static function Clear_f():Void {
+        backscroll = 0;
+        current = 0;
+        text = [];
     }
 
-    static function Print(msg:String):Void {
+    public static function Print(msg:String):Void {
         if (debuglog) {
             var data:String = COM.LoadTextFile('qconsole.log');
             if (data != null) {
@@ -110,22 +103,12 @@ class Console {
         }
     }
 
-    static function DPrint(msg:String):Void {
+    public static function DPrint(msg:String):Void {
         if (Host.developer.value != 0)
             Print(msg);
     }
 
-    static function DrawInput():Void {
-        if (Key.dest != console && !forcedup)
-            return;
-        var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1));
-        var width = (VID.width >> 3) - 2;
-        if (text.length >= width)
-            text = text.substring(1 + text.length - width);
-        Draw.String(8, vislines - 16, text);
-    }
-
-    static function DrawNotify():Void {
+    public static function DrawNotify():Void {
         var width = (VID.width >> 3) - 2;
         var i = text.length - 4, v = 0;
         for (i in (i < 0 ? 0 : i)...text.length) {
@@ -138,7 +121,13 @@ class Console {
             Draw.String(8, v, 'say: ' + Key.chat_buffer + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1)));
     }
 
-    static function DrawConsole(lines:Int):Void {
+    public static function ClearNotify():Void {
+        var i = text.length - 4;
+        for (i in (i < 0 ? 0 : i)...text.length)
+            text[i].time = 0.0;
+    }
+
+    public static function DrawConsole(lines:Int):Void {
         if (lines <= 0)
             return;
         lines = Math.floor(lines * VID.height * 0.005);
@@ -169,5 +158,15 @@ class Console {
             }
         }
         DrawInput();
+    }
+
+    static function DrawInput():Void {
+        if (Key.dest != console && !forcedup)
+            return;
+        var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1));
+        var width = (VID.width >> 3) - 2;
+        if (text.length >= width)
+            text = text.substring(1 + text.length - width);
+        Draw.String(8, vislines - 16, text);
     }
 }

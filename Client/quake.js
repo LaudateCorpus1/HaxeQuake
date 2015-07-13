@@ -2401,6 +2401,16 @@ var quake__$Console_ConsoleEntry = function(s,t) {
 quake__$Console_ConsoleEntry.__name__ = true;
 var quake_Console = function() { };
 quake_Console.__name__ = true;
+quake_Console.Init = function() {
+	quake_Console.debuglog = quake_COM.CheckParm("-condebug") != null;
+	if(quake_Console.debuglog) quake_COM.WriteTextFile("qconsole.log","");
+	quake_Console.Print("Console initialized.\n");
+	quake_Console.notifytime = quake_Cvar.RegisterVariable("con_notifytime","3");
+	quake_Cmd.AddCommand("toggleconsole",quake_Console.ToggleConsole_f);
+	quake_Cmd.AddCommand("messagemode",quake_Console.MessageMode_f);
+	quake_Cmd.AddCommand("messagemode2",quake_Console.MessageMode2_f);
+	quake_Cmd.AddCommand("clear",quake_Console.Clear_f);
+};
 quake_Console.ToggleConsole_f = function() {
 	quake_SCR.EndLoadingPlaque();
 	if(quake_Key.dest == 1) {
@@ -2415,20 +2425,6 @@ quake_Console.ToggleConsole_f = function() {
 	}
 	quake_Key.dest = 1;
 };
-quake_Console.Clear_f = function() {
-	quake_Console.backscroll = 0;
-	quake_Console.current = 0;
-	quake_Console.text = [];
-};
-quake_Console.ClearNotify = function() {
-	var i = quake_Console.text.length - 4;
-	var _g1 = i < 0?0:i;
-	var _g = quake_Console.text.length;
-	while(_g1 < _g) {
-		var i1 = _g1++;
-		quake_Console.text[i1].time = 0.0;
-	}
-};
 quake_Console.MessageMode_f = function() {
 	quake_Key.dest = 2;
 	quake_Key.team_message = false;
@@ -2437,15 +2433,10 @@ quake_Console.MessageMode2_f = function() {
 	quake_Key.dest = 2;
 	quake_Key.team_message = true;
 };
-quake_Console.Init = function() {
-	quake_Console.debuglog = quake_COM.CheckParm("-condebug") != null;
-	if(quake_Console.debuglog) quake_COM.WriteTextFile("qconsole.log","");
-	quake_Console.Print("Console initialized.\n");
-	quake_Console.notifytime = quake_Cvar.RegisterVariable("con_notifytime","3");
-	quake_Cmd.AddCommand("toggleconsole",quake_Console.ToggleConsole_f);
-	quake_Cmd.AddCommand("messagemode",quake_Console.MessageMode_f);
-	quake_Cmd.AddCommand("messagemode2",quake_Console.MessageMode2_f);
-	quake_Cmd.AddCommand("clear",quake_Console.Clear_f);
+quake_Console.Clear_f = function() {
+	quake_Console.backscroll = 0;
+	quake_Console.current = 0;
+	quake_Console.text = [];
 };
 quake_Console.Print = function(msg) {
 	if(quake_Console.debuglog) {
@@ -2481,13 +2472,6 @@ quake_Console.Print = function(msg) {
 quake_Console.DPrint = function(msg) {
 	if(quake_Host.developer.value != 0) quake_Console.Print(msg);
 };
-quake_Console.DrawInput = function() {
-	if(quake_Key.dest != 1 && !quake_Console.forcedup) return;
-	var text = "]" + quake_Key.edit_line + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1));
-	var width = (quake_VID.width >> 3) - 2;
-	if(text.length >= width) text = text.substring(1 + text.length - width);
-	quake_Draw.String(8,quake_Console.vislines - 16,text);
-};
 quake_Console.DrawNotify = function() {
 	var width = (quake_VID.width >> 3) - 2;
 	var i = quake_Console.text.length - 4;
@@ -2501,6 +2485,15 @@ quake_Console.DrawNotify = function() {
 		v += 8;
 	}
 	if(quake_Key.dest == 2) quake_Draw.String(8,v,"say: " + quake_Key.chat_buffer + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1)));
+};
+quake_Console.ClearNotify = function() {
+	var i = quake_Console.text.length - 4;
+	var _g1 = i < 0?0:i;
+	var _g = quake_Console.text.length;
+	while(_g1 < _g) {
+		var i1 = _g1++;
+		quake_Console.text[i1].time = 0.0;
+	}
 };
 quake_Console.DrawConsole = function(lines) {
 	if(lines <= 0) return;
@@ -2533,6 +2526,13 @@ quake_Console.DrawConsole = function(lines) {
 		}
 	}
 	quake_Console.DrawInput();
+};
+quake_Console.DrawInput = function() {
+	if(quake_Key.dest != 1 && !quake_Console.forcedup) return;
+	var text = "]" + quake_Key.edit_line + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1));
+	var width = (quake_VID.width >> 3) - 2;
+	if(text.length >= width) text = text.substring(1 + text.length - width);
+	quake_Draw.String(8,quake_Console.vislines - 16,text);
 };
 var quake_Cvar = function(name,value,archive,server) {
 	this.name = name;
@@ -15151,8 +15151,8 @@ quake_Cmd.wait = false;
 quake_Cmd.text = "";
 quake_Cmd.argv = [];
 quake_Console.backscroll = 0;
-quake_Console.current = 0;
 quake_Console.text = [];
+quake_Console.current = 0;
 quake_Cvar.vars = new haxe_ds_StringMap();
 quake_Def.timedate = "Exe: 12:39:20 Aug  7 2014\n";
 quake_Def.max_edicts = 600;

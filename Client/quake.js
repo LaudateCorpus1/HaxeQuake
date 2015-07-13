@@ -431,12 +431,6 @@ quake_MSG.ReadString = function() {
 	}
 	return string.join("");
 };
-quake_MSG.ReadCoord = function() {
-	return quake_MSG.ReadShort() * 0.125;
-};
-quake_MSG.ReadAngle = function() {
-	return quake_MSG.ReadChar() * 1.40625;
-};
 quake_MSG.prototype = {
 	GetSpace: function(length) {
 		if(this.cursize + length > this.data.byteLength) {
@@ -1191,9 +1185,9 @@ quake_CL.ParseStartSoundPacket = function() {
 	var ent = channel >> 3;
 	channel &= 7;
 	var tmp;
-	var x = quake_MSG.ReadCoord();
-	var y = quake_MSG.ReadCoord();
-	var z = quake_MSG.ReadCoord();
+	var x = quake_MSG.ReadShort() * 0.125;
+	var y = quake_MSG.ReadShort() * 0.125;
+	var z = quake_MSG.ReadShort() * 0.125;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
@@ -1332,17 +1326,17 @@ quake_CL.ParseUpdate = function(bits) {
 	v21[0] = v11[0];
 	v21[1] = v11[1];
 	v21[2] = v11[2];
-	var v = (bits & 2) != 0?quake_MSG.ReadCoord():ent.baseline.origin[0];
+	var v = (bits & 2) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[0];
 	ent.msg_origins[0][0] = v;
-	var v3 = (bits & 256) != 0?quake_MSG.ReadAngle():ent.baseline.angles[0];
+	var v3 = (bits & 256) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[0];
 	ent.msg_angles[0][0] = v3;
-	var v4 = (bits & 4) != 0?quake_MSG.ReadCoord():ent.baseline.origin[1];
+	var v4 = (bits & 4) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[1];
 	ent.msg_origins[0][1] = v4;
-	var v5 = (bits & 16) != 0?quake_MSG.ReadAngle():ent.baseline.angles[1];
+	var v5 = (bits & 16) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[1];
 	ent.msg_angles[0][1] = v5;
-	var v6 = (bits & 8) != 0?quake_MSG.ReadCoord():ent.baseline.origin[2];
+	var v6 = (bits & 8) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[2];
 	ent.msg_origins[0][2] = v6;
-	var v7 = (bits & 512) != 0?quake_MSG.ReadAngle():ent.baseline.angles[2];
+	var v7 = (bits & 512) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[2];
 	ent.msg_angles[0][2] = v7;
 	if((bits & 32) != 0) ent.forcelink = true;
 	if(forcelink) {
@@ -1374,17 +1368,17 @@ quake_CL.ParseBaseline = function(ent) {
 	ent.baseline.frame = quake_MSG.ReadByte();
 	ent.baseline.colormap = quake_MSG.ReadByte();
 	ent.baseline.skin = quake_MSG.ReadByte();
-	var v = quake_MSG.ReadCoord();
+	var v = quake_MSG.ReadShort() * 0.125;
 	ent.baseline.origin[0] = v;
-	var v1 = quake_MSG.ReadAngle();
+	var v1 = quake_MSG.ReadChar() * 1.40625;
 	ent.baseline.angles[0] = v1;
-	var v2 = quake_MSG.ReadCoord();
+	var v2 = quake_MSG.ReadShort() * 0.125;
 	ent.baseline.origin[1] = v2;
-	var v3 = quake_MSG.ReadAngle();
+	var v3 = quake_MSG.ReadChar() * 1.40625;
 	ent.baseline.angles[1] = v3;
-	var v4 = quake_MSG.ReadCoord();
+	var v4 = quake_MSG.ReadShort() * 0.125;
 	ent.baseline.origin[2] = v4;
-	var v5 = quake_MSG.ReadAngle();
+	var v5 = quake_MSG.ReadChar() * 1.40625;
 	ent.baseline.angles[2] = v5;
 };
 quake_CL.ParseClientdata = function(bits) {
@@ -1458,9 +1452,9 @@ quake_CL.ParseStatic = function() {
 };
 quake_CL.ParseStaticSound = function() {
 	var tmp;
-	var x = quake_MSG.ReadCoord();
-	var y = quake_MSG.ReadCoord();
-	var z = quake_MSG.ReadCoord();
+	var x = quake_MSG.ReadShort() * 0.125;
+	var y = quake_MSG.ReadShort() * 0.125;
+	var z = quake_MSG.ReadShort() * 0.125;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
@@ -1535,11 +1529,11 @@ quake_CL.ParseServerMessage = function() {
 			continue;
 			break;
 		case 10:
-			var v = quake_MSG.ReadAngle();
+			var v = quake_MSG.ReadChar() * 1.40625;
 			quake_CL.state.viewangles[0] = v;
-			var v1 = quake_MSG.ReadAngle();
+			var v1 = quake_MSG.ReadChar() * 1.40625;
 			quake_CL.state.viewangles[1] = v1;
-			var v2 = quake_MSG.ReadAngle();
+			var v2 = quake_MSG.ReadChar() * 1.40625;
 			quake_CL.state.viewangles[2] = v2;
 			continue;
 			break;
@@ -1672,9 +1666,9 @@ quake_CL.InitTEnts = function() {
 quake_CL.ParseBeam = function(m) {
 	var ent = quake_MSG.ReadShort();
 	var tmp;
-	var x = quake_MSG.ReadCoord();
-	var y = quake_MSG.ReadCoord();
-	var z = quake_MSG.ReadCoord();
+	var x = quake_MSG.ReadShort() * 0.125;
+	var y = quake_MSG.ReadShort() * 0.125;
+	var z = quake_MSG.ReadShort() * 0.125;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
@@ -1682,9 +1676,9 @@ quake_CL.ParseBeam = function(m) {
 	tmp = v;
 	var start = tmp;
 	var tmp1;
-	var x1 = quake_MSG.ReadCoord();
-	var y1 = quake_MSG.ReadCoord();
-	var z1 = quake_MSG.ReadCoord();
+	var x1 = quake_MSG.ReadShort() * 0.125;
+	var y1 = quake_MSG.ReadShort() * 0.125;
+	var z1 = quake_MSG.ReadShort() * 0.125;
 	var v1 = new Float32Array(3);
 	v1[0] = x1;
 	v1[1] = y1;
@@ -1734,9 +1728,9 @@ quake_CL.ParseTEnt = function() {
 	default:
 	}
 	var tmp;
-	var x = quake_MSG.ReadCoord();
-	var y = quake_MSG.ReadCoord();
-	var z = quake_MSG.ReadCoord();
+	var x = quake_MSG.ReadShort() * 0.125;
+	var y = quake_MSG.ReadShort() * 0.125;
+	var z = quake_MSG.ReadShort() * 0.125;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
@@ -10951,9 +10945,9 @@ quake_SV.ClientThink = function() {
 quake_SV.ReadClientMove = function() {
 	var client = quake_Host.client;
 	client.ping_times[client.num_pings++ & 15] = quake_SV.server.time - quake_MSG.ReadFloat();
-	client.edict._v_float[70] = quake_MSG.ReadAngle();
-	client.edict._v_float[71] = quake_MSG.ReadAngle();
-	client.edict._v_float[72] = quake_MSG.ReadAngle();
+	client.edict._v_float[70] = quake_MSG.ReadChar() * 1.40625;
+	client.edict._v_float[71] = quake_MSG.ReadChar() * 1.40625;
+	client.edict._v_float[72] = quake_MSG.ReadChar() * 1.40625;
 	client.cmd.forwardmove = quake_MSG.ReadShort();
 	client.cmd.sidemove = quake_MSG.ReadShort();
 	client.cmd.upmove = quake_MSG.ReadShort();
@@ -12475,9 +12469,9 @@ quake_R.ReadPointFile_f = function() {
 };
 quake_R.ParseParticleEffect = function() {
 	var tmp;
-	var x = quake_MSG.ReadCoord();
-	var y = quake_MSG.ReadCoord();
-	var z = quake_MSG.ReadCoord();
+	var x = quake_MSG.ReadShort() * 0.125;
+	var y = quake_MSG.ReadShort() * 0.125;
+	var z = quake_MSG.ReadShort() * 0.125;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
@@ -14675,9 +14669,9 @@ quake_V.ParseDamage = function() {
 	var blood = quake_MSG.ReadByte();
 	var ent = quake_CL.entities[quake_CL.state.viewentity];
 	var tmp;
-	var x = quake_MSG.ReadCoord() - ent.origin[0];
-	var y = quake_MSG.ReadCoord() - ent.origin[1];
-	var z = quake_MSG.ReadCoord() - ent.origin[2];
+	var x = quake_MSG.ReadShort() * 0.125 - ent.origin[0];
+	var y = quake_MSG.ReadShort() * 0.125 - ent.origin[1];
+	var z = quake_MSG.ReadShort() * 0.125 - ent.origin[2];
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;

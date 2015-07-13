@@ -1295,7 +1295,7 @@ class CL {
     }
 
     static function ParseStaticSound() {
-        var org = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var org = MSG.ReadVector();
         var sound_num = MSG.ReadByte();
         var vol = MSG.ReadByte();
         var atten = MSG.ReadByte();

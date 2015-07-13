@@ -155,11 +155,15 @@ class MSG {
 		return string.join('');
 	}
 
-	static function ReadCoord():Float {
+	static inline function ReadCoord():Float {
 		return ReadShort() * 0.125;
 	}
 
-	static function ReadAngle():Float {
+	static inline function ReadAngle():Float {
 		return ReadChar() * 1.40625;
+	}
+
+	static inline function ReadVector():Vec {
+		return Vec.of(ReadCoord(), ReadCoord(), ReadCoord());
 	}
 }

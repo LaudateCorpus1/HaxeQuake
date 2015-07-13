@@ -9071,15 +9071,15 @@ quake_SCR.CenterPrint = function(str) {
 	quake_SCR.centerstring = [];
 	var start = 0;
 	var next;
-	var i;
-	var _g1 = 0;
-	var _g = str.length;
-	while(_g1 < _g) {
-		var ii = _g1++;
-		i = ii;
-		if(HxOverrides.cca(str,i) == 10) next = i + 1; else if(i - start >= 40) next = i; else continue;
+	var i = 0;
+	while(i < str.length) {
+		if(HxOverrides.cca(str,i) == 10) next = i + 1; else if(i - start >= 40) next = i; else {
+			i++;
+			continue;
+		}
 		quake_SCR.centerstring.push(str.substring(start,i));
 		start = next;
+		i++;
 	}
 	quake_SCR.centerstring.push(str.substring(start,i));
 	quake_SCR.centertime_off = quake_SCR.centertime.value;

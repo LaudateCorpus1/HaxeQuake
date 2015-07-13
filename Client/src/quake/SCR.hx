@@ -36,23 +36,25 @@ class SCR {
 	static var pause:DrawPic;
 
 	static function CenterPrint(str:String):Void {
-		SCR.centerstring = [];
+		centerstring = [];
 		var start = 0, next;
-		var i;
-		for (ii in 0...str.length) {
-			i = ii;
-			if (str.charCodeAt(i) == 10)
+		var i = 0;
+		while (i < str.length) {
+			if (str.charCodeAt(i) == 10) {
 				next = i + 1;
-			else if ((i - start) >= 40)
+			} else if ((i - start) >= 40) {
 				next = i;
-			else
+			} else {
+				i++;
 				continue;
-			SCR.centerstring.push(str.substring(start, i));
+			}
+			centerstring.push(str.substring(start, i));
 			start = next;
+			i++;
 		}
-		SCR.centerstring.push(str.substring(start, i));
-		SCR.centertime_off = SCR.centertime.value;
-		SCR.centertime_start = CL.state.time;
+		centerstring.push(str.substring(start, i));
+		centertime_off = centertime.value;
+		centertime_start = CL.state.time;
 	}
 
 	static function DrawCenterString():Void {

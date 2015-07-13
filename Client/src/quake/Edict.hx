@@ -42,4 +42,14 @@ class Edict {
         this._v_float = new Float32Array(_v);
         this._v_int = new Int32Array(_v);
     }
+
+    inline function GetVector(o:Int):Vec {
+        return Vec.of(_v_float[o], _v_float[o + 1], _v_float[o + 2]);
+    }
+
+    function SetVector(ofs:Int, v:Vec):Void {
+        _v_float[ofs] = v[0];
+        _v_float[ofs + 1] = v[1];
+        _v_float[ofs + 2] = v[2];
+    }
 }

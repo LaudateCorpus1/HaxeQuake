@@ -633,8 +633,8 @@ class SV {
             if (i > svs.maxclients && svent.v.modelindex == 0)
                 continue;
             var baseline = svent.baseline;
-            baseline.origin = ED.Vector(svent, EdictVarOfs.origin);
-            baseline.angles = ED.Vector(svent, EdictVarOfs.angles);
+            baseline.origin = svent.GetVector(EdictVarOfs.origin);
+            baseline.angles = svent.GetVector(EdictVarOfs.angles);
             baseline.frame = Std.int(svent.v.frame);
             baseline.skin = Std.int(svent.v.skin);
             if (i > 0 && i <= svs.maxclients) {
@@ -830,10 +830,10 @@ class SV {
     }
 
     static function movestep(ent:Edict, move:Vec, relink:Bool):Bool {
-        var oldorg = ED.Vector(ent, EdictVarOfs.origin);
+        var oldorg = ent.GetVector(EdictVarOfs.origin);
         var neworg = new Vec();
-        var mins = ED.Vector(ent, EdictVarOfs.mins);
-        var maxs = ED.Vector(ent, EdictVarOfs.maxs);
+        var mins = ent.GetVector(EdictVarOfs.mins);
+        var maxs = ent.GetVector(EdictVarOfs.maxs);
         if ((ent.flags & (EntFlag.swim + EntFlag.fly)) != 0) {
             var enemy = ent.v.enemy;
             for (i in 0...2) {
@@ -847,7 +847,7 @@ class SV {
                     else if (dz < 30.0)
                         neworg[2] += 8.0;
                 }
-                var trace = Move(ED.Vector(ent, EdictVarOfs.origin), mins, maxs, neworg, 0, ent);
+                var trace = Move(ent.GetVector(EdictVarOfs.origin), mins, maxs, neworg, 0, ent);
                 if (trace.fraction == 1.0) {
                     if ((ent.flags & EntFlag.swim) != 0 && PointContents(trace.endpos) == ModContents.empty)
                         return false;
@@ -911,11 +911,11 @@ class SV {
         ent.v.ideal_yaw = yaw;
         PF.changeyaw();
         yaw *= Math.PI / 180.0;
-        var oldorigin = ED.Vector(ent, EdictVarOfs.origin);
+        var oldorigin = ent.GetVector(EdictVarOfs.origin);
         if (movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), false)) {
             var delta = ent.v.angles1 - ent.v.ideal_yaw;
             if (delta > 45.0 && delta < 315.0)
-                ED.SetVector(ent, EdictVarOfs.origin, oldorigin);
+                ent.SetVector(EdictVarOfs.origin, oldorigin);
             LinkEdict(ent, true);
             return true;
         }
@@ -1077,8 +1077,8 @@ class SV {
     }
 
     static function FlyMove(ent:Edict, time:Float):Int {
-        var primal_velocity = ED.Vector(ent, EdictVarOfs.velocity);
-        var original_velocity = ED.Vector(ent, EdictVarOfs.velocity);
+        var primal_velocity = ent.GetVector(EdictVarOfs.velocity);
+        var original_velocity = ent.GetVector(EdictVarOfs.velocity);
         var new_velocity = new Vec();
         var end = new Vec();
         var time_left = time;
@@ -1091,14 +1091,14 @@ class SV {
             end[0] = ent.v.origin + time_left * ent.v.velocity;
             end[1] = ent.v.origin1 + time_left * ent.v.velocity1;
             end[2] = ent.v.origin2 + time_left * ent.v.velocity2;
-            var trace = Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), end, 0, ent);
+            var trace = Move(ent.GetVector(EdictVarOfs.origin), ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs), end, 0, ent);
             if (trace.allsolid) {
-                ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
+                ent.SetVector(EdictVarOfs.velocity, Vec.origin);
                 return 3;
             }
             if (trace.fraction > 0.0) {
-                ED.SetVector(ent, EdictVarOfs.origin, trace.endpos);
-                original_velocity = ED.Vector(ent, EdictVarOfs.velocity);
+                ent.SetVector(EdictVarOfs.origin, trace.endpos);
+                original_velocity = ent.GetVector(EdictVarOfs.velocity);
                 numplanes = 0;
                 if (trace.fraction == 1.0)
                     break;
@@ -1120,7 +1120,7 @@ class SV {
                 break;
             time_left -= time_left * trace.fraction;
             if (numplanes >= 5) {
-                ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
+                ent.SetVector(EdictVarOfs.velocity, Vec.origin);
                 return 3;
             }
             planes[numplanes++] = Vec.of(trace.plane.normal[0], trace.plane.normal[1], trace.plane.normal[2]);
@@ -1141,10 +1141,10 @@ class SV {
                 i++;
             }
             if (i != numplanes) {
-                ED.SetVector(ent, EdictVarOfs.velocity, new_velocity);
+                ent.SetVector(EdictVarOfs.velocity, new_velocity);
             } else {
                 if (numplanes != 2) {
-                    ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
+                    ent.SetVector(EdictVarOfs.velocity, Vec.origin);
                     return 7;
                 }
                 var dir = Vec.CrossProduct(planes[0], planes[1]);
@@ -1154,7 +1154,7 @@ class SV {
                 ent.v.velocity2 = dir[2] * d;
             }
             if ((ent.v.velocity * primal_velocity[0] + ent.v.velocity1 * primal_velocity[1] + ent.v.velocity2 * primal_velocity[2]) <= 0.0) {
-                ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
+                ent.SetVector(EdictVarOfs.velocity, Vec.origin);
                 return blocked;
             }
         }
@@ -1185,8 +1185,8 @@ class SV {
             nomonsters = ClipType.nomonsters
         else
             nomonsters = ClipType.normal;
-        var trace = Move(ED.Vector(ent, EdictVarOfs.origin), ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), end, nomonsters, ent);
-        ED.SetVector(ent, EdictVarOfs.origin, trace.endpos);
+        var trace = Move(ent.GetVector(EdictVarOfs.origin), ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs), end, nomonsters, ent);
+        ent.SetVector(EdictVarOfs.origin, trace.endpos);
         LinkEdict(ent, true);
         if (trace.ent != null)
             Impact(ent, trace.ent);
@@ -1213,7 +1213,7 @@ class SV {
             pusher.v.absmax1 + move[1],
             pusher.v.absmax2 + move[2]
         ];
-        var pushorig = ED.Vector(pusher, EdictVarOfs.origin);
+        var pushorig = pusher.GetVector(EdictVarOfs.origin);
         pusher.v.origin += move[0];
         pusher.v.origin1 += move[1];
         pusher.v.origin2 += move[2];
@@ -1236,7 +1236,7 @@ class SV {
             }
             if (movetype != MoveType.walk)
                 check.flags &= ~EntFlag.onground;
-            var entorig = ED.Vector(check, EdictVarOfs.origin);
+            var entorig = check.GetVector(EdictVarOfs.origin);
             moved.push([entorig[0], entorig[1], entorig[2], check]);
             pusher.v.solid = SolidType.not;
             PushEntity(check, move);
@@ -1305,7 +1305,7 @@ class SV {
             ent.v.oldorigin2 = ent.v.origin2;
             return;
         }
-        var org = ED.Vector(ent, EdictVarOfs.origin);
+        var org = ent.GetVector(EdictVarOfs.origin);
         ent.v.origin = ent.v.oldorigin;
         ent.v.origin1 = ent.v.oldorigin1;
         ent.v.origin2 = ent.v.oldorigin2;
@@ -1328,7 +1328,7 @@ class SV {
                 }
             }
         }
-        ED.SetVector(ent, EdictVarOfs.origin, org);
+        ent.SetVector(EdictVarOfs.origin, org);
         Console.DPrint('player is stuck.\n');
     }
 
@@ -1355,7 +1355,7 @@ class SV {
 
     static function WallFriction(ent:Edict, trace:MTrace):Void {
         var forward = new Vec();
-        Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.v_angle), forward);
+        Vec.AngleVectors(ent.GetVector(EdictVarOfs.v_angle), forward);
         var normal = trace.plane.normal;
         var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
         if (d >= 0.0)
@@ -1367,7 +1367,7 @@ class SV {
     }
 
     static function TryUnstick(ent:Edict, oldvel:Vec):Int {
-        var oldorg = ED.Vector(ent, EdictVarOfs.origin);
+        var oldorg = ent.GetVector(EdictVarOfs.origin);
         var dir = Vec.of(2.0, 0.0, 0.0);
         for (i in 0...8) {
             switch (i) {
@@ -1400,17 +1400,17 @@ class SV {
             var clip = FlyMove(ent, 0.1);
             if (Math.abs(oldorg[1] - ent.v.origin1) > 4.0 || Math.abs(oldorg[0] - ent.v.origin) > 4.0)
                 return clip;
-            ED.SetVector(ent, EdictVarOfs.origin, oldorg);
+            ent.SetVector(EdictVarOfs.origin, oldorg);
         }
-        ED.SetVector(ent, EdictVarOfs.velocity, Vec.origin);
+        ent.SetVector(EdictVarOfs.velocity, Vec.origin);
         return 7;
     }
 
     static function WalkMove(ent:Edict) {
         var oldonground = ent.flags & EntFlag.onground;
         ent.flags ^= oldonground;
-        var oldorg = ED.Vector(ent, EdictVarOfs.origin);
-        var oldvel = ED.Vector(ent, EdictVarOfs.velocity);
+        var oldorg = ent.GetVector(EdictVarOfs.origin);
+        var oldvel = ent.GetVector(EdictVarOfs.velocity);
         var clip = FlyMove(ent, Host.frametime);
         if ((clip & 2) == 0)
             return;
@@ -1422,9 +1422,9 @@ class SV {
             return;
         if ((player.flags & EntFlag.waterjump) != 0)
             return;
-        var nosteporg = ED.Vector(ent, EdictVarOfs.origin);
-        var nostepvel = ED.Vector(ent, EdictVarOfs.velocity);
-        ED.SetVector(ent, EdictVarOfs.origin, oldorg);
+        var nosteporg = ent.GetVector(EdictVarOfs.origin);
+        var nostepvel = ent.GetVector(EdictVarOfs.velocity);
+        ent.SetVector(EdictVarOfs.origin, oldorg);
         PushEntity(ent, Vec.of(0.0, 0.0, 18.0));
         ent.v.velocity = oldvel[0];
         ent.v.velocity1 = oldvel[1];
@@ -1444,8 +1444,8 @@ class SV {
             }
             return;
         }
-        ED.SetVector(ent, EdictVarOfs.origin, nosteporg);
-        ED.SetVector(ent, EdictVarOfs.velocity, nostepvel);
+        ent.SetVector(EdictVarOfs.origin, nosteporg);
+        ent.SetVector(EdictVarOfs.velocity, nostepvel);
     }
 
     static function Physics_Client(ent:Edict):Void {
@@ -1497,7 +1497,7 @@ class SV {
     }
 
     static function CheckWaterTransition(ent:Edict):Void {
-        var cont = PointContents(ED.Vector(ent, EdictVarOfs.origin));
+        var cont = PointContents(ent.GetVector(EdictVarOfs.origin));
         if (ent.v.watertype == 0.0) {
             ent.v.watertype = cont;
             ent.v.waterlevel = 1.0;
@@ -1532,8 +1532,8 @@ class SV {
         if (trace.fraction == 1.0 || ent.free)
             return;
         var velocity = new Vec();
-        ClipVelocity(ED.Vector(ent, EdictVarOfs.velocity), trace.plane.normal, velocity, (movetype == MoveType.bounce) ? 1.5 : 1.0);
-        ED.SetVector(ent, EdictVarOfs.velocity, velocity);
+        ClipVelocity(ent.GetVector(EdictVarOfs.velocity), trace.plane.normal, velocity, (movetype == MoveType.bounce) ? 1.5 : 1.0);
+        ent.SetVector(EdictVarOfs.velocity, velocity);
         if (trace.plane.normal[2] > 0.7) {
             if (ent.v.velocity2 < 60.0 || movetype != MoveType.bounce) {
                 ent.flags |= EntFlag.onground;
@@ -1674,7 +1674,7 @@ class SV {
         var cmd = Host.client.cmd;
         var forward = new Vec();
         var right = new Vec();
-        Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.v_angle), forward, right);
+        Vec.AngleVectors(ent.GetVector(EdictVarOfs.v_angle), forward, right);
         var wishvel = [
             forward[0] * cmd.forwardmove + right[0] * cmd.sidemove,
             forward[1] * cmd.forwardmove + right[1] * cmd.sidemove,
@@ -1734,7 +1734,7 @@ class SV {
         var cmd = Host.client.cmd;
         var forward = new Vec();
         var right = new Vec();
-        Vec.AngleVectors(ED.Vector(ent, EdictVarOfs.angles), forward, right);
+        Vec.AngleVectors(ent.GetVector(EdictVarOfs.angles), forward, right);
         var fmove = cmd.forwardmove;
         var smove = cmd.sidemove;
         if (server.time < ent.v.teleport_time && fmove < 0.0)
@@ -1751,7 +1751,7 @@ class SV {
             wishvel[2] = wishdir[2] * maxspeed.value;
         }
         if (ent.v.movetype == MoveType.noclip) {
-            ED.SetVector(ent, EdictVarOfs.velocity, wishvel);
+            ent.SetVector(EdictVarOfs.velocity, wishvel);
         } else if ((ent.flags & EntFlag.onground) != 0) {
             UserFriction();
             Accelerate(wishvel, false);
@@ -1766,7 +1766,7 @@ class SV {
         if (ent.v.movetype == MoveType.none)
             return;
 
-        var punchangle = ED.Vector(ent, EdictVarOfs.punchangle);
+        var punchangle = ent.GetVector(EdictVarOfs.punchangle);
         var len = Vec.Normalize(punchangle) - 10.0 * Host.frametime;
         if (len < 0.0)
             len = 0.0;
@@ -1777,7 +1777,7 @@ class SV {
         if (ent.v.health <= 0.0)
             return;
 
-        ent.v.angles2 = V.CalcRoll(ED.Vector(ent, EdictVarOfs.angles), ED.Vector(ent, EdictVarOfs.velocity)) * 4.0;
+        ent.v.angles2 = V.CalcRoll(ent.GetVector(EdictVarOfs.angles), ent.GetVector(EdictVarOfs.velocity)) * 4.0;
         if (ent.v.fixangle == 0.0) {
             ent.v.angles = (ent.v.v_angle + ent.v.punchangle) / -3.0;
             ent.v.angles1 = ent.v.v_angle1 + ent.v.punchangle1;
@@ -2131,9 +2131,9 @@ class SV {
         return cont;
     }
 
-    static function TestEntityPosition(ent) {
-        var origin = ED.Vector(ent, EdictVarOfs.origin);
-        return Move(origin, ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs), origin, 0, ent).startsolid;
+    static function TestEntityPosition(ent:Edict):Bool {
+        var origin = ent.GetVector(EdictVarOfs.origin);
+        return Move(origin, ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs), origin, 0, ent).startsolid;
     }
 
     static function RecursiveHullCheck(hull:MHull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:MTrace):Bool {

@@ -43,8 +43,8 @@ class ED {
 		ed.v.colormap = 0.0;
 		ed.v.skin = 0.0;
 		ed.v.frame = 0.0;
-		SetVector(ed, EdictVarOfs.origin, Vec.origin);
-		SetVector(ed, EdictVarOfs.angles, Vec.origin);
+		ed.SetVector(EdictVarOfs.origin, Vec.origin);
+		ed.SetVector(EdictVarOfs.angles, Vec.origin);
 		ed.v.nextthink = -1.0;
 		ed.v.solid = 0.0;
 		ed.freetime = SV.server.time;
@@ -338,15 +338,5 @@ class ED {
 		}
 
 		Console.DPrint(inhibit + ' entities inhibited\n');
-	}
-
-	static inline function Vector(e:Edict, o:Int):Vec {
-		return Vec.of(e._v_float[o], e._v_float[o + 1], e._v_float[o + 2]);
-	}
-
-	static function SetVector(e:Edict, o:Int, v:Vec):Void {
-		e._v_float[o] = v[0];
-		e._v_float[o + 1] = v[1];
-		e._v_float[o + 2] = v[2];
 	}
 }

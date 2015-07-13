@@ -50,8 +50,8 @@ class PF {
     static function SetMinMaxSize(e:Edict, min:Vec, max:Vec):Void {
         if ((min[0] > max[0]) || (min[1] > max[1]) || (min[2] > max[2]))
             PR.RunError('backwards mins/maxs');
-        ED.SetVector(e, EdictVarOfs.mins, min);
-        ED.SetVector(e, EdictVarOfs.maxs, max);
+        e.SetVector(EdictVarOfs.mins, min);
+        e.SetVector(EdictVarOfs.maxs, max);
         e.v.size = max[0] - min[0];
         e.v.size1 = max[1] - min[1];
         e.v.size2 = max[2] - min[2];
@@ -449,14 +449,14 @@ class PF {
 
     static function droptofloor() {
         var ent = SV.server.edicts[PR.globals.self];
-        var trace = SV.Move(ED.Vector(ent, EdictVarOfs.origin),
-            ED.Vector(ent, EdictVarOfs.mins), ED.Vector(ent, EdictVarOfs.maxs),
+        var trace = SV.Move(ent.GetVector(EdictVarOfs.origin),
+            ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs),
             Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 - 256.0), 0, ent);
         if ((trace.fraction == 1.0) || (trace.allsolid)) {
             PR._globals_float[1] = 0.0;
             return;
         }
-        ED.SetVector(ent, EdictVarOfs.origin, trace.endpos);
+        ent.SetVector(EdictVarOfs.origin, trace.endpos);
         SV.LinkEdict(ent, false);
         ent.flags = ent.flags | EntFlag.onground;
         ent.v.groundentity = trace.ent.num;

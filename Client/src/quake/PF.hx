@@ -67,9 +67,9 @@ class PF {
         );
     }
 
-    static function setmodel() {
-        var e:Edict = SV.server.edicts[PR._globals_int[4]];
-        var m = PR.GetString(PR._globals_int[7]);
+    static function setmodel():Void {
+        var e = SV.server.edicts[PR._globals_int[OFS_PARM0]];
+        var m = PR.GetString(PR._globals_int[OFS_PARM1]);
         var i = 0;
         while (i < SV.server.model_precache.length) {
             if (SV.server.model_precache[i] == m)
@@ -79,7 +79,7 @@ class PF {
         if (i == SV.server.model_precache.length)
             PR.RunError('no precache: ' + m + '\n');
 
-        e.v.model = PR._globals_int[7];
+        e.v.model = PR._globals_int[OFS_PARM1];
         e.v.modelindex = i;
         var mod = SV.server.models[i];
         if (mod != null)
@@ -88,13 +88,13 @@ class PF {
             SetMinMaxSize(e, Vec.origin, Vec.origin);
     }
 
-    static function bprint() {
+    static function bprint():Void {
         Host.BroadcastPrint(VarString(0));
     }
 
-    static function sprint() {
-        var entnum = PR._globals_int[4];
-        if ((entnum <= 0) || (entnum > SV.svs.maxclients)) {
+    static function sprint():Void {
+        var entnum = PR._globals_int[OFS_PARM0];
+        if (entnum <= 0 || entnum > SV.svs.maxclients) {
             Console.Print('tried to sprint to a non-client\n');
             return;
         }
@@ -103,9 +103,9 @@ class PF {
         client.message.WriteString(VarString(1));
     }
 
-    static function centerprint() {
-        var entnum = PR._globals_int[4];
-        if ((entnum <= 0) || (entnum > SV.svs.maxclients)) {
+    static function centerprint():Void {
+        var entnum = PR._globals_int[OFS_PARM0];
+        if (entnum <= 0 || entnum > SV.svs.maxclients) {
             Console.Print('tried to sprint to a non-client\n');
             return;
         }
@@ -114,16 +114,16 @@ class PF {
         client.message.WriteString(VarString(1));
     }
 
-    static function normalize() {
-        var newvalue = Vec.of(PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]);
+    static function normalize():Void {
+        var newvalue = Vec.of(PR._globals_float[OFS_PARM0], PR._globals_float[OFS_PARM0 + 1], PR._globals_float[OFS_PARM0 + 2]);
         Vec.Normalize(newvalue);
-        PR._globals_float[1] = newvalue[0];
-        PR._globals_float[2] = newvalue[1];
-        PR._globals_float[3] = newvalue[2];
+        PR._globals_float[OFS_RETURN] = newvalue[0];
+        PR._globals_float[OFS_RETURN + 1] = newvalue[1];
+        PR._globals_float[OFS_RETURN + 2] = newvalue[2];
     }
 
-    static function vlen() {
-        PR._globals_float[1] = Math.sqrt(PR._globals_float[4] * PR._globals_float[4] + PR._globals_float[5] * PR._globals_float[5] + PR._globals_float[6] * PR._globals_float[6]);
+    static function vlen():Void {
+        PR._globals_float[OFS_RETURN] = Math.sqrt(PR._globals_float[OFS_PARM0] * PR._globals_float[OFS_PARM0] + PR._globals_float[OFS_PARM0 + 1] * PR._globals_float[OFS_PARM0 + 1] + PR._globals_float[OFS_PARM0 + 2] * PR._globals_float[OFS_PARM0 + 2]);
     }
 
     static function vectoyaw() {

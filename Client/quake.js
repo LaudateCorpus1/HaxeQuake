@@ -13591,17 +13591,17 @@ quake_PF.normalize = function() {
 	var tmp;
 	var v = new Float32Array(3);
 	v[0] = quake_PR._globals_float[4];
-	v[1] = quake_PR._globals_float[5];
-	v[2] = quake_PR._globals_float[6];
+	v[1] = quake_PR._globals_float[4 + 1];
+	v[2] = quake_PR._globals_float[4 + 2];
 	tmp = v;
 	var newvalue = tmp;
 	quake__$Vec_Vec_$Impl_$.Normalize(newvalue);
 	quake_PR._globals_float[1] = newvalue[0];
-	quake_PR._globals_float[2] = newvalue[1];
-	quake_PR._globals_float[3] = newvalue[2];
+	quake_PR._globals_float[1 + 1] = newvalue[1];
+	quake_PR._globals_float[1 + 2] = newvalue[2];
 };
 quake_PF.vlen = function() {
-	quake_PR._globals_float[1] = Math.sqrt(quake_PR._globals_float[4] * quake_PR._globals_float[4] + quake_PR._globals_float[5] * quake_PR._globals_float[5] + quake_PR._globals_float[6] * quake_PR._globals_float[6]);
+	quake_PR._globals_float[1] = Math.sqrt(quake_PR._globals_float[4] * quake_PR._globals_float[4] + quake_PR._globals_float[4 + 1] * quake_PR._globals_float[4 + 1] + quake_PR._globals_float[4 + 2] * quake_PR._globals_float[4 + 2]);
 };
 quake_PF.vectoyaw = function() {
 	var value1 = quake_PR._globals_float[4];

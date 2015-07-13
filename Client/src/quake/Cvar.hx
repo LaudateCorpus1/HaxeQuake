@@ -2,7 +2,6 @@ package quake;
 
 using Tools;
 
-
 class Cvar {
     public var name(default,null):String;
     public var string(default,null):String;

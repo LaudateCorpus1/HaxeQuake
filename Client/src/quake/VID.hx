@@ -6,19 +6,17 @@ import js.html.CanvasElement;
 import js.html.Uint32Array;
 import js.html.Uint8Array;
 
-
-@:publicFields
 class VID {
-    static var mainwindow:CanvasElement;
-    static var width:Int;
-    static var height:Int;
+    public static var mainwindow:CanvasElement;
+    public static var width:Int;
+    public static var height:Int;
 
-    static var d_8to24table = new Uint32Array(new ArrayBuffer(1024));
+    public static var d_8to24table(default,null) = new Uint32Array(new ArrayBuffer(1024));
 
-    static function SetPalette() {
-        var palette = COM.LoadFile('gfx/palette.lmp');
+    static function SetPalette():Void {
+        var palette = COM.LoadFile("gfx/palette.lmp");
         if (palette == null)
-            Sys.Error('Couldn\'t load gfx/palette.lmp');
+            Sys.Error("Couldn't load gfx/palette.lmp");
         var pal = new Uint8Array(palette);
         var src = 0;
         for (i in 0...256) {
@@ -27,7 +25,7 @@ class VID {
         }
     }
 
-    static function Init() {
+    public static function Init():Void {
         document.getElementById('progress').style.display = 'none';
         GL.Init();
         SetPalette();

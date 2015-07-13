@@ -14214,12 +14214,6 @@ var quake_Sfx = function(n) {
 quake_Sfx.__name__ = true;
 var quake_Sbar = function() { };
 quake_Sbar.__name__ = true;
-quake_Sbar.ShowScores = function() {
-	quake_Sbar.showscores = true;
-};
-quake_Sbar.DontShowScores = function() {
-	quake_Sbar.showscores = false;
-};
 quake_Sbar.Init = function() {
 	quake_Sbar.nums = [[],[]];
 	var _g = 0;
@@ -14236,7 +14230,7 @@ quake_Sbar.Init = function() {
 	var _g1 = 0;
 	while(_g1 < 5) {
 		var i1 = _g1++;
-		quake_Sbar.weapons[2 + i1] = [new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SHOTGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SSHOTGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_NAILGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SNAILGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_RLAUNCH")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SRLAUNCH")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_LIGHTNG"))];
+		quake_Sbar.weapons.push([new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SHOTGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SSHOTGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_NAILGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SNAILGUN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_RLAUNCH")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_SRLAUNCH")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i1 + 1) + "_LIGHTNG"))]);
 	}
 	quake_Sbar.ammo = [new quake_DrawPic(quake_W.GetLumpName("SB_SHELLS")),new quake_DrawPic(quake_W.GetLumpName("SB_NAILS")),new quake_DrawPic(quake_W.GetLumpName("SB_ROCKET")),new quake_DrawPic(quake_W.GetLumpName("SB_CELLS"))];
 	quake_Sbar.armor = [new quake_DrawPic(quake_W.GetLumpName("SB_ARMOR1")),new quake_DrawPic(quake_W.GetLumpName("SB_ARMOR2")),new quake_DrawPic(quake_W.GetLumpName("SB_ARMOR3"))];
@@ -14246,7 +14240,7 @@ quake_Sbar.Init = function() {
 	var _g2 = 0;
 	while(_g2 < 5) {
 		var i2 = _g2++;
-		quake_Sbar.faces[i2] = [new quake_DrawPic(quake_W.GetLumpName("FACE" + (5 - i2))),new quake_DrawPic(quake_W.GetLumpName("FACE_P" + (5 - i2)))];
+		quake_Sbar.faces.push([new quake_DrawPic(quake_W.GetLumpName("FACE" + (5 - i2))),new quake_DrawPic(quake_W.GetLumpName("FACE_P" + (5 - i2)))]);
 	}
 	quake_Sbar.face_invis = new quake_DrawPic(quake_W.GetLumpName("FACE_INVIS"));
 	quake_Sbar.face_invuln = new quake_DrawPic(quake_W.GetLumpName("FACE_INVUL2"));
@@ -14267,17 +14261,24 @@ quake_Sbar.Init = function() {
 		var _g3 = 0;
 		while(_g3 < 5) {
 			var i3 = _g3++;
-			quake_Sbar.h_weapons[2 + i3] = [new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_LASER")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_MJOLNIR")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_GREN_PROX")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_PROX_GREN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_PROX"))];
+			quake_Sbar.h_weapons.push([new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_LASER")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_MJOLNIR")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_GREN_PROX")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_PROX_GREN")),new quake_DrawPic(quake_W.GetLumpName("INVA" + (i3 + 1) + "_PROX"))]);
 		}
 		quake_Sbar.hipweapons = [quake_Def.hit.laser_cannon_bit,quake_Def.hit.mjolnir_bit,4,quake_Def.hit.proximity_gun_bit];
 		quake_Sbar.h_items = [new quake_DrawPic(quake_W.GetLumpName("SB_WSUIT")),new quake_DrawPic(quake_W.GetLumpName("SB_ESHLD"))];
-	} else if(quake_COM.rogue) {
+	}
+	if(quake_COM.rogue) {
 		quake_Sbar.r_invbar = [new quake_DrawPic(quake_W.GetLumpName("R_INVBAR1")),new quake_DrawPic(quake_W.GetLumpName("R_INVBAR2"))];
 		quake_Sbar.r_weapons = [new quake_DrawPic(quake_W.GetLumpName("R_LAVA")),new quake_DrawPic(quake_W.GetLumpName("R_SUPERLAVA")),new quake_DrawPic(quake_W.GetLumpName("R_GREN")),new quake_DrawPic(quake_W.GetLumpName("R_MULTIROCK")),new quake_DrawPic(quake_W.GetLumpName("R_PLASMA"))];
 		quake_Sbar.r_items = [new quake_DrawPic(quake_W.GetLumpName("R_SHIELD1")),new quake_DrawPic(quake_W.GetLumpName("R_AGRAV1"))];
 		quake_Sbar.r_teambord = new quake_DrawPic(quake_W.GetLumpName("R_TEAMBORD"));
 		quake_Sbar.r_ammo = [new quake_DrawPic(quake_W.GetLumpName("R_AMMOLAVA")),new quake_DrawPic(quake_W.GetLumpName("R_AMMOMULTI")),new quake_DrawPic(quake_W.GetLumpName("R_AMMOPLASMA"))];
 	}
+};
+quake_Sbar.ShowScores = function() {
+	quake_Sbar.showscores = true;
+};
+quake_Sbar.DontShowScores = function() {
+	quake_Sbar.showscores = false;
 };
 quake_Sbar.DrawPic = function(x,y,pic) {
 	if(quake_CL.state.gametype == 1) quake_Draw.Pic(x,y + quake_VID.height - 24,pic); else quake_Draw.Pic(x + (quake_VID.width >> 1) - 160,y + quake_VID.height - 24,pic);

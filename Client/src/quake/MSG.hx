@@ -66,11 +66,11 @@ class MSG {
 		WriteChar(0);
 	}
 
-	function WriteCoord(f:Float):Void {
+	inline function WriteCoord(f:Float):Void {
 		WriteShort(Std.int(f * 8));
 	}
 
-	function WriteAngle(f:Float):Void {
+	inline function WriteAngle(f:Float):Void {
 		WriteByte(Std.int(f * 256 / 360) & 255);
 	}
 
@@ -145,14 +145,14 @@ class MSG {
 	}
 
 	static function ReadString():String {
-		var string = [];
+		var string = new StringBuf();
 		for (l in 0...2048) {
 			var c = ReadByte();
 			if (c <= 0)
 				break;
-			string.push(String.fromCharCode(c));
+			string.addChar(c);
 		}
-		return string.join('');
+		return string.toString();
 	}
 
 	static inline function ReadCoord():Float {

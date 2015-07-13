@@ -421,15 +421,15 @@ quake_MSG.ReadFloat = function() {
 	return f;
 };
 quake_MSG.ReadString = function() {
-	var string = [];
+	var string_b = "";
 	var _g = 0;
 	while(_g < 2048) {
 		_g++;
 		var c = quake_MSG.ReadByte();
 		if(c <= 0) break;
-		string.push(String.fromCharCode(c));
+		string_b += String.fromCharCode(c);
 	}
-	return string.join("");
+	return string_b;
 };
 quake_MSG.prototype = {
 	GetSpace: function(length) {
@@ -465,12 +465,6 @@ quake_MSG.prototype = {
 	,WriteString: function(s) {
 		if(s != null) this.Write(new Uint8Array(quake_Q.strmem(s)),s.length);
 		this.WriteChar(0);
-	}
-	,WriteCoord: function(f) {
-		this.WriteShort(f * 8 | 0);
-	}
-	,WriteAngle: function(f) {
-		this.WriteByte((f * 256 / 360 | 0) & 255);
 	}
 };
 var quake_CL = function() { };
@@ -735,9 +729,9 @@ quake_CL.SendMove = function() {
 	buf.cursize = 0;
 	buf.WriteByte(3);
 	buf.WriteFloat(quake_CL.state.mtime[0]);
-	buf.WriteAngle(quake_CL.state.viewangles[0]);
-	buf.WriteAngle(quake_CL.state.viewangles[1]);
-	buf.WriteAngle(quake_CL.state.viewangles[2]);
+	buf.WriteByte((quake_CL.state.viewangles[0] * 256 / 360 | 0) & 255);
+	buf.WriteByte((quake_CL.state.viewangles[1] * 256 / 360 | 0) & 255);
+	buf.WriteByte((quake_CL.state.viewangles[2] * 256 / 360 | 0) & 255);
 	buf.WriteShort(quake_CL.state.cmd.forwardmove | 0);
 	buf.WriteShort(quake_CL.state.cmd.sidemove | 0);
 	buf.WriteShort(quake_CL.state.cmd.upmove | 0);
@@ -4332,9 +4326,9 @@ quake_Host.Spawn_f = function() {
 	message.WriteByte(14);
 	message.WriteLong(quake_PR._globals_float[42] | 0);
 	message.WriteByte(10);
-	message.WriteAngle(ent._v_float[19]);
-	message.WriteAngle(ent._v_float[20]);
-	message.WriteAngle(0.0);
+	message.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
+	message.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
+	message.WriteByte((0. | 0) & 255);
 	quake_SV.WriteClientdataToMessage(ent,message);
 	message.WriteByte(25);
 	message.WriteByte(3);
@@ -9321,9 +9315,9 @@ quake_SV.StartParticle = function(org,dir,color,count) {
 	var datagram = quake_SV.server.datagram;
 	if(datagram.cursize >= 1009) return;
 	datagram.WriteByte(18);
-	datagram.WriteCoord(org[0]);
-	datagram.WriteCoord(org[1]);
-	datagram.WriteCoord(org[2]);
+	datagram.WriteShort(org[0] * 8 | 0);
+	datagram.WriteShort(org[1] * 8 | 0);
+	datagram.WriteShort(org[2] * 8 | 0);
 	var _g = 0;
 	while(_g < 3) {
 		var i = _g++;
@@ -9358,9 +9352,9 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 	if((field_mask & 2) != 0) datagram.WriteByte(Math.floor(attenuation * 64.0));
 	datagram.WriteShort((entity.num << 3) + channel);
 	datagram.WriteByte(i);
-	datagram.WriteCoord(entity._v_float[10] + 0.5 * (entity._v_float[33] + entity._v_float[36]));
-	datagram.WriteCoord(entity._v_float[11] + 0.5 * (entity._v_float[34] + entity._v_float[37]));
-	datagram.WriteCoord(entity._v_float[12] + 0.5 * (entity._v_float[35] + entity._v_float[38]));
+	datagram.WriteShort((entity._v_float[10] + 0.5 * (entity._v_float[33] + entity._v_float[36])) * 8 | 0);
+	datagram.WriteShort((entity._v_float[11] + 0.5 * (entity._v_float[34] + entity._v_float[37])) * 8 | 0);
+	datagram.WriteShort((entity._v_float[12] + 0.5 * (entity._v_float[35] + entity._v_float[38])) * 8 | 0);
 };
 quake_SV.SendServerinfo = function(client) {
 	var message = client.message;
@@ -9538,12 +9532,12 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		if((bits & 2048) != 0) msg.WriteByte(ent._v_float[77] | 0);
 		if((bits & 4096) != 0) msg.WriteByte(ent._v_float[31] | 0);
 		if((bits & 8192) != 0) msg.WriteByte(ent._v_float[32] | 0);
-		if((bits & 2) != 0) msg.WriteCoord(ent._v_float[10]);
-		if((bits & 256) != 0) msg.WriteAngle(ent._v_float[19]);
-		if((bits & 4) != 0) msg.WriteCoord(ent._v_float[11]);
-		if((bits & 16) != 0) msg.WriteAngle(ent._v_float[20]);
-		if((bits & 8) != 0) msg.WriteCoord(ent._v_float[12]);
-		if((bits & 512) != 0) msg.WriteAngle(ent._v_float[21]);
+		if((bits & 2) != 0) msg.WriteShort(ent._v_float[10] * 8 | 0);
+		if((bits & 256) != 0) msg.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
+		if((bits & 4) != 0) msg.WriteShort(ent._v_float[11] * 8 | 0);
+		if((bits & 16) != 0) msg.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
+		if((bits & 8) != 0) msg.WriteShort(ent._v_float[12] * 8 | 0);
+		if((bits & 512) != 0) msg.WriteByte((ent._v_float[21] * 256 / 360 | 0) & 255);
 	}
 };
 quake_SV.WriteClientdataToMessage = function(ent,msg) {
@@ -9552,18 +9546,18 @@ quake_SV.WriteClientdataToMessage = function(ent,msg) {
 		msg.WriteByte(19);
 		msg.WriteByte(ent._v_float[93] | 0);
 		msg.WriteByte(ent._v_float[92] | 0);
-		msg.WriteCoord(other._v_float[10] + 0.5 * (other._v_float[33] + other._v_float[36]));
-		msg.WriteCoord(other._v_float[11] + 0.5 * (other._v_float[34] + other._v_float[37]));
-		msg.WriteCoord(other._v_float[12] + 0.5 * (other._v_float[35] + other._v_float[38]));
+		msg.WriteShort((other._v_float[10] + 0.5 * (other._v_float[33] + other._v_float[36])) * 8 | 0);
+		msg.WriteShort((other._v_float[11] + 0.5 * (other._v_float[34] + other._v_float[37])) * 8 | 0);
+		msg.WriteShort((other._v_float[12] + 0.5 * (other._v_float[35] + other._v_float[38])) * 8 | 0);
 		ent._v_float[92] = 0.0;
 		ent._v_float[93] = 0.0;
 	}
 	quake_SV.SetIdealPitch();
 	if(ent._v_float[69] != 0.0) {
 		msg.WriteByte(10);
-		msg.WriteAngle(ent._v_float[19]);
-		msg.WriteAngle(ent._v_float[20]);
-		msg.WriteAngle(ent._v_float[21]);
+		msg.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
+		msg.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
+		msg.WriteByte((ent._v_float[21] * 256 / 360 | 0) & 255);
 		ent._v_float[69] = 0.0;
 	}
 	var bits = 512 + 16384;
@@ -9746,12 +9740,12 @@ quake_SV.CreateBaseline = function() {
 		signon.WriteByte(baseline.frame);
 		signon.WriteByte(baseline.colormap);
 		signon.WriteByte(baseline.skin);
-		signon.WriteCoord(baseline.origin[0]);
-		signon.WriteAngle(baseline.angles[0]);
-		signon.WriteCoord(baseline.origin[1]);
-		signon.WriteAngle(baseline.angles[1]);
-		signon.WriteCoord(baseline.origin[2]);
-		signon.WriteAngle(baseline.angles[2]);
+		signon.WriteShort(baseline.origin[0] * 8 | 0);
+		signon.WriteByte((baseline.angles[0] * 256 / 360 | 0) & 255);
+		signon.WriteShort(baseline.origin[1] * 8 | 0);
+		signon.WriteByte((baseline.angles[1] * 256 / 360 | 0) & 255);
+		signon.WriteShort(baseline.origin[2] * 8 | 0);
+		signon.WriteByte((baseline.angles[2] * 256 / 360 | 0) & 255);
 	}
 };
 quake_SV.SaveSpawnparms = function() {
@@ -13656,9 +13650,9 @@ quake_PF.ambientsound = function() {
 	}
 	var signon = quake_SV.server.signon;
 	signon.WriteByte(29);
-	signon.WriteCoord(quake_PR._globals_float[4]);
-	signon.WriteCoord(quake_PR._globals_float[5]);
-	signon.WriteCoord(quake_PR._globals_float[6]);
+	signon.WriteShort(quake_PR._globals_float[4] * 8 | 0);
+	signon.WriteShort(quake_PR._globals_float[5] * 8 | 0);
+	signon.WriteShort(quake_PR._globals_float[6] * 8 | 0);
 	signon.WriteByte(i);
 	signon.WriteByte(quake_PR._globals_float[10] * 255 | 0);
 	signon.WriteByte(quake_PR._globals_float[13] * 64 | 0);
@@ -14119,10 +14113,12 @@ quake_PF.WriteLong = function() {
 	quake_PF.WriteDest().WriteLong(quake_PR._globals_float[7] | 0);
 };
 quake_PF.WriteAngle = function() {
-	quake_PF.WriteDest().WriteAngle(quake_PR._globals_float[7]);
+	var _this = quake_PF.WriteDest();
+	_this.WriteByte((quake_PR._globals_float[7] * 256 / 360 | 0) & 255);
 };
 quake_PF.WriteCoord = function() {
-	quake_PF.WriteDest().WriteCoord(quake_PR._globals_float[7]);
+	var _this = quake_PF.WriteDest();
+	_this.WriteShort(quake_PR._globals_float[7] * 8 | 0);
 };
 quake_PF.WriteString = function() {
 	quake_PF.WriteDest().WriteString(quake_PR.GetString(quake_PR._globals_int[7]));
@@ -14138,12 +14134,12 @@ quake_PF.makestatic = function() {
 	message.WriteByte(ent._v_float[30] | 0);
 	message.WriteByte(ent._v_float[77] | 0);
 	message.WriteByte(ent._v_float[31] | 0);
-	message.WriteCoord(ent._v_float[10]);
-	message.WriteAngle(ent._v_float[19]);
-	message.WriteCoord(ent._v_float[11]);
-	message.WriteAngle(ent._v_float[20]);
-	message.WriteCoord(ent._v_float[12]);
-	message.WriteAngle(ent._v_float[21]);
+	message.WriteShort(ent._v_float[10] * 8 | 0);
+	message.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
+	message.WriteShort(ent._v_float[11] * 8 | 0);
+	message.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
+	message.WriteShort(ent._v_float[12] * 8 | 0);
+	message.WriteByte((ent._v_float[21] * 256 / 360 | 0) & 255);
 	quake_ED.Free(ent);
 };
 quake_PF.setspawnparms = function() {

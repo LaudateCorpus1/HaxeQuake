@@ -20,7 +20,6 @@ class Console {
 
     static var debuglog:Bool;
     static var current = 0;
-    static var vislines:Int;
     static var notifytime:Cvar;
 
     public static function Init():Void {
@@ -132,7 +131,6 @@ class Console {
             return;
         lines = Math.floor(lines * VID.height * 0.005);
         Draw.ConsoleBackground(lines);
-        vislines = lines;
         var width = (VID.width >> 3) - 2;
         var y = lines - 16;
         var i = text.length - 1 - backscroll;
@@ -157,10 +155,10 @@ class Console {
                 y += 8;
             }
         }
-        DrawInput();
+        DrawInput(lines);
     }
 
-    static function DrawInput():Void {
+    static function DrawInput(vislines:Int):Void {
         if (Key.dest != console && !forcedup)
             return;
         var text = ']' + Key.edit_line + String.fromCharCode(10 + (Std.int(Host.realtime * 4.0) & 1));

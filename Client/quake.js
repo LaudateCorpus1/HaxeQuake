@@ -2499,7 +2499,6 @@ quake_Console.DrawConsole = function(lines) {
 	if(lines <= 0) return;
 	lines = Math.floor(lines * quake_VID.height * 0.005);
 	quake_Draw.ConsoleBackground(lines);
-	quake_Console.vislines = lines;
 	var width = (quake_VID.width >> 3) - 2;
 	var y = lines - 16;
 	var i = quake_Console.text.length - 1 - quake_Console.backscroll;
@@ -2525,14 +2524,14 @@ quake_Console.DrawConsole = function(lines) {
 			y += 8;
 		}
 	}
-	quake_Console.DrawInput();
+	quake_Console.DrawInput(lines);
 };
-quake_Console.DrawInput = function() {
+quake_Console.DrawInput = function(vislines) {
 	if(quake_Key.dest != 1 && !quake_Console.forcedup) return;
 	var text = "]" + quake_Key.edit_line + String.fromCharCode(10 + ((quake_Host.realtime * 4.0 | 0) & 1));
 	var width = (quake_VID.width >> 3) - 2;
 	if(text.length >= width) text = text.substring(1 + text.length - width);
-	quake_Draw.String(8,quake_Console.vislines - 16,text);
+	quake_Draw.String(8,vislines - 16,text);
 };
 var quake_Cvar = function(name,value,archive,server) {
 	this.name = name;

@@ -14478,7 +14478,7 @@ quake_Sbar.DrawFace = function() {
 		}
 		return;
 	}
-	if((quake_CL.state.items & quake_Def.it.invisibility + quake_Def.it.invulnerability) == quake_Def.it.invisibility + quake_Def.it.invulnerability) {
+	if((quake_CL.state.items & (quake_Def.it.invisibility | quake_Def.it.invulnerability)) == (quake_Def.it.invisibility | quake_Def.it.invulnerability)) {
 		quake_Sbar.DrawPic(112,0,quake_Sbar.face_invis_invuln);
 		return;
 	}
@@ -14494,7 +14494,9 @@ quake_Sbar.DrawFace = function() {
 		quake_Sbar.DrawPic(112,0,quake_Sbar.face_invuln);
 		return;
 	}
-	quake_Sbar.DrawPic(112,0,quake_Sbar.faces[quake_CL.state.stats[0] >= 100.0?4:Math.floor(quake_CL.state.stats[0] / 20.0)][quake_CL.state.time <= quake_CL.state.faceanimtime?1:0]);
+	var f = quake_CL.state.stats[0] >= 100?4:quake_CL.state.stats[0] / 20 | 0;
+	var anim = quake_CL.state.time <= quake_CL.state.faceanimtime?1:0;
+	quake_Sbar.DrawPic(112,0,quake_Sbar.faces[f][anim]);
 };
 quake_Sbar.DrawSbar = function() {
 	if(quake_SCR.con_current >= 200) return;

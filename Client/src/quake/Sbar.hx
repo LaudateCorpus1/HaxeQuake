@@ -407,120 +407,127 @@ class Sbar {
     }
 
     static function DrawFace():Void {
-        if ((COM.rogue) && (CL.state.maxclients != 1) && (Host.teamplay.value >= 4) && (Host.teamplay.value <= 6)) {
+        if (COM.rogue && CL.state.maxclients != 1 && Host.teamplay.value >= 4 && Host.teamplay.value <= 6) {
             var s = CL.state.scores[CL.state.viewentity - 1];
             var top = (s.colors & 0xf0) + 8;
             var xofs = CL.state.gametype == 1 ? 113 : (VID.width >> 1) - 47;
-            Sbar.DrawPic(112, 0, Sbar.r_teambord);
+
+            DrawPic(112, 0, r_teambord);
             Draw.Fill(xofs, VID.height - 21, 22, 9, top);
             Draw.Fill(xofs, VID.height - 12, 22, 9, ((s.colors & 0xf) << 4) + 8);
-            var num = (top == 8 ? '\076\076\076' : '   ') + s.frags;
+
+            var num = (top == 8 ? '>>>' : '   ') + s.frags;
             if (num.length > 3)
                 num = num.substring(num.length - 3);
             if (top == 8) {
-                Sbar.DrawCharacter(109, 3, num.charCodeAt(0) - 30);
-                Sbar.DrawCharacter(116, 3, num.charCodeAt(1) - 30);
-                Sbar.DrawCharacter(123, 3, num.charCodeAt(2) - 30);
-            }
-            else
-            {
-                Sbar.DrawCharacter(109, 3, num.charCodeAt(0));
-                Sbar.DrawCharacter(116, 3, num.charCodeAt(1));
-                Sbar.DrawCharacter(123, 3, num.charCodeAt(2));
+                DrawCharacter(109, 3, num.charCodeAt(0) - 30);
+                DrawCharacter(116, 3, num.charCodeAt(1) - 30);
+                DrawCharacter(123, 3, num.charCodeAt(2) - 30);
+            } else {
+                DrawCharacter(109, 3, num.charCodeAt(0));
+                DrawCharacter(116, 3, num.charCodeAt(1));
+                DrawCharacter(123, 3, num.charCodeAt(2));
             }
             return;
         }
 
-        if ((CL.state.items & (Def.it.invisibility + Def.it.invulnerability)) == (Def.it.invisibility + Def.it.invulnerability)) {
-            Sbar.DrawPic(112, 0, Sbar.face_invis_invuln);
+        if ((CL.state.items & (Def.it.invisibility | Def.it.invulnerability)) == (Def.it.invisibility | Def.it.invulnerability)) {
+            DrawPic(112, 0, face_invis_invuln);
             return;
         }
         if ((CL.state.items & Def.it.quad) != 0) {
-            Sbar.DrawPic(112, 0, Sbar.face_quad);
+            DrawPic(112, 0, face_quad);
             return;
         }
         if ((CL.state.items & Def.it.invisibility) != 0) {
-            Sbar.DrawPic(112, 0, Sbar.face_invis);
+            DrawPic(112, 0, face_invis);
             return;
         }
         if ((CL.state.items & Def.it.invulnerability) != 0) {
-            Sbar.DrawPic(112, 0, Sbar.face_invuln);
+            DrawPic(112, 0, face_invuln);
             return;
         }
-        Sbar.DrawPic(112, 0, Sbar.faces[CL.state.stats[ClientStat.health] >= 100.0 ? 4 : Math.floor(CL.state.stats[ClientStat.health] / 20.0)][CL.state.time <= CL.state.faceanimtime ? 1 : 0]);
+
+        var f = if (CL.state.stats[ClientStat.health] >= 100) 4 else Std.int(CL.state.stats[ClientStat.health] / 20);
+        var anim = if (CL.state.time <= CL.state.faceanimtime) 1 else 0;
+        DrawPic(112, 0, faces[f][anim]);
     }
 
     public static function DrawSbar():Void {
         if (SCR.con_current >= 200)
             return;
 
-        if (Sbar.lines > 24) {
-            Sbar.DrawInventory();
+        if (lines > 24) {
+            DrawInventory();
             if (CL.state.maxclients != 1)
-                Sbar.DrawFrags();
+                DrawFrags();
         }
 
-        if ((Sbar.showscores) || (CL.state.stats[ClientStat.health] <= 0)) {
-            Sbar.DrawPic(0, 0, Sbar.scorebar);
-            Sbar.SoloScoreboard();
+        if (showscores || CL.state.stats[ClientStat.health] <= 0) {
+            DrawPic(0, 0, scorebar);
+            SoloScoreboard();
             if (CL.state.gametype == 1)
-                Sbar.DeathmatchOverlay();
+                DeathmatchOverlay();
             return;
         }
 
-        if (Sbar.lines == 0)
+        if (lines == 0)
             return;
 
-        Sbar.DrawPic(0, 0, Sbar.sbar);
+        DrawPic(0, 0, sbar);
 
+        // keys (hipnotic only)
         if (COM.hipnotic) {
             if ((CL.state.items & Def.it.key1) != 0)
-                Sbar.DrawPic(209, 3, Sbar.items[0]);
+                DrawPic(209, 3, items[0]);
             if ((CL.state.items & Def.it.key2) != 0)
-                Sbar.DrawPic(209, 12, Sbar.items[1]);
+                DrawPic(209, 12, items[1]);
         }
 
-        var it = (COM.rogue) ? cast Def.rit : Def.it;
+        var it = if (COM.rogue) cast Def.rit else Def.it;
 
+        // armor
         if ((CL.state.items & Def.it.invulnerability) != 0) {
-            Sbar.DrawNum(24, 0, 666, 3, 1);
-            Sbar.DrawPic(0, 0, Sbar.disc);
-        }
-        else
-        {
-            Sbar.DrawNum(24, 0, CL.state.stats[ClientStat.armor], 3, CL.state.stats[ClientStat.armor] <= 25 ? 1 : 0);
+            DrawNum(24, 0, 666, 3, 1);
+            DrawPic(0, 0, disc);
+        } else {
+            DrawNum(24, 0, CL.state.stats[ClientStat.armor], 3, CL.state.stats[ClientStat.armor] <= 25 ? 1 : 0);
             if ((CL.state.items & it.armor3) != 0)
-                Sbar.DrawPic(0, 0, Sbar.armor[2]);
+                DrawPic(0, 0, armor[2]);
             else if ((CL.state.items & it.armor2) != 0)
-                Sbar.DrawPic(0, 0, Sbar.armor[1]);
+                DrawPic(0, 0, armor[1]);
             else if ((CL.state.items & it.armor1) != 0)
-                Sbar.DrawPic(0, 0, Sbar.armor[0]);
+                DrawPic(0, 0, armor[0]);
         }
 
-        Sbar.DrawFace();
+        // face
+        DrawFace();
 
-        Sbar.DrawNum(136, 0, CL.state.stats[ClientStat.health], 3, CL.state.stats[ClientStat.health] <= 25 ? 1 : 0);
+        // health
+        DrawNum(136, 0, CL.state.stats[ClientStat.health], 3, CL.state.stats[ClientStat.health] <= 25 ? 1 : 0);
 
+        // ammo icon
         if ((CL.state.items & it.shells) != 0)
-            Sbar.DrawPic(224, 0, Sbar.ammo[0]);
+            DrawPic(224, 0, ammo[0]);
         else if ((CL.state.items & it.nails) != 0)
-            Sbar.DrawPic(224, 0, Sbar.ammo[1]);
+            DrawPic(224, 0, ammo[1]);
         else if ((CL.state.items & it.rockets) != 0)
-            Sbar.DrawPic(224, 0, Sbar.ammo[2]);
+            DrawPic(224, 0, ammo[2]);
         else if ((CL.state.items & it.cells) != 0)
-            Sbar.DrawPic(224, 0, Sbar.ammo[3]);
+            DrawPic(224, 0, ammo[3]);
         else if (COM.rogue) {
             if ((CL.state.items & Def.rit.lava_nails) != 0)
-                Sbar.DrawPic(224, 0, Sbar.r_ammo[0]);
+                DrawPic(224, 0, r_ammo[0]);
             else if ((CL.state.items & Def.rit.plasma_ammo) != 0)
-                Sbar.DrawPic(224, 0, Sbar.r_ammo[1]);
+                DrawPic(224, 0, r_ammo[1]);
             else if ((CL.state.items & Def.rit.multi_rockets) != 0)
-                Sbar.DrawPic(224, 0, Sbar.r_ammo[2]);
+                DrawPic(224, 0, r_ammo[2]);
         }
-        Sbar.DrawNum(248, 0, CL.state.stats[ClientStat.ammo], 3, CL.state.stats[ClientStat.ammo] <= 10 ? 1 : 0);
 
-        if ((VID.width >= 512) && (CL.state.gametype == 1))
-            Sbar.MiniDeathmatchOverlay();
+        DrawNum(248, 0, CL.state.stats[ClientStat.ammo], 3, CL.state.stats[ClientStat.ammo] <= 10 ? 1 : 0);
+
+        if (VID.width >= 512 && CL.state.gametype == 1)
+            MiniDeathmatchOverlay();
     }
 
     static function IntermissionNumber(x:Int, y:Int, num:Int):Void {

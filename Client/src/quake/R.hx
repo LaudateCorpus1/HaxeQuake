@@ -101,7 +101,7 @@ class R {
 
     static var dlightframecount = 0;
 
-    static var lightstylevalue = new Uint8Array(new ArrayBuffer(64));
+    static var lightstylevalue = new Uint8Array(64);
 
     static function AnimateLight() {
         if (fullbright.value == 0) {

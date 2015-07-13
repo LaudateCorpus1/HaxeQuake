@@ -172,20 +172,20 @@ class ED {
 		}
 	}
 
-	static function NewString(string:String) {
-		var newstring = [];
+	static function NewString(string:String):Int {
+		var newstring = new StringBuf();
 		var i = 0;
 		while (i < string.length) {
 			var c = string.charCodeAt(i);
-			if ((c == 92) && (i < (string.length - 1))) {
+			if (c == "\\".code && i < (string.length - 1)) {
 				++i;
-				newstring[newstring.length] = (string.charCodeAt(i) == 110) ? '\n' : '\\';
+				newstring.addChar(if (string.charCodeAt(i) == "n".code) "\n".code else "\\".code);
+			} else {
+				newstring.addChar(c);
 			}
-			else
-				newstring[newstring.length] = String.fromCharCode(c);
 			i++;
 		}
-		return PR.NewString(newstring.join(''), string.length + 1);
+		return PR.NewString(newstring.toString(), string.length + 1);
 	}
 
 	static function ParseEpair(base:ArrayBuffer, key:PRDef, s:String):Bool {

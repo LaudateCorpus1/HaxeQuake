@@ -2944,17 +2944,18 @@ quake_ED.Count = function() {
 	quake_Console.Print("step      :" + (step <= 9?"  ":step <= 99?" ":"") + step + "\n");
 };
 quake_ED.NewString = function(string) {
-	var newstring = [];
+	var newstring_b = "";
 	var i = 0;
 	while(i < string.length) {
 		var c = HxOverrides.cca(string,i);
 		if(c == 92 && i < string.length - 1) {
 			++i;
-			newstring[newstring.length] = HxOverrides.cca(string,i) == 110?"\n":"\\";
-		} else newstring[newstring.length] = String.fromCharCode(c);
+			var c1 = HxOverrides.cca(string,i) == 110?10:92;
+			newstring_b += String.fromCharCode(c1);
+		} else newstring_b += String.fromCharCode(c);
 		i++;
 	}
-	return quake_PR.NewString(newstring.join(""),string.length + 1);
+	return quake_PR.NewString(newstring_b,string.length + 1);
 };
 quake_ED.ParseEpair = function(base,key,s) {
 	var d_float = new Float32Array(base);

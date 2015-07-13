@@ -5035,11 +5035,11 @@ quake_M.Main_Key = function(k) {
 		break;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.main_cursor >= quake_M.main_items) quake_M.main_cursor = 0;
+		if(++quake_M.main_cursor >= 5) quake_M.main_cursor = 0;
 		break;
 	case 128:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.main_cursor < 0) quake_M.main_cursor = quake_M.main_items - 1;
+		if(--quake_M.main_cursor < 0) quake_M.main_cursor = 4;
 		break;
 	case 13:
 		quake_M.entersound = true;
@@ -5083,11 +5083,11 @@ quake_M.SinglePlayer_Key = function(k) {
 		break;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.singleplayer_cursor >= quake_M.singleplayer_items) quake_M.singleplayer_cursor = 0;
+		if(++quake_M.singleplayer_cursor >= 3) quake_M.singleplayer_cursor = 0;
 		break;
 	case 128:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.singleplayer_cursor < 0) quake_M.singleplayer_cursor = quake_M.singleplayer_items - 1;
+		if(--quake_M.singleplayer_cursor < 0) quake_M.singleplayer_cursor = 2;
 		break;
 	case 13:
 		quake_M.entersound = true;
@@ -5272,11 +5272,11 @@ quake_M.MultiPlayer_Key = function(k) {
 	switch(k) {
 	case 128:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.multiplayer_cursor < 0) quake_M.multiplayer_cursor = quake_M.multiplayer_items - 1;
+		if(--quake_M.multiplayer_cursor < 0) quake_M.multiplayer_cursor = 4;
 		return;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.multiplayer_cursor >= quake_M.multiplayer_items) quake_M.multiplayer_cursor = 0;
+		if(++quake_M.multiplayer_cursor >= 5) quake_M.multiplayer_cursor = 0;
 		return;
 	case 130:
 		if(quake_M.multiplayer_cursor == 2) {
@@ -5467,11 +5467,11 @@ quake_M.Options_Key = function(k) {
 		return;
 	case 128:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.options_cursor < 0) quake_M.options_cursor = quake_M.options_items - 1;
+		if(--quake_M.options_cursor < 0) quake_M.options_cursor = 11;
 		return;
 	case 129:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.options_cursor >= quake_M.options_items) quake_M.options_cursor = 0;
+		if(++quake_M.options_cursor >= 12) quake_M.options_cursor = 0;
 		return;
 	case 130:
 		quake_M.AdjustSliders(-1);
@@ -5580,13 +5580,13 @@ quake_M.Help_Key = function(k) {
 		break;
 	case 131:
 		quake_M.entersound = true;
-		if(++quake_M.help_page >= quake_M.num_help_pages) quake_M.help_page = 0;
+		if(++quake_M.help_page >= 6) quake_M.help_page = 0;
 		return;
 	case 129:
 		break;
 	case 130:
 		quake_M.entersound = true;
-		if(--quake_M.help_page < 0) quake_M.help_page = quake_M.num_help_pages - 1;
+		if(--quake_M.help_page < 0) quake_M.help_page = 5;
 		break;
 	}
 };
@@ -15198,9 +15198,7 @@ quake_M.state = 0;
 quake_M.localStorage = js_Browser.getLocalStorage();
 quake_M.entersound = false;
 quake_M.main_cursor = 0;
-quake_M.main_items = 5;
 quake_M.singleplayer_cursor = 0;
-quake_M.singleplayer_items = 3;
 quake_M.load_cursor = 0;
 quake_M.max_savegames = 12;
 quake_M.filenames = [];
@@ -15209,12 +15207,9 @@ quake_M.removable = [];
 quake_M.multiplayer_cursor = 0;
 quake_M.multiplayer_cursor_table = [56,72,96,120,156];
 quake_M.multiplayer_joinname = "";
-quake_M.multiplayer_items = 5;
 quake_M.options_cursor = 0;
-quake_M.options_items = 12;
 quake_M.bindnames = [["+attack","attack"],["impulse 10","change weapon"],["+jump","jump / swim up"],["+forward","walk forward"],["+back","backpedal"],["+left","turn left"],["+right","turn right"],["+speed","run"],["+moveleft","step left"],["+moveright","step right"],["+strafe","sidestep"],["+lookup","look up"],["+lookdown","look down"],["centerview","center view"],["+mlook","mouse look"],["+klook","keyboard look"],["+moveup","swim up"],["+movedown","swim down"]];
 quake_M.keys_cursor = 0;
-quake_M.num_help_pages = 6;
 quake_M.quitMessage = [["  Are you gonna quit","  this game just like","   everything else?",""],[" Milord, methinks that","   thou art a lowly"," quitter. Is this true?",""],[" Do I need to bust your","  face open for trying","        to quit?",""],[" Man, I oughta smack you","   for trying to quit!","     Press Y to get","      smacked out."],[" Press Y to quit like a","   big loser in life.","  Press N to stay proud","    and successful!"],["   If you press Y to","  quit, I will summon","  Satan all over your","      hard drive!"],["  Um, Asmodeus dislikes"," his children trying to"," quit. Press Y to return","   to your Tinkertoys."],["  If you quit now, I'll","  throw a blanket-party","   for you next time!",""]];
 quake_Mod.known = [];
 quake_NET.activeSockets = [];

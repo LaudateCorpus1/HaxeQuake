@@ -138,7 +138,7 @@ class M {
 
 	// Main menu
 	static var main_cursor = 0;
-	static var main_items = 5;
+	static inline var main_items = 5;
 
 	static function Menu_Main_f() {
 		if (Key.dest != menu) {
@@ -193,7 +193,7 @@ class M {
 
 	// Single player menu
 	static var singleplayer_cursor = 0;
-	static var singleplayer_items = 3;
+	static inline var singleplayer_items = 3;
 
 	static function Menu_SinglePlayer_f() {
 		Key.dest = menu;
@@ -384,7 +384,7 @@ class M {
 	static var multiplayer_cursor = 0;
 	static var multiplayer_cursor_table = [56, 72, 96, 120, 156];
 	static var multiplayer_joinname = '';
-	static var multiplayer_items = 5;
+	static inline var multiplayer_items = 5;
 
 	static var multiplayer_myname:String;
 	static var multiplayer_top:Int;
@@ -527,7 +527,7 @@ class M {
 
 	// Options menu
 	static var options_cursor = 0;
-	static var options_items = 12;
+	static inline var options_items = 12;
 
 	static function Menu_Options_f() {
 		Key.dest = menu;
@@ -803,7 +803,7 @@ class M {
 	}
 
 	// Help menu
-	static var num_help_pages = 6;
+	static inline var num_help_pages = 6;
 	static var help_page:Int;
 
 	static function Menu_Help_f() {

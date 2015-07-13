@@ -13537,16 +13537,18 @@ quake_PF.SetMinMaxSize = function(e,min,max) {
 };
 quake_PF.setsize = function() {
 	var tmp;
+	var ofs = 7;
 	var v = new Float32Array(3);
-	v[0] = quake_PR._globals_float[7];
-	v[1] = quake_PR._globals_float[7 + 1];
-	v[2] = quake_PR._globals_float[7 + 2];
+	v[0] = quake_PR._globals_float[ofs];
+	v[1] = quake_PR._globals_float[ofs + 1];
+	v[2] = quake_PR._globals_float[ofs + 2];
 	tmp = v;
 	var tmp1;
+	var ofs1 = 10;
 	var v1 = new Float32Array(3);
-	v1[0] = quake_PR._globals_float[10];
-	v1[1] = quake_PR._globals_float[10 + 1];
-	v1[2] = quake_PR._globals_float[10 + 2];
+	v1[0] = quake_PR._globals_float[ofs1];
+	v1[1] = quake_PR._globals_float[ofs1 + 1];
+	v1[2] = quake_PR._globals_float[ofs1 + 2];
 	tmp1 = v1;
 	quake_PF.SetMinMaxSize(quake_SV.server.edicts[quake_PR._globals_int[4]],tmp,tmp1);
 };

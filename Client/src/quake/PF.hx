@@ -62,8 +62,8 @@ class PF {
     static function setsize():Void {
         SetMinMaxSize(
             SV.server.edicts[PR._globals_int[OFS_PARM0]],
-            Vec.of(PR._globals_float[OFS_PARM1], PR._globals_float[OFS_PARM1 + 1], PR._globals_float[OFS_PARM1 + 2]),
-            Vec.of(PR._globals_float[OFS_PARM2], PR._globals_float[OFS_PARM2 + 1], PR._globals_float[OFS_PARM2 + 2])
+            PR.globals.GetVector(OFS_PARM1),
+            PR.globals.GetVector(OFS_PARM2)
         );
     }
 
@@ -117,9 +117,7 @@ class PF {
     static function normalize():Void {
         var newvalue = Vec.of(PR._globals_float[OFS_PARM0], PR._globals_float[OFS_PARM0 + 1], PR._globals_float[OFS_PARM0 + 2]);
         Vec.Normalize(newvalue);
-        PR._globals_float[OFS_RETURN] = newvalue[0];
-        PR._globals_float[OFS_RETURN + 1] = newvalue[1];
-        PR._globals_float[OFS_RETURN + 2] = newvalue[2];
+        PR.globals.SetReturnVector(newvalue);
     }
 
     static function vlen():Void {

@@ -6,8 +6,6 @@ import quake.SV.DamageType;
 import quake.SV.SolidType;
 using Tools;
 
-
-@:publicFields
 class PF {
 
     static function VarString(first:Int) {
@@ -572,7 +570,7 @@ class PF {
         PR._globals_float[3] = bestdir[2];
     }
 
-    static function changeyaw() {
+    public static function changeyaw() {
         var ent = SV.server.edicts[PR.globals.self];
         var current = Vec.Anglemod(ent.v.angles1);
         var ideal = ent.v.ideal_yaw;
@@ -660,7 +658,7 @@ class PF {
         PR.RunError('unimplemented builtin');
     }
 
-    static var builtin:Array<Void->Void> = [
+    public static var builtin:Array<Void->Void> = [
         Fixme,
         makevectors,
         setorigin,

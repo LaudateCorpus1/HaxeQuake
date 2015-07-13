@@ -45,12 +45,12 @@ class V {
 	static function CalcRoll(angles:Vec, velocity:Vec):Float {
 		var right = new Vec();
 		Vec.AngleVectors(angles, null, right);
-		var side = velocity[0] * right[0] + velocity[1] * right[1] + velocity[2] * right[2];
+		var side = Vec.DotProduct(velocity, right);
 		var sign = side < 0 ? -1 : 1;
 		side = Math.abs(side);
-		if (side < V.rollspeed.value)
-			return side * sign * V.rollangle.value / V.rollspeed.value;
-		return V.rollangle.value * sign;
+		if (side < rollspeed.value)
+			return side * sign * rollangle.value / rollspeed.value;
+		return rollangle.value * sign;
 	}
 
 	static function CalcBob():Float {

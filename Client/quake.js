@@ -9285,7 +9285,7 @@ quake_SCR.UpdateScreen = function() {
 	if(quake_R.dowarp) quake_R.WarpScreen();
 	if(!quake_Console.forcedup) quake_R.PolyBlend();
 	if(quake_CL.cls.state == 1) quake_SCR.DrawConsole(); else if(quake_CL.state.intermission == 1 && quake_Key.dest == 0) quake_Sbar.IntermissionOverlay(); else if(quake_CL.state.intermission == 2 && quake_Key.dest == 0) {
-		quake_Sbar.FinaleOverlay();
+		quake_Draw.Pic(quake_VID.width - quake_Sbar.finale.width >> 1,16,quake_Sbar.finale);
 		quake_SCR.DrawCenterString();
 	} else if(quake_CL.state.intermission == 3 && quake_Key.dest == 0) quake_SCR.DrawCenterString(); else {
 		if(quake_V.crosshair.value != 0) quake_Draw.Character(quake_R.refdef.vrect.x + (quake_R.refdef.vrect.width >> 1) + quake_V.crossx.value | 0,quake_R.refdef.vrect.y + (quake_R.refdef.vrect.height >> 1) + quake_V.crossy.value | 0,43);
@@ -14567,12 +14567,10 @@ quake_Sbar.MiniDeathmatchOverlay = function() {
 	var l = quake_Sbar.scoreboardlines;
 	var y = quake_VID.height - quake_Sbar.lines;
 	var numlines = quake_Sbar.lines >> 3;
-	var i;
-	var _g = 0;
-	while(_g < l) {
-		var ii = _g++;
-		i = ii;
+	var i = 0;
+	while(i < l) {
 		if(quake_Sbar.fragsort[i] == quake_CL.state.viewentity - 1) break;
+		i++;
 	}
 	i = i == l?0:i - (numlines >> 1);
 	if(i > l - numlines) i = l - numlines;
@@ -14612,9 +14610,6 @@ quake_Sbar.IntermissionOverlay = function() {
 	quake_Sbar.IntermissionNumber(160,144,quake_CL.state.stats[14]);
 	quake_Draw.Pic(232,144,quake_Sbar.slash);
 	quake_Sbar.IntermissionNumber(240,144,quake_CL.state.stats[12]);
-};
-quake_Sbar.FinaleOverlay = function() {
-	quake_Draw.Pic(quake_VID.width - quake_Sbar.finale.width >> 1,16,quake_Sbar.finale);
 };
 var quake_Shaders = function() { };
 quake_Shaders.__name__ = true;

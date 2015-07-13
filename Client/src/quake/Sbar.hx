@@ -39,7 +39,7 @@ class Sbar {
     static var scoreboardlines:Int;
     static var showscores = false;
 
-    public static function Init() {
+    public static function Init():Void {
         nums = [[], []];
         for (i in 0...10) {
             nums[0][i] = Draw.PicFromWad('NUM_' + i);
@@ -194,22 +194,22 @@ class Sbar {
         }
     }
 
-    static function ShowScores() {
+    static function ShowScores():Void {
         showscores = true;
     }
 
-    static function DontShowScores() {
+    static function DontShowScores():Void {
         showscores = false;
     }
 
-    static function DrawPic(x, y, pic) {
+    static function DrawPic(x:Int, y:Int, pic:DrawPic):Void {
         if (CL.state.gametype == 1)
             Draw.Pic(x, y + VID.height - 24, pic);
         else
             Draw.Pic(x + (VID.width >> 1) - 160, y + VID.height - 24, pic);
     }
 
-    static function DrawCharacter(x, y, num) {
+    static function DrawCharacter(x:Int, y:Int, num:Int):Void {
         if (CL.state.gametype == 1)
             Draw.Character(x + 4, y + VID.height - 24, num);
         else
@@ -231,29 +231,29 @@ class Sbar {
             x += (digits - str.length) * 24;
         for (i in 0...str.length) {
             var frame = str.charCodeAt(i);
-            Sbar.DrawPic(x, y, Sbar.nums[color][frame == 45 ? 10 : frame - 48]);
+            DrawPic(x, y, nums[color][frame == 45 ? 10 : frame - 48]);
             x += 24;
         }
     }
 
-    static function SortFrags() {
-        Sbar.scoreboardlines = 0;
+    static function SortFrags():Void {
+        scoreboardlines = 0;
         for (i in 0...CL.state.maxclients) {
             if (CL.state.scores[i].name.length != 0)
-                Sbar.fragsort[Sbar.scoreboardlines++] = i;
+                fragsort[scoreboardlines++] = i;
         }
-        for (i in 0...Sbar.scoreboardlines) {
-            for (j in 0...(Sbar.scoreboardlines - 1 - i)) {
-                if (CL.state.scores[Sbar.fragsort[j]].frags < CL.state.scores[Sbar.fragsort[j + 1]].frags) {
-                    var k = Sbar.fragsort[j];
-                    Sbar.fragsort[j] = Sbar.fragsort[j + 1];
-                    Sbar.fragsort[j + 1] = k;
+        for (i in 0...scoreboardlines) {
+            for (j in 0...(scoreboardlines - 1 - i)) {
+                if (CL.state.scores[fragsort[j]].frags < CL.state.scores[fragsort[j + 1]].frags) {
+                    var k = fragsort[j];
+                    fragsort[j] = fragsort[j + 1];
+                    fragsort[j + 1] = k;
                 }
             }
         }
     }
 
-    static function SoloScoreboard() {
+    static function SoloScoreboard():Void {
         var str;
 
         Sbar.DrawString(8, 4, 'Monsters:    /');
@@ -279,7 +279,7 @@ class Sbar {
         Sbar.DrawString(232 - (CL.state.levelname.length << 2), 12, CL.state.levelname);
     }
 
-    static function DrawInventory() {
+    static function DrawInventory():Void {
         if (COM.rogue)
             Sbar.DrawPic(0, -24, Sbar.r_invbar[CL.state.stats[ClientStat.activeweapon] >= Def.rit.lava_nailgun ? 0 : 1]);
         else
@@ -383,7 +383,7 @@ class Sbar {
         }
     }
 
-    static function DrawFrags() {
+    static function DrawFrags():Void {
         Sbar.SortFrags();
         var l = Sbar.scoreboardlines <= 4 ? Sbar.scoreboardlines : 4;
         var x = 23;
@@ -406,7 +406,7 @@ class Sbar {
         }
     }
 
-    static function DrawFace() {
+    static function DrawFace():Void {
         if ((COM.rogue) && (CL.state.maxclients != 1) && (Host.teamplay.value >= 4) && (Host.teamplay.value <= 6)) {
             var s = CL.state.scores[CL.state.viewentity - 1];
             var top = (s.colors & 0xf0) + 8;
@@ -450,7 +450,7 @@ class Sbar {
         Sbar.DrawPic(112, 0, Sbar.faces[CL.state.stats[ClientStat.health] >= 100.0 ? 4 : Math.floor(CL.state.stats[ClientStat.health] / 20.0)][CL.state.time <= CL.state.faceanimtime ? 1 : 0]);
     }
 
-    public static function DrawSbar() {
+    public static function DrawSbar():Void {
         if (SCR.con_current >= 200)
             return;
 
@@ -531,25 +531,25 @@ class Sbar {
             x += (3 - str.length) * 24;
         for (i in 0...str.length) {
             var frame = str.charCodeAt(i);
-            Draw.Pic(x, y, Sbar.nums[0][frame == 45 ? 10 : frame - 48]);
+            Draw.Pic(x, y, nums[0][frame == 45 ? 10 : frame - 48]);
             x += 24;
         }
     }
 
-    static function DeathmatchOverlay() {
-        Draw.Pic((VID.width - Sbar.ranking.width) >> 1, 8, Sbar.ranking);
-        Sbar.SortFrags();
+    static function DeathmatchOverlay():Void {
+        Draw.Pic((VID.width - ranking.width) >> 1, 8, ranking);
+        SortFrags();
 
         var x = (VID.width >> 1) - 80, y = 40;
-        for (i in 0...Sbar.scoreboardlines) {
-            var s = CL.state.scores[Sbar.fragsort[i]];
+        for (i in 0...scoreboardlines) {
+            var s = CL.state.scores[fragsort[i]];
             if (s.name.length == 0)
                 continue;
             Draw.Fill(x, y, 40, 4, (s.colors & 0xf0) + 8);
             Draw.Fill(x, y + 4, 40, 4, ((s.colors & 0xf) << 4) + 8);
             var f = Std.string(s.frags);
             Draw.String(x + 32 - (f.length << 3), y, f);
-            if (Sbar.fragsort[i] == (CL.state.viewentity - 1))
+            if (fragsort[i] == (CL.state.viewentity - 1))
                 Draw.Character(x - 8, y, 12);
             Draw.String(x + 64, y, s.name);
             y += 10;
@@ -557,16 +557,16 @@ class Sbar {
     }
 
     static function MiniDeathmatchOverlay():Void {
-        Sbar.SortFrags();
-        var l = Sbar.scoreboardlines;
-        var y = VID.height - Sbar.lines;
-        var numlines = Sbar.lines >> 3;
-        var i;
+        SortFrags();
+        var l = scoreboardlines;
+        var y = VID.height - lines;
+        var numlines = lines >> 3;
 
-        for (ii in 0...l) {
-            i = ii;
-            if (Sbar.fragsort[i] == (CL.state.viewentity - 1))
+        var i = 0;
+        while (i < l) {
+            if (fragsort[i] == (CL.state.viewentity - 1))
                 break;
+            i++;
         }
 
         i = (i == l) ? 0 : i - (numlines >> 1);
@@ -575,8 +575,8 @@ class Sbar {
         if (i < 0)
             i = 0;
 
-        while ((i < l) && (y < (VID.height - 8))) {
-            var k = Sbar.fragsort[i++];
+        while (i < l && y < (VID.height - 8)) {
+            var k = fragsort[i++];
             var s = CL.state.scores[k];
             if (s.name.length == 0)
                 continue;
@@ -595,29 +595,29 @@ class Sbar {
 
     public static function IntermissionOverlay():Void {
         if (CL.state.gametype == 1) {
-            Sbar.DeathmatchOverlay();
+            DeathmatchOverlay();
             return;
         }
-        Draw.Pic(64, 24, Sbar.complete);
-        Draw.Pic(0, 56, Sbar.inter);
+        Draw.Pic(64, 24, complete);
+        Draw.Pic(0, 56, inter);
 
         var dig = Math.floor(CL.state.completed_time / 60.0);
-        Sbar.IntermissionNumber(160, 64, dig);
+        IntermissionNumber(160, 64, dig);
         var num = Math.floor(CL.state.completed_time - dig * 60);
-        Draw.Pic(234, 64, Sbar.colon);
-        Draw.Pic(246, 64, Sbar.nums[0][Math.floor(num / 10)]);
-        Draw.Pic(266, 64, Sbar.nums[0][Math.floor(num % 10)]);
+        Draw.Pic(234, 64, colon);
+        Draw.Pic(246, 64, nums[0][Math.floor(num / 10)]);
+        Draw.Pic(266, 64, nums[0][Math.floor(num % 10)]);
 
-        Sbar.IntermissionNumber(160, 104, CL.state.stats[ClientStat.secrets]);
-        Draw.Pic(232, 104, Sbar.slash);
-        Sbar.IntermissionNumber(240, 104, CL.state.stats[ClientStat.totalsecrets]);
+        IntermissionNumber(160, 104, CL.state.stats[ClientStat.secrets]);
+        Draw.Pic(232, 104, slash);
+        IntermissionNumber(240, 104, CL.state.stats[ClientStat.totalsecrets]);
 
-        Sbar.IntermissionNumber(160, 144, CL.state.stats[ClientStat.monsters]);
-        Draw.Pic(232, 144, Sbar.slash);
-        Sbar.IntermissionNumber(240, 144, CL.state.stats[ClientStat.totalmonsters]);
+        IntermissionNumber(160, 144, CL.state.stats[ClientStat.monsters]);
+        Draw.Pic(232, 144, slash);
+        IntermissionNumber(240, 144, CL.state.stats[ClientStat.totalmonsters]);
     }
 
-    public static function FinaleOverlay() {
-        Draw.Pic((VID.width - Sbar.finale.width) >> 1, 16, Sbar.finale);
+    public static inline function FinaleOverlay():Void {
+        Draw.Pic((VID.width - finale.width) >> 1, 16, finale);
     }
 }

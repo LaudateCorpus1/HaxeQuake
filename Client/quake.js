@@ -7042,11 +7042,12 @@ quake_Mod.LoadSpriteModel = function(buffer) {
 };
 quake_Mod.Print = function() {
 	quake_Console.Print("Cached models:\n");
-	var _g1 = 0;
-	var _g = quake_Mod.known.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		quake_Console.Print(quake_Mod.known[i].name + "\n");
+	var _g = 0;
+	var _g1 = quake_Mod.known;
+	while(_g < _g1.length) {
+		var mod = _g1[_g];
+		++_g;
+		quake_Console.Print(mod.name + "\n");
 	}
 };
 var quake_NETSocketBase = function(address) {

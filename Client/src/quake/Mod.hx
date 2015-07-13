@@ -1416,7 +1416,7 @@ class Mod {
 
     public static function Print() {
         Console.Print('Cached models:\n');
-        for (i in 0...Mod.known.length)
-            Console.Print(Mod.known[i].name + '\n');
+        for (mod in known)
+            Console.Print(mod.name + '\n');
     }
 }

@@ -20,11 +20,15 @@ abstract Vec(Float32Array) to Float32Array {
         this.set(v);
     }
 
+    public inline function setValues(x:Float, y:Float, z:Float):Void {
+        this[0] = x;
+        this[1] = y;
+        this[2] = z;
+    }
+
     public static inline function of(x:Float, y:Float, z:Float):Vec {
         var v = new Vec();
-        v[0] = x;
-        v[1] = y;
-        v[2] = z;
+        v.setValues(x, y, z);
         return v;
     }
 

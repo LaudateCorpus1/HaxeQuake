@@ -1606,7 +1606,8 @@ class CL {
 
     static function UpdateTEnts() {
         CL.num_temp_entities = 0;
-        var dist = [], org = new Vec();
+        var dist = [0.0, 0.0, 0.0];
+        var org = new Vec();
         for (i in 0...24) {
             var b = CL.beams[i];
             if ((b.model == null) || (b.endtime < CL.state.time))

@@ -1791,7 +1791,9 @@ quake_CL.NewTempEntity = function() {
 };
 quake_CL.UpdateTEnts = function() {
 	quake_CL.num_temp_entities = 0;
-	var dist = [];
+	var dist_0 = 0.0;
+	var dist_1 = 0.0;
+	var dist_2 = 0.0;
 	var org = new Float32Array(3);
 	var _g = 0;
 	while(_g < 24) {
@@ -1805,22 +1807,22 @@ quake_CL.UpdateTEnts = function() {
 			v2[1] = v1[1];
 			v2[2] = v1[2];
 		}
-		dist[0] = b.end[0] - b.start[0];
-		dist[1] = b.end[1] - b.start[1];
-		dist[2] = b.end[2] - b.start[2];
+		dist_0 = b.end[0] - b.start[0];
+		dist_1 = b.end[1] - b.start[1];
+		dist_2 = b.end[2] - b.start[2];
 		var yaw;
 		var pitch;
-		if(dist[0] == 0.0 && dist[1] == 0.0) {
+		if(dist_0 == 0.0 && dist_1 == 0.0) {
 			yaw = 0;
-			pitch = dist[2] > 0.0?90:270;
+			pitch = dist_2 > 0.0?90:270;
 		} else {
 			var tmp;
-			var x = Math.atan2(dist[1],dist[0]) * 180.0 / Math.PI;
+			var x = Math.atan2(dist_1,dist_0) * 180.0 / Math.PI;
 			tmp = x | 0;
 			yaw = tmp;
 			if(yaw < 0) yaw += 360;
 			var tmp1;
-			var x1 = Math.atan2(dist[2],Math.sqrt(dist[0] * dist[0] + dist[1] * dist[1])) * 180.0 / Math.PI;
+			var x1 = Math.atan2(dist_2,Math.sqrt(dist_0 * dist_0 + dist_1 * dist_1)) * 180.0 / Math.PI;
 			tmp1 = x1 | 0;
 			pitch = tmp1;
 			if(pitch < 0) pitch += 360;
@@ -1828,11 +1830,11 @@ quake_CL.UpdateTEnts = function() {
 		org[0] = b.start[0];
 		org[1] = b.start[1];
 		org[2] = b.start[2];
-		var d = Math.sqrt(dist[0] * dist[0] + dist[1] * dist[1] + dist[2] * dist[2]);
+		var d = Math.sqrt(dist_0 * dist_0 + dist_1 * dist_1 + dist_2 * dist_2);
 		if(d != 0.0) {
-			dist[0] /= d;
-			dist[1] /= d;
-			dist[2] /= d;
+			dist_0 /= d;
+			dist_1 /= d;
+			dist_2 /= d;
 		}
 		while(d > 0.0) {
 			var ent = quake_CL.NewTempEntity();
@@ -1846,9 +1848,9 @@ quake_CL.UpdateTEnts = function() {
 			v[2] = z;
 			tmp2 = v;
 			ent.angles = tmp2;
-			org[0] = org[0] + dist[0] * 30.0;
-			org[1] = org[1] + dist[1] * 30.0;
-			org[2] = org[2] + dist[2] * 30.0;
+			org[0] = org[0] + dist_0 * 30.0;
+			org[1] = org[1] + dist_1 * 30.0;
+			org[2] = org[2] + dist_2 * 30.0;
 			d -= 30.0;
 		}
 	}

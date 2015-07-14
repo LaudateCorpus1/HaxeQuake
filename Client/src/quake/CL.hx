@@ -866,8 +866,8 @@ class CL {
             oldorg[1] = ent.origin[1];
             oldorg[2] = ent.origin[2];
             if (ent.forcelink) {
-                Vec.Copy(ent.msg_origins[0], ent.origin);
-                Vec.Copy(ent.msg_angles[0], ent.angles);
+                ent.origin.setVector(ent.msg_origins[0]);
+                ent.angles.setVector(ent.msg_angles[0]);
             }
             else
             {
@@ -1213,8 +1213,8 @@ class CL {
         ent.skinnum = ((bits & U.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
         ent.effects = ((bits & U.effects) != 0) ? cast MSG.ReadByte() : ent.baseline.effects;
 
-        Vec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
-        Vec.Copy(ent.msg_angles[0], ent.msg_angles[1]);
+        ent.msg_origins[1].setVector(ent.msg_origins[0]);
+        ent.msg_angles[1].setVector(ent.msg_angles[0]);
         ent.msg_origins[0][0] = ((bits & U.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
         ent.msg_angles[0][0] = ((bits & U.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
         ent.msg_origins[0][1] = ((bits & U.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
@@ -1226,10 +1226,10 @@ class CL {
             ent.forcelink = true;
 
         if (forcelink) {
-            Vec.Copy(ent.msg_origins[0], ent.origin);
-            Vec.Copy(ent.origin, ent.msg_origins[1]);
-            Vec.Copy(ent.msg_angles[0], ent.angles);
-            Vec.Copy(ent.angles, ent.msg_angles[1]);
+            ent.origin.setVector(ent.msg_origins[0]);
+            ent.msg_origins[1].setVector(ent.origin);
+            ent.angles.setVector(ent.msg_angles[0]);
+            ent.msg_angles[1].setVector(ent.angles);
             ent.forcelink = true;
         }
     }
@@ -1619,7 +1619,7 @@ class CL {
             if (b.model == null || b.endtime < state.time)
                 continue;
             if (b.entity == state.viewentity)
-                Vec.Copy(entities[state.viewentity].origin, b.start);
+                b.start.setVector(entities[state.viewentity].origin);
             dist[0] = b.end[0] - b.start[0];
             dist[1] = b.end[1] - b.start[1];
             dist[2] = b.end[2] - b.start[2];

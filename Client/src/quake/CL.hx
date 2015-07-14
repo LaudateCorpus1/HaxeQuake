@@ -639,6 +639,7 @@ class CL {
     
     static var beams:Array<Beam>;
     static inline var MAX_BEAMS = 24;
+    static inline var MAX_DLIGHTS = 32;
 
     static function ClearState() {
         if (!SV.server.active) {
@@ -653,7 +654,7 @@ class CL {
         entities = [];
 
         dlights = [];
-        for (i in 0...32)
+        for (i in 0...MAX_DLIGHTS)
             dlights.push(new DLight());
 
         lightstyle = [];
@@ -764,39 +765,37 @@ class CL {
     }
 
     static function AllocDlight(key:Int) {
-        var dl;
+        var dl = null;
+
         if (key != 0) {
-            for (i in 0...32) {
-                if (CL.dlights[i].key == key) {
-                    dl = CL.dlights[i];
+            for (light in dlights) {
+                if (light.key == key) {
+                    dl = light;
                     break;
                 }
             }
         }
+
         if (dl == null) {
-            for (i in 0...32) {
-                if (CL.dlights[i].die < CL.state.time) {
-                    dl = CL.dlights[i];
+            for (light in dlights) {
+                if (light.die < state.time) {
+                    dl = light;
                     break;
                 }
             }
             if (dl == null)
-                dl = CL.dlights[0];
+                dl = dlights[0];
         }
-        dl.origin = new Vec();
-        dl.radius = 0.0;
-        dl.die = 0.0;
-        dl.decay = 0.0;
-        dl.minlight = 0.0;
-        dl.key = key;
+
+        dl.alloc(key);
+
         return dl;
     }
 
     public static function DecayLights():Void {
-        var time = CL.state.time - CL.state.oldtime;
-        for (i in 0...32) {
-            var dl = CL.dlights[i];
-            if ((dl.die < CL.state.time) || (dl.radius == 0.0))
+        var time = state.time - state.oldtime;
+        for (dl in dlights) {
+            if (dl.die < state.time || dl.radius == 0.0)
                 continue;
             dl.radius -= time * dl.decay;
             if (dl.radius < 0.0)
@@ -866,8 +865,8 @@ class CL {
             oldorg[1] = ent.origin[1];
             oldorg[2] = ent.origin[2];
             if (ent.forcelink) {
-                Vec.Copy(ent.msg_origins[0], ent.origin);
-                Vec.Copy(ent.msg_angles[0], ent.angles);
+                ent.origin.setVector(ent.msg_origins[0]);
+                ent.angles.setVector(ent.msg_angles[0]);
             }
             else
             {
@@ -896,7 +895,7 @@ class CL {
                 dl = CL.AllocDlight(i);
                 var fv = new Vec();
                 Vec.AngleVectors(ent.angles, fv);
-                dl.origin = Vec.of(
+                dl.origin.setValues(
                     ent.origin[0] + 18.0 * fv[0],
                     ent.origin[1] + 18.0 * fv[1],
                     ent.origin[2] + 16.0 + 18.0 * fv[2]
@@ -907,13 +906,13 @@ class CL {
             }
             if ((ent.effects & EntEffect.brightlight) != 0) {
                 dl = CL.AllocDlight(i);
-                dl.origin = Vec.of(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
+                dl.origin.setValues(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
                 dl.radius = 400.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
             if ((ent.effects & EntEffect.dimlight) != 0) {
                 dl = CL.AllocDlight(i);
-                dl.origin = Vec.of(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
+                dl.origin.setValues(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
                 dl.radius = 200.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
@@ -928,7 +927,7 @@ class CL {
             else if ((ent.model.flags & ModelEffect.rocket) != 0) {
                 R.RocketTrail(oldorg, ent.origin, 0);
                 dl = CL.AllocDlight(i);
-                dl.origin = ent.origin.copy();
+                dl.origin.setVector(ent.origin);
                 dl.radius = 200.0;
                 dl.die = CL.state.time + 0.01;
             }
@@ -1213,8 +1212,8 @@ class CL {
         ent.skinnum = ((bits & U.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
         ent.effects = ((bits & U.effects) != 0) ? cast MSG.ReadByte() : ent.baseline.effects;
 
-        Vec.Copy(ent.msg_origins[0], ent.msg_origins[1]);
-        Vec.Copy(ent.msg_angles[0], ent.msg_angles[1]);
+        ent.msg_origins[1].setVector(ent.msg_origins[0]);
+        ent.msg_angles[1].setVector(ent.msg_angles[0]);
         ent.msg_origins[0][0] = ((bits & U.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
         ent.msg_angles[0][0] = ((bits & U.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
         ent.msg_origins[0][1] = ((bits & U.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
@@ -1226,10 +1225,10 @@ class CL {
             ent.forcelink = true;
 
         if (forcelink) {
-            Vec.Copy(ent.msg_origins[0], ent.origin);
-            Vec.Copy(ent.origin, ent.msg_origins[1]);
-            Vec.Copy(ent.msg_angles[0], ent.angles);
-            Vec.Copy(ent.angles, ent.msg_angles[1]);
+            ent.origin.setVector(ent.msg_origins[0]);
+            ent.msg_origins[1].setVector(ent.origin);
+            ent.angles.setVector(ent.msg_angles[0]);
+            ent.msg_angles[1].setVector(ent.angles);
             ent.forcelink = true;
         }
     }
@@ -1575,7 +1574,7 @@ class CL {
             case explosion:
                 R.ParticleExplosion(pos);
                 var dl = CL.AllocDlight(0);
-                dl.origin = pos.copy();
+                dl.origin.setVector(pos);
                 dl.radius = 350.0;
                 dl.die = CL.state.time + 0.5;
                 dl.decay = 300.0;
@@ -1592,7 +1591,7 @@ class CL {
                 var colorLength = MSG.ReadByte();
                 R.ParticleExplosion2(pos, colorStart, colorLength);
                 var dl = CL.AllocDlight(0);
-                dl.origin = pos.copy();
+                dl.origin.setVector(pos);
                 dl.radius = 350.0;
                 dl.die = CL.state.time + 0.5;
                 dl.decay = 300.0;
@@ -1619,7 +1618,7 @@ class CL {
             if (b.model == null || b.endtime < state.time)
                 continue;
             if (b.entity == state.viewentity)
-                Vec.Copy(entities[state.viewentity].origin, b.start);
+                b.start.setVector(entities[state.viewentity].origin);
             dist[0] = b.end[0] - b.start[0];
             dist[1] = b.end[1] - b.start[1];
             dist[2] = b.end[2] - b.start[2];

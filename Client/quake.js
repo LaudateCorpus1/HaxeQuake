@@ -924,42 +924,50 @@ quake_CL.PrintEntities_f = function() {
 	}
 };
 quake_CL.AllocDlight = function(key) {
-	var dl;
+	var dl = null;
 	if(key != 0) {
 		var _g = 0;
-		while(_g < 32) {
-			var i = _g++;
-			if(quake_CL.dlights[i].key == key) {
-				dl = quake_CL.dlights[i];
+		var _g1 = quake_CL.dlights;
+		while(_g < _g1.length) {
+			var light = _g1[_g];
+			++_g;
+			if(light.key == key) {
+				dl = light;
 				break;
 			}
 		}
 	}
 	if(dl == null) {
-		var _g1 = 0;
-		while(_g1 < 32) {
-			var i1 = _g1++;
-			if(quake_CL.dlights[i1].die < quake_CL.state.time) {
-				dl = quake_CL.dlights[i1];
+		var _g2 = 0;
+		var _g11 = quake_CL.dlights;
+		while(_g2 < _g11.length) {
+			var light1 = _g11[_g2];
+			++_g2;
+			if(light1.die < quake_CL.state.time) {
+				dl = light1;
 				break;
 			}
 		}
 		if(dl == null) dl = quake_CL.dlights[0];
 	}
-	dl.origin = new Float32Array(3);
-	dl.radius = 0.0;
+	dl.key = key;
 	dl.die = 0.0;
+	dl.radius = 0.0;
 	dl.decay = 0.0;
 	dl.minlight = 0.0;
-	dl.key = key;
+	dl.origin[0] = 0.0;
+	dl.origin[1] = 0.0;
+	dl.origin[2] = 0.0;
+	dl.radius = 0.0;
 	return dl;
 };
 quake_CL.DecayLights = function() {
 	var time = quake_CL.state.time - quake_CL.state.oldtime;
 	var _g = 0;
-	while(_g < 32) {
-		var i = _g++;
-		var dl = quake_CL.dlights[i];
+	var _g1 = quake_CL.dlights;
+	while(_g < _g1.length) {
+		var dl = _g1[_g];
+		++_g;
 		if(dl.die < quake_CL.state.time || dl.radius == 0.0) continue;
 		dl.radius -= time * dl.decay;
 		if(dl.radius < 0.0) dl.radius = 0.0;
@@ -1019,16 +1027,8 @@ quake_CL.RelinkEntities = function() {
 		oldorg[1] = ent.origin[1];
 		oldorg[2] = ent.origin[2];
 		if(ent.forcelink) {
-			var v1 = ent.msg_origins[0];
-			var v2 = ent.origin;
-			v2[0] = v1[0];
-			v2[1] = v1[1];
-			v2[2] = v1[2];
-			var v11 = ent.msg_angles[0];
-			var v21 = ent.angles;
-			v21[0] = v11[0];
-			v21[1] = v11[1];
-			v21[2] = v11[2];
+			ent.origin.set(ent.msg_origins[0]);
+			ent.angles.set(ent.msg_angles[0]);
 		} else {
 			var f = frac;
 			var _g21 = 0;
@@ -1052,45 +1052,36 @@ quake_CL.RelinkEntities = function() {
 			dl = quake_CL.AllocDlight(i1);
 			var fv = new Float32Array(3);
 			quake__$Vec_Vec_$Impl_$.AngleVectors(ent.angles,fv);
-			var tmp;
-			var v = new Float32Array(3);
-			v[0] = ent.origin[0] + 18.0 * fv[0];
-			v[1] = ent.origin[1] + 18.0 * fv[1];
-			v[2] = ent.origin[2] + 16.0 + 18.0 * fv[2];
-			tmp = v;
-			dl.origin = tmp;
+			var this1 = dl.origin;
+			this1[0] = ent.origin[0] + 18.0 * fv[0];
+			this1[1] = ent.origin[1] + 18.0 * fv[1];
+			this1[2] = ent.origin[2] + 16.0 + 18.0 * fv[2];
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.minlight = 32.0;
 			dl.die = quake_CL.state.time + 0.1;
 		}
 		if((ent.effects & 4) != 0) {
 			dl = quake_CL.AllocDlight(i1);
-			var tmp1;
-			var v3 = new Float32Array(3);
-			v3[0] = ent.origin[0];
-			v3[1] = ent.origin[1];
-			v3[2] = ent.origin[2] + 16.0;
-			tmp1 = v3;
-			dl.origin = tmp1;
+			var this2 = dl.origin;
+			this2[0] = ent.origin[0];
+			this2[1] = ent.origin[1];
+			this2[2] = ent.origin[2] + 16.0;
 			dl.radius = 400.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
 		if((ent.effects & 8) != 0) {
 			dl = quake_CL.AllocDlight(i1);
-			var tmp2;
-			var v4 = new Float32Array(3);
-			v4[0] = ent.origin[0];
-			v4[1] = ent.origin[1];
-			v4[2] = ent.origin[2] + 16.0;
-			tmp2 = v4;
-			dl.origin = tmp2;
+			var this3 = dl.origin;
+			this3[0] = ent.origin[0];
+			this3[1] = ent.origin[1];
+			this3[2] = ent.origin[2] + 16.0;
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
 		if((ent.model.flags & 4) != 0) quake_R.RocketTrail(oldorg,ent.origin,2); else if((ent.model.flags & 32) != 0) quake_R.RocketTrail(oldorg,ent.origin,4); else if((ent.model.flags & 16) != 0) quake_R.RocketTrail(oldorg,ent.origin,3); else if((ent.model.flags & 64) != 0) quake_R.RocketTrail(oldorg,ent.origin,5); else if((ent.model.flags & 1) != 0) {
 			quake_R.RocketTrail(oldorg,ent.origin,0);
 			dl = quake_CL.AllocDlight(i1);
-			dl.origin = new Float32Array(ent.origin);
+			dl.origin.set(ent.origin);
 			dl.radius = 200.0;
 			dl.die = quake_CL.state.time + 0.01;
 		} else if((ent.model.flags & 2) != 0) quake_R.RocketTrail(oldorg,ent.origin,1); else if((ent.model.flags & 128) != 0) quake_R.RocketTrail(oldorg,ent.origin,6);
@@ -1310,50 +1301,26 @@ quake_CL.ParseUpdate = function(bits) {
 	if(ent.colormap > quake_CL.state.maxclients) quake_Sys.Error("i >= cl.maxclients");
 	ent.skinnum = (bits & 4096) != 0?quake_MSG.ReadByte():ent.baseline.skin;
 	ent.effects = (bits & 8192) != 0?quake_MSG.ReadByte():ent.baseline.effects;
-	var v1 = ent.msg_origins[0];
-	var v2 = ent.msg_origins[1];
-	v2[0] = v1[0];
-	v2[1] = v1[1];
-	v2[2] = v1[2];
-	var v11 = ent.msg_angles[0];
-	var v21 = ent.msg_angles[1];
-	v21[0] = v11[0];
-	v21[1] = v11[1];
-	v21[2] = v11[2];
+	ent.msg_origins[1].set(ent.msg_origins[0]);
+	ent.msg_angles[1].set(ent.msg_angles[0]);
 	var v = (bits & 2) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[0];
 	ent.msg_origins[0][0] = v;
-	var v3 = (bits & 256) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[0];
-	ent.msg_angles[0][0] = v3;
-	var v4 = (bits & 4) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[1];
-	ent.msg_origins[0][1] = v4;
-	var v5 = (bits & 16) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[1];
-	ent.msg_angles[0][1] = v5;
-	var v6 = (bits & 8) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[2];
-	ent.msg_origins[0][2] = v6;
-	var v7 = (bits & 512) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[2];
-	ent.msg_angles[0][2] = v7;
+	var v1 = (bits & 256) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[0];
+	ent.msg_angles[0][0] = v1;
+	var v2 = (bits & 4) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[1];
+	ent.msg_origins[0][1] = v2;
+	var v3 = (bits & 16) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[1];
+	ent.msg_angles[0][1] = v3;
+	var v4 = (bits & 8) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[2];
+	ent.msg_origins[0][2] = v4;
+	var v5 = (bits & 512) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[2];
+	ent.msg_angles[0][2] = v5;
 	if((bits & 32) != 0) ent.forcelink = true;
 	if(forcelink) {
-		var v12 = ent.msg_origins[0];
-		var v22 = ent.origin;
-		v22[0] = v12[0];
-		v22[1] = v12[1];
-		v22[2] = v12[2];
-		var v13 = ent.origin;
-		var v23 = ent.msg_origins[1];
-		v23[0] = v13[0];
-		v23[1] = v13[1];
-		v23[2] = v13[2];
-		var v14 = ent.msg_angles[0];
-		var v24 = ent.angles;
-		v24[0] = v14[0];
-		v24[1] = v14[1];
-		v24[2] = v14[2];
-		var v15 = ent.angles;
-		var v25 = ent.msg_angles[1];
-		v25[0] = v15[0];
-		v25[1] = v15[1];
-		v25[2] = v15[2];
+		ent.origin.set(ent.msg_origins[0]);
+		ent.msg_origins[1].set(ent.origin);
+		ent.angles.set(ent.msg_angles[0]);
+		ent.msg_angles[1].set(ent.angles);
 		ent.forcelink = true;
 	}
 };
@@ -1756,7 +1723,7 @@ quake_CL.ParseTEnt = function() {
 	case 3:
 		quake_R.ParticleExplosion(pos);
 		var dl = quake_CL.AllocDlight(0);
-		dl.origin = new Float32Array(pos);
+		dl.origin.set(pos);
 		dl.radius = 350.0;
 		dl.die = quake_CL.state.time + 0.5;
 		dl.decay = 300.0;
@@ -1777,7 +1744,7 @@ quake_CL.ParseTEnt = function() {
 		var colorLength = quake_MSG.ReadByte();
 		quake_R.ParticleExplosion2(pos,colorStart,colorLength);
 		var dl1 = quake_CL.AllocDlight(0);
-		dl1.origin = new Float32Array(pos);
+		dl1.origin.set(pos);
 		dl1.radius = 350.0;
 		dl1.die = quake_CL.state.time + 0.5;
 		dl1.decay = 300.0;
@@ -1807,13 +1774,7 @@ quake_CL.UpdateTEnts = function() {
 		var b = _g1[_g];
 		++_g;
 		if(b.model == null || b.endtime < quake_CL.state.time) continue;
-		if(b.entity == quake_CL.state.viewentity) {
-			var v1 = quake_CL.entities[quake_CL.state.viewentity].origin;
-			var v2 = b.start;
-			v2[0] = v1[0];
-			v2[1] = v1[1];
-			v2[2] = v1[2];
-		}
+		if(b.entity == quake_CL.state.viewentity) b.start.set(quake_CL.entities[quake_CL.state.viewentity].origin);
 		dist_0 = b.end[0] - b.start[0];
 		dist_1 = b.end[1] - b.start[1];
 		dist_2 = b.end[2] - b.start[2];
@@ -1855,11 +1816,11 @@ quake_CL.UpdateTEnts = function() {
 			ent.model = b.model;
 			var tmp3;
 			var z = Math.random() * 360.0;
-			var v3 = new Float32Array(3);
-			v3[0] = pitch;
-			v3[1] = yaw;
-			v3[2] = z;
-			tmp3 = v3;
+			var v1 = new Float32Array(3);
+			v1[0] = pitch;
+			v1[1] = yaw;
+			v1[2] = z;
+			tmp3 = v1;
 			ent.angles = tmp3;
 			org_0 += dist_0 * 30.0;
 			org_1 += dist_1 * 30.0;
@@ -2607,8 +2568,7 @@ quake_Cvar.prototype = {
 	}
 };
 var quake_DLight = function() {
-	this.radius = 0.0;
-	this.die = 0.0;
+	this.origin = new Float32Array(3);
 };
 quake_DLight.__name__ = true;
 var quake_Def = function() { };

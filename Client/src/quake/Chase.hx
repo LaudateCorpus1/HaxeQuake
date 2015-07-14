@@ -2,33 +2,32 @@ package quake;
 
 import quake.Mod.MTrace;
 
-
-@:publicFields
 class Chase {
+    public static var active(default,null):Cvar;
+
     static var back:Cvar;
     static var up:Cvar;
     static var right:Cvar;
-    static var active:Cvar;
 
-    static function Init():Void {
+    public static function Init():Void {
         back = Cvar.RegisterVariable('chase_back', '100');
         up = Cvar.RegisterVariable('chase_up', '16');
         right = Cvar.RegisterVariable('chase_right', '0');
         active = Cvar.RegisterVariable('chase_active', '0');
     }
 
-    static function Update():Void {
+    public static function Update():Void {
         var forward = new Vec();
         var r = new Vec();
         Vec.AngleVectors(CL.state.viewangles, forward, r);
-        var trace = new MTrace();
-        trace.plane = new Plane();
-        var org:Vec = R.refdef.vieworg;
+        var tr = new MTrace();
+        tr.plane = new Plane();
+        var org = R.refdef.vieworg;
         SV.RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, Vec.of(
             org[0] + 4096.0 * forward[0],
             org[1] + 4096.0 * forward[1],
-            org[2] + 4096.0 * forward[2]), trace);
-        var stop:Vec = trace.endpos;
+            org[2] + 4096.0 * forward[2]), tr);
+        var stop = tr.endpos;
         stop[2] -= org[2];
         var dist = (stop[0] - org[0]) * forward[0] + (stop[1] - org[1]) * forward[1] + stop[2] * forward[2];
         if (dist < 1.0)

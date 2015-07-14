@@ -2160,8 +2160,8 @@ quake_Chase.Update = function() {
 	var forward = new Float32Array(3);
 	var r = new Float32Array(3);
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_CL.state.viewangles,forward,r);
-	var trace = new quake_MTrace();
-	trace.plane = new quake_Plane();
+	var tr = new quake_MTrace();
+	tr.plane = new quake_Plane();
 	var org = quake_R.refdef.vieworg;
 	var tmp;
 	var v = new Float32Array(3);
@@ -2169,8 +2169,8 @@ quake_Chase.Update = function() {
 	v[1] = org[1] + 4096.0 * forward[1];
 	v[2] = org[2] + 4096.0 * forward[2];
 	tmp = v;
-	quake_SV.RecursiveHullCheck(quake_CL.state.worldmodel.hulls[0],0,0.0,1.0,org,tmp,trace);
-	var stop = trace.endpos;
+	quake_SV.RecursiveHullCheck(quake_CL.state.worldmodel.hulls[0],0,0.0,1.0,org,tmp,tr);
+	var stop = tr.endpos;
 	stop[2] = stop[2] - org[2];
 	var dist = (stop[0] - org[0]) * forward[0] + (stop[1] - org[1]) * forward[1] + stop[2] * forward[2];
 	if(dist < 1.0) dist = 1.0;

@@ -561,8 +561,7 @@ class R {
         var shadelight = ambientlight;
         if ((e == CL.state.viewent) && (ambientlight < 24.0))
             ambientlight = shadelight = 24;
-        for (i in 0...32) {
-            var dl = CL.dlights[i];
+        for (dl in CL.dlights) {
             if (dl.die < CL.state.time)
                 continue;
             var add = dl.radius - Vec.Length(Vec.of(e.origin[0] - dl.origin[0], e.origin[1] - dl.origin[1], e.origin[1] - dl.origin[1]));
@@ -1664,7 +1663,7 @@ class R {
         for (i in 0...size)
             blocklights[i] = 0;
 
-        for (i in 0...32) {
+        for (i in 0...CL.MAX_DLIGHTS) {
             if (((surf.dlightbits >>> i) & 1) == 0)
                 continue;
             var light = CL.dlights[i];

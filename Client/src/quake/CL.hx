@@ -639,6 +639,7 @@ class CL {
     
     static var beams:Array<Beam>;
     static inline var MAX_BEAMS = 24;
+    public static inline var MAX_DLIGHTS = 32;
 
     static function ClearState() {
         if (!SV.server.active) {
@@ -653,7 +654,7 @@ class CL {
         entities = [];
 
         dlights = [];
-        for (i in 0...32)
+        for (i in 0...MAX_DLIGHTS)
             dlights.push(new DLight());
 
         lightstyle = [];
@@ -764,39 +765,33 @@ class CL {
     }
 
     static function AllocDlight(key:Int) {
-        var dl;
+        var dl = null;
         if (key != 0) {
-            for (i in 0...32) {
-                if (CL.dlights[i].key == key) {
-                    dl = CL.dlights[i];
+            for (light in dlights) {
+                if (light.key == key) {
+                    dl = light;
                     break;
                 }
             }
         }
         if (dl == null) {
-            for (i in 0...32) {
-                if (CL.dlights[i].die < CL.state.time) {
-                    dl = CL.dlights[i];
+            for (light in dlights) {
+                if (light.die < state.time) {
+                    dl = light;
                     break;
                 }
             }
             if (dl == null)
-                dl = CL.dlights[0];
+                dl = dlights[0];
         }
-        dl.origin.setVector(Vec.origin);
-        dl.radius = 0.0;
-        dl.die = 0.0;
-        dl.decay = 0.0;
-        dl.minlight = 0.0;
-        dl.key = key;
+        dl.alloc(key);
         return dl;
     }
 
     public static function DecayLights():Void {
-        var time = CL.state.time - CL.state.oldtime;
-        for (i in 0...32) {
-            var dl = CL.dlights[i];
-            if ((dl.die < CL.state.time) || (dl.radius == 0.0))
+        var time = state.time - state.oldtime;
+        for (dl in dlights) {
+            if (dl.die < state.time || dl.radius == 0.0)
                 continue;
             dl.radius -= time * dl.decay;
             if (dl.radius < 0.0)

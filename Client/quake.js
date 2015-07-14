@@ -924,42 +924,47 @@ quake_CL.PrintEntities_f = function() {
 	}
 };
 quake_CL.AllocDlight = function(key) {
-	var dl;
+	var dl = null;
 	if(key != 0) {
 		var _g = 0;
-		while(_g < 32) {
-			var i = _g++;
-			if(quake_CL.dlights[i].key == key) {
-				dl = quake_CL.dlights[i];
+		var _g1 = quake_CL.dlights;
+		while(_g < _g1.length) {
+			var light = _g1[_g];
+			++_g;
+			if(light.key == key) {
+				dl = light;
 				break;
 			}
 		}
 	}
 	if(dl == null) {
-		var _g1 = 0;
-		while(_g1 < 32) {
-			var i1 = _g1++;
-			if(quake_CL.dlights[i1].die < quake_CL.state.time) {
-				dl = quake_CL.dlights[i1];
+		var _g2 = 0;
+		var _g11 = quake_CL.dlights;
+		while(_g2 < _g11.length) {
+			var light1 = _g11[_g2];
+			++_g2;
+			if(light1.die < quake_CL.state.time) {
+				dl = light1;
 				break;
 			}
 		}
 		if(dl == null) dl = quake_CL.dlights[0];
 	}
-	dl.origin.set(quake__$Vec_Vec_$Impl_$.origin);
-	dl.radius = 0.0;
-	dl.die = 0.0;
-	dl.decay = 0.0;
-	dl.minlight = 0.0;
 	dl.key = key;
+	dl.origin.set(quake__$Vec_Vec_$Impl_$.origin);
+	dl.radius = 0;
+	dl.minlight = 0;
+	dl.decay = 0;
+	dl.die = 0;
 	return dl;
 };
 quake_CL.DecayLights = function() {
 	var time = quake_CL.state.time - quake_CL.state.oldtime;
 	var _g = 0;
-	while(_g < 32) {
-		var i = _g++;
-		var dl = quake_CL.dlights[i];
+	var _g1 = quake_CL.dlights;
+	while(_g < _g1.length) {
+		var dl = _g1[_g];
+		++_g;
 		if(dl.die < quake_CL.state.time || dl.radius == 0.0) continue;
 		dl.radius -= time * dl.decay;
 		if(dl.radius < 0.0) dl.radius = 0.0;
@@ -2560,9 +2565,12 @@ quake_Cvar.prototype = {
 	}
 };
 var quake_DLight = function() {
-	this.radius = 0.0;
-	this.die = 0.0;
+	this.key = 0;
 	this.origin = new Float32Array(3);
+	this.radius = 0;
+	this.minlight = 0;
+	this.decay = 0;
+	this.die = 0;
 };
 quake_DLight.__name__ = true;
 var quake_Def = function() { };
@@ -11652,9 +11660,10 @@ quake_R.DrawAliasModel = function(e) {
 	var shadelight = ambientlight;
 	if(e == quake_CL.state.viewent && ambientlight < 24.0) ambientlight = shadelight = 24;
 	var _g = 0;
-	while(_g < 32) {
-		var i = _g++;
-		var dl = quake_CL.dlights[i];
+	var _g1 = quake_CL.dlights;
+	while(_g < _g1.length) {
+		var dl = _g1[_g];
+		++_g;
 		if(dl.die < quake_CL.state.time) continue;
 		var tmp5;
 		var tmp6;
@@ -11720,12 +11729,12 @@ quake_R.DrawAliasModel = function(e) {
 		var num1 = frame.frames.length - 1;
 		var fullinterval = frame.frames[num1].interval;
 		var targettime = time - Math.floor(time / fullinterval) * fullinterval;
-		var i1 = 0;
-		while(i1 < num1) {
-			if(frame.frames[i1].interval > targettime) break;
-			i1++;
+		var i = 0;
+		while(i < num1) {
+			if(frame.frames[i].interval > targettime) break;
+			i++;
 		}
-		frame = frame.frames[i1];
+		frame = frame.frames[i];
 	}
 	quake_GL.gl.bindBuffer(34962,clmodel.cmds);
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,24,frame.cmdofs);
@@ -11741,12 +11750,12 @@ quake_R.DrawAliasModel = function(e) {
 		num = skin.skins.length - 1;
 		var fullinterval1 = skin.skins[num].interval;
 		var targettime1 = time - Math.floor(time / fullinterval1) * fullinterval1;
-		var i2 = 0;
-		while(i2 < num) {
-			if(skin.skins[i2].interval > targettime1) break;
-			i2++;
+		var i1 = 0;
+		while(i1 < num) {
+			if(skin.skins[i1].interval > targettime1) break;
+			i1++;
 		}
-		skin = skin.skins[i2];
+		skin = skin.skins[i1];
 	}
 	quake_GL.Bind(program.tTexture,skin.texturenum.texnum);
 	if(clmodel.player) quake_GL.Bind(program.tPlayer,skin.playertexture);

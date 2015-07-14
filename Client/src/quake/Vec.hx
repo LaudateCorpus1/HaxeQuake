@@ -18,22 +18,14 @@ abstract Vec(Float32Array) to Float32Array {
 
     public static inline function of(x:Float, y:Float, z:Float):Vec {
         var v = new Vec();
-        v.setValues(x, y, z);
+        v[0] = x;
+        v[1] = y;
+        v[2] = z;
         return v;
     }
 
     public static inline function ofArray(a:Array<Float>):Vec {
         return Vec.of(a[0], a[1], a[2]);
-    }
-
-    public inline function setValues(x:Float, y:Float, z:Float):Void {
-        this[0] = x;
-        this[1] = y;
-        this[2] = z;
-    }
-
-    public inline function setVector(v:Vec):Void {
-        this.set(v);
     }
 
     @:arrayAccess inline function get(i:Int):Float return this[i];
@@ -176,6 +168,12 @@ abstract Vec(Float32Array) to Float32Array {
 
     public static inline function Add(v1:Vec, v2:Vec):Vec {
         return Vec.of(v1[0] + v1[2], v1[1] + v2[1], v1[2] + v2[2]);
+    }
+
+    public static inline function Copy(v1:Vec, v2:Vec):Void {
+        v2[0] = v1[0];
+        v2[1] = v1[1];
+        v2[2] = v1[2];
     }
 
     public static function CrossProduct(v1:Vec, v2:Vec):Vec {

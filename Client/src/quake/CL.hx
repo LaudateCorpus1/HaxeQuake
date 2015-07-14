@@ -979,38 +979,38 @@ class CL {
         CL.cls.message.cursize = 0;
     }
 
-    public static function Init() {
-        CL.ClearState();
-        CL.InitInput();
-        CL.InitTEnts();
-        CL.name = Cvar.RegisterVariable('_cl_name', 'player', true);
-        CL.color = Cvar.RegisterVariable('_cl_color', '0', true);
-        CL.upspeed = Cvar.RegisterVariable('cl_upspeed', '200');
-        CL.forwardspeed = Cvar.RegisterVariable('cl_forwardspeed', '200', true);
-        CL.backspeed = Cvar.RegisterVariable('cl_backspeed', '200', true);
-        CL.sidespeed = Cvar.RegisterVariable('cl_sidespeed', '350');
-        CL.movespeedkey = Cvar.RegisterVariable('cl_movespeedkey', '2.0');
-        CL.yawspeed = Cvar.RegisterVariable('cl_yawspeed', '140');
-        CL.pitchspeed = Cvar.RegisterVariable('cl_pitchspeed', '150');
-        CL.anglespeedkey = Cvar.RegisterVariable('cl_anglespeedkey', '1.5');
-        CL.shownet = Cvar.RegisterVariable('cl_shownet', '0');
-        CL.nolerp = Cvar.RegisterVariable('cl_nolerp', '0');
-        CL.lookspring = Cvar.RegisterVariable('lookspring', '0', true);
-        CL.lookstrafe = Cvar.RegisterVariable('lookstrafe', '0', true);
-        CL.sensitivity = Cvar.RegisterVariable('sensitivity', '3', true);
-        CL.m_pitch = Cvar.RegisterVariable('m_pitch', '0.022', true);
-        CL.m_yaw = Cvar.RegisterVariable('m_yaw', '0.022', true);
-        CL.m_forward = Cvar.RegisterVariable('m_forward', '1', true);
-        CL.m_side = Cvar.RegisterVariable('m_side', '0.8', true);
-        CL.rcon_password = Cvar.RegisterVariable('rcon_password', '');
-        CL.rcon_address = Cvar.RegisterVariable('rcon_address', '');
-        Cmd.AddCommand('entities', CL.PrintEntities_f);
-        Cmd.AddCommand('disconnect', CL.Disconnect);
-        Cmd.AddCommand('record', CL.Record_f);
-        Cmd.AddCommand('stop', CL.Stop_f);
-        Cmd.AddCommand('playdemo', CL.PlayDemo_f);
-        Cmd.AddCommand('timedemo', CL.TimeDemo_f);
-        Cmd.AddCommand('rcon', CL.Rcon_f);
+    public static function Init():Void {
+        ClearState();
+        InitInput();
+        InitTEnts();
+        name = Cvar.RegisterVariable('_cl_name', 'player', true);
+        color = Cvar.RegisterVariable('_cl_color', '0', true);
+        upspeed = Cvar.RegisterVariable('cl_upspeed', '200');
+        forwardspeed = Cvar.RegisterVariable('cl_forwardspeed', '200', true);
+        backspeed = Cvar.RegisterVariable('cl_backspeed', '200', true);
+        sidespeed = Cvar.RegisterVariable('cl_sidespeed', '350');
+        movespeedkey = Cvar.RegisterVariable('cl_movespeedkey', '2.0');
+        yawspeed = Cvar.RegisterVariable('cl_yawspeed', '140');
+        pitchspeed = Cvar.RegisterVariable('cl_pitchspeed', '150');
+        anglespeedkey = Cvar.RegisterVariable('cl_anglespeedkey', '1.5');
+        shownet = Cvar.RegisterVariable('cl_shownet', '0');
+        nolerp = Cvar.RegisterVariable('cl_nolerp', '0');
+        lookspring = Cvar.RegisterVariable('lookspring', '0', true);
+        lookstrafe = Cvar.RegisterVariable('lookstrafe', '0', true);
+        sensitivity = Cvar.RegisterVariable('sensitivity', '3', true);
+        m_pitch = Cvar.RegisterVariable('m_pitch', '0.022', true);
+        m_yaw = Cvar.RegisterVariable('m_yaw', '0.022', true);
+        m_forward = Cvar.RegisterVariable('m_forward', '1', true);
+        m_side = Cvar.RegisterVariable('m_side', '0.8', true);
+        rcon_password = Cvar.RegisterVariable('rcon_password', '');
+        rcon_address = Cvar.RegisterVariable('rcon_address', '');
+        Cmd.AddCommand('entities', PrintEntities_f);
+        Cmd.AddCommand('disconnect', Disconnect);
+        Cmd.AddCommand('record', Record_f);
+        Cmd.AddCommand('stop', Stop_f);
+        Cmd.AddCommand('playdemo', PlayDemo_f);
+        Cmd.AddCommand('timedemo', TimeDemo_f);
+        Cmd.AddCommand('rcon', Rcon_f);
     }
 
     // parse

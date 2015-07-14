@@ -1112,95 +1112,86 @@ class Host {
         var t = Cmd.argv[1].charCodeAt(0);
         var ent = SV.player;
 
-        if ((t >= 48) && (t <= 57)) {
+        if (t >= "0".code && t <= "9".code) {
             if (!COM.hipnotic) {
-                if (t >= 50)
-                    ent.items |= Def.it.shotgun << (t - 50);
+                if (t >= "2".code)
+                    ent.items |= Def.it.shotgun << (t - "2".code);
                 return;
             }
-            if (t == 54) {
-                if (Cmd.argv[1].charCodeAt(1) == 97)
+            if (t == "6".code) {
+                if (Cmd.argv[1].charCodeAt(1) == "a".code)
                     ent.items |= Def.hit.proximity_gun;
                 else
                     ent.items |= Def.it.grenade_launcher;
                 return;
             }
-            if (t == 57)
+            if (t == "9".code)
                 ent.items |= Def.hit.laser_cannon;
-            else if (t == 48)
+            else if (t == "0".code)
                 ent.items |= Def.hit.mjolnir;
-            else if (t >= 50)
-                ent.items |= Def.it.shotgun << (t - 50);
+            else if (t >= "2".code)
+                ent.items |= Def.it.shotgun << (t - "2".code);
             return;
         }
         var v = Q.atoi(Cmd.argv[2]);
-        if (t == 104) {
+        if (t == "h".code) {
             ent.v.health = v;
             return;
         }
         if (!COM.rogue) {
             switch (t) {
-            case 115:
-                ent.v.ammo_shells = v;
-                return;
-            case 110:
-                ent.v.ammo_nails = v;
-                return;
-            case 114:
-                ent.v.ammo_rockets = v;
-                return;
-            case 99:
-                ent.v.ammo_cells = v;
+                case "s".code:
+                    ent.v.ammo_shells = v;
+                case "n".code:
+                    ent.v.ammo_nails = v;
+                case "r".code:
+                    ent.v.ammo_rockets = v;
+                case "c".code:
+                    ent.v.ammo_cells = v;
             }
             return;
         }
         switch (t) {
-        case 115:
-            if (EdictVarOfs.ammo_shells1 != null)
-                ent.v.ammo_shells1 = v;
-            ent.v.ammo_shells = v;
-            return;
-        case 110:
-            if (EdictVarOfs.ammo_nails1 != null) {
-                ent.v.ammo_nails1 = v;
-                if (ent.v.weapon <= Def.it.lightning)
-                    ent.v.ammo_nails = v;
-            }
-            return;
-        case 108:
-            if (EdictVarOfs.ammo_lava_nails != null) {
-                ent.v.ammo_lava_nails = v;
-                if (ent.v.weapon > Def.it.lightning)
-                    ent.v.ammo_nails = v;
-            }
-            return;
-        case 114:
-            if (EdictVarOfs.ammo_rockets1 != null) {
-                ent.v.ammo_rockets1 = v;
-                if (ent.v.weapon <= Def.it.lightning)
-                    ent.v.ammo_rockets = v;
-            }
-            return;
-        case 109:
-            if (EdictVarOfs.ammo_multi_rockets != null) {
-                ent.v.ammo_multi_rockets = v;
-                if (ent.v.weapon > Def.it.lightning)
-                    ent.v.ammo_rockets = v;
-            }
-            return;
-        case 99:
-            if (EdictVarOfs.ammo_cells1 != null) {
-                ent.v.ammo_cells1 = v;
-                if (ent.v.weapon <= Def.it.lightning)
-                    ent.v.ammo_cells = v;
-            }
-            return;
-        case 112:
-            if (EdictVarOfs.ammo_plasma != null) {
-                ent.v.ammo_plasma = v;
-                if (ent.v.weapon > Def.it.lightning)
-                    ent.v.ammo_cells = v;
-            }
+            case "s".code:
+                if (EdictVarOfs.ammo_shells1 != null)
+                    ent.v.ammo_shells1 = v;
+                ent.v.ammo_shells = v;
+            case "n".code:
+                if (EdictVarOfs.ammo_nails1 != null) {
+                    ent.v.ammo_nails1 = v;
+                    if (ent.v.weapon <= Def.it.lightning)
+                        ent.v.ammo_nails = v;
+                }
+            case "l".code:
+                if (EdictVarOfs.ammo_lava_nails != null) {
+                    ent.v.ammo_lava_nails = v;
+                    if (ent.v.weapon > Def.it.lightning)
+                        ent.v.ammo_nails = v;
+                }
+            case "r".code:
+                if (EdictVarOfs.ammo_rockets1 != null) {
+                    ent.v.ammo_rockets1 = v;
+                    if (ent.v.weapon <= Def.it.lightning)
+                        ent.v.ammo_rockets = v;
+                }
+            case "m".code:
+                if (EdictVarOfs.ammo_multi_rockets != null) {
+                    ent.v.ammo_multi_rockets = v;
+                    if (ent.v.weapon > Def.it.lightning)
+                        ent.v.ammo_rockets = v;
+                }
+            case "c".code:
+                if (EdictVarOfs.ammo_cells1 != null) {
+                    ent.v.ammo_cells1 = v;
+                    if (ent.v.weapon <= Def.it.lightning)
+                        ent.v.ammo_cells = v;
+                }
+            case "p".code:
+                if (EdictVarOfs.ammo_plasma != null) {
+                    ent.v.ammo_plasma = v;
+                    if (ent.v.weapon > Def.it.lightning)
+                        ent.v.ammo_cells = v;
+                }
         }
     }
 

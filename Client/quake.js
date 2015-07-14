@@ -4446,13 +4446,13 @@ quake_Host.Give_f = function() {
 		if(t != null) switch(t) {
 		case 115:
 			ent._v_float[54] = v;
-			return;
+			break;
 		case 110:
 			ent._v_float[55] = v;
-			return;
+			break;
 		case 114:
 			ent._v_float[56] = v;
-			return;
+			break;
 		case 99:
 			ent._v_float[57] = v;
 			break;
@@ -4463,37 +4463,37 @@ quake_Host.Give_f = function() {
 	case 115:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1 != null) ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1] = v;
 		ent._v_float[54] = v;
-		return;
+		break;
 	case 110:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1 != null) {
 			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1] = v;
 			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[55] = v;
 		}
-		return;
+		break;
 	case 108:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails != null) {
 			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails] = v;
 			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[55] = v;
 		}
-		return;
+		break;
 	case 114:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1 != null) {
 			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1] = v;
 			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[56] = v;
 		}
-		return;
+		break;
 	case 109:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets != null) {
 			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets] = v;
 			if(ent._v_float[50] > quake_Def.it.lightning) ent._v_float[56] = v;
 		}
-		return;
+		break;
 	case 99:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1 != null) {
 			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1] = v;
 			if(ent._v_float[50] <= quake_Def.it.lightning) ent._v_float[57] = v;
 		}
-		return;
+		break;
 	case 112:
 		if(quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma != null) {
 			ent._v_float[quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma] = v;

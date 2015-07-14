@@ -12366,7 +12366,7 @@ quake_R.InitParticles = function() {
 	quake_R.avelocities = [];
 	var _g = 0;
 	while(_g < 162) {
-		var i1 = _g++;
+		_g++;
 		var tmp;
 		var x = Math.random() * 2.56;
 		var y = Math.random() * 2.56;
@@ -12376,7 +12376,7 @@ quake_R.InitParticles = function() {
 		v[1] = y;
 		v[2] = z;
 		tmp = v;
-		quake_R.avelocities[i1] = tmp;
+		quake_R.avelocities.push(tmp);
 	}
 	quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
 };
@@ -14185,8 +14185,8 @@ var quake__$PR_PRStatement = function(view,ofs) {
 	this.c = view.getInt16(ofs + 6,true);
 };
 quake__$PR_PRStatement.__name__ = true;
-var quake__$R_Particle = function(t) {
-	this.type = t;
+var quake__$R_Particle = function(type) {
+	this.type = type;
 };
 quake__$R_Particle.__name__ = true;
 var quake_Sfx = function(n) {

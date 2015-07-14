@@ -34,8 +34,8 @@ private class Particle {
     var org:Vec;
     var vel:Vec;
     var color:Int;
-    function new(t) {
-        type = t;
+    function new(type:ParticleType) {
+        this.type = type;
     }
 }
 
@@ -1245,18 +1245,23 @@ class R {
     static var ramp3 = [0x6d, 0x6b, 6, 5, 4, 3];
     static var avelocities:Array<Vec>;
 
-    static function InitParticles() {
+    static inline var MAX_PARTICLES = 2048; // default max # of particles at one time
+    static inline var ABSOLUTE_MIN_PARTICLES = 512; // no fewer than this no matter what's on the command line
+    static inline var NUMVERTEXNORMALS = 162;
+
+    static function InitParticles():Void {
         var i = COM.CheckParm('-particles');
         if (i != null) {
-            R.numparticles = Q.atoi(COM.argv[i + 1]);
-            if (R.numparticles < 512)
-                R.numparticles = 512;
-        } else
-            R.numparticles = 2048;
+            numparticles = Q.atoi(COM.argv[i + 1]);
+            if (numparticles < ABSOLUTE_MIN_PARTICLES)
+                numparticles = ABSOLUTE_MIN_PARTICLES;
+        } else {
+            numparticles = MAX_PARTICLES;
+        }
 
-        R.avelocities = [];
-        for (i in 0...162)
-            R.avelocities[i] = Vec.of(Math.random() * 2.56, Math.random() * 2.56, Math.random() * 2.56);
+        avelocities = [];
+        for (_ in 0...NUMVERTEXNORMALS)
+            avelocities.push(Vec.of(Math.random() * 2.56, Math.random() * 2.56, Math.random() * 2.56));
 
         GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }

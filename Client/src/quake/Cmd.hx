@@ -2,21 +2,47 @@ package quake;
 
 import quake.Protocol.CLC;
 
-@:publicFields
 class Cmd {
+    public static var text = "";
+    public static var args(default,null):String;
+    public static var argv(default,null) = new Array<String>();
+    public static var client(default,null):Bool;
+
     static var functions = new Map<String,Void->Void>();
     static var alias = new Map<String, String>();
     static var wait = false;
-    static var text = "";
-    static var args:String;
-    static var argv = new Array<String>();
-    static var client:Bool;
 
-    static inline function Wait_f() {
-        Cmd.wait = true;
+    public static function Init() {
+        AddCommand('stuffcmds', StuffCmds_f);
+        AddCommand('exec', Exec_f);
+        AddCommand('echo', Echo_f);
+        AddCommand('alias', Alias_f);
+        AddCommand('cmd', ForwardToServer);
+        AddCommand('wait', Wait_f);
     }
 
-    static function Execute() {
+    public static function AddCommand(name:String, command:Void->Void):Void {
+        if (Cvar.vars.exists(name)) {
+            Console.Print('Cmd.AddCommand: $name already defined as a var\n');
+            return;
+        }
+        if (functions.exists(name))
+            Console.Print('Cmd.AddCommand: $name already defined\n');
+        else
+            functions[name] = command;
+    }
+
+    public static function CompleteCommand(partial:String):String {
+        if (partial.length == 0)
+            return null;
+        for (name in functions.keys()) {
+            if (name.substring(0, partial.length) == partial)
+                return name;
+        }
+        return null;
+    }
+
+    public static function Execute() {
         var line = '', quotes = false;
         while (text.length != 0) {
             var c = text.charCodeAt(0);
@@ -40,6 +66,46 @@ class Cmd {
             line += String.fromCharCode(c);
         }
         text = '';
+    }
+
+    public static function ExecuteString(text:String, client = false):Void {
+        Cmd.client = client;
+        TokenizeString(text);
+        if (Cmd.argv.length == 0)
+            return;
+        var name = Cmd.argv[0].toLowerCase();
+
+        var f = functions[name];
+        if (f != null) {
+            f();
+            return;
+        }
+
+        var a = alias[name];
+        if (a != null) {
+            Cmd.text = a + Cmd.text;
+            return;
+        }
+
+        if (!Cvar.Command())
+            Console.Print('Unknown command "' + name + '"\n');
+    }
+
+    public static function ForwardToServer() {
+        if (CL.cls.state != connected) {
+            Console.Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
+            return;
+        }
+        if (CL.cls.demoplayback == true)
+            return;
+        var args = String.fromCharCode(CLC.stringcmd);
+        if (Cmd.argv[0].toLowerCase() != 'cmd')
+            args += Cmd.argv[0] + ' ';
+        if (Cmd.argv.length >= 2)
+            args += Cmd.args;
+        else
+            args += '\n';
+        CL.cls.message.WriteString(args);
     }
 
     static function StuffCmds_f() {
@@ -103,13 +169,8 @@ class Cmd {
         alias[name] = value + '\n';
     }
 
-    static function Init() {
-        Cmd.AddCommand('stuffcmds', Cmd.StuffCmds_f);
-        Cmd.AddCommand('exec', Cmd.Exec_f);
-        Cmd.AddCommand('echo', Cmd.Echo_f);
-        Cmd.AddCommand('alias', Cmd.Alias_f);
-        Cmd.AddCommand('cmd', Cmd.ForwardToServer);
-        Cmd.AddCommand('wait', Cmd.Wait_f);
+    static function Wait_f() {
+        Cmd.wait = true;
     }
 
     static function TokenizeString(text:String):Void {
@@ -131,66 +192,5 @@ class Cmd {
                 return;
             argv.push(COM.token);
         }
-    }
-
-    static function AddCommand(name:String, command:Void->Void):Void {
-        if (Cvar.vars.exists(name)) {
-            Console.Print('Cmd.AddCommand: ' + name + ' already defined as a var\n');
-            return;
-        }
-        if (functions.exists(name))
-            Console.Print('Cmd.AddCommand: ' + name + ' already defined\n');
-        else
-            functions[name] = command;
-    }
-
-    static function CompleteCommand(partial:String):String {
-        if (partial.length == 0)
-            return null;
-        for (name in functions.keys()) {
-            if (name.substring(0, partial.length) == partial)
-                return name;
-        }
-        return null;
-    }
-
-    static function ExecuteString(text:String, client = false):Void {
-        Cmd.client = client;
-        TokenizeString(text);
-        if (Cmd.argv.length == 0)
-            return;
-        var name = Cmd.argv[0].toLowerCase();
-
-        var f = functions[name];
-        if (f != null) {
-            f();
-            return;
-        }
-
-        var a = alias[name];
-        if (a != null) {
-            Cmd.text = a + Cmd.text;
-            return;
-        }
-
-        if (!Cvar.Command())
-            Console.Print('Unknown command "' + name + '"\n');
-    }
-
-    static function ForwardToServer() {
-        if (CL.cls.state != connected) {
-            Console.Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
-            return;
-        }
-        if (CL.cls.demoplayback == true)
-            return;
-        var args = String.fromCharCode(CLC.stringcmd);
-        if (Cmd.argv[0].toLowerCase() != 'cmd')
-            args += Cmd.argv[0] + ' ';
-        if (Cmd.argv.length >= 2)
-            args += Cmd.args;
-        else
-            args += '\n';
-        CL.cls.message.WriteString(args);
     }
 }

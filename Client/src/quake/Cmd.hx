@@ -47,12 +47,12 @@ class Cmd {
         while (text.length != 0) {
             var c = text.charCodeAt(0);
             text = text.substring(1);
-            if (c == 34) {
+            if (c == '"'.code) {
                 quotes = !quotes;
-                line += String.fromCharCode(34);
+                line += String.fromCharCode('"'.code);
                 continue;
             }
-            if ((!quotes && c == 59) || c == 10) {
+            if ((!quotes && c == ";".code) || c == "\n".code) {
                 if (line.length == 0)
                     continue;
                 ExecuteString(line);

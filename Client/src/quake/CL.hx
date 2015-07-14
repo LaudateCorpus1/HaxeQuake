@@ -1507,31 +1507,35 @@ class CL {
         sfx_r_exp3 = S.PrecacheSound('weapons/r_exp3.wav');
     }
 
-    static function ParseBeam(m) {
+    static function ParseBeam(m:MModel):Void {
         var ent = MSG.ReadShort();
         var start = MSG.ReadVector();
         var end = MSG.ReadVector();
-        for (i in 0...24) {
-            var b = CL.beams[i];
-            if (b.entity != ent)
-                continue;
+
+        inline function useBeam(b:Beam) {
             b.model = m;
-            b.endtime = CL.state.time + 0.2;
-            b.start = start.copy();
-            b.end = end.copy();
-            return;
+            b.endtime = state.time + 0.2;
+            b.start = start;
+            b.end = end;
         }
-        for (i in 0...24) {
-            var b = CL.beams[i];
-            if ((b.model != null) && (b.endtime >= CL.state.time))
-                continue;
-            b.entity = ent;
-            b.model = m;
-            b.endtime = CL.state.time + 0.2;
-            b.start = start.copy();
-            b.end = end.copy();
-            return;
+
+        // override any beam with the same entity
+        for (b in beams) {
+            if (b.entity == ent) {
+                useBeam(b);
+                return;
+            }
         }
+
+        // find a free beam
+        for (b in beams) {
+            if (b.model == null || b.endtime >= state.time) {
+                b.entity = ent;
+                useBeam(b);
+                return;
+            }
+        }
+
         Console.Print('beam list overflow!\n');
     }
 

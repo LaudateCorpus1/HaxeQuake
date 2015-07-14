@@ -1680,27 +1680,31 @@ quake_CL.ParseBeam = function(m) {
 	tmp1 = v1;
 	var end = tmp1;
 	var _g = 0;
-	while(_g < 24) {
-		var i = _g++;
-		var b = quake_CL.beams[i];
-		if(b.entity != ent) continue;
-		b.model = m;
-		b.endtime = quake_CL.state.time + 0.2;
-		b.start = new Float32Array(start);
-		b.end = new Float32Array(end);
-		return;
+	var _g1 = quake_CL.beams;
+	while(_g < _g1.length) {
+		var b = _g1[_g];
+		++_g;
+		if(b.entity == ent) {
+			b.model = m;
+			b.endtime = quake_CL.state.time + 0.2;
+			b.start = start;
+			b.end = end;
+			return;
+		}
 	}
-	var _g1 = 0;
-	while(_g1 < 24) {
-		var i1 = _g1++;
-		var b1 = quake_CL.beams[i1];
-		if(b1.model != null && b1.endtime >= quake_CL.state.time) continue;
-		b1.entity = ent;
-		b1.model = m;
-		b1.endtime = quake_CL.state.time + 0.2;
-		b1.start = new Float32Array(start);
-		b1.end = new Float32Array(end);
-		return;
+	var _g2 = 0;
+	var _g11 = quake_CL.beams;
+	while(_g2 < _g11.length) {
+		var b1 = _g11[_g2];
+		++_g2;
+		if(b1.model == null || b1.endtime >= quake_CL.state.time) {
+			b1.entity = ent;
+			b1.model = m;
+			b1.endtime = quake_CL.state.time + 0.2;
+			b1.start = start;
+			b1.end = end;
+			return;
+		}
 	}
 	quake_Console.Print("beam list overflow!\n");
 };

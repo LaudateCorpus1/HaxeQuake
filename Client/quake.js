@@ -3620,9 +3620,6 @@ quake_Host.ShutdownServer = function(crash) {
 		if(quake_Host.client.active) quake_Host.DropClient(crash);
 	}
 };
-quake_Host.WriteConfiguration = function() {
-	quake_COM.WriteTextFile("config.cfg",quake_Key.WriteBindings() + quake_Cvar.WriteVariables());
-};
 quake_Host.ServerFrame = function() {
 	quake_PR._globals_float[32] = quake_Host.frametime;
 	quake_SV.server.datagram.cursize = 0;
@@ -3730,7 +3727,7 @@ quake_Host.Shutdown = function() {
 		return;
 	}
 	quake_Host.isdown = true;
-	quake_Host.WriteConfiguration();
+	quake_COM.WriteTextFile("config.cfg",quake_Key.WriteBindings() + quake_Cvar.WriteVariables());
 	quake_CDAudio.Stop();
 	quake_NET.Shutdown();
 	quake_S.StopAllSounds();

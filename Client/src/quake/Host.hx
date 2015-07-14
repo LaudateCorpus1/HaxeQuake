@@ -219,10 +219,9 @@ class Host {
         }
     }
 
-    static function WriteConfiguration() {
+    static inline function WriteConfiguration() {
         COM.WriteTextFile('config.cfg', Key.WriteBindings() + Cvar.WriteVariables());
     }
-
 
     static function ServerFrame() {
         PR.globals.frametime = Host.frametime;

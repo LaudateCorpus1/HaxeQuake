@@ -946,7 +946,7 @@ quake_CL.AllocDlight = function(key) {
 		}
 		if(dl == null) dl = quake_CL.dlights[0];
 	}
-	dl.origin = new Float32Array(3);
+	dl.origin.set(quake__$Vec_Vec_$Impl_$.origin);
 	dl.radius = 0.0;
 	dl.die = 0.0;
 	dl.decay = 0.0;
@@ -1044,45 +1044,36 @@ quake_CL.RelinkEntities = function() {
 			dl = quake_CL.AllocDlight(i1);
 			var fv = new Float32Array(3);
 			quake__$Vec_Vec_$Impl_$.AngleVectors(ent.angles,fv);
-			var tmp;
-			var v = new Float32Array(3);
-			v[0] = ent.origin[0] + 18.0 * fv[0];
-			v[1] = ent.origin[1] + 18.0 * fv[1];
-			v[2] = ent.origin[2] + 16.0 + 18.0 * fv[2];
-			tmp = v;
-			dl.origin = tmp;
+			var this1 = dl.origin;
+			this1[0] = ent.origin[0] + 18.0 * fv[0];
+			this1[1] = ent.origin[1] + 18.0 * fv[1];
+			this1[2] = ent.origin[2] + 16.0 + 18.0 * fv[2];
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.minlight = 32.0;
 			dl.die = quake_CL.state.time + 0.1;
 		}
 		if((ent.effects & 4) != 0) {
 			dl = quake_CL.AllocDlight(i1);
-			var tmp1;
-			var v1 = new Float32Array(3);
-			v1[0] = ent.origin[0];
-			v1[1] = ent.origin[1];
-			v1[2] = ent.origin[2] + 16.0;
-			tmp1 = v1;
-			dl.origin = tmp1;
+			var this2 = dl.origin;
+			this2[0] = ent.origin[0];
+			this2[1] = ent.origin[1];
+			this2[2] = ent.origin[2] + 16.0;
 			dl.radius = 400.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
 		if((ent.effects & 8) != 0) {
 			dl = quake_CL.AllocDlight(i1);
-			var tmp2;
-			var v2 = new Float32Array(3);
-			v2[0] = ent.origin[0];
-			v2[1] = ent.origin[1];
-			v2[2] = ent.origin[2] + 16.0;
-			tmp2 = v2;
-			dl.origin = tmp2;
+			var this3 = dl.origin;
+			this3[0] = ent.origin[0];
+			this3[1] = ent.origin[1];
+			this3[2] = ent.origin[2] + 16.0;
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
 		if((ent.model.flags & 4) != 0) quake_R.RocketTrail(oldorg,ent.origin,2); else if((ent.model.flags & 32) != 0) quake_R.RocketTrail(oldorg,ent.origin,4); else if((ent.model.flags & 16) != 0) quake_R.RocketTrail(oldorg,ent.origin,3); else if((ent.model.flags & 64) != 0) quake_R.RocketTrail(oldorg,ent.origin,5); else if((ent.model.flags & 1) != 0) {
 			quake_R.RocketTrail(oldorg,ent.origin,0);
 			dl = quake_CL.AllocDlight(i1);
-			dl.origin = new Float32Array(ent.origin);
+			dl.origin.set(ent.origin);
 			dl.radius = 200.0;
 			dl.die = quake_CL.state.time + 0.01;
 		} else if((ent.model.flags & 2) != 0) quake_R.RocketTrail(oldorg,ent.origin,1); else if((ent.model.flags & 128) != 0) quake_R.RocketTrail(oldorg,ent.origin,6);
@@ -1724,7 +1715,7 @@ quake_CL.ParseTEnt = function() {
 	case 3:
 		quake_R.ParticleExplosion(pos);
 		var dl = quake_CL.AllocDlight(0);
-		dl.origin = new Float32Array(pos);
+		dl.origin.set(pos);
 		dl.radius = 350.0;
 		dl.die = quake_CL.state.time + 0.5;
 		dl.decay = 300.0;
@@ -1745,7 +1736,7 @@ quake_CL.ParseTEnt = function() {
 		var colorLength = quake_MSG.ReadByte();
 		quake_R.ParticleExplosion2(pos,colorStart,colorLength);
 		var dl1 = quake_CL.AllocDlight(0);
-		dl1.origin = new Float32Array(pos);
+		dl1.origin.set(pos);
 		dl1.radius = 350.0;
 		dl1.die = quake_CL.state.time + 0.5;
 		dl1.decay = 300.0;
@@ -2571,6 +2562,7 @@ quake_Cvar.prototype = {
 var quake_DLight = function() {
 	this.radius = 0.0;
 	this.die = 0.0;
+	this.origin = new Float32Array(3);
 };
 quake_DLight.__name__ = true;
 var quake_Def = function() { };

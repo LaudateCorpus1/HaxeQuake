@@ -783,7 +783,7 @@ class CL {
             if (dl == null)
                 dl = CL.dlights[0];
         }
-        dl.origin = new Vec();
+        dl.origin.setVector(Vec.origin);
         dl.radius = 0.0;
         dl.die = 0.0;
         dl.decay = 0.0;
@@ -896,7 +896,7 @@ class CL {
                 dl = CL.AllocDlight(i);
                 var fv = new Vec();
                 Vec.AngleVectors(ent.angles, fv);
-                dl.origin = Vec.of(
+                dl.origin.setValues(
                     ent.origin[0] + 18.0 * fv[0],
                     ent.origin[1] + 18.0 * fv[1],
                     ent.origin[2] + 16.0 + 18.0 * fv[2]
@@ -907,13 +907,13 @@ class CL {
             }
             if ((ent.effects & EntEffect.brightlight) != 0) {
                 dl = CL.AllocDlight(i);
-                dl.origin = Vec.of(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
+                dl.origin.setValues(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
                 dl.radius = 400.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
             if ((ent.effects & EntEffect.dimlight) != 0) {
                 dl = CL.AllocDlight(i);
-                dl.origin = Vec.of(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
+                dl.origin.setValues(ent.origin[0], ent.origin[1], ent.origin[2] + 16.0);
                 dl.radius = 200.0 + Math.random() * 32.0;
                 dl.die = CL.state.time + 0.001;
             }
@@ -928,7 +928,7 @@ class CL {
             else if ((ent.model.flags & ModelEffect.rocket) != 0) {
                 R.RocketTrail(oldorg, ent.origin, 0);
                 dl = CL.AllocDlight(i);
-                dl.origin = ent.origin.copy();
+                dl.origin.setVector(ent.origin);
                 dl.radius = 200.0;
                 dl.die = CL.state.time + 0.01;
             }
@@ -1575,7 +1575,7 @@ class CL {
             case explosion:
                 R.ParticleExplosion(pos);
                 var dl = CL.AllocDlight(0);
-                dl.origin = pos.copy();
+                dl.origin.setVector(pos);
                 dl.radius = 350.0;
                 dl.die = CL.state.time + 0.5;
                 dl.decay = 300.0;
@@ -1592,7 +1592,7 @@ class CL {
                 var colorLength = MSG.ReadByte();
                 R.ParticleExplosion2(pos, colorStart, colorLength);
                 var dl = CL.AllocDlight(0);
-                dl.origin = pos.copy();
+                dl.origin.setVector(pos);
                 dl.radius = 350.0;
                 dl.die = CL.state.time + 0.5;
                 dl.decay = 300.0;

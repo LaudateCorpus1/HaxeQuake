@@ -1083,7 +1083,7 @@ class CL {
         var sound_num = MSG.ReadByte();
         var ent = channel >> 3;
         channel &= 7;
-        var pos = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var pos = MSG.ReadVector();
         S.StartSound(ent, channel, CL.state.sound_precache[sound_num], pos, volume / 255.0, attenuation);
     }
 
@@ -1509,8 +1509,8 @@ class CL {
 
     static function ParseBeam(m) {
         var ent = MSG.ReadShort();
-        var start = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
-        var end = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var start = MSG.ReadVector();
+        var end = MSG.ReadVector();
         for (i in 0...24) {
             var b = CL.beams[i];
             if (b.entity != ent)
@@ -1540,21 +1540,21 @@ class CL {
 
         switch (type) {
             case lightning1:
-                CL.ParseBeam(Mod.ForName('progs/bolt.mdl', true));
+                ParseBeam(Mod.ForName('progs/bolt.mdl', true));
                 return;
             case lightning2:
-                CL.ParseBeam(Mod.ForName('progs/bolt2.mdl', true));
+                ParseBeam(Mod.ForName('progs/bolt2.mdl', true));
                 return;
             case lightning3:
-                CL.ParseBeam(Mod.ForName('progs/bolt3.mdl', true));
+                ParseBeam(Mod.ForName('progs/bolt3.mdl', true));
                 return;
             case beam:
-                CL.ParseBeam(Mod.ForName('progs/beam.mdl', true));
+                ParseBeam(Mod.ForName('progs/beam.mdl', true));
                 return;
             default:
         }
 
-        var pos = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var pos = MSG.ReadVector();
         switch (type) {
             case wizspike:
                 R.RunParticleEffect(pos, Vec.origin, 20, 20);

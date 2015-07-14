@@ -1337,7 +1337,7 @@ class R {
     }
 
     static function ParseParticleEffect() {
-        var org = Vec.of(MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord());
+        var org = MSG.ReadVector();
         var dir = Vec.of(MSG.ReadChar() * 0.0625, MSG.ReadChar() * 0.0625, MSG.ReadChar() * 0.0625);
         var msgcount = MSG.ReadByte();
         var color = MSG.ReadByte();

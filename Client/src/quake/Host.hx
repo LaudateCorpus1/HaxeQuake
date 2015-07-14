@@ -41,27 +41,22 @@ class HClient {
 
 
 class Host {
-    static var framerate:Cvar;
-    static var speeds:Cvar;
-    static var ticrate:Cvar;
-    static var serverprofile:Cvar;
-    static var fraglimit:Cvar;
-    static var timelimit:Cvar;
-    public static var teamplay(default,null):Cvar;
-    static var samelevel:Cvar;
-    static var noexit:Cvar;
-    public static var skill(default,null):Cvar;
-    public static var developer(default,null):Cvar;
-    public static var deathmatch(default,null):Cvar;
-    public static var coop(default,null):Cvar;
-    static var pausable:Cvar;
-    static var temp1:Cvar;
-
-    public static var framecount(default,null) = 0;
-    public static var current_skill:Int;
-
+    public static var initialized(default,null) = false;
 
     public static var client:HClient;
+
+    public static var deathmatch(default,null):Cvar;
+    public static var teamplay(default,null):Cvar;
+    public static var coop(default,null):Cvar;
+
+    public static var skill(default,null):Cvar;
+    public static var current_skill:Int;
+
+    public static var noclip_anglehack = false;
+
+    public static var developer(default,null):Cvar;
+
+    public static var framecount(default,null) = 0;
     public static var frametime:Float;
     public static var realtime(default,null):Float;
     static var oldrealtime:Float;
@@ -69,16 +64,24 @@ class Host {
     static var timecount = 0;
     static var time3 = 0.0;
 
-    static var inerror = false;
-    public static var noclip_anglehack = false;
+    static var framerate:Cvar;
+    static var speeds:Cvar;
+    static var ticrate:Cvar;
+    static var serverprofile:Cvar;
+    static var fraglimit:Cvar;
+    static var timelimit:Cvar;
+    static var samelevel:Cvar;
+    static var noexit:Cvar;
+    static var pausable:Cvar;
+    static var temp1:Cvar;
 
-    public static var initialized(default,null) = false;
+    static var inerror = false;
     static var isdown = false;
 
     static var startdemos:Bool;
 
-    public static function EndGame(message) {
-        Console.DPrint('Host.EndGame: ' + message + '\n');
+    public static function EndGame(message:String):Void {
+        Console.DPrint('Host.EndGame: $message\n');
         if (CL.cls.demonum != -1)
             CL.NextDemo();
         else
@@ -87,55 +90,55 @@ class Host {
     }
 
     public static function Error(error:String):Void {
-        if (Host.inerror)
+        if (inerror)
             Sys.Error('Host.Error: recursively entered');
-        Host.inerror = true;
+        inerror = true;
         SCR.EndLoadingPlaque();
-        Console.Print('Host.Error: ' + error + '\n');
+        Console.Print('Host.Error: $error\n');
         if (SV.server.active)
-            Host.ShutdownServer(false);
+            ShutdownServer(false);
         CL.Disconnect();
         CL.cls.demonum = -1;
-        Host.inerror = false;
+        inerror = false;
         throw new js.Error('Host.abortserver');
     }
 
-    static function FindMaxClients() {
+    static function FindMaxClients():Void {
         SV.svs.maxclients = SV.svs.maxclientslimit = 1;
         CL.cls.state = disconnected;
         SV.svs.clients = [new HClient()];
-        Host.deathmatch.setValue(0);
+        deathmatch.setValue(0);
     }
 
     static function InitLocal() {
-        Host.InitCommands();
-        Host.framerate = Cvar.RegisterVariable('host_framerate', '0');
-        Host.speeds = Cvar.RegisterVariable('host_speeds', '0');
-        Host.ticrate = Cvar.RegisterVariable('sys_ticrate', '0.05');
-        Host.serverprofile = Cvar.RegisterVariable('serverprofile', '0');
-        Host.fraglimit = Cvar.RegisterVariable('fraglimit', '0', false, true);
-        Host.timelimit = Cvar.RegisterVariable('timelimit', '0', false, true);
-        Host.teamplay = Cvar.RegisterVariable('teamplay', '0', false, true);
-        Host.samelevel = Cvar.RegisterVariable('samelevel', '0');
-        Host.noexit = Cvar.RegisterVariable('noexit', '0', false, true);
-        Host.skill = Cvar.RegisterVariable('skill', '1');
-        Host.developer = Cvar.RegisterVariable('developer', '0');
-        Host.deathmatch = Cvar.RegisterVariable('deathmatch', '0');
-        Host.coop = Cvar.RegisterVariable('coop', '0');
-        Host.pausable = Cvar.RegisterVariable('pausable', '1');
-        Host.temp1 = Cvar.RegisterVariable('temp1', '0');
-        Host.FindMaxClients();
+        InitCommands();
+        framerate = Cvar.RegisterVariable('host_framerate', '0');
+        speeds = Cvar.RegisterVariable('host_speeds', '0');
+        ticrate = Cvar.RegisterVariable('sys_ticrate', '0.05');
+        serverprofile = Cvar.RegisterVariable('serverprofile', '0');
+        fraglimit = Cvar.RegisterVariable('fraglimit', '0', false, true);
+        timelimit = Cvar.RegisterVariable('timelimit', '0', false, true);
+        teamplay = Cvar.RegisterVariable('teamplay', '0', false, true);
+        samelevel = Cvar.RegisterVariable('samelevel', '0');
+        noexit = Cvar.RegisterVariable('noexit', '0', false, true);
+        skill = Cvar.RegisterVariable('skill', '1');
+        developer = Cvar.RegisterVariable('developer', '0');
+        deathmatch = Cvar.RegisterVariable('deathmatch', '0');
+        coop = Cvar.RegisterVariable('coop', '0');
+        pausable = Cvar.RegisterVariable('pausable', '1');
+        temp1 = Cvar.RegisterVariable('temp1', '0');
+        FindMaxClients();
     }
 
     static function ClientPrint(string:String):Void {
-        Host.client.message.WriteByte(SVC.print);
-        Host.client.message.WriteString(string);
+        client.message.WriteByte(SVC.print);
+        client.message.WriteString(string);
     }
 
     public static function BroadcastPrint(string:String):Void {
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
-            if ((!client.active) || (!client.spawned))
+            if (!client.active || !client.spawned)
                 continue;
             client.message.WriteByte(SVC.print);
             client.message.WriteString(string);

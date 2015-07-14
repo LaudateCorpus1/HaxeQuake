@@ -15,8 +15,7 @@ import quake.Mod.MSurface;
 import quake.Def.ClientStat;
 using Tools;
 
-@:publicFields
-@:enum abstract RParticleType(Int) {
+@:enum private abstract ParticleType(Int) {
     var tracer = 0;
     var grav = 1;
     var slowgrav = 2;
@@ -28,8 +27,8 @@ using Tools;
 }
 
 @:publicFields
-private class RParticle {
-    var type:RParticleType;
+private class Particle {
+    var type:ParticleType;
     var ramp:Float;
     var die:Float;
     var org:Vec;
@@ -74,7 +73,7 @@ class R {
     static var c_brush_verts:Int;
     static var c_alias_polys:Int;
 
-    static var particles:Array<RParticle>;
+    static var particles:Array<Particle>;
 
     static var oldviewleaf:MLeaf;
     static var viewleaf:MLeaf;
@@ -1262,7 +1261,7 @@ class R {
         GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }
 
-    static function EntityParticles(ent:Entity) {
+    static function EntityParticles(ent:Entity):Void {
         var allocated = R.AllocParticles(162);
         for (i in 0...allocated.length) {
             var angle = CL.state.time * R.avelocities[i][0];
@@ -1273,7 +1272,7 @@ class R {
             var cy = Math.cos(angle);
 
             R.particles[allocated[i]] = {
-                var p = new RParticle(explode);
+                var p = new Particle(explode);
                 p.die = CL.state.time + 0.01;
                 p.color = 0x6f;
                 p.ramp = 0.0;
@@ -1292,7 +1291,7 @@ class R {
         R.particles = [];
         for (i in 0...R.numparticles)
             R.particles[i] = {
-                var p = new RParticle(tracer);
+                var p = new Particle(tracer);
                 p.die = -1.0;
                 p;
             };
@@ -1321,7 +1320,7 @@ class R {
                 break;
             }
             R.particles[p[0]] = {
-                var p = new RParticle(tracer);
+                var p = new Particle(tracer);
                 p.die = 99999.0;
                 p.color = -c & 15;
                 p.vel = new Vec();
@@ -1347,7 +1346,7 @@ class R {
         var allocated = R.AllocParticles(1024);
         for (i in 0...allocated.length) {
             R.particles[allocated[i]] = {
-                var p = new RParticle((i & 1) != 0 ? explode : explode2);
+                var p = new Particle((i & 1) != 0 ? explode : explode2);
                 p.die = CL.state.time + 5.0;
                 p.color = R.ramp1[0];
                 p.ramp = Math.floor(Math.random() * 4.0);
@@ -1366,7 +1365,7 @@ class R {
         var allocated = R.AllocParticles(512), colorMod = 0;
         for (i in 0...allocated.length) {
             R.particles[allocated[i]] = {
-                var p = new RParticle(blob);
+                var p = new Particle(blob);
                 p.die = CL.state.time + 0.3;
                 p.color = colorStart + (colorMod++ % colorLength);
                 p.org = Vec.of(
@@ -1405,7 +1404,7 @@ class R {
         var allocated = R.AllocParticles(count);
         for (i in 0...allocated.length) {
             R.particles[allocated[i]] = {
-                var p = new RParticle(slowgrav);
+                var p = new Particle(slowgrav);
                 p.die = CL.state.time + 0.6 * Math.random();
                 p.color = (color & 0xf8) + Math.floor(Math.random() * 8.0);
                 p.org = Vec.of(

@@ -12393,7 +12393,7 @@ quake_R.EntityParticles = function(ent) {
 		var sy = Math.sin(angle1);
 		var cy = Math.cos(angle1);
 		var tmp;
-		var p = new quake__$R_RParticle(4);
+		var p = new quake__$R_Particle(4);
 		p.die = quake_CL.state.time + 0.01;
 		p.color = 111;
 		p.ramp = 0.0;
@@ -12416,7 +12416,7 @@ quake_R.ClearParticles = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var tmp;
-		var p = new quake__$R_RParticle(0);
+		var p = new quake__$R_Particle(0);
 		p.die = -1.0;
 		tmp = p;
 		quake_R.particles[i] = tmp;
@@ -12443,7 +12443,7 @@ quake_R.ReadPointFile_f = function() {
 			break;
 		}
 		var tmp;
-		var p1 = new quake__$R_RParticle(0);
+		var p1 = new quake__$R_Particle(0);
 		p1.die = 99999.0;
 		p1.color = -c & 15;
 		p1.vel = new Float32Array(3);
@@ -12494,7 +12494,7 @@ quake_R.ParticleExplosion = function(org) {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var tmp;
-		var p = new quake__$R_RParticle((i & 1) != 0?4:5);
+		var p = new quake__$R_Particle((i & 1) != 0?4:5);
 		p.die = quake_CL.state.time + 5.0;
 		p.color = quake_R.ramp1[0];
 		p.ramp = Math.floor(Math.random() * 4.0);
@@ -12530,7 +12530,7 @@ quake_R.ParticleExplosion2 = function(org,colorStart,colorLength) {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var tmp;
-		var p = new quake__$R_RParticle(6);
+		var p = new quake__$R_Particle(6);
 		p.die = quake_CL.state.time + 0.3;
 		p.color = colorStart + colorMod++ % colorLength;
 		var tmp1;
@@ -12601,7 +12601,7 @@ quake_R.RunParticleEffect = function(org,dir,color,count) {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var tmp;
-		var p = new quake__$R_RParticle(2);
+		var p = new quake__$R_Particle(2);
 		p.die = quake_CL.state.time + 0.6 * Math.random();
 		p.color = (color & 248) + Math.floor(Math.random() * 8.0);
 		var tmp1;
@@ -14185,10 +14185,10 @@ var quake__$PR_PRStatement = function(view,ofs) {
 	this.c = view.getInt16(ofs + 6,true);
 };
 quake__$PR_PRStatement.__name__ = true;
-var quake__$R_RParticle = function(t) {
+var quake__$R_Particle = function(t) {
 	this.type = t;
 };
-quake__$R_RParticle.__name__ = true;
+quake__$R_Particle.__name__ = true;
 var quake_Sfx = function(n) {
 	this.name = n;
 };

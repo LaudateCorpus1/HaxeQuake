@@ -2312,12 +2312,13 @@ quake_Cmd.Exec_f = function() {
 		quake_Console.Print("exec <filename> : execute a script file\n");
 		return;
 	}
-	var f = quake_COM.LoadTextFile(quake_Cmd.argv[1]);
+	var filename = quake_Cmd.argv[1];
+	var f = quake_COM.LoadTextFile(filename);
 	if(f == null) {
-		quake_Console.Print("couldn't exec " + quake_Cmd.argv[1] + "\n");
+		quake_Console.Print("couldn't exec " + filename + "\n");
 		return;
 	}
-	quake_Console.Print("execing " + quake_Cmd.argv[1] + "\n");
+	quake_Console.Print("execing " + filename + "\n");
 	quake_Cmd.text = f + quake_Cmd.text;
 };
 quake_Cmd.Echo_f = function() {

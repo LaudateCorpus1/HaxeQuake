@@ -88,12 +88,12 @@ class Cmd {
         }
 
         if (!Cvar.Command())
-            Console.Print('Unknown command "' + name + '"\n');
+            Console.Print('Unknown command "$name"\n');
     }
 
     public static function ForwardToServer() {
         if (CL.cls.state != connected) {
-            Console.Print('Can\'t "' + Cmd.argv[0] + '", not connected\n');
+            Console.Print('Can\'t "${argv[0]}", not connected\n');
             return;
         }
         if (CL.cls.demoplayback == true)
@@ -135,17 +135,18 @@ class Cmd {
     }
 
     static function Exec_f() {
-        if (Cmd.argv.length != 2) {
+        if (argv.length != 2) {
             Console.Print('exec <filename> : execute a script file\n');
             return;
         }
-        var f = COM.LoadTextFile(Cmd.argv[1]);
+        var filename = argv[1];
+        var f = COM.LoadTextFile(filename);
         if (f == null) {
-            Console.Print('couldn\'t exec ' + Cmd.argv[1] + '\n');
+            Console.Print('couldn\'t exec $filename\n');
             return;
         }
-        Console.Print('execing ' + Cmd.argv[1] + '\n');
-        Cmd.text = f + Cmd.text;
+        Console.Print('execing $filename\n');
+        text = f + text;
     }
 
     static function Echo_f() {

@@ -31,7 +31,6 @@ class DrawPic {
 }
 
 
-@:publicFields
 class Draw {
 	static var chars:Uint8Array;
 	static var conback:DrawPic;
@@ -51,7 +50,7 @@ class Draw {
 		}
 	}
 
-	static function Init():Void {
+	public static function Init():Void {
 		chars = new Uint8Array(W.GetLumpName('CONCHARS'));
 		
 		var trans = new ArrayBuffer(65536);
@@ -90,7 +89,7 @@ class Draw {
 		GL.CreateProgram('picTranslate', ['uRect', 'uOrtho', 'uTop', 'uBottom'], ['aPoint'], ['tTexture', 'tTrans']);
 	}
 
-	static function Character(x:Int, y:Int, num:Int):Void {
+	public static function Character(x:Int, y:Int, num:Int):Void {
 		var program = GL.UseProgram('character');
 		GL.Bind(program.tTexture, char_texture);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -100,7 +99,7 @@ class Draw {
 		gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
 	}
 
-	static function String(x:Int, y:Int, str:String):Void {
+	public static function String(x:Int, y:Int, str:String):Void {
 		var program = GL.UseProgram('character');
 		GL.Bind(program.tTexture, char_texture);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -114,7 +113,7 @@ class Draw {
 		}
 	}
 
-	static function StringWhite(x:Int, y:Int, str:String):Void {
+	public static function StringWhite(x:Int, y:Int, str:String):Void {
 		var program = GL.UseProgram('character');
 		GL.Bind(program.tTexture, char_texture);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -128,11 +127,11 @@ class Draw {
 		}
 	}
 
-	static inline function PicFromWad(name:String):DrawPic {
+	public static inline function PicFromWad(name:String):DrawPic {
 		return new DrawPic(W.GetLumpName(name));
 	}
 
-	static function CachePic(path:String):DrawPic {
+	public static function CachePic(path:String):DrawPic {
 		path = 'gfx/' + path + '.lmp';
 		var buf = COM.LoadFile(path);
 		if (buf == null)
@@ -140,7 +139,7 @@ class Draw {
 		return new DrawPic(buf);
 	}
 
-	static function Pic(x:Int, y:Int, pic:DrawPic):Void {
+	public static function Pic(x:Int, y:Int, pic:DrawPic):Void {
 		var program = GL.UseProgram('pic');
 		GL.Bind(program.tTexture, pic.texnum);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -149,7 +148,7 @@ class Draw {
 		gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
 	}
 
-	static function PicTranslate(x:Int, y:Int, pic:DrawPic, top:Int, bottom:Int):Void {
+	public static function PicTranslate(x:Int, y:Int, pic:DrawPic, top:Int, bottom:Int):Void {
 		var program = GL.UseProgram('picTranslate');
 		GL.Bind(program.tTexture, pic.texnum);
 		GL.Bind(program.tTrans, pic.translate);
@@ -163,7 +162,7 @@ class Draw {
 		gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
 	}
 
-	static function ConsoleBackground(lines:Int):Void {
+	public static function ConsoleBackground(lines:Int):Void {
 		var program = GL.UseProgram('pic');
 		GL.Bind(program.tTexture, conback.texnum);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -172,7 +171,7 @@ class Draw {
 		gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
 	}
 
-	static function Fill(x:Int, y:Int, w:Int, h:Int, c:Int):Void {
+	public static function Fill(x:Int, y:Int, w:Int, h:Int, c:Int):Void {
 		var program = GL.UseProgram('fill');
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -182,7 +181,7 @@ class Draw {
 		gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
 	}
 
-	static function FadeScreen():Void {
+	public static function FadeScreen():Void {
 		var program = GL.UseProgram('fill');
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -191,7 +190,7 @@ class Draw {
 		gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
 	}
 
-	static function BeginDisc():Void {
+	public static function BeginDisc():Void {
 		if (loadingElem == null)
 			return;
 		loadingElem.style.left = ((VID.width - loading.width) >> 1) + 'px';
@@ -199,7 +198,7 @@ class Draw {
 		loadingElem.style.display = 'inline-block';
 	}
 
-	static function EndDisc():Void {
+	public static function EndDisc():Void {
 		if (loadingElem != null)
 			loadingElem.style.display = 'none';
 	}

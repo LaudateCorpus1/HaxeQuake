@@ -1798,9 +1798,10 @@ quake_CL.UpdateTEnts = function() {
 	var org_1 = 0.0;
 	var org_2 = 0.0;
 	var _g = 0;
-	while(_g < 24) {
-		var i = _g++;
-		var b = quake_CL.beams[i];
+	var _g1 = quake_CL.beams;
+	while(_g < _g1.length) {
+		var b = _g1[_g];
+		++_g;
 		if(b.model == null || b.endtime < quake_CL.state.time) continue;
 		if(b.entity == quake_CL.state.viewentity) {
 			var v1 = quake_CL.entities[quake_CL.state.viewentity].origin;
@@ -14959,6 +14960,7 @@ String.__name__ = true;
 Array.__name__ = true;
 Date.__name__ = ["Date"];
 var __map_reserved = {}
+quake_CL.temp_entities = [];
 quake_CL.kbutton = { mlook : 0, klook : 1, left : 2, right : 3, forward : 4, back : 5, lookup : 6, lookdown : 7, moveleft : 8, moveright : 9, strafe : 10, speed : 11, 'use' : 12, jump : 13, attack : 14, moveup : 15, movedown : 16, num : 17};
 quake_CL.kbuttons = [];
 quake_CL.sendmovebuf = new quake_MSG(16);
@@ -14967,7 +14969,6 @@ quake_CL.static_entities = [];
 quake_CL.visedicts = [];
 quake_CL.svc_strings = ["bad","nop","disconnect","updatestat","version","setview","sound","time","print","stufftext","setangle","serverinfo","lightstyle","updatename","updatefrags","clientdata","stopsound","updatecolors","particle","damage","spawnstatic","OBSOLETE spawnbinary","spawnbaseline","temp_entity","setpause","signonnum","centerprint","killedmonster","foundsecret","spawnstaticsound","intermission","finale","cdtrack","sellscreen","cutscene"];
 quake_CL.lastmsg = 0.0;
-quake_CL.temp_entities = [];
 quake_COM.argv = [];
 quake_COM.standard_quake = true;
 quake_COM.rogue = false;

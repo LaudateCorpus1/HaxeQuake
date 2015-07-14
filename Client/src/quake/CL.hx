@@ -165,6 +165,17 @@ class CL {
     static var rcon_password:Cvar;
     static var rcon_address:Cvar;
 
+    static var temp_entities:Array<Entity> = [];
+    static var num_temp_entities:Int;
+
+    static var sfx_wizhit:Sfx;
+    static var sfx_knighthit:Sfx;
+    static var sfx_tink1:Sfx;
+    static var sfx_ric1:Sfx;
+    static var sfx_ric2:Sfx;
+    static var sfx_ric3:Sfx;
+    static var sfx_r_exp3:Sfx;
+
     // demo
 
     public static function StopPlayback() {
@@ -625,7 +636,9 @@ class CL {
     public static var entities(default,null):Array<Entity>;
     public static var dlights(default,null):Array<DLight>;
     public static var lightstyle(default,null):Array<String>;
+    
     static var beams:Array<Beam>;
+    static inline var MAX_BEAMS = 24;
 
     static function ClearState() {
         if (!SV.server.active) {
@@ -648,7 +661,7 @@ class CL {
             lightstyle.push("");
 
         beams = [];
-        for (i in 0...24)
+        for (i in 0...MAX_BEAMS)
             beams.push(new Beam());
     }
 
@@ -1484,16 +1497,6 @@ class CL {
 
     // tent
 
-    static var temp_entities = [];
-
-    static var sfx_wizhit:Sfx;
-    static var sfx_knighthit:Sfx;
-    static var sfx_tink1:Sfx;
-    static var sfx_ric1:Sfx;
-    static var sfx_ric2:Sfx;
-    static var sfx_ric3:Sfx;
-    static var sfx_r_exp3:Sfx;
-
     static function InitTEnts() {
         sfx_wizhit = S.PrecacheSound('wizard/hit.wav');
         sfx_knighthit = S.PrecacheSound('hknight/hit.wav');
@@ -1597,35 +1600,30 @@ class CL {
 
     static function NewTempEntity():Entity {
         var ent = new Entity();
-        CL.temp_entities[CL.num_temp_entities++] = ent;
-        CL.visedicts[CL.numvisedicts++] = ent;
+        temp_entities[num_temp_entities++] = ent;
+        visedicts[numvisedicts++] = ent;
         return ent;
     }
 
-    static var num_temp_entities:Int;
-
-    static function UpdateTEnts() {
+    static function UpdateTEnts():Void {
         num_temp_entities = 0;
         
         var dist = [0.0, 0.0, 0.0];
         var org = [0.0, 0.0, 0.0];
 
-        for (i in 0...24) {
-            var b = CL.beams[i];
-            if ((b.model == null) || (b.endtime < CL.state.time))
+        for (b in beams) {
+            if (b.model == null || b.endtime < state.time)
                 continue;
-            if (b.entity == CL.state.viewentity)
-                Vec.Copy(CL.entities[CL.state.viewentity].origin, b.start);
+            if (b.entity == state.viewentity)
+                Vec.Copy(entities[state.viewentity].origin, b.start);
             dist[0] = b.end[0] - b.start[0];
             dist[1] = b.end[1] - b.start[1];
             dist[2] = b.end[2] - b.start[2];
             var yaw, pitch;
-            if ((dist[0] == 0.0) && (dist[1] == 0.0)) {
+            if (dist[0] == 0.0 && dist[1] == 0.0) {
                 yaw = 0;
                 pitch = dist[2] > 0.0 ? 90 : 270;
-            }
-            else
-            {
+            } else {
                 yaw = Std.int(Math.atan2(dist[1], dist[0]) * 180.0 / Math.PI);
                 if (yaw < 0)
                     yaw += 360;
@@ -1643,7 +1641,7 @@ class CL {
                 dist[2] /= d;
             }
             while (d > 0.0) {
-                var ent = CL.NewTempEntity();
+                var ent = NewTempEntity();
                 ent.origin = Vec.ofArray(org);
                 ent.model = b.model;
                 ent.angles = Vec.of(pitch, yaw, Math.random() * 360.0);

@@ -15,12 +15,19 @@ using Tools;
 
 @:publicFields
 private class Beam {
-    var endtime:Float = 0.0;
-    var model:MModel;
     var entity:Int;
-    var start:Vec;
-    var end:Vec;
-    function new() {}
+    var model:MModel;
+    var endtime:Float;
+    var start(default,null):Vec;
+    var end(default,null):Vec;
+
+    function new() {
+        entity = 0;
+        model = null;
+        endtime = 0;
+        start = new Vec();
+        end = new Vec();
+    }
 }
 
 @:publicFields
@@ -1504,14 +1511,16 @@ class CL {
 
     static function ParseBeam(m:MModel):Void {
         var ent = MSG.ReadShort();
-        var start = MSG.ReadVector();
-        var end = MSG.ReadVector();
+
+        // these arrays will be inlined by haxe so no allocation is happening
+        var start = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
+        var end = [MSG.ReadCoord(), MSG.ReadCoord(), MSG.ReadCoord()];
 
         inline function useBeam(b:Beam) {
             b.model = m;
             b.endtime = state.time + 0.2;
-            b.start = start;
-            b.end = end;
+            b.start.setValues(start[0], start[1], start[2]);
+            b.end.setValues(end[0], end[1], end[2]);
         }
 
         // override any beam with the same entity

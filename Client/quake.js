@@ -312,7 +312,11 @@ quake_CDAudio.CD_f = function() {
 	}
 };
 var quake__$CL_Beam = function() {
-	this.endtime = 0.0;
+	this.entity = 0;
+	this.model = null;
+	this.endtime = 0;
+	this.start = new Float32Array(3);
+	this.end = new Float32Array(3);
 };
 quake__$CL_Beam.__name__ = true;
 var quake__$CL_ClientStatic = function() {
@@ -1623,26 +1627,12 @@ quake_CL.InitTEnts = function() {
 };
 quake_CL.ParseBeam = function(m) {
 	var ent = quake_MSG.ReadShort();
-	var tmp;
-	var x = quake_MSG.ReadShort() * 0.125;
-	var y = quake_MSG.ReadShort() * 0.125;
-	var z = quake_MSG.ReadShort() * 0.125;
-	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-	tmp = v;
-	var start = tmp;
-	var tmp1;
-	var x1 = quake_MSG.ReadShort() * 0.125;
-	var y1 = quake_MSG.ReadShort() * 0.125;
-	var z1 = quake_MSG.ReadShort() * 0.125;
-	var v1 = new Float32Array(3);
-	v1[0] = x1;
-	v1[1] = y1;
-	v1[2] = z1;
-	tmp1 = v1;
-	var end = tmp1;
+	var start_0 = quake_MSG.ReadShort() * 0.125;
+	var start_1 = quake_MSG.ReadShort() * 0.125;
+	var start_2 = quake_MSG.ReadShort() * 0.125;
+	var end_0 = quake_MSG.ReadShort() * 0.125;
+	var end_1 = quake_MSG.ReadShort() * 0.125;
+	var end_2 = quake_MSG.ReadShort() * 0.125;
 	var _g = 0;
 	var _g1 = quake_CL.beams;
 	while(_g < _g1.length) {
@@ -1651,8 +1641,14 @@ quake_CL.ParseBeam = function(m) {
 		if(b.entity == ent) {
 			b.model = m;
 			b.endtime = quake_CL.state.time + 0.2;
-			b.start = start;
-			b.end = end;
+			var this1 = b.start;
+			this1[0] = start_0;
+			this1[1] = start_1;
+			this1[2] = start_2;
+			var this2 = b.end;
+			this2[0] = end_0;
+			this2[1] = end_1;
+			this2[2] = end_2;
 			return;
 		}
 	}
@@ -1665,8 +1661,14 @@ quake_CL.ParseBeam = function(m) {
 			b1.entity = ent;
 			b1.model = m;
 			b1.endtime = quake_CL.state.time + 0.2;
-			b1.start = start;
-			b1.end = end;
+			var this3 = b1.start;
+			this3[0] = start_0;
+			this3[1] = start_1;
+			this3[2] = start_2;
+			var this4 = b1.end;
+			this4[0] = end_0;
+			this4[1] = end_1;
+			this4[2] = end_2;
 			return;
 		}
 	}

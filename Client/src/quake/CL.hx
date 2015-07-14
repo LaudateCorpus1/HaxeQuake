@@ -1605,9 +1605,11 @@ class CL {
     static var num_temp_entities:Int;
 
     static function UpdateTEnts() {
-        CL.num_temp_entities = 0;
+        num_temp_entities = 0;
+        
         var dist = [0.0, 0.0, 0.0];
-        var org = new Vec();
+        var org = [0.0, 0.0, 0.0];
+
         for (i in 0...24) {
             var b = CL.beams[i];
             if ((b.model == null) || (b.endtime < CL.state.time))
@@ -1642,7 +1644,7 @@ class CL {
             }
             while (d > 0.0) {
                 var ent = CL.NewTempEntity();
-                ent.origin = org.copy();
+                ent.origin = Vec.ofArray(org);
                 ent.model = b.model;
                 ent.angles = Vec.of(pitch, yaw, Math.random() * 360.0);
                 org[0] += dist[0] * 30.0;

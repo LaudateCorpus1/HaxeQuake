@@ -1794,7 +1794,9 @@ quake_CL.UpdateTEnts = function() {
 	var dist_0 = 0.0;
 	var dist_1 = 0.0;
 	var dist_2 = 0.0;
-	var org = new Float32Array(3);
+	var org_0 = 0.0;
+	var org_1 = 0.0;
+	var org_2 = 0.0;
 	var _g = 0;
 	while(_g < 24) {
 		var i = _g++;
@@ -1827,9 +1829,9 @@ quake_CL.UpdateTEnts = function() {
 			pitch = tmp1;
 			if(pitch < 0) pitch += 360;
 		}
-		org[0] = b.start[0];
-		org[1] = b.start[1];
-		org[2] = b.start[2];
+		org_0 = b.start[0];
+		org_1 = b.start[1];
+		org_2 = b.start[2];
 		var d = Math.sqrt(dist_0 * dist_0 + dist_1 * dist_1 + dist_2 * dist_2);
 		if(d != 0.0) {
 			dist_0 /= d;
@@ -1838,19 +1840,25 @@ quake_CL.UpdateTEnts = function() {
 		}
 		while(d > 0.0) {
 			var ent = quake_CL.NewTempEntity();
-			ent.origin = new Float32Array(org);
-			ent.model = b.model;
 			var tmp2;
-			var z = Math.random() * 360.0;
 			var v = new Float32Array(3);
-			v[0] = pitch;
-			v[1] = yaw;
-			v[2] = z;
+			v[0] = org_0;
+			v[1] = org_1;
+			v[2] = org_2;
 			tmp2 = v;
-			ent.angles = tmp2;
-			org[0] = org[0] + dist_0 * 30.0;
-			org[1] = org[1] + dist_1 * 30.0;
-			org[2] = org[2] + dist_2 * 30.0;
+			ent.origin = tmp2;
+			ent.model = b.model;
+			var tmp3;
+			var z = Math.random() * 360.0;
+			var v3 = new Float32Array(3);
+			v3[0] = pitch;
+			v3[1] = yaw;
+			v3[2] = z;
+			tmp3 = v3;
+			ent.angles = tmp3;
+			org_0 += dist_0 * 30.0;
+			org_1 += dist_1 * 30.0;
+			org_2 += dist_2 * 30.0;
 			d -= 30.0;
 		}
 	}

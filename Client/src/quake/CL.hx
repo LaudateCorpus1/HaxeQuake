@@ -141,14 +141,13 @@ private class ClientState {
     var connected = 2;
 }
 
-@:publicFields
 class CL {
 
-    static var name:Cvar;
-    static var color:Cvar;
+    public static var name(default,null):Cvar;
+    public static var color(default,null):Cvar;
     static var upspeed:Cvar;
-    static var forwardspeed:Cvar;
-    static var backspeed:Cvar;
+    public static var forwardspeed(default,null):Cvar;
+    public static var backspeed(default,null):Cvar;
     static var sidespeed:Cvar;
     static var movespeedkey:Cvar;
     static var yawspeed:Cvar;
@@ -156,19 +155,19 @@ class CL {
     static var anglespeedkey:Cvar;
     static var shownet:Cvar;
     static var nolerp:Cvar;
-    static var lookspring:Cvar;
-    static var lookstrafe:Cvar;
-    static var sensitivity:Cvar;
-    static var m_pitch:Cvar;
-    static var m_yaw:Cvar;
-    static var m_forward:Cvar;
-    static var m_side:Cvar;
+    public static var lookspring(default,null):Cvar;
+    public static var lookstrafe(default,null):Cvar;
+    public static var sensitivity(default,null):Cvar;
+    public static var m_pitch(default,null):Cvar;
+    public static var m_yaw(default,null):Cvar;
+    public static var m_forward(default,null):Cvar;
+    public static var m_side(default,null):Cvar;
     static var rcon_password:Cvar;
     static var rcon_address:Cvar;
 
     // demo
 
-    static function StopPlayback() {
+    public static function StopPlayback() {
         if (!CL.cls.demoplayback)
             return;
         CL.cls.demoplayback = false;
@@ -360,7 +359,7 @@ class CL {
 
     // input
 
-    static var kbutton = {
+    public static var kbutton(default,null) = {
         mlook: 0,
         klook: 1,
         left: 2,
@@ -380,7 +379,7 @@ class CL {
         movedown: 16,
         num: 17
     }
-    static var kbuttons:Array<{down:Array<Int>, state:Int}> = [];
+    public static var kbuttons(default,null):Array<{down:Array<Int>, state:Int}> = [];
 
     static function KeyDown() {
         var b:Int = Reflect.field(CL.kbutton, Cmd.argv[0].substring(1));
@@ -577,10 +576,10 @@ class CL {
 
     // main
 
-    static var cls = new ClientStatic();
-    static var state:ClientState;
-    static var static_entities:Array<Entity> = [];
-    static var visedicts:Array<Entity> = [];
+    public static var cls(default,null) = new ClientStatic();
+    public static var state(default,null):ClientState;
+    public static var static_entities(default,null):Array<Entity> = [];
+    public static var visedicts(default,null):Array<Entity> = [];
 
     static function Rcon_f() {
         if (CL.rcon_password.string.length == 0) {
@@ -623,9 +622,9 @@ class CL {
         xhr.send();
     }
 
-    static var entities:Array<Entity>;
-    static var dlights:Array<DLight>;
-    static var lightstyle:Array<String>;
+    public static var entities(default,null):Array<Entity>;
+    public static var dlights(default,null):Array<DLight>;
+    public static var lightstyle(default,null):Array<String>;
     static var beams:Array<Beam>;
 
     static function ClearState() {
@@ -653,7 +652,7 @@ class CL {
             beams.push(new Beam());
     }
 
-    static function Disconnect() {
+    public static function Disconnect() {
         S.StopAllSounds();
         if (CL.cls.demoplayback)
             CL.StopPlayback();
@@ -676,7 +675,7 @@ class CL {
 
     static var host:String;
 
-    static function Connect(sock:INETSocket):Void {
+    public static function Connect(sock:INETSocket):Void {
         CL.cls.netcon = sock;
         Console.DPrint('CL.Connect: connected to ' + CL.host + '\n');
         CL.cls.demonum = -1;
@@ -684,7 +683,7 @@ class CL {
         CL.cls.signon = 0;
     }
 
-    static function EstablishConnection(host) {
+    public static function EstablishConnection(host:String):Void {
         if (CL.cls.demoplayback)
             return;
         CL.Disconnect();
@@ -717,7 +716,7 @@ class CL {
         }
     }
 
-    static function NextDemo() {
+    public static function NextDemo():Void {
         if (CL.cls.demonum == -1)
             return;
         SCR.BeginLoadingPlaque();
@@ -780,7 +779,7 @@ class CL {
         return dl;
     }
 
-    static function DecayLights() {
+    public static function DecayLights():Void {
         var time = CL.state.time - CL.state.oldtime;
         for (i in 0...32) {
             var dl = CL.dlights[i];
@@ -816,7 +815,7 @@ class CL {
         return frac;
     }
 
-    static var numvisedicts:Int;
+    public static var numvisedicts(default,null):Int;
 
     static function RelinkEntities() {
         var frac = CL.LerpPoint();
@@ -931,7 +930,7 @@ class CL {
         }
     }
 
-    static function ReadFromServer() {
+    public static function ReadFromServer():Void {
         CL.state.oldtime = CL.state.time;
         CL.state.time += Host.frametime;
         while(true) {
@@ -951,7 +950,7 @@ class CL {
         CL.UpdateTEnts();
     }
 
-    static function SendCmd() {
+    public static function SendCmd():Void {
         if (CL.cls.state != connected)
             return;
 
@@ -980,7 +979,7 @@ class CL {
         CL.cls.message.cursize = 0;
     }
 
-    static function Init() {
+    public static function Init() {
         CL.ClearState();
         CL.InitInput();
         CL.InitTEnts();

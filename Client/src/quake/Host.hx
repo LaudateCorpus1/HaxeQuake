@@ -629,11 +629,11 @@ class Host {
         for (i in 0...16)
             f[f.length] = client.spawn_parms[i].toFixed(6) + '\n';
         f[f.length] = Host.current_skill + '\n' + PR.GetString(PR.globals.mapname) + '\n' + SV.server.time.toFixed(6) + '\n';
-        for (i in 0...64) {
-            if (SV.server.lightstyles[i].length != 0)
-                f[f.length] = SV.server.lightstyles[i] + '\n';
+        for (ls in SV.server.lightstyles) {
+            if (ls.length != 0)
+                f.push(ls + '\n');
             else
-                f[f.length] = 'm\n';
+                f.push('m\n');
         }
         f[f.length] = '{\n';
         for (def in PR.globaldefs) {
@@ -719,7 +719,7 @@ class Host {
         SV.server.paused = true;
         SV.server.loadgame = true;
 
-        for (i in 0...64)
+        for (i in 0...CL.MAX_LIGHTSTYLES)
             SV.server.lightstyles[i] = f[21 + i];
 
         if (f[85] != '{')
@@ -992,7 +992,7 @@ class Host {
             message.WriteByte(i);
             message.WriteByte(client.colors);
         }
-        for (i in 0...64) {
+        for (i in 0...CL.MAX_LIGHTSTYLES) {
             message.WriteByte(SVC.lightstyle);
             message.WriteByte(i);
             message.WriteString(SV.server.lightstyles[i]);

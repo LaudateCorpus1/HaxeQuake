@@ -100,12 +100,12 @@ class R {
 
     static var dlightframecount = 0;
 
-    static var lightstylevalue = new Uint8Array(64);
+    static var lightstylevalue = new Uint8Array(CL.MAX_LIGHTSTYLES);
 
     static function AnimateLight() {
         if (fullbright.value == 0) {
             var i = Math.floor(CL.state.time * 10.0);
-            for (j in 0...64) {
+            for (j in 0...CL.MAX_LIGHTSTYLES) {
                 var style = CL.lightstyle[j];
                 if (style.length == 0)
                     lightstylevalue[j] = 12;
@@ -113,11 +113,11 @@ class R {
                     lightstylevalue[j] = style.charCodeAt(i % style.length) - 97;
             }
         } else {
-            for (j in 0...64)
+            for (j in 0...CL.MAX_LIGHTSTYLES)
                 lightstylevalue[j] = 12;
         }
         GL.Bind(0, lightstyle_texture);
-        gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.ALPHA, 64, 1, 0, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE, lightstylevalue);
+        gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.ALPHA, CL.MAX_LIGHTSTYLES, 1, 0, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE, lightstylevalue);
     }
 
     static function RenderDlights():Void {
@@ -1213,7 +1213,7 @@ class R {
     }
 
     static function NewMap() {
-        for (i in 0...64)
+        for (i in 0...CL.MAX_LIGHTSTYLES)
             R.lightstylevalue[i] = 12;
 
         R.ClearParticles();

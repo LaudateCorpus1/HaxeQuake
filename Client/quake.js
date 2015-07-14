@@ -3939,15 +3939,17 @@ quake_Host.Savegame_f = function() {
 	}
 	f[f.length] = quake_Host.current_skill + "\n" + quake_PR.GetString(quake_PR._globals_int[34]) + "\n" + quake_SV.server.time.toFixed(6) + "\n";
 	var _g1 = 0;
-	while(_g1 < 64) {
-		var i1 = _g1++;
-		if(quake_SV.server.lightstyles[i1].length != 0) f[f.length] = quake_SV.server.lightstyles[i1] + "\n"; else f[f.length] = "m\n";
+	var _g11 = quake_SV.server.lightstyles;
+	while(_g1 < _g11.length) {
+		var ls = _g11[_g1];
+		++_g1;
+		if(ls.length != 0) f.push(ls + "\n"); else f.push("m\n");
 	}
 	f[f.length] = "{\n";
 	var _g2 = 0;
-	var _g11 = quake_PR.globaldefs;
-	while(_g2 < _g11.length) {
-		var def = _g11[_g2];
+	var _g12 = quake_PR.globaldefs;
+	while(_g2 < _g12.length) {
+		var def = _g12[_g2];
 		++_g2;
 		var type = def.type;
 		if((type & 32768) == 0) continue;
@@ -3956,11 +3958,11 @@ quake_Host.Savegame_f = function() {
 		f[f.length] = "\"" + quake_PR.GetString(def.name) + "\" \"" + quake_PR.UglyValueString(type1,quake_PR._globals,def.ofs) + "\"\n";
 	}
 	f[f.length] = "}\n";
-	var _g12 = 0;
+	var _g13 = 0;
 	var _g3 = quake_SV.server.num_edicts;
-	while(_g12 < _g3) {
-		var i2 = _g12++;
-		var ed = quake_SV.server.edicts[i2];
+	while(_g13 < _g3) {
+		var i1 = _g13++;
+		var ed = quake_SV.server.edicts[i1];
 		if(ed.free) {
 			f[f.length] = "{\n}\n";
 			continue;
@@ -9803,8 +9805,8 @@ quake_SV.SpawnServer = function(map) {
 	quake_SV.server.lightstyles = [];
 	var _g4 = 0;
 	while(_g4 < 64) {
-		var i3 = _g4++;
-		quake_SV.server.lightstyles[i3] = "";
+		_g4++;
+		quake_SV.server.lightstyles.push("");
 	}
 	var ent = quake_SV.server.edicts[0];
 	ent._v_int[29] = quake_PR.NewString(quake_SV.server.modelname,64);
@@ -9824,10 +9826,10 @@ quake_SV.SpawnServer = function(map) {
 	var _g12 = 0;
 	var _g5 = quake_SV.svs.maxclients;
 	while(_g12 < _g5) {
-		var i4 = _g12++;
-		quake_Host.client = quake_SV.svs.clients[i4];
+		var i3 = _g12++;
+		quake_Host.client = quake_SV.svs.clients[i3];
 		if(!quake_Host.client.active) continue;
-		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i4 << 5);
+		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i3 << 5);
 		quake_SV.SendServerinfo(quake_Host.client);
 	}
 	quake_Console.DPrint("Server spawned.\n");

@@ -737,8 +737,8 @@ class SV {
         }
 
         server.lightstyles = [];
-        for (i in 0...64)
-            server.lightstyles[i] = '';
+        for (i in 0...CL.MAX_LIGHTSTYLES)
+            server.lightstyles.push('');
 
         var ent = server.edicts[0];
         ent.v.model = PR.NewString(server.modelname, 64);

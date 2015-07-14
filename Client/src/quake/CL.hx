@@ -641,12 +641,14 @@ class CL {
     }
 
     public static var entities(default,null):Array<Entity>;
+
+    public static inline var MAX_DLIGHTS = 32;
+    public static inline var MAX_LIGHTSTYLES = 64;
+    static inline var MAX_BEAMS = 24;
+
     public static var dlights(default,null):Array<DLight>;
     public static var lightstyle(default,null):Array<String>;
-    
     static var beams:Array<Beam>;
-    static inline var MAX_BEAMS = 24;
-    public static inline var MAX_DLIGHTS = 32;
 
     static function ClearState() {
         if (!SV.server.active) {
@@ -665,7 +667,7 @@ class CL {
             dlights.push(new DLight());
 
         lightstyle = [];
-        for (i in 0...64)
+        for (i in 0...MAX_LIGHTSTYLES)
             lightstyle.push("");
 
         beams = [];
@@ -1394,7 +1396,7 @@ class CL {
                 continue;
             case SVC.lightstyle:
                 var i = MSG.ReadByte();
-                if (i >= 64)
+                if (i >= MAX_LIGHTSTYLES)
                     Sys.Error('svc_lightstyle > MAX_LIGHTSTYLES');
                 CL.lightstyle[i] = MSG.ReadString();
                 continue;

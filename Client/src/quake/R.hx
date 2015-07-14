@@ -1521,8 +1521,8 @@ class R {
         else
             allocated = R.AllocParticles(Math.floor(len / 3.0));
 
-        for (i in 0...allocated.length) {
-            var p = R.particles[allocated[i]];
+        for (idx in allocated) {
+            var p = R.particles[idx];
             p.vel.setVector(Vec.origin);
             p.die = CL.state.time + 2.0;
             switch (type) {

@@ -12657,11 +12657,11 @@ quake_R.RocketTrail = function(start,end,type) {
 	vec = [vec[0] / len,vec[1] / len,vec[2] / len];
 	var allocated;
 	if(type == 4) allocated = quake_R.AllocParticles(Math.floor(len / 6.0)); else allocated = quake_R.AllocParticles(Math.floor(len / 3.0));
-	var _g1 = 0;
-	var _g = allocated.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var p = quake_R.particles[allocated[i]];
+	var _g = 0;
+	while(_g < allocated.length) {
+		var idx = allocated[_g];
+		++_g;
+		var p = quake_R.particles[idx];
 		p.vel.set(quake__$Vec_Vec_$Impl_$.origin);
 		p.die = quake_CL.state.time + 2.0;
 		switch(type) {

@@ -31,11 +31,14 @@ private class Particle {
     var type:ParticleType;
     var ramp:Float;
     var die:Float;
-    var org:Vec;
-    var vel:Vec;
+    var org(default,null):Vec;
+    var vel(default,null):Vec;
     var color:Int;
     function new(type:ParticleType) {
         this.type = type;
+        this.ramp = 0.0;
+        this.org = new Vec();
+        this.vel = new Vec();
     }
 }
 
@@ -1280,8 +1283,7 @@ class R {
                 p.die = CL.state.time + 0.01;
                 p.color = 0x6f;
                 p.ramp = 0.0;
-                p.vel = new Vec();
-                p.org = Vec.of(
+                p.org.setValues(
                     ent.origin[0] + R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0,
                     ent.origin[1] + R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0,
                     ent.origin[2] + R.avertexnormals[i][2] * 64.0 + sp * -16.0
@@ -1327,8 +1329,7 @@ class R {
                 var p = new Particle(tracer);
                 p.die = 99999.0;
                 p.color = -c & 15;
-                p.vel = new Vec();
-                p.org = Vec.of(Q.atof(org[0]), Q.atof(org[1]), Q.atof(org[2]));
+                p.org.setValues(Q.atof(org[0]), Q.atof(org[1]), Q.atof(org[2]));
                 p;
             };
         }
@@ -1354,8 +1355,12 @@ class R {
                 p.die = CL.state.time + 5.0;
                 p.color = R.ramp1[0];
                 p.ramp = Math.floor(Math.random() * 4.0);
-                p.vel = Vec.of(Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0);
-                p.org = Vec.of(
+                p.vel.setValues(
+                    Math.random() * 512.0 - 256.0,
+                    Math.random() * 512.0 - 256.0,
+                    Math.random() * 512.0 - 256.0
+                );
+                p.org.setValues(
                     org[0] + Math.random() * 32.0 - 16.0,
                     org[1] + Math.random() * 32.0 - 16.0,
                     org[2] + Math.random() * 32.0 - 16.0
@@ -1372,12 +1377,16 @@ class R {
                 var p = new Particle(blob);
                 p.die = CL.state.time + 0.3;
                 p.color = colorStart + (colorMod++ % colorLength);
-                p.org = Vec.of(
+                p.org.setValues(
                     org[0] + Math.random() * 32.0 - 16.0,
                     org[1] + Math.random() * 32.0 - 16.0,
                     org[2] + Math.random() * 32.0 - 16.0
                 );
-                p.vel = Vec.of(Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0);
+                p.vel.setValues(
+                    Math.random() * 512.0 - 256.0,
+                    Math.random() * 512.0 - 256.0,
+                    Math.random() * 512.0 - 256.0
+                );
                 p;
             };
         }
@@ -1395,12 +1404,16 @@ class R {
                 p.type = blob2;
                 p.color = 150 + Math.floor(Math.random() * 7.0);
             }
-            p.org = Vec.of(
+            p.org.setValues(
                 org[0] + Math.random() * 32.0 - 16.0,
                 org[1] + Math.random() * 32.0 - 16.0,
                 org[2] + Math.random() * 32.0 - 16.0
             );
-            p.vel = Vec.of(Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0, Math.random() * 512.0 - 256.0);
+            p.vel.setValues(
+                Math.random() * 512.0 - 256.0,
+                Math.random() * 512.0 - 256.0,
+                Math.random() * 512.0 - 256.0
+            );
         }
     }
 
@@ -1411,12 +1424,16 @@ class R {
                 var p = new Particle(slowgrav);
                 p.die = CL.state.time + 0.6 * Math.random();
                 p.color = (color & 0xf8) + Math.floor(Math.random() * 8.0);
-                p.org = Vec.of(
+                p.org.setValues(
                     org[0] + Math.random() * 16.0 - 8.0,
                     org[1] + Math.random() * 16.0 - 8.0,
                     org[2] + Math.random() * 16.0 - 8.0
                 );
-                p.vel = Vec.of(dir[0] * 15.0, dir[1] * 15.0, dir[2] * 15.0);
+                p.vel.setValues(
+                    dir[0] * 15.0,
+                    dir[1] * 15.0,
+                    dir[2] * 15.0
+                );
                 p;
             };
         }
@@ -1436,10 +1453,18 @@ class R {
                 dir[0] = (j + Math.random()) * 8.0;
                 dir[1] = (i + Math.random()) * 8.0;
                 dir[2] = 256.0;
-                p.org = Vec.of(org[0] + dir[0], org[1] + dir[1], org[2] + Math.random() * 64.0);
+                p.org.setValues(
+                    org[0] + dir[0],
+                    org[1] + dir[1],
+                    org[2] + Math.random() * 64.0
+                );
                 Vec.Normalize(dir);
                 var vel = 50.0 + Math.random() * 64.0;
-                p.vel = Vec.of(dir[0] * vel, dir[1] * vel, dir[2] * vel);
+                p.vel.setValues(
+                    dir[0] * vel,
+                    dir[1] * vel,
+                    dir[2] * vel
+                );
             }
         }
     }
@@ -1462,14 +1487,18 @@ class R {
                     dir[0] = j * 8.0;
                     dir[1] = i * 8.0;
                     dir[2] = k * 8.0;
-                    p.org = Vec.of(
+                    p.org.setValues(
                         org[0] + i + Math.random() * 4.0,
                         org[1] + j + Math.random() * 4.0,
                         org[2] + k + Math.random() * 4.0
                     );
                     Vec.Normalize(dir);
                     var vel = 50.0 + Math.random() * 64.0;
-                    p.vel = Vec.of(dir[0] * vel, dir[1] * vel, dir[2] * vel);
+                    p.vel.setValues(
+                        dir[0] * vel,
+                        dir[1] * vel,
+                        dir[2] * vel
+                    );
                     k += 4;
                 }
                 j += 4;
@@ -1494,14 +1523,14 @@ class R {
 
         for (i in 0...allocated.length) {
             var p = R.particles[allocated[i]];
-            p.vel = new Vec();
+            p.vel.setVector(Vec.origin);
             p.die = CL.state.time + 2.0;
             switch (type) {
                 case 0 | 1:
                     p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
                     p.color = R.ramp3[Std.int(p.ramp)];
                     p.type = fire;
-                    p.org = Vec.of(
+                    p.org.setValues(
                         start[0] + Math.random() * 6.0 - 3.0,
                         start[1] + Math.random() * 6.0 - 3.0,
                         start[2] + Math.random() * 6.0 - 3.0
@@ -1509,7 +1538,7 @@ class R {
                 case 2:
                     p.type = grav;
                     p.color = 67 + Math.floor(Math.random() * 4.0);
-                    p.org = Vec.of(
+                    p.org.setValues(
                         start[0] + Math.random() * 6.0 - 3.0,
                         start[1] + Math.random() * 6.0 - 3.0,
                         start[2] + Math.random() * 6.0 - 3.0
@@ -1521,7 +1550,7 @@ class R {
                         p.color = 52 + ((R.tracercount++ & 4) << 1);
                     else
                         p.color = 230 + ((R.tracercount++ & 4) << 1);
-                    p.org = start.copy();
+                    p.org.setVector(start);
                     if ((R.tracercount & 1) != 0) {
                         p.vel[0] = 30.0 * vec[1];
                         p.vel[2] = -30.0 * vec[0];
@@ -1529,21 +1558,19 @@ class R {
                         p.vel[0] = -30.0 * vec[1];
                         p.vel[2] = 30.0 * vec[0];
                     }
-                    break;
                 case 4:
                     p.type = grav;
                     p.color = 67 + Math.floor(Math.random() * 4.0);
-                    p.org = Vec.of(
+                    p.org.setValues(
                         start[0] + Math.random() * 6.0 - 3.0,
                         start[1] + Math.random() * 6.0 - 3.0,
                         start[2] + Math.random() * 6.0 - 3.0
                     );
-                    break;
                 case 6:
                     p.color = 152 + Math.floor(Math.random() * 4.0);
                     p.type = tracer;
                     p.die = CL.state.time + 0.3;
-                    p.org = Vec.of(
+                    p.org.setValues(
                         start[0] + Math.random() * 16.0 - 8.0,
                         start[1] + Math.random() * 16.0 - 8.0,
                         start[2] + Math.random() * 16.0 - 8.0

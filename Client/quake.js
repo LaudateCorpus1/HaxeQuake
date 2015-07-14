@@ -12379,14 +12379,10 @@ quake_R.EntityParticles = function(ent) {
 		p.die = quake_CL.state.time + 0.01;
 		p.color = 111;
 		p.ramp = 0.0;
-		p.vel = new Float32Array(3);
-		var tmp1;
-		var v = new Float32Array(3);
-		v[0] = ent.origin[0] + quake_R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0;
-		v[1] = ent.origin[1] + quake_R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0;
-		v[2] = ent.origin[2] + quake_R.avertexnormals[i][2] * 64.0 + sp * -16.0;
-		tmp1 = v;
-		p.org = tmp1;
+		var this1 = p.org;
+		this1[0] = ent.origin[0] + quake_R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0;
+		this1[1] = ent.origin[1] + quake_R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0;
+		this1[2] = ent.origin[2] + quake_R.avertexnormals[i][2] * 64.0 + sp * -16.0;
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
 	}
@@ -12428,17 +12424,13 @@ quake_R.ReadPointFile_f = function() {
 		var p1 = new quake__$R_Particle(0);
 		p1.die = 99999.0;
 		p1.color = -c & 15;
-		p1.vel = new Float32Array(3);
-		var tmp1;
+		var this1 = p1.org;
 		var x = quake_Q.atof(org[0]);
 		var y = quake_Q.atof(org[1]);
 		var z = quake_Q.atof(org[2]);
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp1 = v;
-		p1.org = tmp1;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
 		tmp = p1;
 		quake_R.particles[p[0]] = tmp;
 	}
@@ -12480,26 +12472,20 @@ quake_R.ParticleExplosion = function(org) {
 		p.die = quake_CL.state.time + 5.0;
 		p.color = quake_R.ramp1[0];
 		p.ramp = Math.floor(Math.random() * 4.0);
-		var tmp1;
+		var this1 = p.vel;
 		var x = Math.random() * 512.0 - 256.0;
 		var y = Math.random() * 512.0 - 256.0;
 		var z = Math.random() * 512.0 - 256.0;
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp1 = v;
-		p.vel = tmp1;
-		var tmp2;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
+		var this2 = p.org;
 		var x1 = org[0] + Math.random() * 32.0 - 16.0;
 		var y1 = org[1] + Math.random() * 32.0 - 16.0;
 		var z1 = org[2] + Math.random() * 32.0 - 16.0;
-		var v1 = new Float32Array(3);
-		v1[0] = x1;
-		v1[1] = y1;
-		v1[2] = z1;
-		tmp2 = v1;
-		p.org = tmp2;
+		this2[0] = x1;
+		this2[1] = y1;
+		this2[2] = z1;
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
 	}
@@ -12515,26 +12501,20 @@ quake_R.ParticleExplosion2 = function(org,colorStart,colorLength) {
 		var p = new quake__$R_Particle(6);
 		p.die = quake_CL.state.time + 0.3;
 		p.color = colorStart + colorMod++ % colorLength;
-		var tmp1;
+		var this1 = p.org;
 		var x = org[0] + Math.random() * 32.0 - 16.0;
 		var y = org[1] + Math.random() * 32.0 - 16.0;
 		var z = org[2] + Math.random() * 32.0 - 16.0;
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp1 = v;
-		p.org = tmp1;
-		var tmp2;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
+		var this2 = p.vel;
 		var x1 = Math.random() * 512.0 - 256.0;
 		var y1 = Math.random() * 512.0 - 256.0;
 		var z1 = Math.random() * 512.0 - 256.0;
-		var v1 = new Float32Array(3);
-		v1[0] = x1;
-		v1[1] = y1;
-		v1[2] = z1;
-		tmp2 = v1;
-		p.vel = tmp2;
+		this2[0] = x1;
+		this2[1] = y1;
+		this2[2] = z1;
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
 	}
@@ -12554,26 +12534,20 @@ quake_R.BlobExplosion = function(org) {
 			p.type = 7;
 			p.color = 150 + Math.floor(Math.random() * 7.0);
 		}
-		var tmp;
+		var this1 = p.org;
 		var x = org[0] + Math.random() * 32.0 - 16.0;
 		var y = org[1] + Math.random() * 32.0 - 16.0;
 		var z = org[2] + Math.random() * 32.0 - 16.0;
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp = v;
-		p.org = tmp;
-		var tmp1;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
+		var this2 = p.vel;
 		var x1 = Math.random() * 512.0 - 256.0;
 		var y1 = Math.random() * 512.0 - 256.0;
 		var z1 = Math.random() * 512.0 - 256.0;
-		var v1 = new Float32Array(3);
-		v1[0] = x1;
-		v1[1] = y1;
-		v1[2] = z1;
-		tmp1 = v1;
-		p.vel = tmp1;
+		this2[0] = x1;
+		this2[1] = y1;
+		this2[2] = z1;
 	}
 };
 quake_R.RunParticleEffect = function(org,dir,color,count) {
@@ -12586,23 +12560,17 @@ quake_R.RunParticleEffect = function(org,dir,color,count) {
 		var p = new quake__$R_Particle(2);
 		p.die = quake_CL.state.time + 0.6 * Math.random();
 		p.color = (color & 248) + Math.floor(Math.random() * 8.0);
-		var tmp1;
+		var this1 = p.org;
 		var x = org[0] + Math.random() * 16.0 - 8.0;
 		var y = org[1] + Math.random() * 16.0 - 8.0;
 		var z = org[2] + Math.random() * 16.0 - 8.0;
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp1 = v;
-		p.org = tmp1;
-		var tmp2;
-		var v1 = new Float32Array(3);
-		v1[0] = dir[0] * 15.0;
-		v1[1] = dir[1] * 15.0;
-		v1[2] = dir[2] * 15.0;
-		tmp2 = v1;
-		p.vel = tmp2;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
+		var this2 = p.vel;
+		this2[0] = dir[0] * 15.0;
+		this2[1] = dir[1] * 15.0;
+		this2[2] = dir[2] * 15.0;
 		tmp = p;
 		quake_R.particles[allocated[i]] = tmp;
 	}
@@ -12627,23 +12595,17 @@ quake_R.LavaSplash = function(org) {
 			var v1 = (i + Math.random()) * 8.0;
 			dir[1] = v1;
 			dir[2] = 256.0;
-			var tmp;
+			var this1 = p.org;
 			var z = org[2] + Math.random() * 64.0;
-			var v2 = new Float32Array(3);
-			v2[0] = org[0] + dir[0];
-			v2[1] = org[1] + dir[1];
-			v2[2] = z;
-			tmp = v2;
-			p.org = tmp;
+			this1[0] = org[0] + dir[0];
+			this1[1] = org[1] + dir[1];
+			this1[2] = z;
 			quake__$Vec_Vec_$Impl_$.Normalize(dir);
 			var vel = 50.0 + Math.random() * 64.0;
-			var tmp1;
-			var v3 = new Float32Array(3);
-			v3[0] = dir[0] * vel;
-			v3[1] = dir[1] * vel;
-			v3[2] = dir[2] * vel;
-			tmp1 = v3;
-			p.vel = tmp1;
+			var this2 = p.vel;
+			this2[0] = dir[0] * vel;
+			this2[1] = dir[1] * vel;
+			this2[2] = dir[2] * vel;
 		}
 	}
 };
@@ -12668,25 +12630,19 @@ quake_R.TeleportSplash = function(org) {
 				dir[0] = j * 8.0;
 				dir[1] = i * 8.0;
 				dir[2] = k * 8.0;
-				var tmp;
+				var this1 = p.org;
 				var x = org[0] + i + Math.random() * 4.0;
 				var y = org[1] + j + Math.random() * 4.0;
 				var z = org[2] + k + Math.random() * 4.0;
-				var v = new Float32Array(3);
-				v[0] = x;
-				v[1] = y;
-				v[2] = z;
-				tmp = v;
-				p.org = tmp;
+				this1[0] = x;
+				this1[1] = y;
+				this1[2] = z;
 				quake__$Vec_Vec_$Impl_$.Normalize(dir);
 				var vel = 50.0 + Math.random() * 64.0;
-				var tmp1;
-				var v1 = new Float32Array(3);
-				v1[0] = dir[0] * vel;
-				v1[1] = dir[1] * vel;
-				v1[2] = dir[2] * vel;
-				tmp1 = v1;
-				p.vel = tmp1;
+				var this2 = p.vel;
+				this2[0] = dir[0] * vel;
+				this2[1] = dir[1] * vel;
+				this2[2] = dir[2] * vel;
 				k += 4;
 			}
 			j += 4;
@@ -12703,92 +12659,76 @@ quake_R.RocketTrail = function(start,end,type) {
 	if(type == 4) allocated = quake_R.AllocParticles(Math.floor(len / 6.0)); else allocated = quake_R.AllocParticles(Math.floor(len / 3.0));
 	var _g1 = 0;
 	var _g = allocated.length;
-	try {
-		while(_g1 < _g) {
-			var i = _g1++;
-			var p = quake_R.particles[allocated[i]];
-			p.vel = new Float32Array(3);
-			p.die = quake_CL.state.time + 2.0;
-			switch(type) {
-			case 0:case 1:
-				p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
-				p.color = quake_R.ramp3[p.ramp | 0];
-				p.type = 3;
-				var tmp;
-				var x = start[0] + Math.random() * 6.0 - 3.0;
-				var y = start[1] + Math.random() * 6.0 - 3.0;
-				var z = start[2] + Math.random() * 6.0 - 3.0;
-				var v = new Float32Array(3);
-				v[0] = x;
-				v[1] = y;
-				v[2] = z;
-				tmp = v;
-				p.org = tmp;
-				break;
-			case 2:
-				p.type = 1;
-				p.color = 67 + Math.floor(Math.random() * 4.0);
-				var tmp1;
-				var x1 = start[0] + Math.random() * 6.0 - 3.0;
-				var y1 = start[1] + Math.random() * 6.0 - 3.0;
-				var z1 = start[2] + Math.random() * 6.0 - 3.0;
-				var v1 = new Float32Array(3);
-				v1[0] = x1;
-				v1[1] = y1;
-				v1[2] = z1;
-				tmp1 = v1;
-				p.org = tmp1;
-				break;
-			case 3:case 5:
-				p.die = quake_CL.state.time + 0.5;
-				p.type = 0;
-				if(type == 3) p.color = 52 + ((quake_R.tracercount++ & 4) << 1); else p.color = 230 + ((quake_R.tracercount++ & 4) << 1);
-				p.org = new Float32Array(start);
-				if((quake_R.tracercount & 1) != 0) {
-					p.vel[0] = 30.0 * vec[1];
-					p.vel[2] = -30. * vec[0];
-				} else {
-					p.vel[0] = -30. * vec[1];
-					p.vel[2] = 30.0 * vec[0];
-				}
-				throw "__break__";
-				break;
-			case 4:
-				p.type = 1;
-				p.color = 67 + Math.floor(Math.random() * 4.0);
-				var tmp2;
-				var x2 = start[0] + Math.random() * 6.0 - 3.0;
-				var y2 = start[1] + Math.random() * 6.0 - 3.0;
-				var z2 = start[2] + Math.random() * 6.0 - 3.0;
-				var v2 = new Float32Array(3);
-				v2[0] = x2;
-				v2[1] = y2;
-				v2[2] = z2;
-				tmp2 = v2;
-				p.org = tmp2;
-				throw "__break__";
-				break;
-			case 6:
-				p.color = 152 + Math.floor(Math.random() * 4.0);
-				p.type = 0;
-				p.die = quake_CL.state.time + 0.3;
-				var tmp3;
-				var x3 = start[0] + Math.random() * 16.0 - 8.0;
-				var y3 = start[1] + Math.random() * 16.0 - 8.0;
-				var z3 = start[2] + Math.random() * 16.0 - 8.0;
-				var v3 = new Float32Array(3);
-				v3[0] = x3;
-				v3[1] = y3;
-				v3[2] = z3;
-				tmp3 = v3;
-				p.org = tmp3;
-				break;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var p = quake_R.particles[allocated[i]];
+		p.vel.set(quake__$Vec_Vec_$Impl_$.origin);
+		p.die = quake_CL.state.time + 2.0;
+		switch(type) {
+		case 0:case 1:
+			p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
+			p.color = quake_R.ramp3[p.ramp | 0];
+			p.type = 3;
+			var this1 = p.org;
+			var x = start[0] + Math.random() * 6.0 - 3.0;
+			var y = start[1] + Math.random() * 6.0 - 3.0;
+			var z = start[2] + Math.random() * 6.0 - 3.0;
+			this1[0] = x;
+			this1[1] = y;
+			this1[2] = z;
+			break;
+		case 2:
+			p.type = 1;
+			p.color = 67 + Math.floor(Math.random() * 4.0);
+			var this2 = p.org;
+			var x1 = start[0] + Math.random() * 6.0 - 3.0;
+			var y1 = start[1] + Math.random() * 6.0 - 3.0;
+			var z1 = start[2] + Math.random() * 6.0 - 3.0;
+			this2[0] = x1;
+			this2[1] = y1;
+			this2[2] = z1;
+			break;
+		case 3:case 5:
+			p.die = quake_CL.state.time + 0.5;
+			p.type = 0;
+			if(type == 3) p.color = 52 + ((quake_R.tracercount++ & 4) << 1); else p.color = 230 + ((quake_R.tracercount++ & 4) << 1);
+			p.org.set(start);
+			if((quake_R.tracercount & 1) != 0) {
+				p.vel[0] = 30.0 * vec[1];
+				p.vel[2] = -30. * vec[0];
+			} else {
+				p.vel[0] = -30. * vec[1];
+				p.vel[2] = 30.0 * vec[0];
 			}
-			start[0] = start[0] + vec[0];
-			start[1] = start[1] + vec[1];
-			start[2] = start[2] + vec[2];
+			break;
+		case 4:
+			p.type = 1;
+			p.color = 67 + Math.floor(Math.random() * 4.0);
+			var this3 = p.org;
+			var x2 = start[0] + Math.random() * 6.0 - 3.0;
+			var y2 = start[1] + Math.random() * 6.0 - 3.0;
+			var z2 = start[2] + Math.random() * 6.0 - 3.0;
+			this3[0] = x2;
+			this3[1] = y2;
+			this3[2] = z2;
+			break;
+		case 6:
+			p.color = 152 + Math.floor(Math.random() * 4.0);
+			p.type = 0;
+			p.die = quake_CL.state.time + 0.3;
+			var this4 = p.org;
+			var x3 = start[0] + Math.random() * 16.0 - 8.0;
+			var y3 = start[1] + Math.random() * 16.0 - 8.0;
+			var z3 = start[2] + Math.random() * 16.0 - 8.0;
+			this4[0] = x3;
+			this4[1] = y3;
+			this4[2] = z3;
+			break;
 		}
-	} catch( e ) { if( e != "__break__" ) throw e; }
+		start[0] = start[0] + vec[0];
+		start[1] = start[1] + vec[1];
+		start[2] = start[2] + vec[2];
+	}
 };
 quake_R.DrawParticles = function() {
 	var program = quake_GL.UseProgram("particle");
@@ -14169,6 +14109,9 @@ var quake__$PR_PRStatement = function(view,ofs) {
 quake__$PR_PRStatement.__name__ = true;
 var quake__$R_Particle = function(type) {
 	this.type = type;
+	this.ramp = 0.0;
+	this.org = new Float32Array(3);
+	this.vel = new Float32Array(3);
 };
 quake__$R_Particle.__name__ = true;
 var quake_Sfx = function(n) {

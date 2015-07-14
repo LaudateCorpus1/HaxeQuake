@@ -40,29 +40,27 @@ class HClient {
 }
 
 
-@:publicFields
 class Host {
-
     static var framerate:Cvar;
     static var speeds:Cvar;
     static var ticrate:Cvar;
     static var serverprofile:Cvar;
     static var fraglimit:Cvar;
     static var timelimit:Cvar;
-    static var teamplay:Cvar;
+    public static var teamplay(default,null):Cvar;
     static var samelevel:Cvar;
     static var noexit:Cvar;
-    static var skill:Cvar;
-    static var developer:Cvar;
-    static var deathmatch:Cvar;
-    static var coop:Cvar;
+    public static var skill(default,null):Cvar;
+    public static var developer(default,null):Cvar;
+    public static var deathmatch(default,null):Cvar;
+    public static var coop(default,null):Cvar;
     static var pausable:Cvar;
     static var temp1:Cvar;
 
-    static var framecount = 0;
-    static var current_skill:Int;
+    public static var framecount(default,null) = 0;
+    public static var current_skill:Int;
 
-    static function EndGame(message) {
+    public static function EndGame(message) {
         Console.DPrint('Host.EndGame: ' + message + '\n');
         if (CL.cls.demonum != -1)
             CL.NextDemo();
@@ -72,9 +70,9 @@ class Host {
     }
 
     static var inerror = false;
-    static var noclip_anglehack = false;
+    public static var noclip_anglehack = false;
 
-    static function Error(error) {
+    public static function Error(error:String):Void {
         if (Host.inerror)
             Sys.Error('Host.Error: recursively entered');
         Host.inerror = true;
@@ -120,7 +118,7 @@ class Host {
         Host.client.message.WriteString(string);
     }
 
-    static function BroadcastPrint(string:String):Void {
+    public static function BroadcastPrint(string:String):Void {
         for (i in 0...SV.svs.maxclients) {
             var client = SV.svs.clients[i];
             if ((!client.active) || (!client.spawned))
@@ -130,7 +128,7 @@ class Host {
         }
     }
 
-    static function DropClient(crash:Bool):Void {
+    public static function DropClient(crash:Bool):Void {
         var client = Host.client;
         if (!crash) {
             if (NET.CanSendMessage(client.netconnection)) {
@@ -168,9 +166,9 @@ class Host {
         }
     }
 
-    static var client:HClient;
+    public static var client:HClient;
 
-    static function ShutdownServer(crash) {
+    public static function ShutdownServer(crash:Bool):Void {
         if (!SV.server.active)
             return;
         SV.server.active = false;
@@ -210,8 +208,8 @@ class Host {
         COM.WriteTextFile('config.cfg', Key.WriteBindings() + Cvar.WriteVariables());
     }
 
-    static var frametime:Float;
-    static var realtime:Float;
+    public static var frametime:Float;
+    public static var realtime(default,null):Float;
     static var oldrealtime:Float;
 
     static function ServerFrame() {
@@ -297,7 +295,7 @@ class Host {
 
     static var timetotal = 0.0;
     static var timecount = 0;
-    static function Frame() {
+    public static function Frame() {
         if (Host.serverprofile.value == 0) {
             Host._Frame();
             return;
@@ -318,7 +316,7 @@ class Host {
         Console.Print('serverprofile: ' + (c <= 9 ? ' ' : '') + c + ' clients ' + (m <= 9 ? ' ' : '') + m + ' msec\n');
     }
 
-    static function Init() {
+    public static function Init() {
         Host.oldrealtime = Sys.FloatTime();
         Cmd.Init();
         V.Init();
@@ -348,10 +346,10 @@ class Host {
         Sys.Print('======Quake Initialized======\n');
     }
 
-    static var initialized = false;
+    public static var initialized(default,null) = false;
     static var isdown = false;
 
-    static function Shutdown() {
+    public static function Shutdown():Void {
         if (Host.isdown) {
             Sys.Print('recursive shutdown\n');
             return;
@@ -366,7 +364,7 @@ class Host {
 
     // Commands
 
-    static function Quit_f() {
+    public static function Quit_f():Void {
         if (Key.dest != console) {
             M.Menu_Quit_f();
             return;

@@ -60,6 +60,23 @@ class Host {
     public static var framecount(default,null) = 0;
     public static var current_skill:Int;
 
+
+    public static var client:HClient;
+    public static var frametime:Float;
+    public static var realtime(default,null):Float;
+    static var oldrealtime:Float;
+    static var timetotal = 0.0;
+    static var timecount = 0;
+    static var time3 = 0.0;
+
+    static var inerror = false;
+    public static var noclip_anglehack = false;
+
+    public static var initialized(default,null) = false;
+    static var isdown = false;
+
+    static var startdemos:Bool;
+
     public static function EndGame(message) {
         Console.DPrint('Host.EndGame: ' + message + '\n');
         if (CL.cls.demonum != -1)
@@ -68,9 +85,6 @@ class Host {
             CL.Disconnect();
         throw 'Host.abortserver';
     }
-
-    static var inerror = false;
-    public static var noclip_anglehack = false;
 
     public static function Error(error:String):Void {
         if (Host.inerror)
@@ -166,8 +180,6 @@ class Host {
         }
     }
 
-    public static var client:HClient;
-
     public static function ShutdownServer(crash:Bool):Void {
         if (!SV.server.active)
             return;
@@ -208,9 +220,6 @@ class Host {
         COM.WriteTextFile('config.cfg', Key.WriteBindings() + Cvar.WriteVariables());
     }
 
-    public static var frametime:Float;
-    public static var realtime(default,null):Float;
-    static var oldrealtime:Float;
 
     static function ServerFrame() {
         PR.globals.frametime = Host.frametime;
@@ -222,7 +231,6 @@ class Host {
         SV.SendClientMessages();
     }
 
-    static var time3 = 0.0;
     static function _Frame() {
         Math.random();
 
@@ -293,8 +301,6 @@ class Host {
         ++Host.framecount;
     }
 
-    static var timetotal = 0.0;
-    static var timecount = 0;
     public static function Frame() {
         if (Host.serverprofile.value == 0) {
             Host._Frame();
@@ -345,9 +351,6 @@ class Host {
         Host.initialized = true;
         Sys.Print('======Quake Initialized======\n');
     }
-
-    public static var initialized(default,null) = false;
-    static var isdown = false;
 
     public static function Shutdown():Void {
         if (Host.isdown) {
@@ -1260,8 +1263,6 @@ class Host {
         ent.v.frame = f;
         Console.Print('frame ' + f + ': ' + m.frames[f].name + '\n');
     }
-
-    static var startdemos:Bool;
 
     static function Startdemos_f() {
         Console.Print((Cmd.argv.length - 1) + ' demo(s) in loop\n');

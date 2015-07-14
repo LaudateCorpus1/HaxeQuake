@@ -13613,13 +13613,13 @@ quake_PF.vectoyaw = function() {
 	quake_PR._globals_float[1] = yaw;
 };
 quake_PF.vectoangles = function() {
-	quake_PR._globals_float[3] = 0.0;
+	quake_PR._globals_float[1 + 2] = 0.0;
 	var value1_0 = quake_PR._globals_float[4];
 	var value1_1 = quake_PR._globals_float[5];
 	var value1_2 = quake_PR._globals_float[6];
 	if(value1_0 == 0.0 && value1_1 == 0.0) {
 		if(value1_2 > 0.0) quake_PR._globals_float[1] = 90.0; else quake_PR._globals_float[1] = 270.0;
-		quake_PR._globals_float[2] = 0.0;
+		quake_PR._globals_float[1 + 1] = 0.0;
 		return;
 	}
 	var tmp;
@@ -13633,7 +13633,7 @@ quake_PF.vectoangles = function() {
 	var pitch = tmp1;
 	if(pitch < 0) pitch += 360;
 	quake_PR._globals_float[1] = pitch;
-	quake_PR._globals_float[2] = yaw;
+	quake_PR._globals_float[1 + 1] = yaw;
 };
 quake_PF.random = function() {
 	quake_PR._globals_float[1] = Math.random();
@@ -14033,8 +14033,8 @@ quake_PF.aim = function() {
 		} else tmp3 = false;
 		if(tmp3) {
 			quake_PR._globals_float[1] = dir[0];
-			quake_PR._globals_float[2] = dir[1];
-			quake_PR._globals_float[3] = dir[2];
+			quake_PR._globals_float[1 + 1] = dir[1];
+			quake_PR._globals_float[1 + 2] = dir[2];
 			return;
 		}
 	}
@@ -14075,13 +14075,13 @@ quake_PF.aim = function() {
 		end1[2] = dir[2];
 		quake__$Vec_Vec_$Impl_$.Normalize(end1);
 		quake_PR._globals_float[1] = end1[0];
-		quake_PR._globals_float[2] = end1[1];
-		quake_PR._globals_float[3] = end1[2];
+		quake_PR._globals_float[1 + 1] = end1[1];
+		quake_PR._globals_float[1 + 2] = end1[2];
 		return;
 	}
 	quake_PR._globals_float[1] = bestdir[0];
-	quake_PR._globals_float[2] = bestdir[1];
-	quake_PR._globals_float[3] = bestdir[2];
+	quake_PR._globals_float[1 + 1] = bestdir[1];
+	quake_PR._globals_float[1 + 2] = bestdir[2];
 };
 quake_PF.changeyaw = function() {
 	var ent = quake_SV.server.edicts[quake_PR._globals_int[28]];

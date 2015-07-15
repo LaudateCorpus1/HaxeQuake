@@ -12378,21 +12378,20 @@ quake_R.EntityParticles = function(ent) {
 	var _g = allocated.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var angle = quake_CL.state.time * quake_R.avelocities[i][0];
-		var sp = Math.sin(angle);
-		var cp = Math.cos(angle);
-		var angle1 = quake_CL.state.time * quake_R.avelocities[i][1];
-		var sy = Math.sin(angle1);
-		var cy = Math.cos(angle1);
 		var p = quake_R.particles[allocated[i]];
-		p.type = 4;
+		var angle = quake_CL.state.time * quake_R.avelocities[i][0];
+		var sy = Math.sin(angle);
+		var cy = Math.cos(angle);
+		var angle1 = quake_CL.state.time * quake_R.avelocities[i][1];
+		var sp = Math.sin(angle1);
+		var cp = Math.cos(angle1);
 		p.die = quake_CL.state.time + 0.01;
 		p.color = 111;
-		p.ramp = 0.0;
+		p.type = 4;
 		var this1 = p.org;
-		this1[0] = ent.origin[0] + quake_R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0;
-		this1[1] = ent.origin[1] + quake_R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0;
-		this1[2] = ent.origin[2] + quake_R.avertexnormals[i][2] * 64.0 + sp * -16.0;
+		this1[0] = ent.origin[0] + quake_R.avertexnormals[i][0] * 64 + cp * cy * 16;
+		this1[1] = ent.origin[1] + quake_R.avertexnormals[i][1] * 64 + cp * sy * 16;
+		this1[2] = ent.origin[2] + quake_R.avertexnormals[i][2] * 64 - sp * 16;
 	}
 };
 quake_R.ClearParticles = function() {

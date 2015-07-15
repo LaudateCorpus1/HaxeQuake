@@ -1274,24 +1274,27 @@ class R {
     }
 
     static function EntityParticles(ent:Entity):Void {
-        var allocated = R.AllocParticles(162);
+        var dist = 64;
+        var beamlength = 16;
+        var allocated = AllocParticles(NUMVERTEXNORMALS);
         for (i in 0...allocated.length) {
-            var angle = CL.state.time * R.avelocities[i][0];
-            var sp = Math.sin(angle);
-            var cp = Math.cos(angle);
-            var angle = CL.state.time * R.avelocities[i][1];
+            var p = particles[allocated[i]];
+
+            var angle = CL.state.time * avelocities[i][0];
             var sy = Math.sin(angle);
             var cy = Math.cos(angle);
+            var angle = CL.state.time * avelocities[i][1];
+            var sp = Math.sin(angle);
+            var cp = Math.cos(angle);
 
-            var p = particles[allocated[i]];
-            p.type = explode;
             p.die = CL.state.time + 0.01;
             p.color = 0x6f;
-            p.ramp = 0.0;
+            p.type = explode;
+
             p.org.setValues(
-                ent.origin[0] + R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0,
-                ent.origin[1] + R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0,
-                ent.origin[2] + R.avertexnormals[i][2] * 64.0 + sp * -16.0
+                ent.origin[0] + avertexnormals[i][0] * dist + cp * cy * beamlength,
+                ent.origin[1] + avertexnormals[i][1] * dist + cp * sy * beamlength,
+                ent.origin[2] + avertexnormals[i][2] * dist - sp * beamlength
             );
         }
     }

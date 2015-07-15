@@ -435,7 +435,7 @@ class Mod {
                 Sys.Error('Mod.LoadModel: ' + mod.name + ' not found');
             return null;
         }
-        Mod.loadmodel = mod;
+        loadmodel = mod;
         mod.needload = false;
         switch (new DataView(buf).getUint32(0, true)) {
             case 0x4f504449:
@@ -464,14 +464,14 @@ class Mod {
         var view = new DataView(buf);
         var fileofs = view.getUint32(ModelLumpOffsets.textures, true);
         var filelen = view.getUint32(ModelLumpOffsets.textures + 4, true);
-        Mod.loadmodel.textures = [];
+        loadmodel.textures = [];
         var nummiptex = view.getUint32(fileofs, true);
         var dataofs = fileofs + 4;
         for (i in 0...nummiptex) {
             var miptexofs = view.getInt32(dataofs, true);
             dataofs += 4;
             if (miptexofs == -1) {
-                Mod.loadmodel.textures[i] = R.notexture_mip;
+                loadmodel.textures[i] = R.notexture_mip;
                 continue;
             }
             miptexofs += fileofs;
@@ -494,11 +494,11 @@ class Mod {
                 if (tx.name.charCodeAt(0) == 42)
                     tx.turbulent = true;
             }
-            Mod.loadmodel.textures[i] = tx;
+            loadmodel.textures[i] = tx;
         }
 
         for (i in 0...nummiptex) {
-            var tx = Mod.loadmodel.textures[i];
+            var tx = loadmodel.textures[i];
             if (tx.name.charCodeAt(0) != 43)
                 continue;
             if (tx.name.charCodeAt(1) != 48)
@@ -507,7 +507,7 @@ class Mod {
             tx.anims = [i];
             tx.alternate_anims = [];
             for (j in 0...nummiptex) {
-                var tx2 = Mod.loadmodel.textures[j];
+                var tx2 = loadmodel.textures[j];
                 if (tx2.name.charCodeAt(0) != 43)
                     continue;
                 if (tx2.name.substring(2) != name)
@@ -539,10 +539,10 @@ class Mod {
                 if (tx.alternate_anims[j] == null)
                     Sys.Error('Missing frame ' + j + ' of ' + tx.name);
             }
-            Mod.loadmodel.textures[i] = tx;
+            loadmodel.textures[i] = tx;
         }
 
-        Mod.loadmodel.textures[Mod.loadmodel.textures.length] = R.notexture_mip;
+        loadmodel.textures[loadmodel.textures.length] = R.notexture_mip;
     }
 
     static function LoadLighting(buf:ArrayBuffer) {
@@ -551,8 +551,8 @@ class Mod {
         var filelen = view.getUint32(ModelLumpOffsets.lighting + 4, true);
         if (filelen == 0)
             return;
-        Mod.loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
-        Mod.loadmodel.lightdata.set(new Uint8Array(buf, fileofs, filelen));
+        loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
+        loadmodel.lightdata.set(new Uint8Array(buf, fileofs, filelen));
     }
 
     static function LoadVisibility(buf) {
@@ -561,15 +561,15 @@ class Mod {
         var filelen = view.getUint32(ModelLumpOffsets.visibility + 4, true);
         if (filelen == 0)
             return;
-        Mod.loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
-        Mod.loadmodel.visdata.set(new Uint8Array(buf, fileofs, filelen));
+        loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
+        loadmodel.visdata.set(new Uint8Array(buf, fileofs, filelen));
     }
 
     static function LoadEntities(buf) {
         var view = new DataView(buf);
         var fileofs = view.getUint32(ModelLumpOffsets.entities, true);
         var filelen = view.getUint32(ModelLumpOffsets.entities + 4, true);
-        Mod.loadmodel.entities = Q.memstr(new Uint8Array(buf, fileofs, filelen));
+        loadmodel.entities = Q.memstr(new Uint8Array(buf, fileofs, filelen));
     }
 
     static function LoadVertexes(buf) {
@@ -577,11 +577,11 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.vertexes, true);
         var filelen = view.getUint32(ModelLumpOffsets.vertexes + 4, true);
         if ((filelen % 12) != 0)
-            Sys.Error('Mod.LoadVisibility: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadVisibility: funny lump size in ' + loadmodel.name);
         var count = Std.int(filelen / 12);
-        Mod.loadmodel.vertexes = [];
+        loadmodel.vertexes = [];
         for (i in 0...count) {
-            Mod.loadmodel.vertexes[i] = Vec.of(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
+            loadmodel.vertexes[i] = Vec.of(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
             fileofs += 12;
         }
     }
@@ -592,21 +592,21 @@ class Mod {
         var filelen = view.getUint32(ModelLumpOffsets.models + 4, true);
         var count = filelen >> 6;
         if (count == 0)
-            Sys.Error('Mod.LoadSubmodels: funny lump size in ' + Mod.loadmodel.name);
-        Mod.loadmodel.submodels = [];
+            Sys.Error('Mod.LoadSubmodels: funny lump size in ' + loadmodel.name);
+        loadmodel.submodels = [];
 
-        Mod.loadmodel.mins = Vec.of(view.getFloat32(fileofs, true) - 1.0,
+        loadmodel.mins = Vec.of(view.getFloat32(fileofs, true) - 1.0,
             view.getFloat32(fileofs + 4, true) - 1.0,
             view.getFloat32(fileofs + 8, true) - 1.0);
-        Mod.loadmodel.maxs = Vec.of(view.getFloat32(fileofs + 12, true) + 1.0,
+        loadmodel.maxs = Vec.of(view.getFloat32(fileofs + 12, true) + 1.0,
             view.getFloat32(fileofs + 16, true) + 1.0,
             view.getFloat32(fileofs + 20, true) + 1.0);
-        Mod.loadmodel.hulls[0].firstclipnode = view.getUint32(fileofs + 36, true);
-        Mod.loadmodel.hulls[1].firstclipnode = view.getUint32(fileofs + 40, true);
-        Mod.loadmodel.hulls[2].firstclipnode = view.getUint32(fileofs + 44, true);
+        loadmodel.hulls[0].firstclipnode = view.getUint32(fileofs + 36, true);
+        loadmodel.hulls[1].firstclipnode = view.getUint32(fileofs + 40, true);
+        loadmodel.hulls[2].firstclipnode = view.getUint32(fileofs + 44, true);
         fileofs += 64;
 
-        var clipnodes = Mod.loadmodel.hulls[0].clipnodes;
+        var clipnodes = loadmodel.hulls[0].clipnodes;
         for (i in 1...count) {
             var out = Mod.FindName('*' + i);
             out.needload = false;
@@ -624,39 +624,39 @@ class Mod {
                     var h = new MHull();
                     h.clipnodes = clipnodes;
                     h.firstclipnode = view.getUint32(fileofs + 36, true);
-                    h.lastclipnode = Mod.loadmodel.nodes.length - 1;
-                    h.planes = Mod.loadmodel.planes;
+                    h.lastclipnode = loadmodel.nodes.length - 1;
+                    h.planes = loadmodel.planes;
                     h.clip_mins = new Vec();
                     h.clip_maxs = new Vec();
                     h;
                 },
                 {
                     var h = new MHull();
-                    h.clipnodes = Mod.loadmodel.clipnodes;
+                    h.clipnodes = loadmodel.clipnodes;
                     h.firstclipnode = view.getUint32(fileofs + 40, true);
-                    h.lastclipnode = Mod.loadmodel.clipnodes.length - 1;
-                    h.planes = Mod.loadmodel.planes;
+                    h.lastclipnode = loadmodel.clipnodes.length - 1;
+                    h.planes = loadmodel.planes;
                     h.clip_mins = Vec.of(-16.0, -16.0, -24.0);
                     h.clip_maxs = Vec.of(16.0, 16.0, 32.0);
                     h;
                 },
                 {
                     var h = new MHull();
-                    h.clipnodes = Mod.loadmodel.clipnodes;
+                    h.clipnodes = loadmodel.clipnodes;
                     h.firstclipnode = view.getUint32(fileofs + 44, true);
-                    h.lastclipnode = Mod.loadmodel.clipnodes.length - 1;
-                    h.planes = Mod.loadmodel.planes;
+                    h.lastclipnode = loadmodel.clipnodes.length - 1;
+                    h.planes = loadmodel.planes;
                     h.clip_mins = Vec.of(-32.0, -32.0, -24.0);
                     h.clip_maxs = Vec.of(32.0, 32.0, 64.0);
                     h;
                 }
             ];
-            out.textures = Mod.loadmodel.textures;
-            out.lightdata = Mod.loadmodel.lightdata;
-            out.faces = Mod.loadmodel.faces;
+            out.textures = loadmodel.textures;
+            out.lightdata = loadmodel.lightdata;
+            out.faces = loadmodel.faces;
             out.firstface = view.getUint32(fileofs + 56, true);
             out.numfaces = view.getUint32(fileofs + 60, true);
-            Mod.loadmodel.submodels[i - 1] = out;
+            loadmodel.submodels[i - 1] = out;
             fileofs += 64;
         }
     }
@@ -666,11 +666,11 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.edges, true);
         var filelen = view.getUint32(ModelLumpOffsets.edges + 4, true);
         if ((filelen & 3) != 0)
-            Sys.Error('Mod.LoadEdges: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadEdges: funny lump size in ' + loadmodel.name);
         var count = filelen >> 2;
-        Mod.loadmodel.edges = [];
+        loadmodel.edges = [];
         for (i in 0...count) {
-            Mod.loadmodel.edges[i] = [view.getUint16(fileofs, true), view.getUint16(fileofs + 2, true)];
+            loadmodel.edges[i] = [view.getUint16(fileofs, true), view.getUint16(fileofs + 2, true)];
             fileofs += 4;
         }
     }
@@ -680,9 +680,9 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.texinfo, true);
         var filelen = view.getUint32(ModelLumpOffsets.texinfo + 4, true);
         if ((filelen % 40) != 0)
-            Sys.Error('Mod.LoadTexinfo: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadTexinfo: funny lump size in ' + loadmodel.name);
         var count = Std.int(filelen / 40);
-        Mod.loadmodel.texinfo = [];
+        loadmodel.texinfo = [];
         for (i in 0...count) {
             var out = new MTexinfo(
                 [
@@ -692,11 +692,11 @@ class Mod {
                 view.getUint32(fileofs + 32, true),
                 view.getUint32(fileofs + 36, true)
             );
-            if (out.texture >= Mod.loadmodel.textures.length) {
-                out.texture = Mod.loadmodel.textures.length - 1;
+            if (out.texture >= loadmodel.textures.length) {
+                out.texture = loadmodel.textures.length - 1;
                 out.flags = 0;
             }
-            Mod.loadmodel.texinfo[i] = out;
+            loadmodel.texinfo[i] = out;
             fileofs += 40;
         }
     }
@@ -706,16 +706,16 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.faces, true);
         var filelen = view.getUint32(ModelLumpOffsets.faces + 4, true);
         if ((filelen % 20) != 0)
-            Sys.Error('Mod.LoadFaces: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadFaces: funny lump size in ' + loadmodel.name);
         var count = Std.int(filelen / 20);
-        Mod.loadmodel.firstface = 0;
-        Mod.loadmodel.numfaces = count;
-        Mod.loadmodel.faces = [];
+        loadmodel.firstface = 0;
+        loadmodel.numfaces = count;
+        loadmodel.faces = [];
         for (i in 0...count) {
             var styles = new Uint8Array(buf, fileofs + 12, 4);
             var out = new MSurface();
             {
-                out.plane = Mod.loadmodel.planes[view.getUint16(fileofs, true)];
+                out.plane = loadmodel.planes[view.getUint16(fileofs, true)];
                 out.firstedge = view.getUint16(fileofs + 4, true);
                 out.numedges = view.getUint16(fileofs + 8, true);
                 out.texinfo = view.getUint16(fileofs + 10, true);
@@ -733,15 +733,15 @@ class Mod {
 
             var mins = [999999.0, 999999.0];
             var maxs = [-99999.0, -99999.0];
-            var tex = Mod.loadmodel.texinfo[out.texinfo];
+            var tex = loadmodel.texinfo[out.texinfo];
             out.texture = tex.texture;
             for (j in 0...out.numedges) {
-                var e = Mod.loadmodel.surfedges[out.firstedge + j];
+                var e = loadmodel.surfedges[out.firstedge + j];
                 var v;
                 if (e >= 0)
-                    v = Mod.loadmodel.vertexes[Mod.loadmodel.edges[e][0]];
+                    v = loadmodel.vertexes[loadmodel.edges[e][0]];
                 else
-                    v = Mod.loadmodel.vertexes[Mod.loadmodel.edges[-e][1]];
+                    v = loadmodel.vertexes[loadmodel.edges[-e][1]];
 
                 var val = Vec.DotProduct(v, Vec.ofArray(tex.vecs[0])) + tex.vecs[0][3];
                 if (val < mins[0])
@@ -757,12 +757,12 @@ class Mod {
             out.texturemins = [Math.floor(mins[0] / 16) * 16, Math.floor(mins[1] / 16) * 16];
             out.extents = [Math.ceil(maxs[0] / 16) * 16 - out.texturemins[0], Math.ceil(maxs[1] / 16) * 16 - out.texturemins[1]];
 
-            if (Mod.loadmodel.textures[tex.texture].turbulent)
+            if (loadmodel.textures[tex.texture].turbulent)
                 out.turbulent = true;
-            else if (Mod.loadmodel.textures[tex.texture].sky)
+            else if (loadmodel.textures[tex.texture].sky)
                 out.sky = true;
 
-            Mod.loadmodel.faces[i] = out;
+            loadmodel.faces[i] = out;
             fileofs += 20;
         }
     }
@@ -780,12 +780,12 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.nodes, true);
         var filelen = view.getUint32(ModelLumpOffsets.nodes + 4, true);
         if ((filelen == 0) || ((filelen % 24) != 0))
-            Sys.Error('Mod.LoadNodes: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadNodes: funny lump size in ' + loadmodel.name);
         var count = Std.int(filelen / 24);
-        Mod.loadmodel.nodes = [];
+        loadmodel.nodes = [];
         var children = new haxe.ds.Vector(count);
         for (i in 0...count) {
-            var n = Mod.loadmodel.nodes[i] = new MNode();
+            var n = loadmodel.nodes[i] = new MNode();
             n.num = i;
             n.contents = 0;
             n.planenum = view.getUint32(fileofs, true);
@@ -798,20 +798,20 @@ class Mod {
             fileofs += 24;
         }
         for (i in 0...count) {
-            var out = Mod.loadmodel.nodes[i];
-            out.plane = Mod.loadmodel.planes[out.planenum];
+            var out = loadmodel.nodes[i];
+            out.plane = loadmodel.planes[out.planenum];
             out.children = [];
             var children = children[i];
             if (children[0] >= 0)
-                out.children[0] = Mod.loadmodel.nodes[children[0]];
+                out.children[0] = loadmodel.nodes[children[0]];
             else
-                out.children[0] = Mod.loadmodel.leafs[-1 - children[0]];
+                out.children[0] = loadmodel.leafs[-1 - children[0]];
             if (children[1] >= 0)
-                out.children[1] = Mod.loadmodel.nodes[children[1]];
+                out.children[1] = loadmodel.nodes[children[1]];
             else
-                out.children[1] = Mod.loadmodel.leafs[-1 - children[1]];
+                out.children[1] = loadmodel.leafs[-1 - children[1]];
         }
-        Mod.SetParent(Mod.loadmodel.nodes[0], null);
+        Mod.SetParent(loadmodel.nodes[0], null);
     }
 
     static function LoadLeafs(buf) {
@@ -819,9 +819,9 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.leafs, true);
         var filelen = view.getUint32(ModelLumpOffsets.leafs + 4, true);
         if ((filelen % 28) != 0)
-            Sys.Error('Mod.LoadLeafs: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadLeafs: funny lump size in ' + loadmodel.name);
         var count = Std.int(filelen / 28);
-        Mod.loadmodel.leafs = [];
+        loadmodel.leafs = [];
         for (i in 0...count) {
             var out = new MLeaf();
             {
@@ -837,7 +837,7 @@ class Mod {
                 out.skychain = 0;
                 out.waterchain = 0;
             };
-            Mod.loadmodel.leafs[i] = out;
+            loadmodel.leafs[i] = out;
             fileofs += 28;
         };
     }
@@ -847,31 +847,31 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.clipnodes, true);
         var filelen = view.getUint32(ModelLumpOffsets.clipnodes + 4, true);
         var count = filelen >> 3;
-        Mod.loadmodel.clipnodes = [];
+        loadmodel.clipnodes = [];
 
-        Mod.loadmodel.hulls = [];
-        Mod.loadmodel.hulls[1] = {
+        loadmodel.hulls = [];
+        loadmodel.hulls[1] = {
             var h = new MHull();
-            h.clipnodes = Mod.loadmodel.clipnodes;
+            h.clipnodes = loadmodel.clipnodes;
             h.firstclipnode = 0;
             h.lastclipnode = count - 1;
-            h.planes = Mod.loadmodel.planes;
+            h.planes = loadmodel.planes;
             h.clip_mins = Vec.of(-16.0, -16.0, -24.0);
             h.clip_maxs = Vec.of(16.0, 16.0, 32.0);
             h;
         };
-        Mod.loadmodel.hulls[2] = {
+        loadmodel.hulls[2] = {
             var h = new MHull();
-            h.clipnodes = Mod.loadmodel.clipnodes;
+            h.clipnodes = loadmodel.clipnodes;
             h.firstclipnode = 0;
             h.lastclipnode = count - 1;
-            h.planes = Mod.loadmodel.planes;
+            h.planes = loadmodel.planes;
             h.clip_mins = Vec.of(-32.0, -32.0, -24.0);
             h.clip_maxs = Vec.of(32.0, 32.0, 64.0);
             h;
         };
         for (i in 0...count) {
-            Mod.loadmodel.clipnodes[i] = {
+            loadmodel.clipnodes[i] = {
                 var n = new MClipNode();
                 n.planenum = view.getUint32(fileofs, true);
                 n.children = [view.getInt16(fileofs + 4, true), view.getInt16(fileofs + 6, true)];
@@ -886,14 +886,14 @@ class Mod {
         var hull = {
             var h = new MHull();
             h.clipnodes = clipnodes;
-            h.lastclipnode = Mod.loadmodel.nodes.length - 1;
-            h.planes = Mod.loadmodel.planes;
+            h.lastclipnode = loadmodel.nodes.length - 1;
+            h.planes = loadmodel.planes;
             h.clip_mins = new Vec();
             h.clip_maxs = new Vec();
             h;
         };
-        for (i in 0...Mod.loadmodel.nodes.length) {
-            var node = Mod.loadmodel.nodes[i];
+        for (i in 0...loadmodel.nodes.length) {
+            var node = loadmodel.nodes[i];
             var out = new MClipNode();
             out.planenum = node.planenum;
             out.children = [];
@@ -903,7 +903,7 @@ class Mod {
             out.children[1] = child.contents < 0 ? child.contents : child.num;
             clipnodes[i] = out;
         }
-        Mod.loadmodel.hulls[0] = hull;
+        loadmodel.hulls[0] = hull;
     }
 
     static function LoadMarksurfaces(buf) {
@@ -911,12 +911,12 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.marksurfaces, true);
         var filelen = view.getUint32(ModelLumpOffsets.marksurfaces + 4, true);
         var count = filelen >> 1;
-        Mod.loadmodel.marksurfaces = [];
+        loadmodel.marksurfaces = [];
         for (i in 0...count) {
             var j = view.getUint16(fileofs + (i << 1), true);
-            if (j > Mod.loadmodel.faces.length)
+            if (j > loadmodel.faces.length)
                 Sys.Error('Mod.LoadMarksurfaces: bad surface number');
-            Mod.loadmodel.marksurfaces[i] = j;
+            loadmodel.marksurfaces[i] = j;
         }
     }
 
@@ -925,9 +925,9 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.surfedges, true);
         var filelen = view.getUint32(ModelLumpOffsets.surfedges + 4, true);
         var count = filelen >> 2;
-        Mod.loadmodel.surfedges = [];
+        loadmodel.surfedges = [];
         for (i in 0...count)
-            Mod.loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2), true);
+            loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2), true);
     }
 
     static function LoadPlanes(buf) {
@@ -935,9 +935,9 @@ class Mod {
         var fileofs = view.getUint32(ModelLumpOffsets.planes, true);
         var filelen = view.getUint32(ModelLumpOffsets.planes + 4, true);
         if ((filelen % 20) != 0)
-            Sys.Error('Mod.LoadPlanes: funny lump size in ' + Mod.loadmodel.name);
+            Sys.Error('Mod.LoadPlanes: funny lump size in ' + loadmodel.name);
         var count = Std.int(filelen / 20);
-        Mod.loadmodel.planes = [];
+        loadmodel.planes = [];
         for (i in 0...count) {
             var out = new Plane();
             out.normal = Vec.of(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
@@ -950,7 +950,7 @@ class Mod {
                 out.signbits += 2;
             if (out.normal[2] < 0)
                 out.signbits += 4;
-            Mod.loadmodel.planes[i] = out;
+            loadmodel.planes[i] = out;
             fileofs += 20;
         }
     }
@@ -999,7 +999,7 @@ class Mod {
                 maxs[2] = vert[2];
         }
 
-        Mod.loadmodel.radius = Vec.Length(Vec.of(
+        loadmodel.radius = Vec.Length(Vec.of(
             Math.max(Math.abs(mins[0]), Math.abs(maxs[0])),
             Math.max(Math.abs(mins[1]), Math.abs(maxs[1])),
             Math.max(Math.abs(mins[2]), Math.abs(maxs[2]))
@@ -1041,8 +1041,8 @@ class Mod {
         if (fillcolor == Mod.filledcolor)
             return;
 
-        var width = Mod.loadmodel.skinwidth;
-        var height = Mod.loadmodel.skinheight;
+        var width = loadmodel.skinwidth;
+        var height = loadmodel.skinheight;
 
         var lifo = [[0, 0]];
         var sp = 1;
@@ -1071,22 +1071,22 @@ class Mod {
     }
 
     static function LoadAllSkins(buffer, inmodel) {
-        Mod.loadmodel.skins = [];
+        loadmodel.skins = [];
         var model = new DataView(buffer);
-        var skinsize = Mod.loadmodel.skinwidth * Mod.loadmodel.skinheight;
-        for (i in 0...Mod.loadmodel.numskins) {
+        var skinsize = loadmodel.skinwidth * loadmodel.skinheight;
+        for (i in 0...loadmodel.numskins) {
             inmodel += 4;
             if (model.getUint32(inmodel - 4, true) == 0) {
                 var skin = new Uint8Array(buffer, inmodel, skinsize);
                 Mod.FloodFillSkin(skin);
                 var g = new MSkin(false);
-                g.texturenum = GL.LoadTexture(Mod.loadmodel.name + '_' + i,
-                        Mod.loadmodel.skinwidth,
-                        Mod.loadmodel.skinheight,
+                g.texturenum = GL.LoadTexture(loadmodel.name + '_' + i,
+                        loadmodel.skinwidth,
+                        loadmodel.skinheight,
                         skin);
-                Mod.loadmodel.skins[i] = g;
-                if (Mod.loadmodel.player)
-                    TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), Mod.loadmodel.skins[i]);
+                loadmodel.skins[i] = g;
+                if (loadmodel.player)
+                    TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), loadmodel.skins[i]);
                 inmodel += skinsize;
             }
             else
@@ -1105,24 +1105,24 @@ class Mod {
                 for (j in 0...numskins) {
                     var skin = new Uint8Array(buffer, inmodel, skinsize);
                     Mod.FloodFillSkin(skin);
-                    group.skins[j].texturenum = GL.LoadTexture(Mod.loadmodel.name + '_' + i + '_' + j,
-                        Mod.loadmodel.skinwidth,
-                        Mod.loadmodel.skinheight,
+                    group.skins[j].texturenum = GL.LoadTexture(loadmodel.name + '_' + i + '_' + j,
+                        loadmodel.skinwidth,
+                        loadmodel.skinheight,
                         skin);
-                    if (Mod.loadmodel.player)
+                    if (loadmodel.player)
                         Mod.TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), group.skins[j]);
                     inmodel += skinsize;
                 }
-                Mod.loadmodel.skins[i] = group;
+                loadmodel.skins[i] = group;
             }
         }
         return inmodel;
     }
 
     static function LoadAllFrames(buffer, inmodel) {
-        Mod.loadmodel.frames = [];
+        loadmodel.frames = [];
         var model = new DataView(buffer);
-        for (i in 0...Mod.loadmodel.numframes) {
+        for (i in 0...loadmodel.numframes) {
             inmodel += 4;
             if (model.getUint32(inmodel - 4, true) == 0) {
                 var frame = new MFrame(false);
@@ -1132,14 +1132,14 @@ class Mod {
                 frame.name = Q.memstr(new Uint8Array(buffer, inmodel + 8, 16));
                 frame.v = [];
                 inmodel += 24;
-                for (j in 0...Mod.loadmodel.numverts) {
+                for (j in 0...loadmodel.numverts) {
                     frame.v[j] = new MTrivert(
                         [model.getUint8(inmodel), model.getUint8(inmodel + 1), model.getUint8(inmodel + 2)],
                         model.getUint8(inmodel + 3)
                     );
                     inmodel += 4;
                 }
-                Mod.loadmodel.frames[i] = frame;
+                loadmodel.frames[i] = frame;
             }
             else
             {
@@ -1164,7 +1164,7 @@ class Mod {
                     frame.name = Q.memstr(new Uint8Array(buffer, inmodel + 8, 16));
                     frame.v = [];
                     inmodel += 24;
-                    for (k in 0...Mod.loadmodel.numverts) {
+                    for (k in 0...loadmodel.numverts) {
                         frame.v[k] = new MTrivert(
                             [model.getUint8(inmodel), model.getUint8(inmodel + 1), model.getUint8(inmodel + 2)],
                             model.getUint8(inmodel + 3)
@@ -1172,45 +1172,45 @@ class Mod {
                         inmodel += 4;
                     }
                 }
-                Mod.loadmodel.frames[i] = group;
+                loadmodel.frames[i] = group;
             }
         }
     }
 
     static function LoadAliasModel(buffer:ArrayBuffer) {
-        Mod.loadmodel.type = alias;
-        Mod.loadmodel.player = Mod.loadmodel.name == 'progs/player.mdl';
+        loadmodel.type = alias;
+        loadmodel.player = loadmodel.name == 'progs/player.mdl';
         var model = new DataView(buffer);
         var version = model.getUint32(4, true);
         if (version != ModelVersion.alias)
-            Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.alias + ')');
-        Mod.loadmodel.scale = Vec.of(model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true));
-        Mod.loadmodel.scale_origin = Vec.of(model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true));
-        Mod.loadmodel.boundingradius = model.getFloat32(32, true);
-        Mod.loadmodel.numskins = model.getUint32(48, true);
-        if (Mod.loadmodel.numskins == 0)
-            Sys.Error('model ' + Mod.loadmodel.name + ' has no skins');
-        Mod.loadmodel.skinwidth = model.getUint32(52, true);
-        Mod.loadmodel.skinheight = model.getUint32(56, true);
-        Mod.loadmodel.numverts = model.getUint32(60, true);
-        if (Mod.loadmodel.numverts == 0)
-            Sys.Error('model ' + Mod.loadmodel.name + ' has no vertices');
-        Mod.loadmodel.numtris = model.getUint32(64, true);
-        if (Mod.loadmodel.numtris == 0)
-            Sys.Error('model ' + Mod.loadmodel.name + ' has no triangles');
-        Mod.loadmodel.numframes = model.getUint32(68, true);
-        if (Mod.loadmodel.numframes == 0)
-            Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
-        Mod.loadmodel.random = model.getUint32(72, true) == 1;
-        Mod.loadmodel.flags = cast model.getUint32(76, true);
-        Mod.loadmodel.mins = Vec.of(-16.0, -16.0, -16.0);
-        Mod.loadmodel.maxs = Vec.of(16.0, 16.0, 16.0);
+            Sys.Error(loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.alias + ')');
+        loadmodel.scale = Vec.of(model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true));
+        loadmodel.scale_origin = Vec.of(model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true));
+        loadmodel.boundingradius = model.getFloat32(32, true);
+        loadmodel.numskins = model.getUint32(48, true);
+        if (loadmodel.numskins == 0)
+            Sys.Error('model ' + loadmodel.name + ' has no skins');
+        loadmodel.skinwidth = model.getUint32(52, true);
+        loadmodel.skinheight = model.getUint32(56, true);
+        loadmodel.numverts = model.getUint32(60, true);
+        if (loadmodel.numverts == 0)
+            Sys.Error('model ' + loadmodel.name + ' has no vertices');
+        loadmodel.numtris = model.getUint32(64, true);
+        if (loadmodel.numtris == 0)
+            Sys.Error('model ' + loadmodel.name + ' has no triangles');
+        loadmodel.numframes = model.getUint32(68, true);
+        if (loadmodel.numframes == 0)
+            Sys.Error('model ' + loadmodel.name + ' has no frames');
+        loadmodel.random = model.getUint32(72, true) == 1;
+        loadmodel.flags = cast model.getUint32(76, true);
+        loadmodel.mins = Vec.of(-16.0, -16.0, -16.0);
+        loadmodel.maxs = Vec.of(16.0, 16.0, 16.0);
 
         var inmodel = Mod.LoadAllSkins(buffer, 84);
 
-        Mod.loadmodel.stverts = [];
-        for (i in 0...Mod.loadmodel.numverts) {
-            Mod.loadmodel.stverts[i] = new MSTVert(
+        loadmodel.stverts = [];
+        for (i in 0...loadmodel.numverts) {
+            loadmodel.stverts[i] = new MSTVert(
                 model.getUint32(inmodel, true) != 0,
                 model.getUint32(inmodel + 4, true),
                 model.getUint32(inmodel + 8, true)
@@ -1218,9 +1218,9 @@ class Mod {
             inmodel += 12;
         }
 
-        Mod.loadmodel.triangles = [];
-        for (i in 0...Mod.loadmodel.numtris) {
-            Mod.loadmodel.triangles[i] = new MTriangle(
+        loadmodel.triangles = [];
+        for (i in 0...loadmodel.numtris) {
+            loadmodel.triangles[i] = new MTriangle(
                 model.getUint32(inmodel, true) != 0,
                 [
                     model.getUint32(inmodel + 4, true),
@@ -1235,46 +1235,46 @@ class Mod {
 
         var cmds = [];
 
-        for (i in 0...Mod.loadmodel.numtris) {
-            var triangle = Mod.loadmodel.triangles[i];
+        for (i in 0...loadmodel.numtris) {
+            var triangle = loadmodel.triangles[i];
             if (triangle.facesfront) {
-                var vert = Mod.loadmodel.stverts[triangle.vertindex[0]];
-                cmds[cmds.length] = (vert.s + 0.5) / Mod.loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / Mod.loadmodel.skinheight;
-                vert = Mod.loadmodel.stverts[triangle.vertindex[1]];
-                cmds[cmds.length] = (vert.s + 0.5) / Mod.loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / Mod.loadmodel.skinheight;
-                vert = Mod.loadmodel.stverts[triangle.vertindex[2]];
-                cmds[cmds.length] = (vert.s + 0.5) / Mod.loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / Mod.loadmodel.skinheight;
+                var vert = loadmodel.stverts[triangle.vertindex[0]];
+                cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+                vert = loadmodel.stverts[triangle.vertindex[1]];
+                cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+                vert = loadmodel.stverts[triangle.vertindex[2]];
+                cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
                 continue;
             }
             for (j in 0...3) {
-                var vert = Mod.loadmodel.stverts[triangle.vertindex[j]];
+                var vert = loadmodel.stverts[triangle.vertindex[j]];
                 if (vert.onseam)
-                    cmds[cmds.length] = (vert.s + Mod.loadmodel.skinwidth / 2 + 0.5) / Mod.loadmodel.skinwidth;
+                    cmds[cmds.length] = (vert.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth;
                 else
-                    cmds[cmds.length] = (vert.s + 0.5) / Mod.loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / Mod.loadmodel.skinheight;
+                    cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
             }
         }
 
         var group, frame;
-        for (i in 0...Mod.loadmodel.numframes) {
-            group = Mod.loadmodel.frames[i];
+        for (i in 0...loadmodel.numframes) {
+            group = loadmodel.frames[i];
             if (group.group) {
                 for (j in 0...group.frames.length) {
                     frame = group.frames[j];
                     frame.cmdofs = cmds.length << 2;
-                    for (k in 0...Mod.loadmodel.numtris) {
-                        var triangle = Mod.loadmodel.triangles[k];
+                    for (k in 0...loadmodel.numtris) {
+                        var triangle = loadmodel.triangles[k];
                         for (l in 0...3) {
                             var vert = frame.v[triangle.vertindex[l]];
                             if (vert.lightnormalindex >= 162)
                                 Sys.Error('lightnormalindex >= NUMVERTEXNORMALS');
-                            cmds[cmds.length] = vert.v[0] * Mod.loadmodel.scale[0] + Mod.loadmodel.scale_origin[0];
-                            cmds[cmds.length] = vert.v[1] * Mod.loadmodel.scale[1] + Mod.loadmodel.scale_origin[1];
-                            cmds[cmds.length] = vert.v[2] * Mod.loadmodel.scale[2] + Mod.loadmodel.scale_origin[2];
+                            cmds[cmds.length] = vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
+                            cmds[cmds.length] = vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
+                            cmds[cmds.length] = vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
                             cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3];
                             cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 1];
                             cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 2];
@@ -1285,15 +1285,15 @@ class Mod {
             }
             frame = group;
             frame.cmdofs = cmds.length << 2;
-            for (j in 0...Mod.loadmodel.numtris) {
-                var triangle = Mod.loadmodel.triangles[j];
+            for (j in 0...loadmodel.numtris) {
+                var triangle = loadmodel.triangles[j];
                 for (k in 0...3) {
                     var vert = frame.v[triangle.vertindex[k]];
                     if (vert.lightnormalindex >= 162)
                         Sys.Error('lightnormalindex >= NUMVERTEXNORMALS');
-                    cmds[cmds.length] = vert.v[0] * Mod.loadmodel.scale[0] + Mod.loadmodel.scale_origin[0];
-                    cmds[cmds.length] = vert.v[1] * Mod.loadmodel.scale[1] + Mod.loadmodel.scale_origin[1];
-                    cmds[cmds.length] = vert.v[2] * Mod.loadmodel.scale[2] + Mod.loadmodel.scale_origin[2];
+                    cmds[cmds.length] = vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
+                    cmds[cmds.length] = vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
+                    cmds[cmds.length] = vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
                     cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3];
                     cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 1];
                     cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 2];
@@ -1301,8 +1301,8 @@ class Mod {
             }
         }
 
-        Mod.loadmodel.cmds = gl.createBuffer();
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, Mod.loadmodel.cmds);
+        loadmodel.cmds = gl.createBuffer();
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, loadmodel.cmds);
         gl.bufferData(RenderingContext.ARRAY_BUFFER, new Float32Array(cmds), RenderingContext.STATIC_DRAW);
     }
 
@@ -1368,36 +1368,36 @@ class Mod {
     }
 
     static function LoadSpriteModel(buffer:ArrayBuffer) {
-        Mod.loadmodel.type = sprite;
+        loadmodel.type = sprite;
         var model = new DataView(buffer);
         var version = model.getUint32(4, true);
         if (version != ModelVersion.sprite)
-            Sys.Error(Mod.loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.sprite + ')');
-        Mod.loadmodel.oriented = model.getUint32(8, true) == 3;
-        Mod.loadmodel.boundingradius = model.getFloat32(12, true);
-        Mod.loadmodel.width = model.getUint32(16, true);
-        Mod.loadmodel.height = model.getUint32(20, true);
-        Mod.loadmodel.numframes = model.getUint32(24, true);
-        if (Mod.loadmodel.numframes == 0)
-            Sys.Error('model ' + Mod.loadmodel.name + ' has no frames');
-        Mod.loadmodel.random = model.getUint32(32, true) == 1;
-        Mod.loadmodel.mins = Vec.of(Mod.loadmodel.width * -0.5, Mod.loadmodel.width * -0.5, Mod.loadmodel.height * -0.5);
-        Mod.loadmodel.maxs = Vec.of(Mod.loadmodel.width * 0.5, Mod.loadmodel.width * 0.5, Mod.loadmodel.height * 0.5);
+            Sys.Error(loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.sprite + ')');
+        loadmodel.oriented = model.getUint32(8, true) == 3;
+        loadmodel.boundingradius = model.getFloat32(12, true);
+        loadmodel.width = model.getUint32(16, true);
+        loadmodel.height = model.getUint32(20, true);
+        loadmodel.numframes = model.getUint32(24, true);
+        if (loadmodel.numframes == 0)
+            Sys.Error('model ' + loadmodel.name + ' has no frames');
+        loadmodel.random = model.getUint32(32, true) == 1;
+        loadmodel.mins = Vec.of(loadmodel.width * -0.5, loadmodel.width * -0.5, loadmodel.height * -0.5);
+        loadmodel.maxs = Vec.of(loadmodel.width * 0.5, loadmodel.width * 0.5, loadmodel.height * 0.5);
 
-        Mod.loadmodel.frames = [];
+        loadmodel.frames = [];
         var inframe = 36, frame, group, numframes;
-        for (i in 0...Mod.loadmodel.numframes) {
+        for (i in 0...loadmodel.numframes) {
             inframe += 4;
             if (model.getUint32(inframe - 4, true) == 0) {
                 frame = new MFrame(false);
-                Mod.loadmodel.frames[i] = frame;
-                inframe = Mod.LoadSpriteFrame(Mod.loadmodel.name + '_' + i, buffer, inframe, frame);
+                loadmodel.frames[i] = frame;
+                inframe = Mod.LoadSpriteFrame(loadmodel.name + '_' + i, buffer, inframe, frame);
             }
             else
             {
                 group = new MFrame(true);
                 group.frames = [];
-                Mod.loadmodel.frames[i] = group;
+                loadmodel.frames[i] = group;
                 numframes = model.getUint32(inframe, true);
                 inframe += 4;
                 for (j in 0...numframes) {
@@ -1409,7 +1409,7 @@ class Mod {
                     inframe += 4;
                 }
                 for (j in 0...numframes)
-                    inframe = Mod.LoadSpriteFrame(Mod.loadmodel.name + '_' + i + '_' + j, buffer, inframe, group.frames[j]);
+                    inframe = Mod.LoadSpriteFrame(loadmodel.name + '_' + i + '_' + j, buffer, inframe, group.frames[j]);
             }
         }
     }

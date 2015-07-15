@@ -6032,15 +6032,13 @@ quake_Mod.LoadLighting = function(view) {
 	var fileofs = view.getUint32(68,true);
 	var filelen = view.getUint32(72,true);
 	if(filelen == 0) return;
-	quake_Mod.loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
-	quake_Mod.loadmodel.lightdata.set(new Uint8Array(view.buffer,fileofs,filelen));
+	quake_Mod.loadmodel.lightdata = new Uint8Array(view.buffer.slice(fileofs,fileofs + filelen));
 };
 quake_Mod.LoadVisibility = function(view) {
 	var fileofs = view.getUint32(36,true);
 	var filelen = view.getUint32(40,true);
 	if(filelen == 0) return;
-	quake_Mod.loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
-	quake_Mod.loadmodel.visdata.set(new Uint8Array(view.buffer,fileofs,filelen));
+	quake_Mod.loadmodel.visdata = new Uint8Array(view.buffer.slice(fileofs,fileofs + filelen));
 };
 quake_Mod.LoadEntities = function(view) {
 	var fileofs = view.getUint32(4,true);

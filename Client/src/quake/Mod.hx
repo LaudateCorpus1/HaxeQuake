@@ -553,8 +553,7 @@ class Mod {
         var filelen = view.getUint32(ModelLumpOffsets.lighting + 4, true);
         if (filelen == 0)
             return;
-        loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
-        loadmodel.lightdata.set(new Uint8Array(view.buffer, fileofs, filelen));
+        loadmodel.lightdata = new Uint8Array(view.buffer.slice(fileofs, fileofs + filelen));
     }
 
     static function LoadVisibility(view:DataView):Void {
@@ -562,8 +561,7 @@ class Mod {
         var filelen = view.getUint32(ModelLumpOffsets.visibility + 4, true);
         if (filelen == 0)
             return;
-        loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
-        loadmodel.visdata.set(new Uint8Array(view.buffer, fileofs, filelen));
+        loadmodel.visdata = new Uint8Array(view.buffer.slice(fileofs, fileofs + filelen));
     }
 
     static function LoadEntities(view:DataView):Void {

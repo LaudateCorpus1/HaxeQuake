@@ -199,36 +199,6 @@ class MTexture {
     function new() {}
 }
 
-@:publicFields
-class MTrace {
-    var allsolid:Bool;
-    var startsolid:Bool;
-    var inopen:Bool;
-    var inwater:Bool;
-    var plane:Plane;
-    var fraction:Float;
-    var endpos:Vec;
-    var ent:Edict;
-    function new() {}
-}
-
-
-@:publicFields
-class MMoveClip {
-    var type:Int;
-    var trace:MTrace;
-    var boxmins:Vec;
-    var boxmaxs:Vec;
-    var mins:Vec;
-    var maxs:Vec;
-    var mins2:Vec;
-    var maxs2:Vec;
-    var start:Vec;
-    var end:Vec;
-    var passedict:Edict;
-    function new() {}
-}
-
 @:enum abstract EntEffect(Int) to Int {
     var no = 0;
     var brightfield = 1;

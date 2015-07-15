@@ -22,6 +22,36 @@ private class AreaNode {
 }
 
 @:publicFields
+private class MoveClip {
+    var type:Int;
+    var trace:Trace;
+    var boxmins:Vec;
+    var boxmaxs:Vec;
+    var mins:Vec;
+    var maxs:Vec;
+    var mins2:Vec;
+    var maxs2:Vec;
+    var start:Vec;
+    var end:Vec;
+    var passedict:Edict;
+    function new() {}
+}
+
+@:publicFields
+class Trace {
+    var allsolid:Bool;
+    var startsolid:Bool;
+    var inopen:Bool;
+    var inwater:Bool;
+    var plane:Plane;
+    var fraction:Float;
+    var endpos:Vec;
+    var ent:Edict;
+    function new() {}
+}
+
+
+@:publicFields
 private class ServerStatic {
     var maxclients:Int;
     var maxclientslimit:Int;
@@ -137,7 +167,7 @@ class SV {
     static var box_clipnodes:Array<ClipNode>;
     static var box_planes:Array<Plane>;
     static var box_hull:Hull;
-    static var steptrace:MTrace;
+    static var steptrace:Trace;
     static var player:Edict;
     static var fatpvs = [];
     static var fatbytes:Int;
@@ -1183,7 +1213,7 @@ class SV {
         ent.v.velocity2 -= ent_gravity * gravity.value * Host.frametime;
     }
 
-    static function PushEntity(ent:Edict, push:Vec):MTrace {
+    static function PushEntity(ent:Edict, push:Vec):Trace {
         var end = Vec.of(
             ent.v.origin + push[0],
             ent.v.origin1 + push[1],
@@ -1365,10 +1395,10 @@ class SV {
         return ent.v.waterlevel > 1.0;
     }
 
-    static function WallFriction(ent:Edict, trace:MTrace):Void {
+    static function WallFriction(ent:Edict, tr:Trace):Void {
         var forward = new Vec();
         Vec.AngleVectors(ent.GetVector(EdictVarOfs.v_angle), forward);
-        var normal = trace.plane.normal;
+        var normal = tr.plane.normal;
         var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
         if (d >= 0.0)
             return;
@@ -2148,7 +2178,7 @@ class SV {
         return Move(origin, ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs), origin, 0, ent).startsolid;
     }
 
-    static function RecursiveHullCheck(hull:Hull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:MTrace):Bool {
+    static function RecursiveHullCheck(hull:Hull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:Trace):Bool {
         if (num < 0) {
             if (num != Contents.solid) {
                 trace.allsolid = false;
@@ -2232,8 +2262,8 @@ class SV {
         return false;
     }
 
-    static function ClipMoveToEntity(ent:Edict, start:Vec, mins:Vec, maxs:Vec, end:Vec):MTrace {
-        var trace = new MTrace();
+    static function ClipMoveToEntity(ent:Edict, start:Vec, mins:Vec, maxs:Vec, end:Vec):Trace {
+        var trace = new Trace();
         trace.fraction = 1.0;
         trace.allsolid = true;
         trace.endpos = end.copy();
@@ -2260,7 +2290,7 @@ class SV {
         return trace;
     }
 
-    static function ClipToLinks(node:AreaNode, clip:MMoveClip):Void {
+    static function ClipToLinks(node:AreaNode, clip:MoveClip):Void {
         var l = node.solid_edicts.next;
         while (l != node.solid_edicts) {
             var touch = l.ent;
@@ -2307,8 +2337,8 @@ class SV {
             ClipToLinks(node.children[1], clip);
     }
 
-    static function Move(start:Vec, mins:Vec, maxs:Vec, end:Vec, type:Int, passedict:Edict):MTrace {
-        var clip = new MMoveClip();
+    static function Move(start:Vec, mins:Vec, maxs:Vec, end:Vec, type:Int, passedict:Edict):Trace {
+        var clip = new MoveClip();
         clip.trace = ClipMoveToEntity(server.edicts[0], start, mins, maxs, end);
         clip.start = start;
         clip.end = end;

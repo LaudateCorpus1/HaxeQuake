@@ -2178,7 +2178,7 @@ quake_Chase.Update = function() {
 	var forward = new Float32Array(3);
 	var r = new Float32Array(3);
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_CL.state.viewangles,forward,r);
-	var tr = new quake_MTrace();
+	var tr = new quake_Trace();
 	tr.plane = new quake_Plane();
 	var org = quake_R.refdef.vieworg;
 	var tmp;
@@ -5882,12 +5882,6 @@ quake_MSurface.__name__ = true;
 var quake_MTexture = function() {
 };
 quake_MTexture.__name__ = true;
-var quake_MTrace = function() {
-};
-quake_MTrace.__name__ = true;
-var quake_MMoveClip = function() {
-};
-quake_MMoveClip.__name__ = true;
 var quake_Mod = function() { };
 quake_Mod.__name__ = true;
 quake_Mod.Init = function() {
@@ -10543,13 +10537,13 @@ quake_SV.CheckWater = function(ent) {
 	}
 	return ent._v_float[83] > 1.0;
 };
-quake_SV.WallFriction = function(ent,trace) {
+quake_SV.WallFriction = function(ent,tr) {
 	var forward = new Float32Array(3);
 	var tmp;
 	var o = 70;
 	tmp = new Float32Array(ent._v_float.buffer.slice(o * 4,o * 4 + 12));
 	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward);
-	var normal = trace.plane.normal;
+	var normal = tr.plane.normal;
 	var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
 	if(d >= 0.0) return;
 	d += 1.0;
@@ -11349,7 +11343,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	return false;
 };
 quake_SV.ClipMoveToEntity = function(ent,start,mins,maxs,end) {
-	var trace = new quake_MTrace();
+	var trace = new quake_Trace();
 	trace.fraction = 1.0;
 	trace.allsolid = true;
 	trace.endpos = new Float32Array(end);
@@ -11419,7 +11413,7 @@ quake_SV.ClipToLinks = function(node,clip) {
 	if(clip.boxmins[node.axis] < node.dist) quake_SV.ClipToLinks(node.children[1],clip);
 };
 quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
-	var clip = new quake_MMoveClip();
+	var clip = new quake__$SV_MoveClip();
 	clip.trace = quake_SV.ClipMoveToEntity(quake_SV.server.edicts[0],start,mins,maxs,end);
 	clip.start = start;
 	clip.end = end;
@@ -11462,6 +11456,12 @@ quake_SV.Move = function(start,mins,maxs,end,type,passedict) {
 	quake_SV.ClipToLinks(quake_SV.areanodes[0],clip);
 	return clip.trace;
 };
+var quake__$SV_MoveClip = function() {
+};
+quake__$SV_MoveClip.__name__ = true;
+var quake_Trace = function() {
+};
+quake_Trace.__name__ = true;
 var quake_Plane = function() {
 };
 quake_Plane.__name__ = true;

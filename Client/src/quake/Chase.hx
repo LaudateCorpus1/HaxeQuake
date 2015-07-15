@@ -1,6 +1,6 @@
 package quake;
 
-import quake.Mod.MTrace;
+import quake.SV.Trace;
 
 class Chase {
     public static var active(default,null):Cvar;
@@ -20,7 +20,7 @@ class Chase {
         var forward = new Vec();
         var r = new Vec();
         Vec.AngleVectors(CL.state.viewangles, forward, r);
-        var tr = new MTrace();
+        var tr = new Trace();
         tr.plane = new Plane();
         var org = R.refdef.vieworg;
         SV.RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, Vec.of(

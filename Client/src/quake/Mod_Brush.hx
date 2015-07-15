@@ -4,10 +4,6 @@ import js.html.DataView;
 import js.html.Uint8Array;
 import quake.Mod.MModel;
 import quake.Mod.MTexture;
-import quake.Mod.MTexinfo;
-import quake.Mod.MSurface;
-import quake.Mod.MLeaf;
-import quake.Mod.MNode;
 
 @:publicFields
 class Hull {
@@ -25,6 +21,68 @@ class ClipNode {
     var planenum:Int;
     var children:Array<Contents>;
     function new() {}
+}
+
+@:publicFields
+class Surface {
+    var extents:Array<Int>;
+    var texturemins:Array<Int>;
+    var light_s:Int;
+    var light_t:Int;
+    var dlightframe:Int;
+    var dlightbits:Int;
+    var plane:Plane;
+    var texinfo:Int;
+    var sky:Bool;
+    var turbulent:Bool;
+    var lightofs:Int;
+    var styles:Array<Int>;
+    var texture:Int;
+    var verts:Array<Array<Float>>;
+    var numedges:Int;
+    var firstedge:Int;
+    function new() {}
+}
+
+@:publicFields
+class Node {
+    var contents:Contents;
+    var plane:Plane;
+    var num:Int;
+    var parent:Node;
+    var children:Array<Node>;
+    var numfaces:Int;
+    var firstface:Int;
+    var visframe:Int;
+    var markvisframe:Int;
+    var skychain:Int;
+    var waterchain:Int;
+    var mins:Vec;
+    var maxs:Vec;
+    var cmds:Array<Array<Int>>;
+    var nummarksurfaces:Int;
+    var firstmarksurface:Int;
+    var planenum:Int;
+    function new() {}
+}
+
+@:publicFields
+class Leaf extends Node {
+    var visofs:Int;
+    var ambient_level:Array<Int>;
+    function new() super();
+}
+
+@:publicFields
+class Texinfo {
+    var texture:Int;
+    var vecs:Array<Array<Float>>;
+    var flags:Int;
+    function new(v,t,f) {
+        vecs = v;
+        texture = t;
+        flags = f;
+    }
 }
 
 private class LumpOffsets {
@@ -56,7 +114,7 @@ class Mod_Brush {
             novis.push(0xff);
     }
 
-    public static function PointInLeaf(p:Vec, model:MModel):MLeaf {
+    public static function PointInLeaf(p:Vec, model:MModel):Leaf {
         if (model == null)
             Sys.Error('Mod.PointInLeaf: bad model');
         if (model.nodes == null)
@@ -72,7 +130,7 @@ class Mod_Brush {
         }
     }
 
-    public static function LeafPVS(leaf:MLeaf, model:MModel):Array<Int> {
+    public static function LeafPVS(leaf:Leaf, model:MModel):Array<Int> {
         if (leaf == model.leafs[0])
             return novis;
         return DecompressVis(leaf.visofs, model);
@@ -316,7 +374,7 @@ class Mod_Brush {
         var count = Std.int(filelen / 40);
         loadmodel.texinfo = [];
         for (i in 0...count) {
-            var out = new MTexinfo(
+            var out = new Texinfo(
                 [
                     [view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true), view.getFloat32(fileofs + 12, true)],
                     [view.getFloat32(fileofs + 16, true), view.getFloat32(fileofs + 20, true), view.getFloat32(fileofs + 24, true), view.getFloat32(fileofs + 28, true)]
@@ -344,15 +402,13 @@ class Mod_Brush {
         loadmodel.faces = [];
         for (i in 0...count) {
             var styles = new Uint8Array(view.buffer, fileofs + 12, 4);
-            var out = new MSurface();
-            {
-                out.plane = loadmodel.planes[view.getUint16(fileofs, true)];
-                out.firstedge = view.getUint16(fileofs + 4, true);
-                out.numedges = view.getUint16(fileofs + 8, true);
-                out.texinfo = view.getUint16(fileofs + 10, true);
-                out.styles = [];
-                out.lightofs = view.getInt32(fileofs + 16, true);
-            };
+            var out = new Surface();
+            out.plane = loadmodel.planes[view.getUint16(fileofs, true)];
+            out.firstedge = view.getUint16(fileofs + 4, true);
+            out.numedges = view.getUint16(fileofs + 8, true);
+            out.texinfo = view.getUint16(fileofs + 10, true);
+            out.styles = [];
+            out.lightofs = view.getInt32(fileofs + 16, true);
             if (styles[0] != 255)
                 out.styles[0] = styles[0];
             if (styles[1] != 255)
@@ -427,21 +483,19 @@ class Mod_Brush {
         var count = Std.int(filelen / 28);
         loadmodel.leafs = [];
         for (i in 0...count) {
-            var out = new MLeaf();
-            {
-                out.num = i;
-                out.contents = view.getInt32(fileofs, true);
-                out.visofs = view.getInt32(fileofs + 4, true);
-                out.mins = Vec.of(view.getInt16(fileofs + 8, true), view.getInt16(fileofs + 10, true), view.getInt16(fileofs + 12, true));
-                out.maxs = Vec.of(view.getInt16(fileofs + 14, true), view.getInt16(fileofs + 16, true), view.getInt16(fileofs + 18, true));
-                out.firstmarksurface = view.getUint16(fileofs + 20, true);
-                out.nummarksurfaces = view.getUint16(fileofs + 22, true);
-                out.ambient_level = [view.getUint8(fileofs + 24), view.getUint8(fileofs + 25), view.getUint8(fileofs + 26), view.getUint8(fileofs + 27)];
-                out.cmds = [];
-                out.skychain = 0;
-                out.waterchain = 0;
-            };
-            loadmodel.leafs[i] = out;
+            var out = new Leaf();
+            out.num = i;
+            out.contents = view.getInt32(fileofs, true);
+            out.visofs = view.getInt32(fileofs + 4, true);
+            out.mins = Vec.of(view.getInt16(fileofs + 8, true), view.getInt16(fileofs + 10, true), view.getInt16(fileofs + 12, true));
+            out.maxs = Vec.of(view.getInt16(fileofs + 14, true), view.getInt16(fileofs + 16, true), view.getInt16(fileofs + 18, true));
+            out.firstmarksurface = view.getUint16(fileofs + 20, true);
+            out.nummarksurfaces = view.getUint16(fileofs + 22, true);
+            out.ambient_level = [view.getUint8(fileofs + 24), view.getUint8(fileofs + 25), view.getUint8(fileofs + 26), view.getUint8(fileofs + 27)];
+            out.cmds = [];
+            out.skychain = 0;
+            out.waterchain = 0;
+            loadmodel.leafs.push(out);
             fileofs += 28;
         };
     }
@@ -455,7 +509,7 @@ class Mod_Brush {
         loadmodel.nodes = [];
         var children = new haxe.ds.Vector(count);
         for (i in 0...count) {
-            var n = loadmodel.nodes[i] = new MNode();
+            var n = loadmodel.nodes[i] = new Node();
             n.num = i;
             n.contents = 0;
             n.planenum = view.getUint32(fileofs, true);
@@ -484,7 +538,7 @@ class Mod_Brush {
         SetParent(loadmodel.nodes[0], null);
     }
 
-    static function SetParent(node:MNode, parent:MNode):Void {
+    static function SetParent(node:Node, parent:Node):Void {
         node.parent = parent;
         if (node.contents < 0)
             return;

@@ -11,7 +11,9 @@ import js.html.webgl.Texture;
 import js.html.webgl.RenderingContext;
 import quake.Mod;
 import quake.GL.gl;
-import quake.Mod.MSurface;
+import quake.Mod_Brush.Node;
+import quake.Mod_Brush.Leaf;
+import quake.Mod_Brush.Surface;
 import quake.Def.ClientStat;
 using Tools;
 
@@ -71,14 +73,14 @@ class R {
 
     static var particles:Array<Particle>;
 
-    static var oldviewleaf:MLeaf;
-    static var viewleaf:MLeaf;
+    static var oldviewleaf:Leaf;
+    static var viewleaf:Leaf;
 
     static var skytexturenum:Int;
 
     // efrag
 
-    static function SplitEntityOnNode(emins:Vec, emaxs:Vec, node:MNode):Void {
+    static function SplitEntityOnNode(emins:Vec, emaxs:Vec, node:Node):Void {
         if (node.contents == solid)
             return;
         if (node.contents < 0) {
@@ -143,7 +145,7 @@ class R {
         gl.disable(RenderingContext.BLEND);
     }
 
-    static function MarkLights(light:DLight, bit:Int, node:MNode):Void {
+    static function MarkLights(light:DLight, bit:Int, node:Node):Void {
         while (true) {
             if (node.contents < 0)
                 return;
@@ -234,7 +236,7 @@ class R {
         dlightframecount++;
     }
 
-    static function RecursiveLightPoint(node:MNode, start:Vec, end:Vec):Int {
+    static function RecursiveLightPoint(node:Node, start:Vec, end:Vec):Int {
         if (node.contents < 0)
             return -1;
 
@@ -1638,7 +1640,7 @@ class R {
     static var lightmaps = new Uint8Array(new ArrayBuffer(4194304));
     static var dlightmaps = new Uint8Array(new ArrayBuffer(1048576));
 
-    static function AddDynamicLights(surf:MSurface):Void {
+    static function AddDynamicLights(surf:Surface):Void {
         var smax = (surf.extents[0] >> 4) + 1;
         var tmax = (surf.extents[1] >> 4) + 1;
         var size = smax * tmax;
@@ -1700,7 +1702,7 @@ class R {
         }
     }
 
-    static function RemoveDynamicLights(surf:MSurface):Void {
+    static function RemoveDynamicLights(surf:Surface):Void {
         var smax = (surf.extents[0] >> 4) + 1;
         var tmax = (surf.extents[1] >> 4) + 1;
         for (t in 0...tmax) {
@@ -1714,7 +1716,7 @@ class R {
         }
     }
 
-    static function BuildLightMap(surf:MSurface):Void {
+    static function BuildLightMap(surf:Surface):Void {
         var smax = (surf.extents[0] >> 4) + 1;
         var tmax = (surf.extents[1] >> 4) + 1;
         var lightmap = surf.lightofs;
@@ -1827,7 +1829,7 @@ class R {
         }
     }
 
-    static function RecursiveWorldNode(node:MNode):Void {
+    static function RecursiveWorldNode(node:Node):Void {
         if (node.contents == Contents.solid)
             return;
         if (node.contents < 0) {
@@ -1904,7 +1906,7 @@ class R {
         for (i in 0...CL.state.worldmodel.leafs.length) {
             if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                 continue;
-            var node:MNode = CL.state.worldmodel.leafs[i + 1];
+            var node:Node = CL.state.worldmodel.leafs[i + 1];
             while (node != null) {
                 if (node.markvisframe == R.visframecount)
                     break;
@@ -1933,7 +1935,7 @@ class R {
             for (i in 0...CL.state.worldmodel.leafs.length) {
                 if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                     continue;
-                var node:MNode = CL.state.worldmodel.leafs[i + 1];
+                var node:Node = CL.state.worldmodel.leafs[i + 1];
                 while (node != null) {
                     if (node.markvisframe == R.visframecount)
                         break;
@@ -1948,7 +1950,7 @@ class R {
 
     static var drawsky:Bool;
 
-    static function AllocBlock(surf:MSurface) {
+    static function AllocBlock(surf:Surface) {
         var w = (surf.extents[0] >> 4) + 1;
         var h = (surf.extents[1] >> 4) + 1;
         var x, y;
@@ -1978,7 +1980,7 @@ class R {
     }
 
     // Based on Quake 2 polygon generation algorithm by Toji - http://blog.tojicode.com/2010/06/quake-2-bsp-quite-possibly-worst-format.html
-    static function BuildSurfaceDisplayList(fa:MSurface):Void {
+    static function BuildSurfaceDisplayList(fa:Surface):Void {
         fa.verts = [];
         if (fa.numedges <= 2)
             return;

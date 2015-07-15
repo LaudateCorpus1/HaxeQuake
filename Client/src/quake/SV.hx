@@ -345,7 +345,7 @@ class SV {
         }
     }
 
-    static function AddToFatPVS(org:Vec, node:MNode):Void {
+    static function AddToFatPVS(org:Vec, node:Node):Void {
         while (true) {
             if (node.contents < 0) {
                 if (node.contents != Contents.solid) {
@@ -2075,7 +2075,7 @@ class SV {
             TouchLinks(ent, node.children[1]);
     }
 
-    static function FindTouchedLeafs(ent:Edict, node:MNode):Void {
+    static function FindTouchedLeafs(ent:Edict, node:Node):Void {
         if (node.contents == Contents.solid)
             return;
 

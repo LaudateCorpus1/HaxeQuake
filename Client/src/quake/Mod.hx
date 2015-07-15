@@ -11,10 +11,15 @@ import js.html.webgl.Texture;
 import quake.GL.gl;
 import quake.GL.GLTexture;
 
+import quake.Mod_Alias.Trivert;
 import quake.Mod_Brush.Hull;
 import quake.Mod_Brush.ClipNode;
+import quake.Mod_Brush.Surface;
+import quake.Mod_Brush.Leaf;
+import quake.Mod_Brush.Node;
+import quake.Mod_Brush.Texinfo;
 
-@:enum abstract MModelType(Int) {
+@:enum abstract ModelType(Int) {
     var brush = 0;
     var sprite = 1;
     var alias = 2;
@@ -32,7 +37,7 @@ class MModel {
     var cmds:Buffer;
     var numskins:Int;
     var skins:Array<MSkin>;
-    var type:MModelType;
+    var type:ModelType;
     var mins:Vec;
     var maxs:Vec;
     var radius:Float;
@@ -43,19 +48,19 @@ class MModel {
     var textures:Array<MTexture>;
     var waterchain:Int;
     var skychain:Int;
-    var leafs:Array<MLeaf>;
+    var leafs:Array<Leaf>;
     var numfaces:Int;
-    var faces:Array<MSurface>;
+    var faces:Array<Surface>;
     var firstface:Int;
     var marksurfaces:Array<Int>;
-    var texinfo:Array<MTexinfo>;
+    var texinfo:Array<Texinfo>;
     var name:String;
     var vertexes:Array<Vec>;
     var edges:Array<Array<Int>>;
     var surfedges:Array<Int>;
     var visdata:Uint8Array;
     var random:Bool;
-    var nodes:Array<MNode>;
+    var nodes:Array<Node>;
     var hulls:Array<Hull>;
     var entities:String;
     var needload:Bool;
@@ -75,19 +80,6 @@ class MModel {
         this.needload = true;
     }
 }
-
-
-
-@:publicFields
-class MTrivert {
-    var v:Array<Int>;
-    var lightnormalindex:Int;
-    function new(v, lightnormalindex) {
-        this.v = v;
-        this.lightnormalindex = lightnormalindex;
-    }
-}
-
 
 
 @:publicFields
@@ -115,73 +107,10 @@ class MFrame {
     var cmdofs:Int;
     var bboxmin:Array<Int>;
     var bboxmax:Array<Int>;
-    var v:Array<MTrivert>;
+    var v:Array<Trivert>;
     function new(g) {
         this.group = g;
     }
-}
-
-@:publicFields
-class MNode {
-    var contents:Contents;
-    var plane:Plane;
-    var num:Int;
-    var parent:MNode;
-    var children:Array<MNode>;
-    var numfaces:Int;
-    var firstface:Int;
-    var visframe:Int;
-    var markvisframe:Int;
-    var skychain:Int;
-    var waterchain:Int;
-    var mins:Vec;
-    var maxs:Vec;
-    var cmds:Array<Array<Int>>;
-    var nummarksurfaces:Int;
-    var firstmarksurface:Int;
-    var planenum:Int;
-    function new() {}
-}
-
-
-@:publicFields
-class MLeaf extends MNode {
-    var visofs:Int;
-    var ambient_level:Array<Int>;
-    function new() super();
-}
-
-@:publicFields
-class MTexinfo {
-    var texture:Int;
-    var vecs:Array<Array<Float>>;
-    var flags:Int;
-    function new(v,t,f) {
-        vecs = v;
-        texture = t;
-        flags = f;
-    }
-}
-
-@:publicFields
-class MSurface {
-    var extents:Array<Int>;
-    var texturemins:Array<Int>;
-    var light_s:Int;
-    var light_t:Int;
-    var dlightframe:Int;
-    var dlightbits:Int;
-    var plane:Plane;
-    var texinfo:Int;
-    var sky:Bool;
-    var turbulent:Bool;
-    var lightofs:Int;
-    var styles:Array<Int>;
-    var texture:Int;
-    var verts:Array<Array<Float>>;
-    var numedges:Int;
-    var firstedge:Int;
-    function new() {}
 }
 
 @:publicFields

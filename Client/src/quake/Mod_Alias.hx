@@ -8,7 +8,6 @@ import js.html.webgl.RenderingContext;
 import quake.Mod.MModel;
 import quake.Mod.MSkin;
 import quake.Mod.MFrame;
-import quake.Mod.MTrivert;
 import quake.GL.gl;
 
 @:publicFields
@@ -30,6 +29,16 @@ private class Triangle {
     function new(facesfront, vertindex) {
         this.facesfront = facesfront;
         this.vertindex = vertindex;
+    }
+}
+
+@:publicFields
+class Trivert {
+    var v:Array<Int>;
+    var lightnormalindex:Int;
+    function new(v, lightnormalindex) {
+        this.v = v;
+        this.lightnormalindex = lightnormalindex;
     }
 }
 
@@ -238,7 +247,7 @@ class Mod_Alias {
                 frame.v = [];
                 inmodel += 24;
                 for (j in 0...loadmodel.numverts) {
-                    frame.v[j] = new MTrivert(
+                    frame.v[j] = new Trivert(
                         [model.getUint8(inmodel), model.getUint8(inmodel + 1), model.getUint8(inmodel + 2)],
                         model.getUint8(inmodel + 3)
                     );
@@ -270,7 +279,7 @@ class Mod_Alias {
                     frame.v = [];
                     inmodel += 24;
                     for (k in 0...loadmodel.numverts) {
-                        frame.v[k] = new MTrivert(
+                        frame.v[k] = new Trivert(
                             [model.getUint8(inmodel), model.getUint8(inmodel + 1), model.getUint8(inmodel + 2)],
                             model.getUint8(inmodel + 3)
                         );

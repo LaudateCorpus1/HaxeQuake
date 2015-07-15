@@ -5847,11 +5847,6 @@ var quake_MModel = function(name) {
 	this.needload = true;
 };
 quake_MModel.__name__ = true;
-var quake_MTrivert = function(v,lightnormalindex) {
-	this.v = v;
-	this.lightnormalindex = lightnormalindex;
-};
-quake_MTrivert.__name__ = true;
 var quake_MSkin = function(g) {
 	this.group = g;
 };
@@ -5860,25 +5855,6 @@ var quake_MFrame = function(g) {
 	this.group = g;
 };
 quake_MFrame.__name__ = true;
-var quake_MNode = function() {
-};
-quake_MNode.__name__ = true;
-var quake_MLeaf = function() {
-	quake_MNode.call(this);
-};
-quake_MLeaf.__name__ = true;
-quake_MLeaf.__super__ = quake_MNode;
-quake_MLeaf.prototype = $extend(quake_MNode.prototype,{
-});
-var quake_MTexinfo = function(v,t,f) {
-	this.vecs = v;
-	this.texture = t;
-	this.flags = f;
-};
-quake_MTexinfo.__name__ = true;
-var quake_MSurface = function() {
-};
-quake_MSurface.__name__ = true;
 var quake_MTexture = function() {
 };
 quake_MTexture.__name__ = true;
@@ -5961,6 +5937,11 @@ var quake__$Mod_$Alias_Triangle = function(facesfront,vertindex) {
 	this.vertindex = vertindex;
 };
 quake__$Mod_$Alias_Triangle.__name__ = true;
+var quake_Trivert = function(v,lightnormalindex) {
+	this.v = v;
+	this.lightnormalindex = lightnormalindex;
+};
+quake_Trivert.__name__ = true;
 var quake_Mod_$Alias = function() { };
 quake_Mod_$Alias.__name__ = true;
 quake_Mod_$Alias.Init = function() {
@@ -6192,7 +6173,7 @@ quake_Mod_$Alias.LoadAllFrames = function(loadmodel,model,inmodel) {
 			var _g2 = loadmodel.numverts;
 			while(_g3 < _g2) {
 				var j = _g3++;
-				frame.v[j] = new quake_MTrivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
+				frame.v[j] = new quake_Trivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
 				inmodel += 4;
 			}
 			loadmodel.frames[i] = frame;
@@ -6225,7 +6206,7 @@ quake_Mod_$Alias.LoadAllFrames = function(loadmodel,model,inmodel) {
 				var _g31 = loadmodel.numverts;
 				while(_g4 < _g31) {
 					var k = _g4++;
-					frame1.v[k] = new quake_MTrivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
+					frame1.v[k] = new quake_Trivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
 					inmodel += 4;
 				}
 			}
@@ -6287,6 +6268,25 @@ quake_Hull.__name__ = true;
 var quake_ClipNode = function() {
 };
 quake_ClipNode.__name__ = true;
+var quake_Surface = function() {
+};
+quake_Surface.__name__ = true;
+var quake_Node = function() {
+};
+quake_Node.__name__ = true;
+var quake_Leaf = function() {
+	quake_Node.call(this);
+};
+quake_Leaf.__name__ = true;
+quake_Leaf.__super__ = quake_Node;
+quake_Leaf.prototype = $extend(quake_Node.prototype,{
+});
+var quake_Texinfo = function(v,t,f) {
+	this.vecs = v;
+	this.texture = t;
+	this.flags = f;
+};
+quake_Texinfo.__name__ = true;
 var quake_Mod_$Brush = function() { };
 quake_Mod_$Brush.__name__ = true;
 quake_Mod_$Brush.Init = function() {
@@ -6559,7 +6559,7 @@ quake_Mod_$Brush.LoadTexinfo = function(loadmodel,view) {
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
-		var out = new quake_MTexinfo([[view.getFloat32(fileofs,true),view.getFloat32(fileofs + 4,true),view.getFloat32(fileofs + 8,true),view.getFloat32(fileofs + 12,true)],[view.getFloat32(fileofs + 16,true),view.getFloat32(fileofs + 20,true),view.getFloat32(fileofs + 24,true),view.getFloat32(fileofs + 28,true)]],view.getUint32(fileofs + 32,true),view.getUint32(fileofs + 36,true));
+		var out = new quake_Texinfo([[view.getFloat32(fileofs,true),view.getFloat32(fileofs + 4,true),view.getFloat32(fileofs + 8,true),view.getFloat32(fileofs + 12,true)],[view.getFloat32(fileofs + 16,true),view.getFloat32(fileofs + 20,true),view.getFloat32(fileofs + 24,true),view.getFloat32(fileofs + 28,true)]],view.getUint32(fileofs + 32,true),view.getUint32(fileofs + 36,true));
 		if(out.texture >= loadmodel.textures.length) {
 			out.texture = loadmodel.textures.length - 1;
 			out.flags = 0;
@@ -6580,7 +6580,7 @@ quake_Mod_$Brush.LoadFaces = function(loadmodel,view) {
 	while(_g < count) {
 		var i = _g++;
 		var styles = new Uint8Array(view.buffer,fileofs + 12,4);
-		var out = new quake_MSurface();
+		var out = new quake_Surface();
 		out.plane = loadmodel.planes[view.getUint16(fileofs,true)];
 		out.firstedge = view.getUint16(fileofs + 4,true);
 		out.numedges = view.getUint16(fileofs + 8,true);
@@ -6666,7 +6666,7 @@ quake_Mod_$Brush.LoadLeafs = function(loadmodel,view) {
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
-		var out = new quake_MLeaf();
+		var out = new quake_Leaf();
 		out.num = i;
 		out.contents = view.getInt32(fileofs,true);
 		out.visofs = view.getInt32(fileofs + 4,true);
@@ -6696,7 +6696,7 @@ quake_Mod_$Brush.LoadLeafs = function(loadmodel,view) {
 		out.cmds = [];
 		out.skychain = 0;
 		out.waterchain = 0;
-		loadmodel.leafs[i] = out;
+		loadmodel.leafs.push(out);
 		fileofs += 28;
 	}
 };
@@ -6714,7 +6714,7 @@ quake_Mod_$Brush.LoadNodes = function(loadmodel,view) {
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
-		var n = loadmodel.nodes[i] = new quake_MNode();
+		var n = loadmodel.nodes[i] = new quake_Node();
 		n.num = i;
 		n.contents = 0;
 		n.planenum = view.getUint32(fileofs,true);

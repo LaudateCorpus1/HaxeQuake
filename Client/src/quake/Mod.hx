@@ -63,7 +63,6 @@ class MModel {
     var skinwidth:Int;
     var skinheight:Int;
     var numverts:Int;
-    var triangles:Array<MTriangle>;
     var width:Int;
     var height:Int;
     var planes:Array<Plane>;
@@ -77,15 +76,6 @@ class MModel {
 }
 
 
-@:publicFields
-class MTriangle {
-    var facesfront:Bool;
-    var vertindex:Array<Int>;
-    function new(facesfront, vertindex) {
-        this.facesfront = facesfront;
-        this.vertindex = vertindex;
-    }
-}
 
 @:publicFields
 class MTrivert {

@@ -5844,11 +5844,6 @@ var quake_MModel = function(name) {
 	this.needload = true;
 };
 quake_MModel.__name__ = true;
-var quake_MTriangle = function(facesfront,vertindex) {
-	this.facesfront = facesfront;
-	this.vertindex = vertindex;
-};
-quake_MTriangle.__name__ = true;
 var quake_MTrivert = function(v,lightnormalindex) {
 	this.v = v;
 	this.lightnormalindex = lightnormalindex;
@@ -5976,6 +5971,11 @@ var quake__$Mod_$Alias_STVert = function(onseam,s,t) {
 	this.t = t;
 };
 quake__$Mod_$Alias_STVert.__name__ = true;
+var quake__$Mod_$Alias_Triangle = function(facesfront,vertindex) {
+	this.facesfront = facesfront;
+	this.vertindex = vertindex;
+};
+quake__$Mod_$Alias_Triangle.__name__ = true;
 var quake_Mod_$Alias = function() { };
 quake_Mod_$Alias.__name__ = true;
 quake_Mod_$Alias.Init = function() {
@@ -6050,12 +6050,12 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 		stverts.push(new quake__$Mod_$Alias_STVert(model.getUint32(inmodel,true) != 0,model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true)));
 		inmodel += 12;
 	}
-	loadmodel.triangles = [];
+	var triangles = [];
 	var _g11 = 0;
 	var _g2 = loadmodel.numtris;
 	while(_g11 < _g2) {
-		var i = _g11++;
-		loadmodel.triangles[i] = new quake_MTriangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]);
+		_g11++;
+		triangles.push(new quake__$Mod_$Alias_Triangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]));
 		inmodel += 16;
 	}
 	quake_Mod_$Alias.LoadAllFrames(loadmodel,model,inmodel);
@@ -6063,8 +6063,8 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 	var _g12 = 0;
 	var _g3 = loadmodel.numtris;
 	while(_g12 < _g3) {
-		var i1 = _g12++;
-		var triangle = loadmodel.triangles[i1];
+		var i = _g12++;
+		var triangle = triangles[i];
 		if(triangle.facesfront) {
 			var vert = stverts[triangle.vertindex[0]];
 			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
@@ -6090,8 +6090,8 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 	var _g13 = 0;
 	var _g4 = loadmodel.numframes;
 	while(_g13 < _g4) {
-		var i2 = _g13++;
-		group = loadmodel.frames[i2];
+		var i1 = _g13++;
+		group = loadmodel.frames[i1];
 		if(group.group) {
 			var _g31 = 0;
 			var _g22 = group.frames.length;
@@ -6103,7 +6103,7 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 				var _g41 = loadmodel.numtris;
 				while(_g5 < _g41) {
 					var k = _g5++;
-					var triangle1 = loadmodel.triangles[k];
+					var triangle1 = triangles[k];
 					var _g6 = 0;
 					while(_g6 < 3) {
 						var l = _g6++;
@@ -6126,7 +6126,7 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 		var _g23 = loadmodel.numtris;
 		while(_g32 < _g23) {
 			var j2 = _g32++;
-			var triangle2 = loadmodel.triangles[j2];
+			var triangle2 = triangles[j2];
 			var _g42 = 0;
 			while(_g42 < 3) {
 				var k1 = _g42++;

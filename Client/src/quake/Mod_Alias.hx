@@ -7,7 +7,6 @@ import js.html.Float32Array;
 import js.html.webgl.RenderingContext;
 import quake.Mod.MModel;
 import quake.Mod.MSkin;
-import quake.Mod.MTriangle;
 import quake.Mod.MFrame;
 import quake.Mod.MTrivert;
 import quake.GL.gl;
@@ -21,6 +20,16 @@ private class STVert {
         this.onseam = onseam;
         this.s = s;
         this.t = t;
+    }
+}
+
+@:publicFields
+private class Triangle {
+    var facesfront:Bool;
+    var vertindex:Array<Int>;
+    function new(facesfront, vertindex) {
+        this.facesfront = facesfront;
+        this.vertindex = vertindex;
     }
 }
 
@@ -79,16 +88,16 @@ class Mod_Alias {
             inmodel += 12;
         }
 
-        loadmodel.triangles = [];
+        var triangles = [];
         for (i in 0...loadmodel.numtris) {
-            loadmodel.triangles[i] = new MTriangle(
+            triangles.push(new Triangle(
                 model.getUint32(inmodel, true) != 0,
                 [
                     model.getUint32(inmodel + 4, true),
                     model.getUint32(inmodel + 8, true),
                     model.getUint32(inmodel + 12, true)
                 ]
-            );
+            ));
             inmodel += 16;
         }
 
@@ -97,7 +106,7 @@ class Mod_Alias {
         var cmds = [];
 
         for (i in 0...loadmodel.numtris) {
-            var triangle = loadmodel.triangles[i];
+            var triangle = triangles[i];
             if (triangle.facesfront) {
                 var vert = stverts[triangle.vertindex[0]];
                 cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
@@ -128,7 +137,7 @@ class Mod_Alias {
                     frame = group.frames[j];
                     frame.cmdofs = cmds.length << 2;
                     for (k in 0...loadmodel.numtris) {
-                        var triangle = loadmodel.triangles[k];
+                        var triangle = triangles[k];
                         for (l in 0...3) {
                             var vert = frame.v[triangle.vertindex[l]];
                             if (vert.lightnormalindex >= 162)
@@ -147,7 +156,7 @@ class Mod_Alias {
             frame = group;
             frame.cmdofs = cmds.length << 2;
             for (j in 0...loadmodel.numtris) {
-                var triangle = loadmodel.triangles[j];
+                var triangle = triangles[j];
                 for (k in 0...3) {
                     var vert = frame.v[triangle.vertindex[k]];
                     if (vert.lightnormalindex >= 162)

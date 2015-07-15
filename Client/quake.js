@@ -11429,34 +11429,43 @@ quake_R.RenderDlights = function() {
 	quake_GL.gl.disable(3042);
 };
 quake_R.MarkLights = function(light,bit,node) {
-	if(node.contents < 0) return;
-	var tmp;
-	var v1 = light.origin;
-	var v2 = node.plane.normal;
-	tmp = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
-	var dist = tmp - node.plane.dist;
-	if(dist > light.radius) {
-		quake_R.MarkLights(light,bit,node.children[0]);
-		return;
-	}
-	if(dist < -light.radius) {
-		quake_R.MarkLights(light,bit,node.children[1]);
-		return;
-	}
-	var _g1 = 0;
-	var _g = node.numfaces;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var surf = quake_CL.state.worldmodel.faces[node.firstface + i];
-		if(surf.sky || surf.turbulent) continue;
-		if(surf.dlightframe != quake_R.dlightframecount + 1) {
-			surf.dlightbits = 0;
-			surf.dlightframe = quake_R.dlightframecount + 1;
+	while(true) {
+		if(node.contents < 0) return;
+		var splitplane = node.plane;
+		var dist;
+		if(splitplane.type < 3) dist = light.origin[splitplane.type] - splitplane.dist; else {
+			var tmp;
+			var v1 = light.origin;
+			var v2 = splitplane.normal;
+			tmp = v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
+			dist = tmp - splitplane.dist;
 		}
-		surf.dlightbits += bit;
+		if(dist > light.radius) {
+			node = node.children[0];
+			continue;
+		}
+		if(dist < -light.radius) {
+			node = node.children[1];
+			continue;
+		}
+		var _g1 = 0;
+		var _g = node.numfaces;
+		while(_g1 < _g) {
+			var i = _g1++;
+			var surf = quake_CL.state.worldmodel.faces[node.firstface + i];
+			if(surf.sky || surf.turbulent) continue;
+			if(surf.dlightframe != quake_R.dlightframecount + 1) {
+				surf.dlightbits = 0;
+				surf.dlightframe = quake_R.dlightframecount + 1;
+			}
+			surf.dlightbits += bit;
+		}
+		var child = node.children[0];
+		if(child.contents >= 0) quake_R.MarkLights(light,bit,child);
+		child = node.children[1];
+		if(child.contents >= 0) quake_R.MarkLights(light,bit,child);
+		break;
 	}
-	quake_R.MarkLights(light,bit,node.children[0]);
-	quake_R.MarkLights(light,bit,node.children[1]);
 };
 quake_R.PushDlights = function() {
 	if(quake_R.flashblend.value != 0) return;

@@ -153,29 +153,47 @@ class R {
     }
 
     static function MarkLights(light:DLight, bit:Int, node:MNode):Void {
-        if (node.contents < 0)
-            return;
-        var dist = Vec.DotProduct(light.origin, node.plane.normal) - node.plane.dist;
-        if (dist > light.radius) {
-            R.MarkLights(light, bit, node.children[0]);
-            return;
-        }
-        if (dist < -light.radius) {
-            R.MarkLights(light, bit, node.children[1]);
-            return;
-        }
-        for (i in 0...node.numfaces) {
-            var surf = CL.state.worldmodel.faces[node.firstface + i];
-            if ((surf.sky) || (surf.turbulent))
+        while (true) {
+            if (node.contents < 0)
+                return;
+
+            var splitplane = node.plane;
+            var dist;
+            if (splitplane.type < 3)
+                dist = light.origin[splitplane.type] - splitplane.dist;
+            else
+                dist = Vec.DotProduct(light.origin, splitplane.normal) - splitplane.dist;
+
+            if (dist > light.radius) {
+                node = node.children[0];
                 continue;
-            if (surf.dlightframe != (R.dlightframecount + 1)) {
-                surf.dlightbits = 0;
-                surf.dlightframe = R.dlightframecount + 1;
             }
-            surf.dlightbits += bit;
+            if (dist < -light.radius) {
+                node = node.children[1];
+                continue;
+            }
+
+            for (i in 0...node.numfaces) {
+                var surf = CL.state.worldmodel.faces[node.firstface + i];
+                if (surf.sky || surf.turbulent)
+                    continue;
+                if (surf.dlightframe != (dlightframecount + 1)) {
+                    surf.dlightbits = 0;
+                    surf.dlightframe = dlightframecount + 1;
+                }
+                surf.dlightbits += bit;
+            }
+
+            var child = node.children[0];
+            if (child.contents >= 0)
+                MarkLights(light, bit, child);
+
+            child = node.children[1];
+            if (child.contents >= 0)
+                MarkLights(light, bit, child);
+
+            break;
         }
-        R.MarkLights(light, bit, node.children[0]);
-        R.MarkLights(light, bit, node.children[1]);
     }
 
     static function PushDlights() {

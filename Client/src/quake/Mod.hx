@@ -426,6 +426,9 @@ class Mod {
 
     static var loadmodel:MModel;
 
+    static inline var IDPOLYHEADER = ('O'.code << 24) + ('P'.code << 16) + ('D'.code << 8) + 'I'.code; // little-endian "IDPO"
+    static inline var IDSPRITEHEADER = ('P'.code << 24) + ('S'.code << 16) + ('D'.code << 8) + 'I'.code; // little-endian "IDSP"
+
     static function LoadModel(mod:MModel, crash:Bool):MModel {
         if (!mod.needload)
             return mod;
@@ -438,9 +441,9 @@ class Mod {
         loadmodel = mod;
         mod.needload = false;
         switch (new DataView(buf).getUint32(0, true)) {
-            case 0x4f504449:
+            case IDPOLYHEADER:
                 LoadAliasModel(buf);
-            case 0x50534449:
+            case IDSPRITEHEADER:
                 LoadSpriteModel(buf);
             default:
                 LoadBrushModel(buf);
@@ -449,7 +452,7 @@ class Mod {
     }
 
     public static inline function ForName(name:String, crash:Bool):MModel {
-        return Mod.LoadModel(Mod.FindName(name), crash);
+        return LoadModel(FindName(name), crash);
     }
 
     /*

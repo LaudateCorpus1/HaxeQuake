@@ -4,6 +4,7 @@ import js.html.ArrayBuffer;
 import js.html.Float32Array;
 import js.html.Int32Array;
 import js.html.Uint8Array;
+import quake.Entity.EntityEffect;
 import quake.CL.ClientCmd;
 import quake.Host.HClient;
 import quake.Mod;
@@ -649,7 +650,7 @@ class SV {
         }
 
         for (i in 1...server.num_edicts)
-            server.edicts[i].v.effects = Std.int(server.edicts[i].v.effects) & ~EntEffect.muzzleflash;
+            server.edicts[i].v.effects = Std.int(server.edicts[i].v.effects) & ~EntityEffect.muzzleflash;
     }
 
     static function ModelIndex(name:String):Int {

@@ -199,14 +199,6 @@ class MTexture {
     function new() {}
 }
 
-@:enum abstract EntEffect(Int) to Int {
-    var no = 0;
-    var brightfield = 1;
-    var muzzleflash = 2;
-    var brightlight = 4;
-    var dimlight = 8;
-}
-
 @:enum abstract ModelEffect(Int) to Int {
     var rocket = 1;
     var grenade = 2;

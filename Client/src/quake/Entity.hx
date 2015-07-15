@@ -1,7 +1,6 @@
 package quake;
 
 import quake.Mod.MModel;
-import quake.Mod.EntEffect;
 
 @:publicFields
 class Entity {
@@ -18,7 +17,7 @@ class Entity {
     var skinnum = 0;
     var msgtime = 0.0;
     var forcelink:Bool;
-    var effects = EntEffect.no;
+    var effects = EntityEffect.no;
     var update_type = 0;
     var visframe = 0;
     var dlightframe = 0;
@@ -37,6 +36,14 @@ class EntityState {
     var frame = 0;
     var colormap = 0;
     var skin = 0;
-    var effects = EntEffect.no;
+    var effects = EntityEffect.no;
     function new() {}
+}
+
+@:enum abstract EntityEffect(Int) to Int {
+    var no = 0;
+    var brightfield = 1;
+    var muzzleflash = 2;
+    var brightlight = 4;
+    var dimlight = 8;
 }

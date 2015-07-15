@@ -424,8 +424,6 @@ class Mod {
         return null;
     }
 
-    static var loadmodel:MModel;
-
     static inline var IDPOLYHEADER = ('O'.code << 24) + ('P'.code << 16) + ('D'.code << 8) + 'I'.code; // little-endian "IDPO"
     static inline var IDSPRITEHEADER = ('P'.code << 24) + ('S'.code << 16) + ('D'.code << 8) + 'I'.code; // little-endian "IDSP"
 
@@ -438,16 +436,15 @@ class Mod {
                 Sys.Error('Mod.LoadModel: ' + mod.name + ' not found');
             return null;
         }
-        loadmodel = mod;
         mod.needload = false;
         var view = new DataView(buf);
         switch (view.getUint32(0, true)) {
             case IDPOLYHEADER:
-                LoadAliasModel(view);
+                LoadAliasModel(mod, view);
             case IDSPRITEHEADER:
-                LoadSpriteModel(view);
+                LoadSpriteModel(mod, view);
             default:
-                LoadBrushModel(view);
+                LoadBrushModel(mod, view);
         }
         return mod;
     }
@@ -464,7 +461,7 @@ class Mod {
     =====================================================
     */
 
-    static function LoadTextures(view:DataView):Void {
+    static function LoadTextures(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.textures, true);
         var filelen = view.getUint32(ModelLumpOffsets.textures + 4, true);
         loadmodel.textures = [];
@@ -548,7 +545,7 @@ class Mod {
         loadmodel.textures[loadmodel.textures.length] = R.notexture_mip;
     }
 
-    static function LoadLighting(view:DataView):Void {
+    static function LoadLighting(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.lighting, true);
         var filelen = view.getUint32(ModelLumpOffsets.lighting + 4, true);
         if (filelen == 0)
@@ -556,7 +553,7 @@ class Mod {
         loadmodel.lightdata = new Uint8Array(view.buffer.slice(fileofs, fileofs + filelen));
     }
 
-    static function LoadVisibility(view:DataView):Void {
+    static function LoadVisibility(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.visibility, true);
         var filelen = view.getUint32(ModelLumpOffsets.visibility + 4, true);
         if (filelen == 0)
@@ -564,13 +561,13 @@ class Mod {
         loadmodel.visdata = new Uint8Array(view.buffer.slice(fileofs, fileofs + filelen));
     }
 
-    static function LoadEntities(view:DataView):Void {
+    static function LoadEntities(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.entities, true);
         var filelen = view.getUint32(ModelLumpOffsets.entities + 4, true);
         loadmodel.entities = Q.memstr(new Uint8Array(view.buffer, fileofs, filelen));
     }
 
-    static function LoadVertexes(view:DataView):Void {
+    static function LoadVertexes(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.vertexes, true);
         var filelen = view.getUint32(ModelLumpOffsets.vertexes + 4, true);
         if ((filelen % 12) != 0)
@@ -583,7 +580,7 @@ class Mod {
         }
     }
 
-    static function LoadSubmodels(view:DataView):Void {
+    static function LoadSubmodels(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.models, true);
         var filelen = view.getUint32(ModelLumpOffsets.models + 4, true);
         var count = filelen >> 6;
@@ -657,7 +654,7 @@ class Mod {
         }
     }
 
-    static function LoadEdges(view:DataView):Void {
+    static function LoadEdges(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.edges, true);
         var filelen = view.getUint32(ModelLumpOffsets.edges + 4, true);
         if ((filelen & 3) != 0)
@@ -670,7 +667,7 @@ class Mod {
         }
     }
 
-    static function LoadTexinfo(view:DataView):Void {
+    static function LoadTexinfo(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.texinfo, true);
         var filelen = view.getUint32(ModelLumpOffsets.texinfo + 4, true);
         if ((filelen % 40) != 0)
@@ -695,7 +692,7 @@ class Mod {
         }
     }
 
-    static function LoadFaces(view:DataView):Void {
+    static function LoadFaces(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.faces, true);
         var filelen = view.getUint32(ModelLumpOffsets.faces + 4, true);
         if ((filelen % 20) != 0)
@@ -768,7 +765,7 @@ class Mod {
         Mod.SetParent(node.children[1], node);
     }
 
-    static function LoadNodes(view:DataView):Void {
+    static function LoadNodes(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.nodes, true);
         var filelen = view.getUint32(ModelLumpOffsets.nodes + 4, true);
         if ((filelen == 0) || ((filelen % 24) != 0))
@@ -806,7 +803,7 @@ class Mod {
         Mod.SetParent(loadmodel.nodes[0], null);
     }
 
-    static function LoadLeafs(view:DataView):Void {
+    static function LoadLeafs(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.leafs, true);
         var filelen = view.getUint32(ModelLumpOffsets.leafs + 4, true);
         if ((filelen % 28) != 0)
@@ -833,7 +830,7 @@ class Mod {
         };
     }
 
-    static function LoadClipnodes(view:DataView):Void {
+    static function LoadClipnodes(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.clipnodes, true);
         var filelen = view.getUint32(ModelLumpOffsets.clipnodes + 4, true);
         var count = filelen >> 3;
@@ -871,7 +868,7 @@ class Mod {
         }
     }
 
-    static function MakeHull0() {
+    static function MakeHull0(loadmodel:MModel) {
         var clipnodes = [];
         var hull = {
             var h = new MHull();
@@ -896,7 +893,7 @@ class Mod {
         loadmodel.hulls[0] = hull;
     }
 
-    static function LoadMarksurfaces(view:DataView):Void {
+    static function LoadMarksurfaces(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.marksurfaces, true);
         var filelen = view.getUint32(ModelLumpOffsets.marksurfaces + 4, true);
         var count = filelen >> 1;
@@ -909,7 +906,7 @@ class Mod {
         }
     }
 
-    static function LoadSurfedges(view:DataView):Void {
+    static function LoadSurfedges(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.surfedges, true);
         var filelen = view.getUint32(ModelLumpOffsets.surfedges + 4, true);
         var count = filelen >> 2;
@@ -918,7 +915,7 @@ class Mod {
             loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2), true);
     }
 
-    static function LoadPlanes(view:DataView):Void {
+    static function LoadPlanes(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.planes, true);
         var filelen = view.getUint32(ModelLumpOffsets.planes + 4, true);
         if ((filelen % 20) != 0)
@@ -942,29 +939,29 @@ class Mod {
         }
     }
 
-    static function LoadBrushModel(data:DataView):Void {
+    static function LoadBrushModel(loadmodel:MModel, data:DataView):Void {
         var version = data.getUint32(0, true);
         if (version != ModelVersion.brush)
             Sys.Error('Mod.LoadBrushModel: ' + loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.brush + ')');
 
         loadmodel.type = brush;
 
-        LoadVertexes(data);
-        LoadEdges(data);
-        LoadSurfedges(data);
-        LoadTextures(data);
-        LoadLighting(data);
-        LoadPlanes(data);
-        LoadTexinfo(data);
-        LoadFaces(data);
-        LoadMarksurfaces(data);
-        LoadVisibility(data);
-        LoadLeafs(data);
-        LoadNodes(data);
-        LoadClipnodes(data);
-        MakeHull0();
-        LoadEntities(data);
-        LoadSubmodels(data);
+        LoadVertexes(loadmodel, data);
+        LoadEdges(loadmodel, data);
+        LoadSurfedges(loadmodel, data);
+        LoadTextures(loadmodel, data);
+        LoadLighting(loadmodel, data);
+        LoadPlanes(loadmodel, data);
+        LoadTexinfo(loadmodel, data);
+        LoadFaces(loadmodel, data);
+        LoadMarksurfaces(loadmodel, data);
+        LoadVisibility(loadmodel, data);
+        LoadLeafs(loadmodel, data);
+        LoadNodes(loadmodel, data);
+        LoadClipnodes(loadmodel, data);
+        MakeHull0(loadmodel);
+        LoadEntities(loadmodel, data);
+        LoadSubmodels(loadmodel, data);
 
         var mins = [0.0, 0.0, 0.0];
         var maxs = [0.0, 0.0, 0.0];
@@ -1001,7 +998,7 @@ class Mod {
     ====================================================
     */
 
-    static function TranslatePlayerSkin(data:Uint8Array, skin:MSkin):Void {
+    static function TranslatePlayerSkin(loadmodel:MModel, data:Uint8Array, skin:MSkin):Void {
         if (loadmodel.skinwidth != 512 || loadmodel.skinheight != 256)
             data = GL.ResampleTexture(data, loadmodel.skinwidth, loadmodel.skinheight, 512, 256);
         var out = new Uint8Array(new ArrayBuffer(512 * 256 * 4));
@@ -1023,7 +1020,7 @@ class Mod {
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, GL.filter_max);
     }
 
-    static function FloodFillSkin(skin:Uint8Array) {
+    static function FloodFillSkin(loadmodel:MModel, skin:Uint8Array) {
         var fillcolor = skin[0];
         if (fillcolor == Mod.filledcolor)
             return;
@@ -1057,14 +1054,14 @@ class Mod {
         }
     }
 
-    static function LoadAllSkins(model:DataView, inmodel:Int):Int {
+    static function LoadAllSkins(loadmodel:MModel, model:DataView, inmodel:Int):Int {
         loadmodel.skins = [];
         var skinsize = loadmodel.skinwidth * loadmodel.skinheight;
         for (i in 0...loadmodel.numskins) {
             inmodel += 4;
             if (model.getUint32(inmodel - 4, true) == 0) {
                 var skin = new Uint8Array(model.buffer, inmodel, skinsize);
-                Mod.FloodFillSkin(skin);
+                FloodFillSkin(loadmodel, skin);
                 var g = new MSkin(false);
                 g.texturenum = GL.LoadTexture(loadmodel.name + '_' + i,
                         loadmodel.skinwidth,
@@ -1072,7 +1069,7 @@ class Mod {
                         skin);
                 loadmodel.skins[i] = g;
                 if (loadmodel.player)
-                    TranslatePlayerSkin(new Uint8Array(model.buffer, inmodel, skinsize), loadmodel.skins[i]);
+                    TranslatePlayerSkin(loadmodel, new Uint8Array(model.buffer, inmodel, skinsize), loadmodel.skins[i]);
                 inmodel += skinsize;
             }
             else
@@ -1090,13 +1087,13 @@ class Mod {
                 }
                 for (j in 0...numskins) {
                     var skin = new Uint8Array(model.buffer, inmodel, skinsize);
-                    Mod.FloodFillSkin(skin);
+                    FloodFillSkin(loadmodel, skin);
                     group.skins[j].texturenum = GL.LoadTexture(loadmodel.name + '_' + i + '_' + j,
                         loadmodel.skinwidth,
                         loadmodel.skinheight,
                         skin);
                     if (loadmodel.player)
-                        Mod.TranslatePlayerSkin(new Uint8Array(model.buffer, inmodel, skinsize), group.skins[j]);
+                        TranslatePlayerSkin(loadmodel, new Uint8Array(model.buffer, inmodel, skinsize), group.skins[j]);
                     inmodel += skinsize;
                 }
                 loadmodel.skins[i] = group;
@@ -1105,7 +1102,7 @@ class Mod {
         return inmodel;
     }
 
-    static function LoadAllFrames(model:DataView, inmodel:Int):Void {
+    static function LoadAllFrames(loadmodel:MModel, model:DataView, inmodel:Int):Void {
         loadmodel.frames = [];
         for (i in 0...loadmodel.numframes) {
             inmodel += 4;
@@ -1162,7 +1159,7 @@ class Mod {
         }
     }
 
-    static function LoadAliasModel(model:DataView):Void {
+    static function LoadAliasModel(loadmodel:MModel, model:DataView):Void {
         var version = model.getUint32(4, true);
         if (version != ModelVersion.alias)
             Sys.Error(loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.alias + ')');
@@ -1191,7 +1188,7 @@ class Mod {
         loadmodel.mins = Vec.of(-16.0, -16.0, -16.0);
         loadmodel.maxs = Vec.of(16.0, 16.0, 16.0);
 
-        var inmodel = Mod.LoadAllSkins(model, 84);
+        var inmodel = LoadAllSkins(loadmodel, model, 84);
 
         loadmodel.stverts = [];
         for (i in 0...loadmodel.numverts) {
@@ -1216,7 +1213,7 @@ class Mod {
             inmodel += 16;
         }
 
-        Mod.LoadAllFrames(model, inmodel);
+        LoadAllFrames(loadmodel, model, inmodel);
 
         var cmds = [];
 
@@ -1351,7 +1348,7 @@ class Mod {
         return inframe + 16 + frame.width * frame.height;
     }
 
-    static function LoadSpriteModel(model:DataView):Void {
+    static function LoadSpriteModel(loadmodel:MModel, model:DataView):Void {
         var version = model.getUint32(4, true);
         if (version != ModelVersion.sprite)
             Sys.Error(loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.sprite + ')');

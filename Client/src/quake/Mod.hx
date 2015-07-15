@@ -63,7 +63,6 @@ class MModel {
     var skinwidth:Int;
     var skinheight:Int;
     var numverts:Int;
-    var stverts:Array<MSTVert>;
     var triangles:Array<MTriangle>;
     var width:Int;
     var height:Int;
@@ -77,17 +76,6 @@ class MModel {
     }
 }
 
-@:publicFields
-class MSTVert {
-    var onseam:Bool;
-    var s:Int;
-    var t:Int;
-    function new(onseam, s, t) {
-        this.onseam = onseam;
-        this.s = s;
-        this.t = t;
-    }
-}
 
 @:publicFields
 class MTriangle {

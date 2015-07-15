@@ -7,11 +7,22 @@ import js.html.Float32Array;
 import js.html.webgl.RenderingContext;
 import quake.Mod.MModel;
 import quake.Mod.MSkin;
-import quake.Mod.MSTVert;
 import quake.Mod.MTriangle;
 import quake.Mod.MFrame;
 import quake.Mod.MTrivert;
 import quake.GL.gl;
+
+@:publicFields
+private class STVert {
+    var onseam:Bool;
+    var s:Int;
+    var t:Int;
+    function new(onseam, s, t) {
+        this.onseam = onseam;
+        this.s = s;
+        this.t = t;
+    }
+}
 
 class Mod_Alias {
     static inline var VERSION = 6;
@@ -58,13 +69,13 @@ class Mod_Alias {
 
         var inmodel = LoadAllSkins(loadmodel, model, 84);
 
-        loadmodel.stverts = [];
+        var stverts = [];
         for (i in 0...loadmodel.numverts) {
-            loadmodel.stverts[i] = new MSTVert(
+            stverts.push(new STVert(
                 model.getUint32(inmodel, true) != 0,
                 model.getUint32(inmodel + 4, true),
                 model.getUint32(inmodel + 8, true)
-            );
+            ));
             inmodel += 12;
         }
 
@@ -88,19 +99,19 @@ class Mod_Alias {
         for (i in 0...loadmodel.numtris) {
             var triangle = loadmodel.triangles[i];
             if (triangle.facesfront) {
-                var vert = loadmodel.stverts[triangle.vertindex[0]];
+                var vert = stverts[triangle.vertindex[0]];
                 cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
                 cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-                vert = loadmodel.stverts[triangle.vertindex[1]];
+                vert = stverts[triangle.vertindex[1]];
                 cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
                 cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-                vert = loadmodel.stverts[triangle.vertindex[2]];
+                vert = stverts[triangle.vertindex[2]];
                 cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
                 cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
                 continue;
             }
             for (j in 0...3) {
-                var vert = loadmodel.stverts[triangle.vertindex[j]];
+                var vert = stverts[triangle.vertindex[j]];
                 if (vert.onseam)
                     cmds[cmds.length] = (vert.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth;
                 else

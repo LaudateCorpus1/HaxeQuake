@@ -5844,12 +5844,6 @@ var quake_MModel = function(name) {
 	this.needload = true;
 };
 quake_MModel.__name__ = true;
-var quake_MSTVert = function(onseam,s,t) {
-	this.onseam = onseam;
-	this.s = s;
-	this.t = t;
-};
-quake_MSTVert.__name__ = true;
 var quake_MTriangle = function(facesfront,vertindex) {
 	this.facesfront = facesfront;
 	this.vertindex = vertindex;
@@ -5976,6 +5970,12 @@ quake_Mod.Print = function() {
 		quake_Console.Print(mod.name + "\n");
 	}
 };
+var quake__$Mod_$Alias_STVert = function(onseam,s,t) {
+	this.onseam = onseam;
+	this.s = s;
+	this.t = t;
+};
+quake__$Mod_$Alias_STVert.__name__ = true;
 var quake_Mod_$Alias = function() { };
 quake_Mod_$Alias.__name__ = true;
 quake_Mod_$Alias.Init = function() {
@@ -6042,20 +6042,20 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 	tmp3 = v3;
 	loadmodel.maxs = tmp3;
 	var inmodel = quake_Mod_$Alias.LoadAllSkins(loadmodel,model,84);
-	loadmodel.stverts = [];
+	var stverts = [];
 	var _g1 = 0;
 	var _g = loadmodel.numverts;
 	while(_g1 < _g) {
-		var i = _g1++;
-		loadmodel.stverts[i] = new quake_MSTVert(model.getUint32(inmodel,true) != 0,model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true));
+		_g1++;
+		stverts.push(new quake__$Mod_$Alias_STVert(model.getUint32(inmodel,true) != 0,model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true)));
 		inmodel += 12;
 	}
 	loadmodel.triangles = [];
 	var _g11 = 0;
 	var _g2 = loadmodel.numtris;
 	while(_g11 < _g2) {
-		var i1 = _g11++;
-		loadmodel.triangles[i1] = new quake_MTriangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]);
+		var i = _g11++;
+		loadmodel.triangles[i] = new quake_MTriangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]);
 		inmodel += 16;
 	}
 	quake_Mod_$Alias.LoadAllFrames(loadmodel,model,inmodel);
@@ -6063,16 +6063,16 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 	var _g12 = 0;
 	var _g3 = loadmodel.numtris;
 	while(_g12 < _g3) {
-		var i2 = _g12++;
-		var triangle = loadmodel.triangles[i2];
+		var i1 = _g12++;
+		var triangle = loadmodel.triangles[i1];
 		if(triangle.facesfront) {
-			var vert = loadmodel.stverts[triangle.vertindex[0]];
+			var vert = stverts[triangle.vertindex[0]];
 			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
 			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-			vert = loadmodel.stverts[triangle.vertindex[1]];
+			vert = stverts[triangle.vertindex[1]];
 			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
 			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-			vert = loadmodel.stverts[triangle.vertindex[2]];
+			vert = stverts[triangle.vertindex[2]];
 			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
 			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
 			continue;
@@ -6080,7 +6080,7 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 		var _g21 = 0;
 		while(_g21 < 3) {
 			var j = _g21++;
-			var vert1 = loadmodel.stverts[triangle.vertindex[j]];
+			var vert1 = stverts[triangle.vertindex[j]];
 			if(vert1.onseam) cmds[cmds.length] = (vert1.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth; else cmds[cmds.length] = (vert1.s + 0.5) / loadmodel.skinwidth;
 			cmds[cmds.length] = (vert1.t + 0.5) / loadmodel.skinheight;
 		}
@@ -6090,8 +6090,8 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 	var _g13 = 0;
 	var _g4 = loadmodel.numframes;
 	while(_g13 < _g4) {
-		var i3 = _g13++;
-		group = loadmodel.frames[i3];
+		var i2 = _g13++;
+		group = loadmodel.frames[i2];
 		if(group.group) {
 			var _g31 = 0;
 			var _g22 = group.frames.length;

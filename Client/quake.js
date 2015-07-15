@@ -12340,16 +12340,26 @@ quake_R.TimeRefresh_f = function() {
 	quake_Console.Print(time.toFixed(6) + " seconds (" + (128.0 / time).toFixed(6) + " fps)\n");
 };
 quake_R.InitParticles = function() {
+	var numparticles;
 	var i = quake_COM.CheckParm("-particles");
 	if(i != null) {
-		quake_R.numparticles = quake_Q.atoi(quake_COM.argv[i + 1]);
-		if(quake_R.numparticles < 512) quake_R.numparticles = 512;
-	} else quake_R.numparticles = 2048;
+		numparticles = quake_Q.atoi(quake_COM.argv[i + 1]);
+		if(numparticles < 512) numparticles = 512;
+	} else numparticles = 2048;
+	var tmp;
+	var _g = [];
+	var _g1 = 0;
+	while(_g1 < numparticles) {
+		_g1++;
+		_g.push(new quake__$R_Particle());
+	}
+	tmp = _g;
+	quake_R.particles = tmp;
 	quake_R.avelocities = [];
-	var _g = 0;
-	while(_g < 162) {
-		_g++;
-		var tmp;
+	var _g11 = 0;
+	while(_g11 < 162) {
+		_g11++;
+		var tmp1;
 		var x = Math.random() * 2.56;
 		var y = Math.random() * 2.56;
 		var z = Math.random() * 2.56;
@@ -12357,8 +12367,8 @@ quake_R.InitParticles = function() {
 		v[0] = x;
 		v[1] = y;
 		v[2] = z;
-		tmp = v;
-		quake_R.avelocities.push(tmp);
+		tmp1 = v;
+		quake_R.avelocities.push(tmp1);
 	}
 	quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
 };
@@ -12374,8 +12384,8 @@ quake_R.EntityParticles = function(ent) {
 		var angle1 = quake_CL.state.time * quake_R.avelocities[i][1];
 		var sy = Math.sin(angle1);
 		var cy = Math.cos(angle1);
-		var tmp;
-		var p = new quake__$R_Particle(4);
+		var p = quake_R.particles[allocated[i]];
+		p.type = 4;
 		p.die = quake_CL.state.time + 0.01;
 		p.color = 111;
 		p.ramp = 0.0;
@@ -12383,21 +12393,15 @@ quake_R.EntityParticles = function(ent) {
 		this1[0] = ent.origin[0] + quake_R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0;
 		this1[1] = ent.origin[1] + quake_R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0;
 		this1[2] = ent.origin[2] + quake_R.avertexnormals[i][2] * 64.0 + sp * -16.0;
-		tmp = p;
-		quake_R.particles[allocated[i]] = tmp;
 	}
 };
 quake_R.ClearParticles = function() {
-	quake_R.particles = [];
-	var _g1 = 0;
-	var _g = quake_R.numparticles;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var tmp;
-		var p = new quake__$R_Particle(0);
+	var _g = 0;
+	var _g1 = quake_R.particles;
+	while(_g < _g1.length) {
+		var p = _g1[_g];
+		++_g;
 		p.die = -1.0;
-		tmp = p;
-		quake_R.particles[i] = tmp;
 	}
 };
 quake_R.ReadPointFile_f = function() {
@@ -12420,8 +12424,8 @@ quake_R.ReadPointFile_f = function() {
 			quake_Console.Print("Not enough free particles\n");
 			break;
 		}
-		var tmp;
-		var p1 = new quake__$R_Particle(0);
+		var p1 = quake_R.particles[p[0]];
+		p1.type = 0;
 		p1.die = 99999.0;
 		p1.color = -c & 15;
 		var this1 = p1.org;
@@ -12431,8 +12435,6 @@ quake_R.ReadPointFile_f = function() {
 		this1[0] = x;
 		this1[1] = y;
 		this1[2] = z;
-		tmp = p1;
-		quake_R.particles[p[0]] = tmp;
 	}
 	quake_Console.Print(c + " points read\n");
 };
@@ -12467,8 +12469,8 @@ quake_R.ParticleExplosion = function(org) {
 	var _g = allocated.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var tmp;
-		var p = new quake__$R_Particle((i & 1) != 0?4:5);
+		var p = quake_R.particles[allocated[i]];
+		p.type = (i & 1) != 0?4:5;
 		p.die = quake_CL.state.time + 5.0;
 		p.color = quake_R.ramp1[0];
 		p.ramp = Math.floor(Math.random() * 4.0);
@@ -12486,19 +12488,17 @@ quake_R.ParticleExplosion = function(org) {
 		this2[0] = x1;
 		this2[1] = y1;
 		this2[2] = z1;
-		tmp = p;
-		quake_R.particles[allocated[i]] = tmp;
 	}
 };
 quake_R.ParticleExplosion2 = function(org,colorStart,colorLength) {
 	var allocated = quake_R.AllocParticles(512);
 	var colorMod = 0;
-	var _g1 = 0;
-	var _g = allocated.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var tmp;
-		var p = new quake__$R_Particle(6);
+	var _g = 0;
+	while(_g < allocated.length) {
+		var idx = allocated[_g];
+		++_g;
+		var p = quake_R.particles[idx];
+		p.type = 6;
 		p.die = quake_CL.state.time + 0.3;
 		p.color = colorStart + colorMod++ % colorLength;
 		var this1 = p.org;
@@ -12515,8 +12515,6 @@ quake_R.ParticleExplosion2 = function(org,colorStart,colorLength) {
 		this2[0] = x1;
 		this2[1] = y1;
 		this2[2] = z1;
-		tmp = p;
-		quake_R.particles[allocated[i]] = tmp;
 	}
 };
 quake_R.BlobExplosion = function(org) {
@@ -12552,12 +12550,12 @@ quake_R.BlobExplosion = function(org) {
 };
 quake_R.RunParticleEffect = function(org,dir,color,count) {
 	var allocated = quake_R.AllocParticles(count);
-	var _g1 = 0;
-	var _g = allocated.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var tmp;
-		var p = new quake__$R_Particle(2);
+	var _g = 0;
+	while(_g < allocated.length) {
+		var idx = allocated[_g];
+		++_g;
+		var p = quake_R.particles[idx];
+		p.type = 2;
 		p.die = quake_CL.state.time + 0.6 * Math.random();
 		p.color = (color & 248) + Math.floor(Math.random() * 8.0);
 		var this1 = p.org;
@@ -12571,8 +12569,6 @@ quake_R.RunParticleEffect = function(org,dir,color,count) {
 		this2[0] = dir[0] * 15.0;
 		this2[1] = dir[1] * 15.0;
 		this2[2] = dir[2] * 15.0;
-		tmp = p;
-		quake_R.particles[allocated[i]] = tmp;
 	}
 };
 quake_R.LavaSplash = function(org) {
@@ -12739,11 +12735,11 @@ quake_R.DrawParticles = function() {
 	var frametime = quake_CL.state.time - quake_CL.state.oldtime;
 	var grav = frametime * quake_SV.gravity.value * 0.05;
 	var dvel = frametime * 4.0;
-	var _g1 = 0;
-	var _g = quake_R.numparticles;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var p = quake_R.particles[i];
+	var _g = 0;
+	var _g1 = quake_R.particles;
+	while(_g < _g1.length) {
+		var p = _g1[_g];
+		++_g;
 		if(p.die < quake_CL.state.time) continue;
 		var color = quake_VID.d_8to24table[p.color];
 		quake_GL.gl.uniform3f(program.uColor,color & 255,color >> 8 & 255,color >> 16);
@@ -12797,13 +12793,13 @@ quake_R.DrawParticles = function() {
 quake_R.AllocParticles = function(count) {
 	var allocated = [];
 	var _g1 = 0;
-	var _g = quake_R.numparticles;
+	var _g = quake_R.particles.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(count == 0) return allocated;
 		if(quake_R.particles[i].die < quake_CL.state.time) {
-			allocated[allocated.length] = i;
-			--count;
+			allocated.push(i);
+			count--;
 		}
 	}
 	return allocated;
@@ -14107,11 +14103,13 @@ var quake__$PR_PRStatement = function(view,ofs) {
 	this.c = view.getInt16(ofs + 6,true);
 };
 quake__$PR_PRStatement.__name__ = true;
-var quake__$R_Particle = function(type) {
-	this.type = type;
+var quake__$R_Particle = function() {
+	this.type = 0;
 	this.ramp = 0.0;
+	this.die = -1;
 	this.org = new Float32Array(3);
 	this.vel = new Float32Array(3);
+	this.color = 0;
 };
 quake__$R_Particle.__name__ = true;
 var quake_Sfx = function(n) {

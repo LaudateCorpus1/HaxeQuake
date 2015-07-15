@@ -34,11 +34,13 @@ private class Particle {
     var org(default,null):Vec;
     var vel(default,null):Vec;
     var color:Int;
-    function new(type:ParticleType) {
-        this.type = type;
+    function new() {
+        this.type = tracer;
         this.ramp = 0.0;
+        this.die = -1;
         this.org = new Vec();
         this.vel = new Vec();
+        this.color = 0;
     }
 }
 
@@ -1252,6 +1254,7 @@ class R {
     static inline var NUMVERTEXNORMALS = 162;
 
     static function InitParticles():Void {
+        var numparticles;
         var i = COM.CheckParm('-particles');
         if (i != null) {
             numparticles = Q.atoi(COM.argv[i + 1]);
@@ -1260,6 +1263,8 @@ class R {
         } else {
             numparticles = MAX_PARTICLES;
         }
+        particles = [for (_ in 0...numparticles) new Particle()];
+
 
         avelocities = [];
         for (_ in 0...NUMVERTEXNORMALS)
@@ -1278,29 +1283,22 @@ class R {
             var sy = Math.sin(angle);
             var cy = Math.cos(angle);
 
-            R.particles[allocated[i]] = {
-                var p = new Particle(explode);
-                p.die = CL.state.time + 0.01;
-                p.color = 0x6f;
-                p.ramp = 0.0;
-                p.org.setValues(
-                    ent.origin[0] + R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0,
-                    ent.origin[1] + R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0,
-                    ent.origin[2] + R.avertexnormals[i][2] * 64.0 + sp * -16.0
-                );
-                p;
-            };
+            var p = particles[allocated[i]];
+            p.type = explode;
+            p.die = CL.state.time + 0.01;
+            p.color = 0x6f;
+            p.ramp = 0.0;
+            p.org.setValues(
+                ent.origin[0] + R.avertexnormals[i][0] * 64.0 + cp * cy * 16.0,
+                ent.origin[1] + R.avertexnormals[i][1] * 64.0 + cp * sy * 16.0,
+                ent.origin[2] + R.avertexnormals[i][2] * 64.0 + sp * -16.0
+            );
         }
     }
 
     static function ClearParticles():Void {
-        R.particles = [];
-        for (i in 0...R.numparticles)
-            R.particles[i] = {
-                var p = new Particle(tracer);
-                p.die = -1.0;
-                p;
-            };
+        for (p in particles)
+            p.die = -1.0;
     }
 
     static function ReadPointFile_f() {
@@ -1325,13 +1323,11 @@ class R {
                 Console.Print('Not enough free particles\n');
                 break;
             }
-            R.particles[p[0]] = {
-                var p = new Particle(tracer);
-                p.die = 99999.0;
-                p.color = -c & 15;
-                p.org.setValues(Q.atof(org[0]), Q.atof(org[1]), Q.atof(org[2]));
-                p;
-            };
+            var p = R.particles[p[0]];
+            p.type = tracer;
+            p.die = 99999.0;
+            p.color = -c & 15;
+            p.org.setValues(Q.atof(org[0]), Q.atof(org[1]), Q.atof(org[2]));
         }
         Console.Print(c + ' points read\n');
     }
@@ -1348,47 +1344,45 @@ class R {
     }
 
     static function ParticleExplosion(org:Vec):Void {
-        var allocated = R.AllocParticles(1024);
+        var allocated = AllocParticles(1024);
         for (i in 0...allocated.length) {
-            R.particles[allocated[i]] = {
-                var p = new Particle((i & 1) != 0 ? explode : explode2);
-                p.die = CL.state.time + 5.0;
-                p.color = R.ramp1[0];
-                p.ramp = Math.floor(Math.random() * 4.0);
-                p.vel.setValues(
-                    Math.random() * 512.0 - 256.0,
-                    Math.random() * 512.0 - 256.0,
-                    Math.random() * 512.0 - 256.0
-                );
-                p.org.setValues(
-                    org[0] + Math.random() * 32.0 - 16.0,
-                    org[1] + Math.random() * 32.0 - 16.0,
-                    org[2] + Math.random() * 32.0 - 16.0
-                );
-                p;
-            };
+            var p = particles[allocated[i]];
+            p.type = (i & 1) != 0 ? explode : explode2;
+            p.die = CL.state.time + 5.0;
+            p.color = R.ramp1[0];
+            p.ramp = Math.floor(Math.random() * 4.0);
+            p.vel.setValues(
+                Math.random() * 512.0 - 256.0,
+                Math.random() * 512.0 - 256.0,
+                Math.random() * 512.0 - 256.0
+            );
+            p.org.setValues(
+                org[0] + Math.random() * 32.0 - 16.0,
+                org[1] + Math.random() * 32.0 - 16.0,
+                org[2] + Math.random() * 32.0 - 16.0
+            );
         }
     }
 
     static function ParticleExplosion2(org:Vec, colorStart:Int, colorLength:Int):Void {
-        var allocated = R.AllocParticles(512), colorMod = 0;
-        for (i in 0...allocated.length) {
-            R.particles[allocated[i]] = {
-                var p = new Particle(blob);
-                p.die = CL.state.time + 0.3;
-                p.color = colorStart + (colorMod++ % colorLength);
-                p.org.setValues(
-                    org[0] + Math.random() * 32.0 - 16.0,
-                    org[1] + Math.random() * 32.0 - 16.0,
-                    org[2] + Math.random() * 32.0 - 16.0
-                );
-                p.vel.setValues(
-                    Math.random() * 512.0 - 256.0,
-                    Math.random() * 512.0 - 256.0,
-                    Math.random() * 512.0 - 256.0
-                );
-                p;
-            };
+        var allocated = AllocParticles(512);
+        var colorMod = 0;
+        for (idx in allocated) {
+            var p = particles[idx];
+            p.type = blob;
+            p.die = CL.state.time + 0.3;
+            p.color = colorStart + (colorMod++ % colorLength);
+            p.org.setValues(
+                org[0] + Math.random() * 32.0 - 16.0,
+                org[1] + Math.random() * 32.0 - 16.0,
+                org[2] + Math.random() * 32.0 - 16.0
+            );
+            p.vel.setValues(
+                Math.random() * 512.0 - 256.0,
+                Math.random() * 512.0 - 256.0,
+                Math.random() * 512.0 - 256.0
+            );
+            p;
         }
     }
 
@@ -1418,24 +1412,22 @@ class R {
     }
 
     static function RunParticleEffect(org:Vec, dir:Vec, color:Int, count:Int):Void {
-        var allocated = R.AllocParticles(count);
-        for (i in 0...allocated.length) {
-            R.particles[allocated[i]] = {
-                var p = new Particle(slowgrav);
-                p.die = CL.state.time + 0.6 * Math.random();
-                p.color = (color & 0xf8) + Math.floor(Math.random() * 8.0);
-                p.org.setValues(
-                    org[0] + Math.random() * 16.0 - 8.0,
-                    org[1] + Math.random() * 16.0 - 8.0,
-                    org[2] + Math.random() * 16.0 - 8.0
-                );
-                p.vel.setValues(
-                    dir[0] * 15.0,
-                    dir[1] * 15.0,
-                    dir[2] * 15.0
-                );
-                p;
-            };
+        var allocated = AllocParticles(count);
+        for (idx in allocated) {
+            var p = particles[idx];
+            p.type = slowgrav;
+            p.die = CL.state.time + 0.6 * Math.random();
+            p.color = (color & 0xf8) + Math.floor(Math.random() * 8.0);
+            p.org.setValues(
+                org[0] + Math.random() * 16.0 - 8.0,
+                org[1] + Math.random() * 16.0 - 8.0,
+                org[2] + Math.random() * 16.0 - 8.0
+            );
+            p.vel.setValues(
+                dir[0] * 15.0,
+                dir[1] * 15.0,
+                dir[2] * 15.0
+            );
         }
     }
 
@@ -1582,8 +1574,6 @@ class R {
         }
     }
 
-    static var numparticles:Int;
-
     static function DrawParticles() {
         var program = GL.UseProgram('particle');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -1595,8 +1585,7 @@ class R {
         var grav = frametime * SV.gravity.value * 0.05;
         var dvel = frametime * 4.0;
 
-        for (i in 0...R.numparticles) {
-            var p = R.particles[i];
+        for (p in particles) {
             if (p.die < CL.state.time)
                 continue;
 
@@ -1662,12 +1651,12 @@ class R {
 
     static function AllocParticles(count:Int):Array<Int> {
         var allocated = [];
-        for (i in 0...R.numparticles) {
+        for (i in 0...particles.length) {
             if (count == 0)
                 return allocated;
-            if (R.particles[i].die < CL.state.time) {
-                allocated[allocated.length] = i;
-                --count;
+            if (particles[i].die < CL.state.time) {
+                allocated.push(i);
+                count--;
             }
         }
         return allocated;

@@ -1609,14 +1609,19 @@ class R {
 
             var color = VID.d_8to24table[p.color];
             gl.uniform3f(program.uColor, color & 0xff, (color >> 8) & 0xff, color >> 16);
+
             gl.uniform3fv(program.uOrigin, p.org);
+
             var scale = (p.org[0] - R.refdef.vieworg[0]) * R.vpn[0]
-                + (p.org[1] - R.refdef.vieworg[1]) * R.vpn[1]
-                + (p.org[2] - R.refdef.vieworg[2]) * R.vpn[2];
+                      + (p.org[1] - R.refdef.vieworg[1]) * R.vpn[1]
+                      + (p.org[2] - R.refdef.vieworg[2]) * R.vpn[2];
             if (scale < 20.0)
-                gl.uniform1f(program.uScale, 0.75);
+                gl.uniform1f(program.uScale, 1 + 0.08);
             else
-                gl.uniform1f(program.uScale, 0.75 + scale * 0.003);
+                gl.uniform1f(program.uScale, 1 + scale * 0.004);
+
+            scale *= 1.27; // for round particles
+
             gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
         }
 

@@ -12802,7 +12802,8 @@ quake_R.DrawParticles = function() {
 		quake_GL.gl.uniform3f(program.uColor,color & 255,color >> 8 & 255,color >> 16);
 		quake_GL.gl.uniform3fv(program.uOrigin,p.org);
 		var scale = (p.org[0] - quake_R.refdef.vieworg[0]) * quake_R.vpn[0] + (p.org[1] - quake_R.refdef.vieworg[1]) * quake_R.vpn[1] + (p.org[2] - quake_R.refdef.vieworg[2]) * quake_R.vpn[2];
-		if(scale < 20.0) quake_GL.gl.uniform1f(program.uScale,0.75); else quake_GL.gl.uniform1f(program.uScale,0.75 + scale * 0.003);
+		if(scale < 20.0) quake_GL.gl.uniform1f(program.uScale,1.08); else quake_GL.gl.uniform1f(program.uScale,1 + scale * 0.004);
+		scale *= 1.27;
 		quake_GL.gl.drawArrays(5,0,4);
 	}
 	quake_GL.gl.disable(3042);

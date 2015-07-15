@@ -115,7 +115,7 @@ class R {
                 if (style.length == 0)
                     lightstylevalue[j] = 12;
                 else
-                    lightstylevalue[j] = style.charCodeAt(i % style.length) - 97;
+                    lightstylevalue[j] = style.charCodeAt(i % style.length) - "a".code;
             }
         } else {
             for (j in 0...CL.MAX_LIGHTSTYLES)

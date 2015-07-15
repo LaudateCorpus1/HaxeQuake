@@ -31,8 +31,8 @@ class Entity {
 
 @:publicFields
 class EntityState {
-    var origin = new Vec();
-    var angles = new Vec();
+    var origin(default,never) = new Vec();
+    var angles(default,never) = new Vec();
     var modelindex = 0;
     var frame = 0;
     var colormap = 0;

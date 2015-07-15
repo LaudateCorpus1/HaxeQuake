@@ -633,8 +633,8 @@ class SV {
             if (i > svs.maxclients && svent.v.modelindex == 0)
                 continue;
             var baseline = svent.baseline;
-            baseline.origin = svent.GetVector(EdictVarOfs.origin);
-            baseline.angles = svent.GetVector(EdictVarOfs.angles);
+            baseline.origin.setValues(svent.v.origin, svent.v.origin1, svent.v.origin2);
+            baseline.angles.setValues(svent.v.angles, svent.v.angles1, svent.v.angles2);
             baseline.frame = Std.int(svent.v.frame);
             baseline.skin = Std.int(svent.v.skin);
             if (i > 0 && i <= svs.maxclients) {

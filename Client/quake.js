@@ -9746,14 +9746,14 @@ quake_SV.CreateBaseline = function() {
 		if(svent.free) continue;
 		if(i > quake_SV.svs.maxclients && svent._v_float[0] == 0) continue;
 		var baseline = svent.baseline;
-		var tmp;
-		var o = 10;
-		tmp = new Float32Array(svent._v_float.buffer.slice(o * 4,o * 4 + 12));
-		baseline.origin = tmp;
-		var tmp1;
-		var o1 = 19;
-		tmp1 = new Float32Array(svent._v_float.buffer.slice(o1 * 4,o1 * 4 + 12));
-		baseline.angles = tmp1;
+		var this1 = baseline.origin;
+		this1[0] = svent._v_float[10];
+		this1[1] = svent._v_float[11];
+		this1[2] = svent._v_float[12];
+		var this2 = baseline.angles;
+		this2[0] = svent._v_float[19];
+		this2[1] = svent._v_float[20];
+		this2[2] = svent._v_float[21];
 		baseline.frame = svent._v_float[30] | 0;
 		baseline.skin = svent._v_float[31] | 0;
 		if(i > 0 && i <= quake_SV.svs.maxclients) {

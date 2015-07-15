@@ -1341,9 +1341,9 @@ class R {
         var msgcount = MSG.ReadByte();
         var color = MSG.ReadByte();
         if (msgcount == 255)
-            R.ParticleExplosion(org);
+            ParticleExplosion(org);
         else
-            R.RunParticleEffect(org, dir, color, msgcount);
+            RunParticleEffect(org, dir, color, msgcount);
     }
 
     static function ParticleExplosion(org:Vec):Void {

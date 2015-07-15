@@ -247,7 +247,7 @@ class PF {
             }
             break;
         }
-        checkpvs = Mod.LeafPVS(Mod.PointInLeaf(Vec.of(
+        checkpvs = Mod_Brush.LeafPVS(Mod_Brush.PointInLeaf(Vec.of(
                 ent.v.origin + ent.v.view_ofs,
                 ent.v.origin1 + ent.v.view_ofs1,
                 ent.v.origin2 + ent.v.view_ofs2
@@ -268,7 +268,7 @@ class PF {
             return;
         }
         var self = SV.server.edicts[PR.globals.self];
-        var l = Mod.PointInLeaf(Vec.of(
+        var l = Mod_Brush.PointInLeaf(Vec.of(
                 self.v.origin + self.v.view_ofs,
                 self.v.origin1 + self.v.view_ofs1,
                 self.v.origin2 + self.v.view_ofs2

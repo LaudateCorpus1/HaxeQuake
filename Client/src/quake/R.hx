@@ -655,7 +655,7 @@ class R {
     static function DrawEntitiesOnList() {
         if (R.drawentities.value == 0)
             return;
-        var vis = (R.novis.value != 0) ? Mod.novis : Mod.LeafPVS(R.viewleaf, CL.state.worldmodel);
+        var vis = (R.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(R.viewleaf, CL.state.worldmodel);
         for (i in 0...CL.state.num_statics) {
             R.currententity = CL.static_entities[i];
             if (R.currententity.model == null)
@@ -847,7 +847,7 @@ class R {
             fullbright.set("0");
         AnimateLight();
         Vec.AngleVectors(refdef.viewangles, vpn, vright, vup);
-        viewleaf = Mod.PointInLeaf(refdef.vieworg, CL.state.worldmodel);
+        viewleaf = Mod_Brush.PointInLeaf(refdef.vieworg, CL.state.worldmodel);
         V.SetContentsColor(R.viewleaf.contents);
         V.CalcBlend();
         dowarp = (R.waterwarp.value != 0) && (viewleaf.contents <= Contents.water);
@@ -1900,7 +1900,7 @@ class R {
             return;
         ++R.visframecount;
         R.oldviewleaf = R.viewleaf;
-        var vis = (R.novis.value != 0) ? Mod.novis : Mod.LeafPVS(R.viewleaf, CL.state.worldmodel);
+        var vis = (R.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(R.viewleaf, CL.state.worldmodel);
         for (i in 0...CL.state.worldmodel.leafs.length) {
             if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                 continue;
@@ -1919,17 +1919,17 @@ class R {
             var p = [R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2]];
             var leaf;
             if (R.viewleaf.contents <= Contents.water) {
-                leaf = Mod.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0), CL.state.worldmodel);
+                leaf = Mod_Brush.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0), CL.state.worldmodel);
                 if (leaf.contents <= Contents.water)
                     break;
             } else {
-                leaf = Mod.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0), CL.state.worldmodel);
+                leaf = Mod_Brush.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0), CL.state.worldmodel);
                 if (leaf.contents > Contents.water)
                     break;
             }
             if (leaf == R.viewleaf)
                 break;
-            vis = Mod.LeafPVS(leaf, CL.state.worldmodel);
+            vis = Mod_Brush.LeafPVS(leaf, CL.state.worldmodel);
             for (i in 0...CL.state.worldmodel.leafs.length) {
                 if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                     continue;

@@ -306,7 +306,7 @@ class SV {
         while (true) {
             if (node.contents < 0) {
                 if (node.contents != Contents.solid) {
-                    var pvs = Mod.LeafPVS(cast node, server.worldmodel);
+                    var pvs = Mod_Brush.LeafPVS(cast node, server.worldmodel);
                     for (i in 0...fatbytes)
                         fatpvs[i] |= pvs[i];
                 }

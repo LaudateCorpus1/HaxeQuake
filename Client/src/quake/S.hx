@@ -302,7 +302,7 @@ class S {
 		if (CL.state.worldmodel == null)
 			return;
 
-		var l = Mod.PointInLeaf(S.listener_origin, CL.state.worldmodel);
+		var l = Mod_Brush.PointInLeaf(S.listener_origin, CL.state.worldmodel);
 		if ((l == null) || (S.ambient_level.value == 0)) {
 			for (ch in S.ambient_channels) {
 				ch.master_vol = 0.0;

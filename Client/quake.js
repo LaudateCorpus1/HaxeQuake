@@ -5911,63 +5911,8 @@ quake_MLink.__name__ = true;
 var quake_Mod = function() { };
 quake_Mod.__name__ = true;
 quake_Mod.Init = function() {
-	quake_Mod.novis = [];
-	var _g = 0;
-	while(_g < 1024) {
-		_g++;
-		quake_Mod.novis.push(255);
-	}
-	quake_Mod.filledcolor = 0;
-	var _g1 = 0;
-	while(_g1 < 256) {
-		var i = _g1++;
-		if(quake_VID.d_8to24table[i] == 0) {
-			quake_Mod.filledcolor = i;
-			break;
-		}
-	}
-};
-quake_Mod.PointInLeaf = function(p,model) {
-	if(model == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
-	if(model.nodes == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
-	var node = model.nodes[0];
-	while(true) {
-		if(node.contents < 0) return node;
-		var tmp;
-		var v2 = node.plane.normal;
-		tmp = p[0] * v2[0] + p[1] * v2[1] + p[2] * v2[2];
-		if(tmp - node.plane.dist > 0) node = node.children[0]; else node = node.children[1];
-	}
-};
-quake_Mod.DecompressVis = function(i,model) {
-	var decompressed = [];
-	var out = 0;
-	var row = model.leafs.length + 7 >> 3;
-	if(model.visdata == null) {
-		while(row >= 0) {
-			decompressed[out++] = 255;
-			row--;
-		}
-		return decompressed;
-	}
-	var out1 = 0;
-	while(out1 < row) {
-		if(model.visdata[i] != 0) {
-			decompressed[out1++] = model.visdata[i++];
-			continue;
-		}
-		var c = model.visdata[i + 1];
-		while(c > 0) {
-			decompressed[out1++] = 0;
-			c--;
-		}
-		i += 2;
-	}
-	return decompressed;
-};
-quake_Mod.LeafPVS = function(leaf,model) {
-	if(leaf == model.leafs[0]) return quake_Mod.novis;
-	return quake_Mod.DecompressVis(leaf.visofs,model);
+	quake_Mod_$Brush.Init();
+	quake_Mod_$Alias.Init();
 };
 quake_Mod.ClearAll = function() {
 	var _g1 = 0;
@@ -6011,17 +5956,494 @@ quake_Mod.LoadModel = function(mod,crash) {
 	var _g = view.getUint32(0,true);
 	switch(_g) {
 	case 1330660425:
-		quake_Mod.LoadAliasModel(mod,view);
+		quake_Mod_$Alias.LoadAliasModel(mod,view);
 		break;
 	case 1347634249:
-		quake_Mod.LoadSpriteModel(mod,view);
+		quake_Mod_$Sprite.LoadSpriteModel(mod,view);
 		break;
 	default:
-		quake_Mod.LoadBrushModel(mod,view);
+		quake_Mod_$Brush.LoadBrushModel(mod,view);
 	}
 	return mod;
 };
-quake_Mod.LoadTextures = function(loadmodel,view) {
+quake_Mod.Print = function() {
+	quake_Console.Print("Cached models:\n");
+	var _g = 0;
+	var _g1 = quake_Mod.known;
+	while(_g < _g1.length) {
+		var mod = _g1[_g];
+		++_g;
+		quake_Console.Print(mod.name + "\n");
+	}
+};
+var quake_Mod_$Alias = function() { };
+quake_Mod_$Alias.__name__ = true;
+quake_Mod_$Alias.Init = function() {
+	quake_Mod_$Alias.filledcolor = 0;
+	var _g = 0;
+	while(_g < 256) {
+		var i = _g++;
+		if(quake_VID.d_8to24table[i] == 0) {
+			quake_Mod_$Alias.filledcolor = i;
+			break;
+		}
+	}
+};
+quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
+	var version = model.getUint32(4,true);
+	if(version != 6) quake_Sys.Error(loadmodel.name + " has wrong version number (" + version + " should be " + 6 + ")");
+	loadmodel.type = 2;
+	loadmodel.player = loadmodel.name == "progs/player.mdl";
+	var tmp;
+	var x = model.getFloat32(8,true);
+	var y = model.getFloat32(12,true);
+	var z = model.getFloat32(16,true);
+	var v = new Float32Array(3);
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+	tmp = v;
+	loadmodel.scale = tmp;
+	var tmp1;
+	var x1 = model.getFloat32(20,true);
+	var y1 = model.getFloat32(24,true);
+	var z1 = model.getFloat32(28,true);
+	var v1 = new Float32Array(3);
+	v1[0] = x1;
+	v1[1] = y1;
+	v1[2] = z1;
+	tmp1 = v1;
+	loadmodel.scale_origin = tmp1;
+	loadmodel.boundingradius = model.getFloat32(32,true);
+	loadmodel.numskins = model.getUint32(48,true);
+	if(loadmodel.numskins == 0) quake_Sys.Error("model " + loadmodel.name + " has no skins");
+	loadmodel.skinwidth = model.getUint32(52,true);
+	loadmodel.skinheight = model.getUint32(56,true);
+	loadmodel.numverts = model.getUint32(60,true);
+	if(loadmodel.numverts == 0) quake_Sys.Error("model " + loadmodel.name + " has no vertices");
+	loadmodel.numtris = model.getUint32(64,true);
+	if(loadmodel.numtris == 0) quake_Sys.Error("model " + loadmodel.name + " has no triangles");
+	loadmodel.numframes = model.getUint32(68,true);
+	if(loadmodel.numframes == 0) quake_Sys.Error("model " + loadmodel.name + " has no frames");
+	loadmodel.random = model.getUint32(72,true) == 1;
+	loadmodel.flags = model.getUint32(76,true);
+	var tmp2;
+	var v2 = new Float32Array(3);
+	v2[0] = -16.0;
+	v2[1] = -16.0;
+	v2[2] = -16.0;
+	tmp2 = v2;
+	loadmodel.mins = tmp2;
+	var tmp3;
+	var v3 = new Float32Array(3);
+	v3[0] = 16.0;
+	v3[1] = 16.0;
+	v3[2] = 16.0;
+	tmp3 = v3;
+	loadmodel.maxs = tmp3;
+	var inmodel = quake_Mod_$Alias.LoadAllSkins(loadmodel,model,84);
+	loadmodel.stverts = [];
+	var _g1 = 0;
+	var _g = loadmodel.numverts;
+	while(_g1 < _g) {
+		var i = _g1++;
+		loadmodel.stverts[i] = new quake_MSTVert(model.getUint32(inmodel,true) != 0,model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true));
+		inmodel += 12;
+	}
+	loadmodel.triangles = [];
+	var _g11 = 0;
+	var _g2 = loadmodel.numtris;
+	while(_g11 < _g2) {
+		var i1 = _g11++;
+		loadmodel.triangles[i1] = new quake_MTriangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]);
+		inmodel += 16;
+	}
+	quake_Mod_$Alias.LoadAllFrames(loadmodel,model,inmodel);
+	var cmds = [];
+	var _g12 = 0;
+	var _g3 = loadmodel.numtris;
+	while(_g12 < _g3) {
+		var i2 = _g12++;
+		var triangle = loadmodel.triangles[i2];
+		if(triangle.facesfront) {
+			var vert = loadmodel.stverts[triangle.vertindex[0]];
+			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+			vert = loadmodel.stverts[triangle.vertindex[1]];
+			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+			vert = loadmodel.stverts[triangle.vertindex[2]];
+			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
+			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+			continue;
+		}
+		var _g21 = 0;
+		while(_g21 < 3) {
+			var j = _g21++;
+			var vert1 = loadmodel.stverts[triangle.vertindex[j]];
+			if(vert1.onseam) cmds[cmds.length] = (vert1.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth; else cmds[cmds.length] = (vert1.s + 0.5) / loadmodel.skinwidth;
+			cmds[cmds.length] = (vert1.t + 0.5) / loadmodel.skinheight;
+		}
+	}
+	var group;
+	var frame;
+	var _g13 = 0;
+	var _g4 = loadmodel.numframes;
+	while(_g13 < _g4) {
+		var i3 = _g13++;
+		group = loadmodel.frames[i3];
+		if(group.group) {
+			var _g31 = 0;
+			var _g22 = group.frames.length;
+			while(_g31 < _g22) {
+				var j1 = _g31++;
+				frame = group.frames[j1];
+				frame.cmdofs = cmds.length << 2;
+				var _g5 = 0;
+				var _g41 = loadmodel.numtris;
+				while(_g5 < _g41) {
+					var k = _g5++;
+					var triangle1 = loadmodel.triangles[k];
+					var _g6 = 0;
+					while(_g6 < 3) {
+						var l = _g6++;
+						var vert2 = frame.v[triangle1.vertindex[l]];
+						if(vert2.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
+						cmds[cmds.length] = vert2.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
+						cmds[cmds.length] = vert2.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
+						cmds[cmds.length] = vert2.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
+						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3];
+						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3 + 1];
+						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3 + 2];
+					}
+				}
+			}
+			continue;
+		}
+		frame = group;
+		frame.cmdofs = cmds.length << 2;
+		var _g32 = 0;
+		var _g23 = loadmodel.numtris;
+		while(_g32 < _g23) {
+			var j2 = _g32++;
+			var triangle2 = loadmodel.triangles[j2];
+			var _g42 = 0;
+			while(_g42 < 3) {
+				var k1 = _g42++;
+				var vert3 = frame.v[triangle2.vertindex[k1]];
+				if(vert3.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
+				cmds[cmds.length] = vert3.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
+				cmds[cmds.length] = vert3.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
+				cmds[cmds.length] = vert3.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
+				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3];
+				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3 + 1];
+				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3 + 2];
+			}
+		}
+	}
+	loadmodel.cmds = quake_GL.gl.createBuffer();
+	quake_GL.gl.bindBuffer(34962,loadmodel.cmds);
+	quake_GL.gl.bufferData(34962,new Float32Array(cmds),35044);
+};
+quake_Mod_$Alias.LoadAllSkins = function(loadmodel,model,inmodel) {
+	loadmodel.skins = [];
+	var skinsize = loadmodel.skinwidth * loadmodel.skinheight;
+	var _g1 = 0;
+	var _g = loadmodel.numskins;
+	while(_g1 < _g) {
+		var i = _g1++;
+		inmodel += 4;
+		if(model.getUint32(inmodel - 4,true) == 0) {
+			var skin = new Uint8Array(model.buffer,inmodel,skinsize);
+			quake_Mod_$Alias.FloodFillSkin(loadmodel,skin);
+			var g = new quake_MSkin(false);
+			g.texturenum = quake_GL.LoadTexture(loadmodel.name + "_" + i,loadmodel.skinwidth,loadmodel.skinheight,skin);
+			loadmodel.skins[i] = g;
+			if(loadmodel.player) quake_Mod_$Alias.TranslatePlayerSkin(loadmodel,new Uint8Array(model.buffer,inmodel,skinsize),loadmodel.skins[i]);
+			inmodel += skinsize;
+		} else {
+			var group = new quake_MSkin(true);
+			var numskins = model.getUint32(inmodel,true);
+			inmodel += 4;
+			var _g2 = 0;
+			while(_g2 < numskins) {
+				var j = _g2++;
+				var s = new quake_MSkin(false);
+				s.interval = model.getFloat32(inmodel,true);
+				if(s.interval <= 0.0) quake_Sys.Error("Mod.LoadAllSkins: interval<=0");
+				group.skins[j] = s;
+				inmodel += 4;
+			}
+			var _g21 = 0;
+			while(_g21 < numskins) {
+				var j1 = _g21++;
+				var skin1 = new Uint8Array(model.buffer,inmodel,skinsize);
+				quake_Mod_$Alias.FloodFillSkin(loadmodel,skin1);
+				group.skins[j1].texturenum = quake_GL.LoadTexture(loadmodel.name + "_" + i + "_" + j1,loadmodel.skinwidth,loadmodel.skinheight,skin1);
+				if(loadmodel.player) quake_Mod_$Alias.TranslatePlayerSkin(loadmodel,new Uint8Array(model.buffer,inmodel,skinsize),group.skins[j1]);
+				inmodel += skinsize;
+			}
+			loadmodel.skins[i] = group;
+		}
+	}
+	return inmodel;
+};
+quake_Mod_$Alias.LoadAllFrames = function(loadmodel,model,inmodel) {
+	loadmodel.frames = [];
+	var _g1 = 0;
+	var _g = loadmodel.numframes;
+	while(_g1 < _g) {
+		var i = _g1++;
+		inmodel += 4;
+		if(model.getUint32(inmodel - 4,true) == 0) {
+			var frame = new quake_MFrame(false);
+			frame.group = false;
+			frame.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
+			frame.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
+			frame.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
+			frame.v = [];
+			inmodel += 24;
+			var _g3 = 0;
+			var _g2 = loadmodel.numverts;
+			while(_g3 < _g2) {
+				var j = _g3++;
+				frame.v[j] = new quake_MTrivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
+				inmodel += 4;
+			}
+			loadmodel.frames[i] = frame;
+		} else {
+			var group = new quake_MFrame(true);
+			group.bboxmin = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
+			group.bboxmax = [model.getUint8(inmodel + 8),model.getUint8(inmodel + 9),model.getUint8(inmodel + 10)];
+			group.frames = [];
+			var numframes = model.getUint32(inmodel,true);
+			inmodel += 12;
+			var _g21 = 0;
+			while(_g21 < numframes) {
+				var j1 = _g21++;
+				var f = new quake_MFrame(false);
+				f.interval = model.getFloat32(inmodel,true);
+				group.frames[j1] = f;
+				if(group.frames[j1].interval <= 0.0) quake_Sys.Error("Mod.LoadAllFrames: interval<=0");
+				inmodel += 4;
+			}
+			var _g22 = 0;
+			while(_g22 < numframes) {
+				var j2 = _g22++;
+				var frame1 = group.frames[j2];
+				frame1.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
+				frame1.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
+				frame1.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
+				frame1.v = [];
+				inmodel += 24;
+				var _g4 = 0;
+				var _g31 = loadmodel.numverts;
+				while(_g4 < _g31) {
+					var k = _g4++;
+					frame1.v[k] = new quake_MTrivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
+					inmodel += 4;
+				}
+			}
+			loadmodel.frames[i] = group;
+		}
+	}
+};
+quake_Mod_$Alias.FloodFillSkin = function(loadmodel,skin) {
+	var fillcolor = skin[0];
+	if(fillcolor == quake_Mod_$Alias.filledcolor) return;
+	var width = loadmodel.skinwidth;
+	var height = loadmodel.skinheight;
+	var lifo = [[0,0]];
+	var sp = 1;
+	while(sp > 0) {
+		var cur = lifo[--sp];
+		var x = cur[0];
+		var y = cur[1];
+		skin[y * width + x] = quake_Mod_$Alias.filledcolor;
+		if(x > 0) {
+			if(skin[y * width + x - 1] == fillcolor) lifo[sp++] = [x - 1,y];
+		}
+		if(x < width - 1) {
+			if(skin[y * width + x + 1] == fillcolor) lifo[sp++] = [x + 1,y];
+		}
+		if(y > 0) {
+			if(skin[(y - 1) * width + x] == fillcolor) lifo[sp++] = [x,y - 1];
+		}
+		if(y < height - 1) {
+			if(skin[(y + 1) * width + x] == fillcolor) lifo[sp++] = [x,y + 1];
+		}
+	}
+};
+quake_Mod_$Alias.TranslatePlayerSkin = function(loadmodel,data,skin) {
+	if(loadmodel.skinwidth != 512 || loadmodel.skinheight != 256) data = quake_GL.ResampleTexture(data,loadmodel.skinwidth,loadmodel.skinheight,512,256);
+	var out = new Uint8Array(new ArrayBuffer(524288));
+	var _g1 = 0;
+	while(_g1 < 131072) {
+		var i = _g1++;
+		var original = data[i];
+		if(original >> 4 == 1) {
+			out[i << 2] = (original & 15) * 17;
+			out[(i << 2) + 1] = 255;
+		} else if(original >> 4 == 6) {
+			out[(i << 2) + 2] = (original & 15) * 17;
+			out[(i << 2) + 3] = 255;
+		}
+	}
+	skin.playertexture = quake_GL.gl.createTexture();
+	quake_GL.Bind(0,skin.playertexture);
+	quake_GL.gl.texImage2D(3553,0,6408,512,256,0,6408,5121,out);
+	quake_GL.gl.generateMipmap(3553);
+	quake_GL.gl.texParameteri(3553,10241,quake_GL.filter_min);
+	quake_GL.gl.texParameteri(3553,10240,quake_GL.filter_max);
+};
+var quake_Mod_$Brush = function() { };
+quake_Mod_$Brush.__name__ = true;
+quake_Mod_$Brush.Init = function() {
+	quake_Mod_$Brush.novis = [];
+	var _g = 0;
+	while(_g < 1024) {
+		_g++;
+		quake_Mod_$Brush.novis.push(255);
+	}
+};
+quake_Mod_$Brush.PointInLeaf = function(p,model) {
+	if(model == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
+	if(model.nodes == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
+	var node = model.nodes[0];
+	while(true) {
+		if(node.contents < 0) return node;
+		var tmp;
+		var v2 = node.plane.normal;
+		tmp = p[0] * v2[0] + p[1] * v2[1] + p[2] * v2[2];
+		if(tmp - node.plane.dist > 0) node = node.children[0]; else node = node.children[1];
+	}
+};
+quake_Mod_$Brush.LeafPVS = function(leaf,model) {
+	if(leaf == model.leafs[0]) return quake_Mod_$Brush.novis;
+	return quake_Mod_$Brush.DecompressVis(leaf.visofs,model);
+};
+quake_Mod_$Brush.DecompressVis = function(i,model) {
+	var decompressed = [];
+	var out = 0;
+	var row = model.leafs.length + 7 >> 3;
+	if(model.visdata == null) {
+		while(row >= 0) {
+			decompressed[out++] = 255;
+			row--;
+		}
+		return decompressed;
+	}
+	var out1 = 0;
+	while(out1 < row) {
+		if(model.visdata[i] != 0) {
+			decompressed[out1++] = model.visdata[i++];
+			continue;
+		}
+		var c = model.visdata[i + 1];
+		while(c > 0) {
+			decompressed[out1++] = 0;
+			c--;
+		}
+		i += 2;
+	}
+	return decompressed;
+};
+quake_Mod_$Brush.LoadBrushModel = function(loadmodel,data) {
+	var version = data.getUint32(0,true);
+	if(version != 29) quake_Sys.Error("Mod.LoadBrushModel: " + loadmodel.name + " has wrong version number (" + version + " should be " + 29 + ")");
+	loadmodel.type = 0;
+	quake_Mod_$Brush.LoadVertexes(loadmodel,data);
+	quake_Mod_$Brush.LoadEdges(loadmodel,data);
+	quake_Mod_$Brush.LoadSurfedges(loadmodel,data);
+	quake_Mod_$Brush.LoadTextures(loadmodel,data);
+	quake_Mod_$Brush.LoadLighting(loadmodel,data);
+	quake_Mod_$Brush.LoadPlanes(loadmodel,data);
+	quake_Mod_$Brush.LoadTexinfo(loadmodel,data);
+	quake_Mod_$Brush.LoadFaces(loadmodel,data);
+	quake_Mod_$Brush.LoadMarksurfaces(loadmodel,data);
+	quake_Mod_$Brush.LoadVisibility(loadmodel,data);
+	quake_Mod_$Brush.LoadLeafs(loadmodel,data);
+	quake_Mod_$Brush.LoadNodes(loadmodel,data);
+	quake_Mod_$Brush.LoadClipnodes(loadmodel,data);
+	quake_Mod_$Brush.MakeHull0(loadmodel);
+	quake_Mod_$Brush.LoadEntities(loadmodel,data);
+	quake_Mod_$Brush.LoadSubmodels(loadmodel,data);
+	var mins_0 = 0.0;
+	var mins_1 = 0.0;
+	var mins_2 = 0.0;
+	var maxs_0 = 0.0;
+	var maxs_1 = 0.0;
+	var maxs_2 = 0.0;
+	var _g = 0;
+	var _g1 = loadmodel.vertexes;
+	while(_g < _g1.length) {
+		var vert = _g1[_g];
+		++_g;
+		if(vert[0] < mins_0) mins_0 = vert[0]; else if(vert[0] > maxs_0) maxs_0 = vert[0];
+		if(vert[1] < mins_1) mins_1 = vert[1]; else if(vert[1] > maxs_1) maxs_1 = vert[1];
+		if(vert[2] < mins_2) mins_2 = vert[2]; else if(vert[2] > maxs_2) maxs_2 = vert[2];
+	}
+	var tmp;
+	var tmp1;
+	var x = Math.max(Math.abs(mins_0),Math.abs(maxs_0));
+	var y = Math.max(Math.abs(mins_1),Math.abs(maxs_1));
+	var z = Math.max(Math.abs(mins_2),Math.abs(maxs_2));
+	var v1 = new Float32Array(3);
+	v1[0] = x;
+	v1[1] = y;
+	v1[2] = z;
+	tmp1 = v1;
+	var v = tmp1;
+	tmp = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+	loadmodel.radius = tmp;
+};
+quake_Mod_$Brush.LoadVertexes = function(loadmodel,view) {
+	var fileofs = view.getUint32(28,true);
+	var filelen = view.getUint32(32,true);
+	if(filelen % 12 != 0) quake_Sys.Error("Mod.LoadVisibility: funny lump size in " + loadmodel.name);
+	var count = filelen / 12 | 0;
+	loadmodel.vertexes = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var tmp;
+		var x = view.getFloat32(fileofs,true);
+		var y = view.getFloat32(fileofs + 4,true);
+		var z = view.getFloat32(fileofs + 8,true);
+		var v = new Float32Array(3);
+		v[0] = x;
+		v[1] = y;
+		v[2] = z;
+		tmp = v;
+		loadmodel.vertexes[i] = tmp;
+		fileofs += 12;
+	}
+};
+quake_Mod_$Brush.LoadEdges = function(loadmodel,view) {
+	var fileofs = view.getUint32(100,true);
+	var filelen = view.getUint32(104,true);
+	if((filelen & 3) != 0) quake_Sys.Error("Mod.LoadEdges: funny lump size in " + loadmodel.name);
+	var count = filelen >> 2;
+	loadmodel.edges = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		loadmodel.edges[i] = [view.getUint16(fileofs,true),view.getUint16(fileofs + 2,true)];
+		fileofs += 4;
+	}
+};
+quake_Mod_$Brush.LoadSurfedges = function(loadmodel,view) {
+	var fileofs = view.getUint32(108,true);
+	var filelen = view.getUint32(112,true);
+	var count = filelen >> 2;
+	loadmodel.surfedges = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2),true);
+	}
+};
+quake_Mod_$Brush.LoadTextures = function(loadmodel,view) {
 	var fileofs = view.getUint32(20,true);
 	view.getUint32(24,true);
 	loadmodel.textures = [];
@@ -6101,32 +6523,22 @@ quake_Mod.LoadTextures = function(loadmodel,view) {
 	}
 	loadmodel.textures[loadmodel.textures.length] = quake_R.notexture_mip;
 };
-quake_Mod.LoadLighting = function(loadmodel,view) {
+quake_Mod_$Brush.LoadLighting = function(loadmodel,view) {
 	var fileofs = view.getUint32(68,true);
 	var filelen = view.getUint32(72,true);
 	if(filelen == 0) return;
 	loadmodel.lightdata = new Uint8Array(view.buffer.slice(fileofs,fileofs + filelen));
 };
-quake_Mod.LoadVisibility = function(loadmodel,view) {
-	var fileofs = view.getUint32(36,true);
-	var filelen = view.getUint32(40,true);
-	if(filelen == 0) return;
-	loadmodel.visdata = new Uint8Array(view.buffer.slice(fileofs,fileofs + filelen));
-};
-quake_Mod.LoadEntities = function(loadmodel,view) {
-	var fileofs = view.getUint32(4,true);
-	var filelen = view.getUint32(8,true);
-	loadmodel.entities = quake_Q.memstr(new Uint8Array(view.buffer,fileofs,filelen));
-};
-quake_Mod.LoadVertexes = function(loadmodel,view) {
-	var fileofs = view.getUint32(28,true);
-	var filelen = view.getUint32(32,true);
-	if(filelen % 12 != 0) quake_Sys.Error("Mod.LoadVisibility: funny lump size in " + loadmodel.name);
-	var count = filelen / 12 | 0;
-	loadmodel.vertexes = [];
+quake_Mod_$Brush.LoadPlanes = function(loadmodel,view) {
+	var fileofs = view.getUint32(12,true);
+	var filelen = view.getUint32(16,true);
+	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadPlanes: funny lump size in " + loadmodel.name);
+	var count = filelen / 20 | 0;
+	loadmodel.planes = [];
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
+		var out = new quake_Plane();
 		var tmp;
 		var x = view.getFloat32(fileofs,true);
 		var y = view.getFloat32(fileofs + 4,true);
@@ -6136,11 +6548,325 @@ quake_Mod.LoadVertexes = function(loadmodel,view) {
 		v[1] = y;
 		v[2] = z;
 		tmp = v;
-		loadmodel.vertexes[i] = tmp;
-		fileofs += 12;
+		out.normal = tmp;
+		out.dist = view.getFloat32(fileofs + 12,true);
+		out.type = view.getUint32(fileofs + 16,true);
+		out.signbits = 0;
+		if(out.normal[0] < 0) ++out.signbits;
+		if(out.normal[1] < 0) out.signbits += 2;
+		if(out.normal[2] < 0) out.signbits += 4;
+		loadmodel.planes[i] = out;
+		fileofs += 20;
 	}
 };
-quake_Mod.LoadSubmodels = function(loadmodel,view) {
+quake_Mod_$Brush.LoadTexinfo = function(loadmodel,view) {
+	var fileofs = view.getUint32(52,true);
+	var filelen = view.getUint32(56,true);
+	if(filelen % 40 != 0) quake_Sys.Error("Mod.LoadTexinfo: funny lump size in " + loadmodel.name);
+	var count = filelen / 40 | 0;
+	loadmodel.texinfo = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var out = new quake_MTexinfo([[view.getFloat32(fileofs,true),view.getFloat32(fileofs + 4,true),view.getFloat32(fileofs + 8,true),view.getFloat32(fileofs + 12,true)],[view.getFloat32(fileofs + 16,true),view.getFloat32(fileofs + 20,true),view.getFloat32(fileofs + 24,true),view.getFloat32(fileofs + 28,true)]],view.getUint32(fileofs + 32,true),view.getUint32(fileofs + 36,true));
+		if(out.texture >= loadmodel.textures.length) {
+			out.texture = loadmodel.textures.length - 1;
+			out.flags = 0;
+		}
+		loadmodel.texinfo[i] = out;
+		fileofs += 40;
+	}
+};
+quake_Mod_$Brush.LoadFaces = function(loadmodel,view) {
+	var fileofs = view.getUint32(60,true);
+	var filelen = view.getUint32(64,true);
+	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadFaces: funny lump size in " + loadmodel.name);
+	var count = filelen / 20 | 0;
+	loadmodel.firstface = 0;
+	loadmodel.numfaces = count;
+	loadmodel.faces = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var styles = new Uint8Array(view.buffer,fileofs + 12,4);
+		var out = new quake_MSurface();
+		out.plane = loadmodel.planes[view.getUint16(fileofs,true)];
+		out.firstedge = view.getUint16(fileofs + 4,true);
+		out.numedges = view.getUint16(fileofs + 8,true);
+		out.texinfo = view.getUint16(fileofs + 10,true);
+		out.styles = [];
+		out.lightofs = view.getInt32(fileofs + 16,true);
+		if(styles[0] != 255) out.styles[0] = styles[0];
+		if(styles[1] != 255) out.styles[1] = styles[1];
+		if(styles[2] != 255) out.styles[2] = styles[2];
+		if(styles[3] != 255) out.styles[3] = styles[3];
+		var mins_0 = 999999.0;
+		var mins_1 = 999999.0;
+		var maxs_0 = -99999.0;
+		var maxs_1 = -99999.0;
+		var tex = loadmodel.texinfo[out.texinfo];
+		out.texture = tex.texture;
+		var _g2 = 0;
+		var _g1 = out.numedges;
+		while(_g2 < _g1) {
+			var j = _g2++;
+			var e = loadmodel.surfedges[out.firstedge + j];
+			var v;
+			if(e >= 0) v = loadmodel.vertexes[loadmodel.edges[e][0]]; else v = loadmodel.vertexes[loadmodel.edges[-e][1]];
+			var tmp;
+			var tmp2;
+			var a = tex.vecs[0];
+			var v1 = new Float32Array(3);
+			v1[0] = a[0];
+			v1[1] = a[1];
+			v1[2] = a[2];
+			tmp2 = v1;
+			var v2 = tmp2;
+			tmp = v[0] * v2[0] + v[1] * v2[1] + v[2] * v2[2];
+			var val = tmp + tex.vecs[0][3];
+			if(val < mins_0) mins_0 = val;
+			if(val > maxs_0) maxs_0 = val;
+			var tmp1;
+			var tmp3;
+			var a1 = tex.vecs[1];
+			var v3 = new Float32Array(3);
+			v3[0] = a1[0];
+			v3[1] = a1[1];
+			v3[2] = a1[2];
+			tmp3 = v3;
+			var v21 = tmp3;
+			tmp1 = v[0] * v21[0] + v[1] * v21[1] + v[2] * v21[2];
+			val = tmp1 + tex.vecs[1][3];
+			if(val < mins_1) mins_1 = val;
+			if(val > maxs_1) maxs_1 = val;
+		}
+		out.texturemins = [Math.floor(mins_0 / 16) * 16,Math.floor(mins_1 / 16) * 16];
+		out.extents = [Math.ceil(maxs_0 / 16) * 16 - out.texturemins[0],Math.ceil(maxs_1 / 16) * 16 - out.texturemins[1]];
+		if(loadmodel.textures[tex.texture].turbulent) out.turbulent = true; else if(loadmodel.textures[tex.texture].sky) out.sky = true;
+		loadmodel.faces[i] = out;
+		fileofs += 20;
+	}
+};
+quake_Mod_$Brush.LoadMarksurfaces = function(loadmodel,view) {
+	var fileofs = view.getUint32(92,true);
+	var filelen = view.getUint32(96,true);
+	var count = filelen >> 1;
+	loadmodel.marksurfaces = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var j = view.getUint16(fileofs + (i << 1),true);
+		if(j > loadmodel.faces.length) quake_Sys.Error("Mod.LoadMarksurfaces: bad surface number");
+		loadmodel.marksurfaces[i] = j;
+	}
+};
+quake_Mod_$Brush.LoadVisibility = function(loadmodel,view) {
+	var fileofs = view.getUint32(36,true);
+	var filelen = view.getUint32(40,true);
+	if(filelen == 0) return;
+	loadmodel.visdata = new Uint8Array(view.buffer.slice(fileofs,fileofs + filelen));
+};
+quake_Mod_$Brush.LoadLeafs = function(loadmodel,view) {
+	var fileofs = view.getUint32(84,true);
+	var filelen = view.getUint32(88,true);
+	if(filelen % 28 != 0) quake_Sys.Error("Mod.LoadLeafs: funny lump size in " + loadmodel.name);
+	var count = filelen / 28 | 0;
+	loadmodel.leafs = [];
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var out = new quake_MLeaf();
+		out.num = i;
+		out.contents = view.getInt32(fileofs,true);
+		out.visofs = view.getInt32(fileofs + 4,true);
+		var tmp;
+		var x = view.getInt16(fileofs + 8,true);
+		var y = view.getInt16(fileofs + 10,true);
+		var z = view.getInt16(fileofs + 12,true);
+		var v = new Float32Array(3);
+		v[0] = x;
+		v[1] = y;
+		v[2] = z;
+		tmp = v;
+		out.mins = tmp;
+		var tmp1;
+		var x1 = view.getInt16(fileofs + 14,true);
+		var y1 = view.getInt16(fileofs + 16,true);
+		var z1 = view.getInt16(fileofs + 18,true);
+		var v1 = new Float32Array(3);
+		v1[0] = x1;
+		v1[1] = y1;
+		v1[2] = z1;
+		tmp1 = v1;
+		out.maxs = tmp1;
+		out.firstmarksurface = view.getUint16(fileofs + 20,true);
+		out.nummarksurfaces = view.getUint16(fileofs + 22,true);
+		out.ambient_level = [view.getUint8(fileofs + 24),view.getUint8(fileofs + 25),view.getUint8(fileofs + 26),view.getUint8(fileofs + 27)];
+		out.cmds = [];
+		out.skychain = 0;
+		out.waterchain = 0;
+		loadmodel.leafs[i] = out;
+		fileofs += 28;
+	}
+};
+quake_Mod_$Brush.LoadNodes = function(loadmodel,view) {
+	var fileofs = view.getUint32(44,true);
+	var filelen = view.getUint32(48,true);
+	if(filelen == 0 || filelen % 24 != 0) quake_Sys.Error("Mod.LoadNodes: funny lump size in " + loadmodel.name);
+	var count = filelen / 24 | 0;
+	loadmodel.nodes = [];
+	var tmp;
+	var this1;
+	this1 = new Array(count);
+	tmp = this1;
+	var children = tmp;
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var n = loadmodel.nodes[i] = new quake_MNode();
+		n.num = i;
+		n.contents = 0;
+		n.planenum = view.getUint32(fileofs,true);
+		var val = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
+		children[i] = val;
+		var tmp1;
+		var x = view.getInt16(fileofs + 8,true);
+		var y = view.getInt16(fileofs + 10,true);
+		var z = view.getInt16(fileofs + 12,true);
+		var v = new Float32Array(3);
+		v[0] = x;
+		v[1] = y;
+		v[2] = z;
+		tmp1 = v;
+		n.mins = tmp1;
+		var tmp2;
+		var x1 = view.getInt16(fileofs + 14,true);
+		var y1 = view.getInt16(fileofs + 16,true);
+		var z1 = view.getInt16(fileofs + 18,true);
+		var v1 = new Float32Array(3);
+		v1[0] = x1;
+		v1[1] = y1;
+		v1[2] = z1;
+		tmp2 = v1;
+		n.maxs = tmp2;
+		n.firstface = view.getUint16(fileofs + 20,true);
+		n.numfaces = view.getUint16(fileofs + 22,true);
+		n.cmds = [];
+		fileofs += 24;
+	}
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i1 = _g1++;
+		var out = loadmodel.nodes[i1];
+		out.plane = loadmodel.planes[out.planenum];
+		out.children = [];
+		var children1 = children[i1];
+		if(children1[0] >= 0) out.children[0] = loadmodel.nodes[children1[0]]; else out.children[0] = loadmodel.leafs[-1 - children1[0]];
+		if(children1[1] >= 0) out.children[1] = loadmodel.nodes[children1[1]]; else out.children[1] = loadmodel.leafs[-1 - children1[1]];
+	}
+	quake_Mod_$Brush.SetParent(loadmodel.nodes[0],null);
+};
+quake_Mod_$Brush.SetParent = function(node,parent) {
+	node.parent = parent;
+	if(node.contents < 0) return;
+	quake_Mod_$Brush.SetParent(node.children[0],node);
+	quake_Mod_$Brush.SetParent(node.children[1],node);
+};
+quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
+	var fileofs = view.getUint32(76,true);
+	var filelen = view.getUint32(80,true);
+	var count = filelen >> 3;
+	loadmodel.clipnodes = [];
+	loadmodel.hulls = [];
+	var tmp;
+	var h = new quake_MHull();
+	h.clipnodes = loadmodel.clipnodes;
+	h.firstclipnode = 0;
+	h.lastclipnode = count - 1;
+	h.planes = loadmodel.planes;
+	var tmp2;
+	var v = new Float32Array(3);
+	v[0] = -16.0;
+	v[1] = -16.0;
+	v[2] = -24.0;
+	tmp2 = v;
+	h.clip_mins = tmp2;
+	var tmp3;
+	var v1 = new Float32Array(3);
+	v1[0] = 16.0;
+	v1[1] = 16.0;
+	v1[2] = 32.0;
+	tmp3 = v1;
+	h.clip_maxs = tmp3;
+	tmp = h;
+	loadmodel.hulls[1] = tmp;
+	var tmp1;
+	var h1 = new quake_MHull();
+	h1.clipnodes = loadmodel.clipnodes;
+	h1.firstclipnode = 0;
+	h1.lastclipnode = count - 1;
+	h1.planes = loadmodel.planes;
+	var tmp4;
+	var v2 = new Float32Array(3);
+	v2[0] = -32.0;
+	v2[1] = -32.0;
+	v2[2] = -24.0;
+	tmp4 = v2;
+	h1.clip_mins = tmp4;
+	var tmp5;
+	var v3 = new Float32Array(3);
+	v3[0] = 32.0;
+	v3[1] = 32.0;
+	v3[2] = 64.0;
+	tmp5 = v3;
+	h1.clip_maxs = tmp5;
+	tmp1 = h1;
+	loadmodel.hulls[2] = tmp1;
+	var _g = 0;
+	while(_g < count) {
+		var i = _g++;
+		var tmp6;
+		var n = new quake_MClipNode();
+		n.planenum = view.getUint32(fileofs,true);
+		n.children = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
+		tmp6 = n;
+		loadmodel.clipnodes[i] = tmp6;
+		fileofs += 8;
+	}
+};
+quake_Mod_$Brush.MakeHull0 = function(loadmodel) {
+	var clipnodes = [];
+	var tmp;
+	var h = new quake_MHull();
+	h.clipnodes = clipnodes;
+	h.lastclipnode = loadmodel.nodes.length - 1;
+	h.planes = loadmodel.planes;
+	h.clip_mins = new Float32Array(3);
+	h.clip_maxs = new Float32Array(3);
+	tmp = h;
+	var hull = tmp;
+	var _g1 = 0;
+	var _g = loadmodel.nodes.length;
+	while(_g1 < _g) {
+		var i = _g1++;
+		var node = loadmodel.nodes[i];
+		var out = new quake_MClipNode();
+		out.planenum = node.planenum;
+		out.children = [];
+		var child = node.children[0];
+		out.children[0] = child.contents < 0?child.contents:child.num;
+		child = node.children[1];
+		out.children[1] = child.contents < 0?child.contents:child.num;
+		clipnodes[i] = out;
+	}
+	loadmodel.hulls[0] = hull;
+};
+quake_Mod_$Brush.LoadEntities = function(loadmodel,view) {
+	var fileofs = view.getUint32(4,true);
+	var filelen = view.getUint32(8,true);
+	loadmodel.entities = quake_Q.memstr(new Uint8Array(view.buffer,fileofs,filelen));
+};
+quake_Mod_$Brush.LoadSubmodels = function(loadmodel,view) {
 	var fileofs = view.getUint32(116,true);
 	var filelen = view.getUint32(120,true);
 	var count = filelen >> 6;
@@ -6269,713 +6995,71 @@ quake_Mod.LoadSubmodels = function(loadmodel,view) {
 		fileofs += 64;
 	}
 };
-quake_Mod.LoadEdges = function(loadmodel,view) {
-	var fileofs = view.getUint32(100,true);
-	var filelen = view.getUint32(104,true);
-	if((filelen & 3) != 0) quake_Sys.Error("Mod.LoadEdges: funny lump size in " + loadmodel.name);
-	var count = filelen >> 2;
-	loadmodel.edges = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		loadmodel.edges[i] = [view.getUint16(fileofs,true),view.getUint16(fileofs + 2,true)];
-		fileofs += 4;
-	}
-};
-quake_Mod.LoadTexinfo = function(loadmodel,view) {
-	var fileofs = view.getUint32(52,true);
-	var filelen = view.getUint32(56,true);
-	if(filelen % 40 != 0) quake_Sys.Error("Mod.LoadTexinfo: funny lump size in " + loadmodel.name);
-	var count = filelen / 40 | 0;
-	loadmodel.texinfo = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var out = new quake_MTexinfo([[view.getFloat32(fileofs,true),view.getFloat32(fileofs + 4,true),view.getFloat32(fileofs + 8,true),view.getFloat32(fileofs + 12,true)],[view.getFloat32(fileofs + 16,true),view.getFloat32(fileofs + 20,true),view.getFloat32(fileofs + 24,true),view.getFloat32(fileofs + 28,true)]],view.getUint32(fileofs + 32,true),view.getUint32(fileofs + 36,true));
-		if(out.texture >= loadmodel.textures.length) {
-			out.texture = loadmodel.textures.length - 1;
-			out.flags = 0;
-		}
-		loadmodel.texinfo[i] = out;
-		fileofs += 40;
-	}
-};
-quake_Mod.LoadFaces = function(loadmodel,view) {
-	var fileofs = view.getUint32(60,true);
-	var filelen = view.getUint32(64,true);
-	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadFaces: funny lump size in " + loadmodel.name);
-	var count = filelen / 20 | 0;
-	loadmodel.firstface = 0;
-	loadmodel.numfaces = count;
-	loadmodel.faces = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var styles = new Uint8Array(view.buffer,fileofs + 12,4);
-		var out = new quake_MSurface();
-		out.plane = loadmodel.planes[view.getUint16(fileofs,true)];
-		out.firstedge = view.getUint16(fileofs + 4,true);
-		out.numedges = view.getUint16(fileofs + 8,true);
-		out.texinfo = view.getUint16(fileofs + 10,true);
-		out.styles = [];
-		out.lightofs = view.getInt32(fileofs + 16,true);
-		if(styles[0] != 255) out.styles[0] = styles[0];
-		if(styles[1] != 255) out.styles[1] = styles[1];
-		if(styles[2] != 255) out.styles[2] = styles[2];
-		if(styles[3] != 255) out.styles[3] = styles[3];
-		var mins_0 = 999999.0;
-		var mins_1 = 999999.0;
-		var maxs_0 = -99999.0;
-		var maxs_1 = -99999.0;
-		var tex = loadmodel.texinfo[out.texinfo];
-		out.texture = tex.texture;
-		var _g2 = 0;
-		var _g1 = out.numedges;
-		while(_g2 < _g1) {
-			var j = _g2++;
-			var e = loadmodel.surfedges[out.firstedge + j];
-			var v;
-			if(e >= 0) v = loadmodel.vertexes[loadmodel.edges[e][0]]; else v = loadmodel.vertexes[loadmodel.edges[-e][1]];
-			var tmp;
-			var tmp2;
-			var a = tex.vecs[0];
-			var v1 = new Float32Array(3);
-			v1[0] = a[0];
-			v1[1] = a[1];
-			v1[2] = a[2];
-			tmp2 = v1;
-			var v2 = tmp2;
-			tmp = v[0] * v2[0] + v[1] * v2[1] + v[2] * v2[2];
-			var val = tmp + tex.vecs[0][3];
-			if(val < mins_0) mins_0 = val;
-			if(val > maxs_0) maxs_0 = val;
-			var tmp1;
-			var tmp3;
-			var a1 = tex.vecs[1];
-			var v3 = new Float32Array(3);
-			v3[0] = a1[0];
-			v3[1] = a1[1];
-			v3[2] = a1[2];
-			tmp3 = v3;
-			var v21 = tmp3;
-			tmp1 = v[0] * v21[0] + v[1] * v21[1] + v[2] * v21[2];
-			val = tmp1 + tex.vecs[1][3];
-			if(val < mins_1) mins_1 = val;
-			if(val > maxs_1) maxs_1 = val;
-		}
-		out.texturemins = [Math.floor(mins_0 / 16) * 16,Math.floor(mins_1 / 16) * 16];
-		out.extents = [Math.ceil(maxs_0 / 16) * 16 - out.texturemins[0],Math.ceil(maxs_1 / 16) * 16 - out.texturemins[1]];
-		if(loadmodel.textures[tex.texture].turbulent) out.turbulent = true; else if(loadmodel.textures[tex.texture].sky) out.sky = true;
-		loadmodel.faces[i] = out;
-		fileofs += 20;
-	}
-};
-quake_Mod.SetParent = function(node,parent) {
-	node.parent = parent;
-	if(node.contents < 0) return;
-	quake_Mod.SetParent(node.children[0],node);
-	quake_Mod.SetParent(node.children[1],node);
-};
-quake_Mod.LoadNodes = function(loadmodel,view) {
-	var fileofs = view.getUint32(44,true);
-	var filelen = view.getUint32(48,true);
-	if(filelen == 0 || filelen % 24 != 0) quake_Sys.Error("Mod.LoadNodes: funny lump size in " + loadmodel.name);
-	var count = filelen / 24 | 0;
-	loadmodel.nodes = [];
+var quake_Mod_$Sprite = function() { };
+quake_Mod_$Sprite.__name__ = true;
+quake_Mod_$Sprite.LoadSpriteModel = function(loadmodel,model) {
+	var version = model.getUint32(4,true);
+	if(version != 1) quake_Sys.Error(loadmodel.name + " has wrong version number (" + version + " should be " + 1 + ")");
+	loadmodel.type = 1;
+	loadmodel.oriented = model.getUint32(8,true) == 3;
+	loadmodel.boundingradius = model.getFloat32(12,true);
+	loadmodel.width = model.getUint32(16,true);
+	loadmodel.height = model.getUint32(20,true);
+	loadmodel.numframes = model.getUint32(24,true);
+	if(loadmodel.numframes == 0) quake_Sys.Error("model " + loadmodel.name + " has no frames");
+	loadmodel.random = model.getUint32(32,true) == 1;
 	var tmp;
-	var this1;
-	this1 = new Array(count);
-	tmp = this1;
-	var children = tmp;
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var n = loadmodel.nodes[i] = new quake_MNode();
-		n.num = i;
-		n.contents = 0;
-		n.planenum = view.getUint32(fileofs,true);
-		var val = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
-		children[i] = val;
-		var tmp1;
-		var x = view.getInt16(fileofs + 8,true);
-		var y = view.getInt16(fileofs + 10,true);
-		var z = view.getInt16(fileofs + 12,true);
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp1 = v;
-		n.mins = tmp1;
-		var tmp2;
-		var x1 = view.getInt16(fileofs + 14,true);
-		var y1 = view.getInt16(fileofs + 16,true);
-		var z1 = view.getInt16(fileofs + 18,true);
-		var v1 = new Float32Array(3);
-		v1[0] = x1;
-		v1[1] = y1;
-		v1[2] = z1;
-		tmp2 = v1;
-		n.maxs = tmp2;
-		n.firstface = view.getUint16(fileofs + 20,true);
-		n.numfaces = view.getUint16(fileofs + 22,true);
-		n.cmds = [];
-		fileofs += 24;
-	}
-	var _g1 = 0;
-	while(_g1 < count) {
-		var i1 = _g1++;
-		var out = loadmodel.nodes[i1];
-		out.plane = loadmodel.planes[out.planenum];
-		out.children = [];
-		var children1 = children[i1];
-		if(children1[0] >= 0) out.children[0] = loadmodel.nodes[children1[0]]; else out.children[0] = loadmodel.leafs[-1 - children1[0]];
-		if(children1[1] >= 0) out.children[1] = loadmodel.nodes[children1[1]]; else out.children[1] = loadmodel.leafs[-1 - children1[1]];
-	}
-	quake_Mod.SetParent(loadmodel.nodes[0],null);
-};
-quake_Mod.LoadLeafs = function(loadmodel,view) {
-	var fileofs = view.getUint32(84,true);
-	var filelen = view.getUint32(88,true);
-	if(filelen % 28 != 0) quake_Sys.Error("Mod.LoadLeafs: funny lump size in " + loadmodel.name);
-	var count = filelen / 28 | 0;
-	loadmodel.leafs = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var out = new quake_MLeaf();
-		out.num = i;
-		out.contents = view.getInt32(fileofs,true);
-		out.visofs = view.getInt32(fileofs + 4,true);
-		var tmp;
-		var x = view.getInt16(fileofs + 8,true);
-		var y = view.getInt16(fileofs + 10,true);
-		var z = view.getInt16(fileofs + 12,true);
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp = v;
-		out.mins = tmp;
-		var tmp1;
-		var x1 = view.getInt16(fileofs + 14,true);
-		var y1 = view.getInt16(fileofs + 16,true);
-		var z1 = view.getInt16(fileofs + 18,true);
-		var v1 = new Float32Array(3);
-		v1[0] = x1;
-		v1[1] = y1;
-		v1[2] = z1;
-		tmp1 = v1;
-		out.maxs = tmp1;
-		out.firstmarksurface = view.getUint16(fileofs + 20,true);
-		out.nummarksurfaces = view.getUint16(fileofs + 22,true);
-		out.ambient_level = [view.getUint8(fileofs + 24),view.getUint8(fileofs + 25),view.getUint8(fileofs + 26),view.getUint8(fileofs + 27)];
-		out.cmds = [];
-		out.skychain = 0;
-		out.waterchain = 0;
-		loadmodel.leafs[i] = out;
-		fileofs += 28;
-	}
-};
-quake_Mod.LoadClipnodes = function(loadmodel,view) {
-	var fileofs = view.getUint32(76,true);
-	var filelen = view.getUint32(80,true);
-	var count = filelen >> 3;
-	loadmodel.clipnodes = [];
-	loadmodel.hulls = [];
-	var tmp;
-	var h = new quake_MHull();
-	h.clipnodes = loadmodel.clipnodes;
-	h.firstclipnode = 0;
-	h.lastclipnode = count - 1;
-	h.planes = loadmodel.planes;
-	var tmp2;
 	var v = new Float32Array(3);
-	v[0] = -16.0;
-	v[1] = -16.0;
-	v[2] = -24.0;
-	tmp2 = v;
-	h.clip_mins = tmp2;
-	var tmp3;
-	var v1 = new Float32Array(3);
-	v1[0] = 16.0;
-	v1[1] = 16.0;
-	v1[2] = 32.0;
-	tmp3 = v1;
-	h.clip_maxs = tmp3;
-	tmp = h;
-	loadmodel.hulls[1] = tmp;
+	v[0] = loadmodel.width * -0.5;
+	v[1] = loadmodel.width * -0.5;
+	v[2] = loadmodel.height * -0.5;
+	tmp = v;
+	loadmodel.mins = tmp;
 	var tmp1;
-	var h1 = new quake_MHull();
-	h1.clipnodes = loadmodel.clipnodes;
-	h1.firstclipnode = 0;
-	h1.lastclipnode = count - 1;
-	h1.planes = loadmodel.planes;
-	var tmp4;
-	var v2 = new Float32Array(3);
-	v2[0] = -32.0;
-	v2[1] = -32.0;
-	v2[2] = -24.0;
-	tmp4 = v2;
-	h1.clip_mins = tmp4;
-	var tmp5;
-	var v3 = new Float32Array(3);
-	v3[0] = 32.0;
-	v3[1] = 32.0;
-	v3[2] = 64.0;
-	tmp5 = v3;
-	h1.clip_maxs = tmp5;
-	tmp1 = h1;
-	loadmodel.hulls[2] = tmp1;
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var tmp6;
-		var n = new quake_MClipNode();
-		n.planenum = view.getUint32(fileofs,true);
-		n.children = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
-		tmp6 = n;
-		loadmodel.clipnodes[i] = tmp6;
-		fileofs += 8;
-	}
-};
-quake_Mod.MakeHull0 = function(loadmodel) {
-	var clipnodes = [];
-	var tmp;
-	var h = new quake_MHull();
-	h.clipnodes = clipnodes;
-	h.lastclipnode = loadmodel.nodes.length - 1;
-	h.planes = loadmodel.planes;
-	h.clip_mins = new Float32Array(3);
-	h.clip_maxs = new Float32Array(3);
-	tmp = h;
-	var hull = tmp;
-	var _g1 = 0;
-	var _g = loadmodel.nodes.length;
-	while(_g1 < _g) {
-		var i = _g1++;
-		var node = loadmodel.nodes[i];
-		var out = new quake_MClipNode();
-		out.planenum = node.planenum;
-		out.children = [];
-		var child = node.children[0];
-		out.children[0] = child.contents < 0?child.contents:child.num;
-		child = node.children[1];
-		out.children[1] = child.contents < 0?child.contents:child.num;
-		clipnodes[i] = out;
-	}
-	loadmodel.hulls[0] = hull;
-};
-quake_Mod.LoadMarksurfaces = function(loadmodel,view) {
-	var fileofs = view.getUint32(92,true);
-	var filelen = view.getUint32(96,true);
-	var count = filelen >> 1;
-	loadmodel.marksurfaces = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var j = view.getUint16(fileofs + (i << 1),true);
-		if(j > loadmodel.faces.length) quake_Sys.Error("Mod.LoadMarksurfaces: bad surface number");
-		loadmodel.marksurfaces[i] = j;
-	}
-};
-quake_Mod.LoadSurfedges = function(loadmodel,view) {
-	var fileofs = view.getUint32(108,true);
-	var filelen = view.getUint32(112,true);
-	var count = filelen >> 2;
-	loadmodel.surfedges = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2),true);
-	}
-};
-quake_Mod.LoadPlanes = function(loadmodel,view) {
-	var fileofs = view.getUint32(12,true);
-	var filelen = view.getUint32(16,true);
-	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadPlanes: funny lump size in " + loadmodel.name);
-	var count = filelen / 20 | 0;
-	loadmodel.planes = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
-		var out = new quake_Plane();
-		var tmp;
-		var x = view.getFloat32(fileofs,true);
-		var y = view.getFloat32(fileofs + 4,true);
-		var z = view.getFloat32(fileofs + 8,true);
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp = v;
-		out.normal = tmp;
-		out.dist = view.getFloat32(fileofs + 12,true);
-		out.type = view.getUint32(fileofs + 16,true);
-		out.signbits = 0;
-		if(out.normal[0] < 0) ++out.signbits;
-		if(out.normal[1] < 0) out.signbits += 2;
-		if(out.normal[2] < 0) out.signbits += 4;
-		loadmodel.planes[i] = out;
-		fileofs += 20;
-	}
-};
-quake_Mod.LoadBrushModel = function(loadmodel,data) {
-	var version = data.getUint32(0,true);
-	if(version != 29) quake_Sys.Error("Mod.LoadBrushModel: " + loadmodel.name + " has wrong version number (" + version + " should be " + 29 + ")");
-	loadmodel.type = 0;
-	quake_Mod.LoadVertexes(loadmodel,data);
-	quake_Mod.LoadEdges(loadmodel,data);
-	quake_Mod.LoadSurfedges(loadmodel,data);
-	quake_Mod.LoadTextures(loadmodel,data);
-	quake_Mod.LoadLighting(loadmodel,data);
-	quake_Mod.LoadPlanes(loadmodel,data);
-	quake_Mod.LoadTexinfo(loadmodel,data);
-	quake_Mod.LoadFaces(loadmodel,data);
-	quake_Mod.LoadMarksurfaces(loadmodel,data);
-	quake_Mod.LoadVisibility(loadmodel,data);
-	quake_Mod.LoadLeafs(loadmodel,data);
-	quake_Mod.LoadNodes(loadmodel,data);
-	quake_Mod.LoadClipnodes(loadmodel,data);
-	quake_Mod.MakeHull0(loadmodel);
-	quake_Mod.LoadEntities(loadmodel,data);
-	quake_Mod.LoadSubmodels(loadmodel,data);
-	var mins_0 = 0.0;
-	var mins_1 = 0.0;
-	var mins_2 = 0.0;
-	var maxs_0 = 0.0;
-	var maxs_1 = 0.0;
-	var maxs_2 = 0.0;
-	var _g = 0;
-	var _g1 = loadmodel.vertexes;
-	while(_g < _g1.length) {
-		var vert = _g1[_g];
-		++_g;
-		if(vert[0] < mins_0) mins_0 = vert[0]; else if(vert[0] > maxs_0) maxs_0 = vert[0];
-		if(vert[1] < mins_1) mins_1 = vert[1]; else if(vert[1] > maxs_1) maxs_1 = vert[1];
-		if(vert[2] < mins_2) mins_2 = vert[2]; else if(vert[2] > maxs_2) maxs_2 = vert[2];
-	}
-	var tmp;
-	var tmp1;
-	var x = Math.max(Math.abs(mins_0),Math.abs(maxs_0));
-	var y = Math.max(Math.abs(mins_1),Math.abs(maxs_1));
-	var z = Math.max(Math.abs(mins_2),Math.abs(maxs_2));
 	var v1 = new Float32Array(3);
-	v1[0] = x;
-	v1[1] = y;
-	v1[2] = z;
+	v1[0] = loadmodel.width * 0.5;
+	v1[1] = loadmodel.width * 0.5;
+	v1[2] = loadmodel.height * 0.5;
 	tmp1 = v1;
-	var v = tmp1;
-	tmp = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-	loadmodel.radius = tmp;
-};
-quake_Mod.TranslatePlayerSkin = function(loadmodel,data,skin) {
-	if(loadmodel.skinwidth != 512 || loadmodel.skinheight != 256) data = quake_GL.ResampleTexture(data,loadmodel.skinwidth,loadmodel.skinheight,512,256);
-	var out = new Uint8Array(new ArrayBuffer(524288));
-	var _g1 = 0;
-	while(_g1 < 131072) {
-		var i = _g1++;
-		var original = data[i];
-		if(original >> 4 == 1) {
-			out[i << 2] = (original & 15) * 17;
-			out[(i << 2) + 1] = 255;
-		} else if(original >> 4 == 6) {
-			out[(i << 2) + 2] = (original & 15) * 17;
-			out[(i << 2) + 3] = 255;
-		}
-	}
-	skin.playertexture = quake_GL.gl.createTexture();
-	quake_GL.Bind(0,skin.playertexture);
-	quake_GL.gl.texImage2D(3553,0,6408,512,256,0,6408,5121,out);
-	quake_GL.gl.generateMipmap(3553);
-	quake_GL.gl.texParameteri(3553,10241,quake_GL.filter_min);
-	quake_GL.gl.texParameteri(3553,10240,quake_GL.filter_max);
-};
-quake_Mod.FloodFillSkin = function(loadmodel,skin) {
-	var fillcolor = skin[0];
-	if(fillcolor == quake_Mod.filledcolor) return;
-	var width = loadmodel.skinwidth;
-	var height = loadmodel.skinheight;
-	var lifo = [[0,0]];
-	var sp = 1;
-	while(sp > 0) {
-		var cur = lifo[--sp];
-		var x = cur[0];
-		var y = cur[1];
-		skin[y * width + x] = quake_Mod.filledcolor;
-		if(x > 0) {
-			if(skin[y * width + x - 1] == fillcolor) lifo[sp++] = [x - 1,y];
-		}
-		if(x < width - 1) {
-			if(skin[y * width + x + 1] == fillcolor) lifo[sp++] = [x + 1,y];
-		}
-		if(y > 0) {
-			if(skin[(y - 1) * width + x] == fillcolor) lifo[sp++] = [x,y - 1];
-		}
-		if(y < height - 1) {
-			if(skin[(y + 1) * width + x] == fillcolor) lifo[sp++] = [x,y + 1];
-		}
-	}
-};
-quake_Mod.LoadAllSkins = function(loadmodel,model,inmodel) {
-	loadmodel.skins = [];
-	var skinsize = loadmodel.skinwidth * loadmodel.skinheight;
-	var _g1 = 0;
-	var _g = loadmodel.numskins;
-	while(_g1 < _g) {
-		var i = _g1++;
-		inmodel += 4;
-		if(model.getUint32(inmodel - 4,true) == 0) {
-			var skin = new Uint8Array(model.buffer,inmodel,skinsize);
-			quake_Mod.FloodFillSkin(loadmodel,skin);
-			var g = new quake_MSkin(false);
-			g.texturenum = quake_GL.LoadTexture(loadmodel.name + "_" + i,loadmodel.skinwidth,loadmodel.skinheight,skin);
-			loadmodel.skins[i] = g;
-			if(loadmodel.player) quake_Mod.TranslatePlayerSkin(loadmodel,new Uint8Array(model.buffer,inmodel,skinsize),loadmodel.skins[i]);
-			inmodel += skinsize;
-		} else {
-			var group = new quake_MSkin(true);
-			var numskins = model.getUint32(inmodel,true);
-			inmodel += 4;
-			var _g2 = 0;
-			while(_g2 < numskins) {
-				var j = _g2++;
-				var s = new quake_MSkin(false);
-				s.interval = model.getFloat32(inmodel,true);
-				if(s.interval <= 0.0) quake_Sys.Error("Mod.LoadAllSkins: interval<=0");
-				group.skins[j] = s;
-				inmodel += 4;
-			}
-			var _g21 = 0;
-			while(_g21 < numskins) {
-				var j1 = _g21++;
-				var skin1 = new Uint8Array(model.buffer,inmodel,skinsize);
-				quake_Mod.FloodFillSkin(loadmodel,skin1);
-				group.skins[j1].texturenum = quake_GL.LoadTexture(loadmodel.name + "_" + i + "_" + j1,loadmodel.skinwidth,loadmodel.skinheight,skin1);
-				if(loadmodel.player) quake_Mod.TranslatePlayerSkin(loadmodel,new Uint8Array(model.buffer,inmodel,skinsize),group.skins[j1]);
-				inmodel += skinsize;
-			}
-			loadmodel.skins[i] = group;
-		}
-	}
-	return inmodel;
-};
-quake_Mod.LoadAllFrames = function(loadmodel,model,inmodel) {
+	loadmodel.maxs = tmp1;
 	loadmodel.frames = [];
+	var inframe = 36;
+	var frame;
+	var group;
+	var numframes;
 	var _g1 = 0;
 	var _g = loadmodel.numframes;
 	while(_g1 < _g) {
 		var i = _g1++;
-		inmodel += 4;
-		if(model.getUint32(inmodel - 4,true) == 0) {
-			var frame = new quake_MFrame(false);
-			frame.group = false;
-			frame.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
-			frame.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
-			frame.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
-			frame.v = [];
-			inmodel += 24;
-			var _g3 = 0;
-			var _g2 = loadmodel.numverts;
-			while(_g3 < _g2) {
-				var j = _g3++;
-				frame.v[j] = new quake_MTrivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
-				inmodel += 4;
-			}
+		inframe += 4;
+		if(model.getUint32(inframe - 4,true) == 0) {
+			frame = new quake_MFrame(false);
 			loadmodel.frames[i] = frame;
+			inframe = quake_Mod_$Sprite.LoadSpriteFrame(loadmodel.name + "_" + i,model,inframe,frame);
 		} else {
-			var group = new quake_MFrame(true);
-			group.bboxmin = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
-			group.bboxmax = [model.getUint8(inmodel + 8),model.getUint8(inmodel + 9),model.getUint8(inmodel + 10)];
+			group = new quake_MFrame(true);
 			group.frames = [];
-			var numframes = model.getUint32(inmodel,true);
-			inmodel += 12;
+			loadmodel.frames[i] = group;
+			numframes = model.getUint32(inframe,true);
+			inframe += 4;
+			var _g2 = 0;
+			while(_g2 < numframes) {
+				var j = _g2++;
+				var f = new quake_MFrame(false);
+				f.interval = model.getFloat32(inframe,true);
+				group.frames[j] = f;
+				if(group.frames[j].interval <= 0.0) quake_Sys.Error("Mod.LoadSpriteModel: interval<=0");
+				inframe += 4;
+			}
 			var _g21 = 0;
 			while(_g21 < numframes) {
 				var j1 = _g21++;
-				var f = new quake_MFrame(false);
-				f.interval = model.getFloat32(inmodel,true);
-				group.frames[j1] = f;
-				if(group.frames[j1].interval <= 0.0) quake_Sys.Error("Mod.LoadAllFrames: interval<=0");
-				inmodel += 4;
+				inframe = quake_Mod_$Sprite.LoadSpriteFrame(loadmodel.name + "_" + i + "_" + j1,model,inframe,group.frames[j1]);
 			}
-			var _g22 = 0;
-			while(_g22 < numframes) {
-				var j2 = _g22++;
-				var frame1 = group.frames[j2];
-				frame1.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
-				frame1.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
-				frame1.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
-				frame1.v = [];
-				inmodel += 24;
-				var _g4 = 0;
-				var _g31 = loadmodel.numverts;
-				while(_g4 < _g31) {
-					var k = _g4++;
-					frame1.v[k] = new quake_MTrivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
-					inmodel += 4;
-				}
-			}
-			loadmodel.frames[i] = group;
 		}
 	}
 };
-quake_Mod.LoadAliasModel = function(loadmodel,model) {
-	var version = model.getUint32(4,true);
-	if(version != 6) quake_Sys.Error(loadmodel.name + " has wrong version number (" + version + " should be " + 6 + ")");
-	loadmodel.type = 2;
-	loadmodel.player = loadmodel.name == "progs/player.mdl";
-	var tmp;
-	var x = model.getFloat32(8,true);
-	var y = model.getFloat32(12,true);
-	var z = model.getFloat32(16,true);
-	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-	tmp = v;
-	loadmodel.scale = tmp;
-	var tmp1;
-	var x1 = model.getFloat32(20,true);
-	var y1 = model.getFloat32(24,true);
-	var z1 = model.getFloat32(28,true);
-	var v1 = new Float32Array(3);
-	v1[0] = x1;
-	v1[1] = y1;
-	v1[2] = z1;
-	tmp1 = v1;
-	loadmodel.scale_origin = tmp1;
-	loadmodel.boundingradius = model.getFloat32(32,true);
-	loadmodel.numskins = model.getUint32(48,true);
-	if(loadmodel.numskins == 0) quake_Sys.Error("model " + loadmodel.name + " has no skins");
-	loadmodel.skinwidth = model.getUint32(52,true);
-	loadmodel.skinheight = model.getUint32(56,true);
-	loadmodel.numverts = model.getUint32(60,true);
-	if(loadmodel.numverts == 0) quake_Sys.Error("model " + loadmodel.name + " has no vertices");
-	loadmodel.numtris = model.getUint32(64,true);
-	if(loadmodel.numtris == 0) quake_Sys.Error("model " + loadmodel.name + " has no triangles");
-	loadmodel.numframes = model.getUint32(68,true);
-	if(loadmodel.numframes == 0) quake_Sys.Error("model " + loadmodel.name + " has no frames");
-	loadmodel.random = model.getUint32(72,true) == 1;
-	loadmodel.flags = model.getUint32(76,true);
-	var tmp2;
-	var v2 = new Float32Array(3);
-	v2[0] = -16.0;
-	v2[1] = -16.0;
-	v2[2] = -16.0;
-	tmp2 = v2;
-	loadmodel.mins = tmp2;
-	var tmp3;
-	var v3 = new Float32Array(3);
-	v3[0] = 16.0;
-	v3[1] = 16.0;
-	v3[2] = 16.0;
-	tmp3 = v3;
-	loadmodel.maxs = tmp3;
-	var inmodel = quake_Mod.LoadAllSkins(loadmodel,model,84);
-	loadmodel.stverts = [];
-	var _g1 = 0;
-	var _g = loadmodel.numverts;
-	while(_g1 < _g) {
-		var i = _g1++;
-		loadmodel.stverts[i] = new quake_MSTVert(model.getUint32(inmodel,true) != 0,model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true));
-		inmodel += 12;
-	}
-	loadmodel.triangles = [];
-	var _g11 = 0;
-	var _g2 = loadmodel.numtris;
-	while(_g11 < _g2) {
-		var i1 = _g11++;
-		loadmodel.triangles[i1] = new quake_MTriangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]);
-		inmodel += 16;
-	}
-	quake_Mod.LoadAllFrames(loadmodel,model,inmodel);
-	var cmds = [];
-	var _g12 = 0;
-	var _g3 = loadmodel.numtris;
-	while(_g12 < _g3) {
-		var i2 = _g12++;
-		var triangle = loadmodel.triangles[i2];
-		if(triangle.facesfront) {
-			var vert = loadmodel.stverts[triangle.vertindex[0]];
-			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-			vert = loadmodel.stverts[triangle.vertindex[1]];
-			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-			vert = loadmodel.stverts[triangle.vertindex[2]];
-			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
-			continue;
-		}
-		var _g21 = 0;
-		while(_g21 < 3) {
-			var j = _g21++;
-			var vert1 = loadmodel.stverts[triangle.vertindex[j]];
-			if(vert1.onseam) cmds[cmds.length] = (vert1.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth; else cmds[cmds.length] = (vert1.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert1.t + 0.5) / loadmodel.skinheight;
-		}
-	}
-	var group;
-	var frame;
-	var _g13 = 0;
-	var _g4 = loadmodel.numframes;
-	while(_g13 < _g4) {
-		var i3 = _g13++;
-		group = loadmodel.frames[i3];
-		if(group.group) {
-			var _g31 = 0;
-			var _g22 = group.frames.length;
-			while(_g31 < _g22) {
-				var j1 = _g31++;
-				frame = group.frames[j1];
-				frame.cmdofs = cmds.length << 2;
-				var _g5 = 0;
-				var _g41 = loadmodel.numtris;
-				while(_g5 < _g41) {
-					var k = _g5++;
-					var triangle1 = loadmodel.triangles[k];
-					var _g6 = 0;
-					while(_g6 < 3) {
-						var l = _g6++;
-						var vert2 = frame.v[triangle1.vertindex[l]];
-						if(vert2.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
-						cmds[cmds.length] = vert2.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
-						cmds[cmds.length] = vert2.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
-						cmds[cmds.length] = vert2.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
-						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3];
-						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3 + 1];
-						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3 + 2];
-					}
-				}
-			}
-			continue;
-		}
-		frame = group;
-		frame.cmdofs = cmds.length << 2;
-		var _g32 = 0;
-		var _g23 = loadmodel.numtris;
-		while(_g32 < _g23) {
-			var j2 = _g32++;
-			var triangle2 = loadmodel.triangles[j2];
-			var _g42 = 0;
-			while(_g42 < 3) {
-				var k1 = _g42++;
-				var vert3 = frame.v[triangle2.vertindex[k1]];
-				if(vert3.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
-				cmds[cmds.length] = vert3.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
-				cmds[cmds.length] = vert3.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
-				cmds[cmds.length] = vert3.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
-				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3];
-				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3 + 1];
-				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3 + 2];
-			}
-		}
-	}
-	loadmodel.cmds = quake_GL.gl.createBuffer();
-	quake_GL.gl.bindBuffer(34962,loadmodel.cmds);
-	quake_GL.gl.bufferData(34962,new Float32Array(cmds),35044);
-};
-quake_Mod.LoadSpriteFrame = function(identifier,model,inframe,frame) {
+quake_Mod_$Sprite.LoadSpriteFrame = function(identifier,model,inframe,frame) {
 	frame.origin = [model.getInt32(inframe,true),-model.getInt32(inframe + 4,true)];
 	frame.width = model.getUint32(inframe + 8,true);
 	frame.height = model.getUint32(inframe + 12,true);
@@ -7032,78 +7116,6 @@ quake_Mod.LoadSpriteFrame = function(identifier,model,inframe,frame) {
 	quake_GL.textures[quake_GL.textures.length] = glt;
 	frame.texturenum = glt.texnum;
 	return inframe + 16 + frame.width * frame.height;
-};
-quake_Mod.LoadSpriteModel = function(loadmodel,model) {
-	var version = model.getUint32(4,true);
-	if(version != 1) quake_Sys.Error(loadmodel.name + " has wrong version number (" + version + " should be " + 1 + ")");
-	loadmodel.type = 1;
-	loadmodel.oriented = model.getUint32(8,true) == 3;
-	loadmodel.boundingradius = model.getFloat32(12,true);
-	loadmodel.width = model.getUint32(16,true);
-	loadmodel.height = model.getUint32(20,true);
-	loadmodel.numframes = model.getUint32(24,true);
-	if(loadmodel.numframes == 0) quake_Sys.Error("model " + loadmodel.name + " has no frames");
-	loadmodel.random = model.getUint32(32,true) == 1;
-	var tmp;
-	var v = new Float32Array(3);
-	v[0] = loadmodel.width * -0.5;
-	v[1] = loadmodel.width * -0.5;
-	v[2] = loadmodel.height * -0.5;
-	tmp = v;
-	loadmodel.mins = tmp;
-	var tmp1;
-	var v1 = new Float32Array(3);
-	v1[0] = loadmodel.width * 0.5;
-	v1[1] = loadmodel.width * 0.5;
-	v1[2] = loadmodel.height * 0.5;
-	tmp1 = v1;
-	loadmodel.maxs = tmp1;
-	loadmodel.frames = [];
-	var inframe = 36;
-	var frame;
-	var group;
-	var numframes;
-	var _g1 = 0;
-	var _g = loadmodel.numframes;
-	while(_g1 < _g) {
-		var i = _g1++;
-		inframe += 4;
-		if(model.getUint32(inframe - 4,true) == 0) {
-			frame = new quake_MFrame(false);
-			loadmodel.frames[i] = frame;
-			inframe = quake_Mod.LoadSpriteFrame(loadmodel.name + "_" + i,model,inframe,frame);
-		} else {
-			group = new quake_MFrame(true);
-			group.frames = [];
-			loadmodel.frames[i] = group;
-			numframes = model.getUint32(inframe,true);
-			inframe += 4;
-			var _g2 = 0;
-			while(_g2 < numframes) {
-				var j = _g2++;
-				var f = new quake_MFrame(false);
-				f.interval = model.getFloat32(inframe,true);
-				group.frames[j] = f;
-				if(group.frames[j].interval <= 0.0) quake_Sys.Error("Mod.LoadSpriteModel: interval<=0");
-				inframe += 4;
-			}
-			var _g21 = 0;
-			while(_g21 < numframes) {
-				var j1 = _g21++;
-				inframe = quake_Mod.LoadSpriteFrame(loadmodel.name + "_" + i + "_" + j1,model,inframe,group.frames[j1]);
-			}
-		}
-	}
-};
-quake_Mod.Print = function() {
-	quake_Console.Print("Cached models:\n");
-	var _g = 0;
-	var _g1 = quake_Mod.known;
-	while(_g < _g1.length) {
-		var mod = _g1[_g];
-		++_g;
-		quake_Console.Print(mod.name + "\n");
-	}
 };
 var quake_NETSocketBase = function(address) {
 	this.connecttime = quake_NET.time;
@@ -8347,7 +8359,7 @@ quake_S.SoundList = function() {
 };
 quake_S.UpdateAmbientSounds = function() {
 	if(quake_CL.state.worldmodel == null) return;
-	var l = quake_Mod.PointInLeaf(quake_S.listener_origin,quake_CL.state.worldmodel);
+	var l = quake_Mod_$Brush.PointInLeaf(quake_S.listener_origin,quake_CL.state.worldmodel);
 	if(l == null || quake_S.ambient_level.value == 0) {
 		var _g = 0;
 		var _g1 = quake_S.ambient_channels;
@@ -9526,7 +9538,7 @@ quake_SV.AddToFatPVS = function(org,node) {
 	while(true) {
 		if(node.contents < 0) {
 			if(node.contents != -2) {
-				var pvs = quake_Mod.LeafPVS(node,quake_SV.server.worldmodel);
+				var pvs = quake_Mod_$Brush.LeafPVS(node,quake_SV.server.worldmodel);
 				var _g1 = 0;
 				var _g = quake_SV.fatbytes;
 				while(_g1 < _g) {
@@ -11872,7 +11884,7 @@ quake_R.DrawAliasModel = function(e) {
 };
 quake_R.DrawEntitiesOnList = function() {
 	if(quake_R.drawentities.value == 0) return;
-	var vis = quake_R.novis.value != 0?quake_Mod.novis:quake_Mod.LeafPVS(quake_R.viewleaf,quake_CL.state.worldmodel);
+	var vis = quake_R.novis.value != 0?quake_Mod_$Brush.novis:quake_Mod_$Brush.LeafPVS(quake_R.viewleaf,quake_CL.state.worldmodel);
 	var _g1 = 0;
 	var _g = quake_CL.state.num_statics;
 	while(_g1 < _g) {
@@ -12031,7 +12043,7 @@ quake_R.RenderScene = function() {
 	if(quake_CL.state.maxclients >= 2) quake_R.fullbright.set("0");
 	quake_R.AnimateLight();
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_R.refdef.viewangles,quake_R.vpn,quake_R.vright,quake_R.vup);
-	quake_R.viewleaf = quake_Mod.PointInLeaf(quake_R.refdef.vieworg,quake_CL.state.worldmodel);
+	quake_R.viewleaf = quake_Mod_$Brush.PointInLeaf(quake_R.refdef.vieworg,quake_CL.state.worldmodel);
 	quake_V.SetContentsColor(quake_R.viewleaf.contents);
 	quake_V.CalcBlend();
 	quake_R.dowarp = quake_R.waterwarp.value != 0 && quake_R.viewleaf.contents <= -3;
@@ -13161,7 +13173,7 @@ quake_R.MarkLeaves = function() {
 	if(quake_R.oldviewleaf == quake_R.viewleaf && quake_R.novis.value == 0) return;
 	++quake_R.visframecount;
 	quake_R.oldviewleaf = quake_R.viewleaf;
-	var vis = quake_R.novis.value != 0?quake_Mod.novis:quake_Mod.LeafPVS(quake_R.viewleaf,quake_CL.state.worldmodel);
+	var vis = quake_R.novis.value != 0?quake_Mod_$Brush.novis:quake_Mod_$Brush.LeafPVS(quake_R.viewleaf,quake_CL.state.worldmodel);
 	var _g1 = 0;
 	var _g = quake_CL.state.worldmodel.leafs.length;
 	while(_g1 < _g) {
@@ -13184,7 +13196,7 @@ quake_R.MarkLeaves = function() {
 			v[1] = quake_R.refdef.vieworg[1];
 			v[2] = quake_R.refdef.vieworg[2] + 16.0;
 			tmp = v;
-			leaf = quake_Mod.PointInLeaf(tmp,quake_CL.state.worldmodel);
+			leaf = quake_Mod_$Brush.PointInLeaf(tmp,quake_CL.state.worldmodel);
 			if(leaf.contents <= -3) break;
 		} else {
 			var tmp1;
@@ -13193,11 +13205,11 @@ quake_R.MarkLeaves = function() {
 			v1[1] = quake_R.refdef.vieworg[1];
 			v1[2] = quake_R.refdef.vieworg[2] - 16.0;
 			tmp1 = v1;
-			leaf = quake_Mod.PointInLeaf(tmp1,quake_CL.state.worldmodel);
+			leaf = quake_Mod_$Brush.PointInLeaf(tmp1,quake_CL.state.worldmodel);
 			if(leaf.contents > -3) break;
 		}
 		if(leaf == quake_R.viewleaf) break;
-		vis = quake_Mod.LeafPVS(leaf,quake_CL.state.worldmodel);
+		vis = quake_Mod_$Brush.LeafPVS(leaf,quake_CL.state.worldmodel);
 		var _g11 = 0;
 		var _g2 = quake_CL.state.worldmodel.leafs.length;
 		while(_g11 < _g2) {
@@ -13704,7 +13716,7 @@ quake_PF.newcheckclient = function(check) {
 	v[1] = ent._v_float[11] + ent._v_float[63];
 	v[2] = ent._v_float[12] + ent._v_float[64];
 	tmp = v;
-	quake_PF.checkpvs = quake_Mod.LeafPVS(quake_Mod.PointInLeaf(tmp,quake_SV.server.worldmodel),quake_SV.server.worldmodel);
+	quake_PF.checkpvs = quake_Mod_$Brush.LeafPVS(quake_Mod_$Brush.PointInLeaf(tmp,quake_SV.server.worldmodel),quake_SV.server.worldmodel);
 	return i;
 };
 quake_PF.checkclient = function() {
@@ -13724,7 +13736,7 @@ quake_PF.checkclient = function() {
 	v[1] = self._v_float[11] + self._v_float[63];
 	v[2] = self._v_float[12] + self._v_float[64];
 	tmp = v;
-	var l = quake_Mod.PointInLeaf(tmp,quake_SV.server.worldmodel).num - 1;
+	var l = quake_Mod_$Brush.PointInLeaf(tmp,quake_SV.server.worldmodel).num - 1;
 	if(l < 0 || (quake_PF.checkpvs[l >> 3] & 1 << (l & 7)) == 0) {
 		quake_PR._globals_int[1] = 0;
 		return;

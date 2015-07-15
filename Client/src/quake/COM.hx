@@ -288,12 +288,12 @@ class COM {
 		if (buf == null)
 			return null;
 		var bufview = new Uint8Array(buf);
-		var f = [];
+		var f = new StringBuf();
 		for (i in 0...bufview.length) {
 			if (bufview[i] != 13)
-				f[f.length] = String.fromCharCode(bufview[i]);
+				f.addChar(bufview[i]);
 		}
-		return f.join('');
+		return f.toString();
 	}
 
 	static function LoadPackFile(packfile:String):Pack {

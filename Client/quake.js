@@ -2087,14 +2087,14 @@ quake_COM.LoadTextFile = function(filename) {
 	var buf = quake_COM.LoadFile(filename);
 	if(buf == null) return null;
 	var bufview = new Uint8Array(buf);
-	var f = [];
+	var f_b = "";
 	var _g1 = 0;
 	var _g = bufview.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		if(bufview[i] != 13) f[f.length] = String.fromCharCode(bufview[i]);
+		if(bufview[i] != 13) f_b += String.fromCharCode(bufview[i]);
 	}
-	return f.join("");
+	return f_b;
 };
 quake_COM.LoadPackFile = function(packfile) {
 	var xhr = new XMLHttpRequest();

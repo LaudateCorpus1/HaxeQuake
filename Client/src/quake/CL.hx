@@ -1305,9 +1305,7 @@ class CL {
         ent.origin = ent.baseline.origin.copy();
         ent.angles = ent.baseline.angles.copy();
         R.currententity = ent;
-        R.emins = Vec.Add(ent.origin, ent.model.mins);
-        R.emaxs = Vec.Add(ent.origin, ent.model.maxs);
-        R.SplitEntityOnNode(CL.state.worldmodel.nodes[0]);
+        R.SplitEntityOnNode(Vec.Add(ent.origin, ent.model.mins), Vec.Add(ent.origin, ent.model.maxs), CL.state.worldmodel.nodes[0]);
     }
 
     static function ParseStaticSound() {

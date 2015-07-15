@@ -47,8 +47,6 @@ private class Particle {
 @:publicFields
 class R {
     static var currententity:Entity;
-    static var emins:Vec;
-    static var emaxs:Vec;
 
     static var waterwarp:Cvar;
     static var fullbright:Cvar;
@@ -87,7 +85,7 @@ class R {
 
     // efrag
 
-    static function SplitEntityOnNode(node:MNode):Void {
+    static function SplitEntityOnNode(emins:Vec, emaxs:Vec, node:MNode):Void {
         if (node.contents == solid)
             return;
         if (node.contents < 0) {
@@ -96,9 +94,9 @@ class R {
         }
         var sides = Vec.BoxOnPlaneSide(emins, emaxs, node.plane);
         if ((sides & 1) != 0)
-            SplitEntityOnNode(node.children[0]);
+            SplitEntityOnNode(emins, emaxs, node.children[0]);
         if ((sides & 2) != 0)
-            SplitEntityOnNode(node.children[1]);
+            SplitEntityOnNode(emins, emaxs, node.children[1]);
     }
 
     // light

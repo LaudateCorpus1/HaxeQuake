@@ -1400,7 +1400,6 @@ quake_CL.ParseStatic = function() {
 	v[1] = v1[1] + v2[1];
 	v[2] = v1[2] + v2[2];
 	tmp = v;
-	quake_R.emins = tmp;
 	var tmp1;
 	var v11 = ent.origin;
 	var v21 = ent.model.maxs;
@@ -1409,8 +1408,7 @@ quake_CL.ParseStatic = function() {
 	v3[1] = v11[1] + v21[1];
 	v3[2] = v11[2] + v21[2];
 	tmp1 = v3;
-	quake_R.emaxs = tmp1;
-	quake_R.SplitEntityOnNode(quake_CL.state.worldmodel.nodes[0]);
+	quake_R.SplitEntityOnNode(tmp,tmp1,quake_CL.state.worldmodel.nodes[0]);
 };
 quake_CL.ParseStaticSound = function() {
 	var tmp;
@@ -11414,15 +11412,15 @@ var quake_Plane = function() {
 quake_Plane.__name__ = true;
 var quake_R = function() { };
 quake_R.__name__ = true;
-quake_R.SplitEntityOnNode = function(node) {
+quake_R.SplitEntityOnNode = function(emins,emaxs,node) {
 	if(node.contents == -2) return;
 	if(node.contents < 0) {
 		quake_R.currententity.leafs.push(node.num - 1);
 		return;
 	}
-	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide(quake_R.emins,quake_R.emaxs,node.plane);
-	if((sides & 1) != 0) quake_R.SplitEntityOnNode(node.children[0]);
-	if((sides & 2) != 0) quake_R.SplitEntityOnNode(node.children[1]);
+	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide(emins,emaxs,node.plane);
+	if((sides & 1) != 0) quake_R.SplitEntityOnNode(emins,emaxs,node.children[0]);
+	if((sides & 2) != 0) quake_R.SplitEntityOnNode(emins,emaxs,node.children[1]);
 };
 quake_R.AnimateLight = function() {
 	if(quake_R.fullbright.value == 0) {

@@ -1662,4 +1662,58 @@ class CL {
             }
         }
     }
+
+    public static function RunParticles():Void {
+        var frametime = state.time - state.oldtime;
+        var grav = frametime * SV.gravity.value * 0.05;
+        var dvel = frametime * 4.0;
+
+        for (p in R.particles) {
+            if (p.die < state.time)
+                continue;
+
+            p.org[0] += p.vel[0] * frametime;
+            p.org[1] += p.vel[1] * frametime;
+            p.org[2] += p.vel[2] * frametime;
+
+            switch (p.type) {
+                case fire:
+                    p.ramp += frametime * 5.0;
+                    if (p.ramp >= 6.0)
+                        p.die = -1.0;
+                    else
+                        p.color = R.ramp3[Math.floor(p.ramp)];
+                    p.vel[2] += grav;
+                case explode:
+                    p.ramp += frametime * 10.0;
+                    if (p.ramp >= 8.0)
+                        p.die = -1.0;
+                    else
+                        p.color = R.ramp1[Math.floor(p.ramp)];
+                    p.vel[0] += p.vel[0] * dvel;
+                    p.vel[1] += p.vel[1] * dvel;
+                    p.vel[2] += p.vel[2] * dvel - grav;
+                case explode2:
+                    p.ramp += frametime * 15.0;
+                    if (p.ramp >= 8.0)
+                        p.die = -1.0;
+                    else
+                        p.color = R.ramp2[Math.floor(p.ramp)];
+                    p.vel[0] -= p.vel[0] * frametime;
+                    p.vel[1] -= p.vel[1] * frametime;
+                    p.vel[2] -= p.vel[2] * frametime + grav;
+                case blob:
+                    p.vel[0] += p.vel[0] * dvel;
+                    p.vel[1] += p.vel[1] * dvel;
+                    p.vel[2] += p.vel[2] * dvel - grav;
+                case blob2:
+                    p.vel[0] += p.vel[0] * dvel;
+                    p.vel[1] += p.vel[1] * dvel;
+                    p.vel[2] -= grav;
+                case grav | slowgrav:
+                    p.vel[2] -= grav;
+                default:
+            }
+        }
+    }
 }

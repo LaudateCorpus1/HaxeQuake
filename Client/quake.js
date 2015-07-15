@@ -1828,6 +1828,57 @@ quake_CL.UpdateTEnts = function() {
 		}
 	}
 };
+quake_CL.RunParticles = function() {
+	var frametime = quake_CL.state.time - quake_CL.state.oldtime;
+	var grav = frametime * quake_SV.gravity.value * 0.05;
+	var dvel = frametime * 4.0;
+	var _g = 0;
+	var _g1 = quake_R.particles;
+	while(_g < _g1.length) {
+		var p = _g1[_g];
+		++_g;
+		if(p.die < quake_CL.state.time) continue;
+		p.org[0] = p.org[0] + p.vel[0] * frametime;
+		p.org[1] = p.org[1] + p.vel[1] * frametime;
+		p.org[2] = p.org[2] + p.vel[2] * frametime;
+		var _g2 = p.type;
+		switch(_g2) {
+		case 3:
+			p.ramp += frametime * 5.0;
+			if(p.ramp >= 6.0) p.die = -1.0; else p.color = quake_R.ramp3[Math.floor(p.ramp)];
+			p.vel[2] = p.vel[2] + grav;
+			break;
+		case 4:
+			p.ramp += frametime * 10.0;
+			if(p.ramp >= 8.0) p.die = -1.0; else p.color = quake_R.ramp1[Math.floor(p.ramp)];
+			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
+			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
+			p.vel[2] = p.vel[2] + (p.vel[2] * dvel - grav);
+			break;
+		case 5:
+			p.ramp += frametime * 15.0;
+			if(p.ramp >= 8.0) p.die = -1.0; else p.color = quake_R.ramp2[Math.floor(p.ramp)];
+			p.vel[0] = p.vel[0] - p.vel[0] * frametime;
+			p.vel[1] = p.vel[1] - p.vel[1] * frametime;
+			p.vel[2] = p.vel[2] - (p.vel[2] * frametime + grav);
+			break;
+		case 6:
+			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
+			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
+			p.vel[2] = p.vel[2] + (p.vel[2] * dvel - grav);
+			break;
+		case 7:
+			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
+			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
+			p.vel[2] = p.vel[2] - grav;
+			break;
+		case 1:case 2:
+			p.vel[2] = p.vel[2] - grav;
+			break;
+		default:
+		}
+	}
+};
 var quake__$COM_SearchPath = function(f) {
 	this.filename = f;
 	this.pack = [];
@@ -3630,6 +3681,7 @@ quake_Host._Frame = function() {
 	if(quake_CL.cls.state == 2) quake_CL.ReadFromServer();
 	if(quake_Host.speeds.value != 0) time1 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	quake_SCR.UpdateScreen();
+	quake_CL.RunParticles();
 	if(quake_Host.speeds.value != 0) time2 = new Date().getTime() * 0.001 - quake_Sys.oldtime;
 	if(quake_CL.cls.signon == 4) {
 		quake_S.Update(quake_R.refdef.vieworg,quake_R.vpn,quake_R.vright,quake_R.vup);
@@ -12740,9 +12792,6 @@ quake_R.DrawParticles = function() {
 	quake_GL.gl.vertexAttribPointer(program.aPoint,2,5126,false,0,0);
 	quake_GL.gl.depthMask(false);
 	quake_GL.gl.enable(3042);
-	var frametime = quake_CL.state.time - quake_CL.state.oldtime;
-	var grav = frametime * quake_SV.gravity.value * 0.05;
-	var dvel = frametime * 4.0;
 	var _g = 0;
 	var _g1 = quake_R.particles;
 	while(_g < _g1.length) {
@@ -12755,45 +12804,6 @@ quake_R.DrawParticles = function() {
 		var scale = (p.org[0] - quake_R.refdef.vieworg[0]) * quake_R.vpn[0] + (p.org[1] - quake_R.refdef.vieworg[1]) * quake_R.vpn[1] + (p.org[2] - quake_R.refdef.vieworg[2]) * quake_R.vpn[2];
 		if(scale < 20.0) quake_GL.gl.uniform1f(program.uScale,0.75); else quake_GL.gl.uniform1f(program.uScale,0.75 + scale * 0.003);
 		quake_GL.gl.drawArrays(5,0,4);
-		p.org[0] = p.org[0] + p.vel[0] * frametime;
-		p.org[1] = p.org[1] + p.vel[1] * frametime;
-		p.org[2] = p.org[2] + p.vel[2] * frametime;
-		var _g2 = p.type;
-		switch(_g2) {
-		case 3:
-			p.ramp += frametime * 5.0;
-			if(p.ramp >= 6.0) p.die = -1.0; else p.color = quake_R.ramp3[Math.floor(p.ramp)];
-			p.vel[2] = p.vel[2] + grav;
-			break;
-		case 4:
-			p.ramp += frametime * 10.0;
-			if(p.ramp >= 8.0) p.die = -1.0; else p.color = quake_R.ramp1[Math.floor(p.ramp)];
-			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
-			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
-			p.vel[2] = p.vel[2] + (p.vel[2] * dvel - grav);
-			break;
-		case 5:
-			p.ramp += frametime * 15.0;
-			if(p.ramp >= 8.0) p.die = -1.0; else p.color = quake_R.ramp2[Math.floor(p.ramp)];
-			p.vel[0] = p.vel[0] - p.vel[0] * frametime;
-			p.vel[1] = p.vel[1] - p.vel[1] * frametime;
-			p.vel[2] = p.vel[2] - (p.vel[2] * frametime + grav);
-			break;
-		case 6:
-			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
-			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
-			p.vel[2] = p.vel[2] + (p.vel[2] * dvel - grav);
-			break;
-		case 7:
-			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
-			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
-			p.vel[2] = p.vel[2] - grav;
-			break;
-		case 1:case 2:
-			p.vel[2] = p.vel[2] - grav;
-			break;
-		default:
-		}
 	}
 	quake_GL.gl.disable(3042);
 	quake_GL.gl.depthMask(true);

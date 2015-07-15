@@ -267,7 +267,10 @@ class Host {
 
         if (Host.speeds.value != 0)
             time1 = Sys.FloatTime();
+
         SCR.UpdateScreen();
+        CL.RunParticles();
+
         if (Host.speeds.value != 0)
             time2 = Sys.FloatTime();
 

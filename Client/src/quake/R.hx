@@ -1603,10 +1603,6 @@ class R {
         gl.depthMask(false);
         gl.enable(RenderingContext.BLEND);
 
-        var frametime = CL.state.time - CL.state.oldtime;
-        var grav = frametime * SV.gravity.value * 0.05;
-        var dvel = frametime * 4.0;
-
         for (p in particles) {
             if (p.die < CL.state.time)
                 continue;
@@ -1622,49 +1618,6 @@ class R {
             else
                 gl.uniform1f(program.uScale, 0.75 + scale * 0.003);
             gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
-
-            p.org[0] += p.vel[0] * frametime;
-            p.org[1] += p.vel[1] * frametime;
-            p.org[2] += p.vel[2] * frametime;
-
-            switch (p.type) {
-                case fire:
-                    p.ramp += frametime * 5.0;
-                    if (p.ramp >= 6.0)
-                        p.die = -1.0;
-                    else
-                        p.color = R.ramp3[Math.floor(p.ramp)];
-                    p.vel[2] += grav;
-                case explode:
-                    p.ramp += frametime * 10.0;
-                    if (p.ramp >= 8.0)
-                        p.die = -1.0;
-                    else
-                        p.color = R.ramp1[Math.floor(p.ramp)];
-                    p.vel[0] += p.vel[0] * dvel;
-                    p.vel[1] += p.vel[1] * dvel;
-                    p.vel[2] += p.vel[2] * dvel - grav;
-                case explode2:
-                    p.ramp += frametime * 15.0;
-                    if (p.ramp >= 8.0)
-                        p.die = -1.0;
-                    else
-                        p.color = R.ramp2[Math.floor(p.ramp)];
-                    p.vel[0] -= p.vel[0] * frametime;
-                    p.vel[1] -= p.vel[1] * frametime;
-                    p.vel[2] -= p.vel[2] * frametime + grav;
-                case blob:
-                    p.vel[0] += p.vel[0] * dvel;
-                    p.vel[1] += p.vel[1] * dvel;
-                    p.vel[2] += p.vel[2] * dvel - grav;
-                case blob2:
-                    p.vel[0] += p.vel[0] * dvel;
-                    p.vel[1] += p.vel[1] * dvel;
-                    p.vel[2] -= grav;
-                case grav | slowgrav:
-                    p.vel[2] -= grav;
-                default:
-            }
         }
 
         gl.disable(RenderingContext.BLEND);

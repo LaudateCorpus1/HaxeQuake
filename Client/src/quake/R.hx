@@ -230,12 +230,12 @@ class R {
             return -1;
 
         var normal = node.plane.normal;
-        var front = start[0] * normal[0] + start[1] * normal[1] + start[2] * normal[2] - node.plane.dist;
-        var back = end[0] * normal[0] + end[1] * normal[1] + end[2] * normal[2] - node.plane.dist;
+        var front = Vec.DotProduct(start, normal) - node.plane.dist;
+        var back = Vec.DotProduct(end, normal) - node.plane.dist;
         var side = front < 0;
 
         if ((back < 0) == side)
-            return R.RecursiveLightPoint(node.children[side ? 1 : 0], start, end);
+            return RecursiveLightPoint(node.children[side ? 1 : 0], start, end);
 
         var frac = front / (front - back);
         var mid = Vec.of(
@@ -244,7 +244,7 @@ class R {
             start[2] + (end[2] - start[2]) * frac
         );
 
-        var r = R.RecursiveLightPoint(node.children[side ? 1 : 0], start, mid);
+        var r = RecursiveLightPoint(node.children[side ? 1 : 0], start, mid);
         if (r >= 0)
             return r;
 
@@ -282,12 +282,12 @@ class R {
             r = 0;
             var size = ((surf.extents[0] >> 4) + 1) * ((surf.extents[1] >> 4) + 1);
             for (maps in 0...surf.styles.length) {
-                r += CL.state.worldmodel.lightdata[lightmap] * R.lightstylevalue[surf.styles[maps]] * 22;
+                r += CL.state.worldmodel.lightdata[lightmap] * lightstylevalue[surf.styles[maps]] * 22;
                 lightmap += size;
             }
             return r >> 8;
         }
-        return R.RecursiveLightPoint(node.children[side ? 0 : 1], mid, end);
+        return RecursiveLightPoint(node.children[side ? 0 : 1], mid, end);
     }
 
     static function LightPoint(p:Vec):Int {

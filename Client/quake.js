@@ -12572,8 +12572,8 @@ quake_R.RunParticleEffect = function(org,dir,color,count) {
 };
 quake_R.LavaSplash = function(org) {
 	var allocated = quake_R.AllocParticles(1024);
-	var k = 0;
 	var dir = new Float32Array(3);
+	var k = 0;
 	var _g = -16;
 	while(_g < 16) {
 		var i = _g++;

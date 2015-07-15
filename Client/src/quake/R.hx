@@ -1435,13 +1435,14 @@ class R {
     }
 
     static function LavaSplash(org:Vec) {
-        var allocated = R.AllocParticles(1024), k = 0;
+        var allocated = AllocParticles(1024);
         var dir = new Vec();
+        var k = 0;
         for (i in -16...16) {
             for (j in -16...16) {
                 if (k >= allocated.length)
                     return;
-                var p = R.particles[allocated[k++]];
+                var p = particles[allocated[k++]];
                 p.die = CL.state.time + 2.0 + Math.random() * 0.64;
                 p.color = 224 + Math.floor(Math.random() * 8.0);
                 p.type = slowgrav;

@@ -4641,22 +4641,109 @@ quake_Host.InitCommands = function() {
 	quake_Cmd.AddCommand("viewprev",quake_Host.Viewprev_f);
 	quake_Cmd.AddCommand("mcache",quake_Mod.Print);
 };
+var quake__$IN_StdMouseHandler = function() { };
+quake__$IN_StdMouseHandler.__name__ = true;
+quake__$IN_StdMouseHandler.attach = function() {
+	if(quake_VID.mainwindow.requestPointerLock != null) {
+		quake_VID.mainwindow.onclick = quake__$IN_StdMouseHandler.onclick;
+		window.document.onmousemove = quake__$IN_StdMouseHandler.onmousemove;
+		window.document.onpointerlockchange = quake__$IN_StdMouseHandler.onpointerlockchange;
+		return quake__$IN_StdMouseHandler.detach;
+	}
+	return null;
+};
+quake__$IN_StdMouseHandler.detach = function() {
+	quake_VID.mainwindow.onclick = null;
+	window.document.onmousemove = null;
+	window.document.onpointerlockchange = null;
+};
+quake__$IN_StdMouseHandler.onclick = function() {
+	if(window.document.pointerLockElement != quake_VID.mainwindow) quake_VID.mainwindow.requestPointerLock();
+};
+quake__$IN_StdMouseHandler.onmousemove = function(e) {
+	if(window.document.pointerLockElement != quake_VID.mainwindow) return;
+	quake_IN.mouse_x += e.movementX;
+	quake_IN.mouse_y += e.movementY;
+};
+quake__$IN_StdMouseHandler.onpointerlockchange = function() {
+	if(window.document.pointerLockElement == quake_VID.mainwindow) return;
+	quake_Key.Event(27,true);
+	quake_Key.Event(27,false);
+};
+var quake__$IN_MozMouseHandler = function() { };
+quake__$IN_MozMouseHandler.__name__ = true;
+quake__$IN_MozMouseHandler.attach = function() {
+	if(quake_VID.mainwindow.mozRequestPointerLock != null) {
+		quake_VID.mainwindow.onclick = quake__$IN_MozMouseHandler.onclick;
+		window.document.onmousemove = quake__$IN_MozMouseHandler.onmousemove;
+		window.document.onmozpointerlockchange = quake__$IN_MozMouseHandler.onmozpointerlockchange;
+		return quake__$IN_MozMouseHandler.detach;
+	}
+	return null;
+};
+quake__$IN_MozMouseHandler.detach = function() {
+	quake_VID.mainwindow.onclick = null;
+	window.document.onmousemove = null;
+	window.document.onmozpointerlockchange = null;
+};
+quake__$IN_MozMouseHandler.onclick = function() {
+	if(window.document.mozPointerLockElement != quake_VID.mainwindow) quake_VID.mainwindow.mozRequestPointerLock();
+};
+quake__$IN_MozMouseHandler.onmousemove = function(e) {
+	if(window.document.mozPointerLockElement != quake_VID.mainwindow) return;
+	quake_IN.mouse_x += e.mozMovementX;
+	quake_IN.mouse_y += e.mozMovementY;
+};
+quake__$IN_MozMouseHandler.onmozpointerlockchange = function() {
+	if(window.document.mozPointerLockElement == quake_VID.mainwindow) return;
+	quake_Key.Event(27,true);
+	quake_Key.Event(27,false);
+};
+var quake__$IN_WebkitMouseHandler = function() { };
+quake__$IN_WebkitMouseHandler.__name__ = true;
+quake__$IN_WebkitMouseHandler.attach = function() {
+	if(quake_VID.mainwindow.webkitRequestPointerLock != null) {
+		quake_VID.mainwindow.onclick = quake__$IN_WebkitMouseHandler.onclick;
+		window.document.onmousemove = quake__$IN_WebkitMouseHandler.onmousemove;
+		window.document.onwebkitpointerlockchange = quake__$IN_WebkitMouseHandler.onwebkitpointerlockchange;
+		return quake__$IN_WebkitMouseHandler.detach;
+	}
+	return null;
+};
+quake__$IN_WebkitMouseHandler.detach = function() {
+	quake_VID.mainwindow.onclick = null;
+	window.document.onmousemove = null;
+	window.document.onwebkitpointerlockchange = null;
+};
+quake__$IN_WebkitMouseHandler.onclick = function() {
+	if(window.document.webkitPointerLockElement != quake_VID.mainwindow) quake_VID.mainwindow.webkitRequestPointerLock();
+};
+quake__$IN_WebkitMouseHandler.onmousemove = function(e) {
+	if(window.document.webkitPointerLockElement != quake_VID.mainwindow) return;
+	quake_IN.mouse_x += e.webkitMovementX;
+	quake_IN.mouse_y += e.webkitMovementY;
+};
+quake__$IN_WebkitMouseHandler.onwebkitpointerlockchange = function() {
+	if(window.document.webkitPointerLockElement == quake_VID.mainwindow) return;
+	quake_Key.Event(27,true);
+	quake_Key.Event(27,false);
+};
 var quake_IN = function() { };
 quake_IN.__name__ = true;
 quake_IN.Init = function() {
 	quake_IN.m_filter = quake_Cvar.RegisterVariable("m_filter","1");
 	if(quake_COM.CheckParm("-nomouse") != null) return;
-	quake_VID.mainwindow.onclick = quake_IN.onclick;
-	window.document.onmousemove = quake_IN.onmousemove;
-	window.document.onpointerlockchange = quake_IN.onpointerlockchange;
-	quake_IN.mouse_avail = true;
+	quake_IN.detachMouseHandler = quake_IN.attachMouseHandler();
+	if(quake_IN.detachMouseHandler != null) quake_IN.mouse_avail = true;
+};
+quake_IN.attachMouseHandler = function() {
+	var detach = quake__$IN_StdMouseHandler.attach();
+	if(detach == null) detach = quake__$IN_MozMouseHandler.attach();
+	if(detach == null) detach = quake__$IN_WebkitMouseHandler.attach();
+	return detach;
 };
 quake_IN.Shutdown = function() {
-	if(quake_IN.mouse_avail) {
-		quake_VID.mainwindow.onclick = null;
-		window.document.onmousemove = null;
-		window.document.onpointerlockchange = null;
-	}
+	if(quake_IN.detachMouseHandler != null) quake_IN.detachMouseHandler();
 };
 quake_IN.Move = function() {
 	if(!quake_IN.mouse_avail) return;
@@ -4683,19 +4770,6 @@ quake_IN.Move = function() {
 		if(angles[0] > 80.0) angles[0] = 80.0; else if(angles[0] < -70.0) angles[0] = -70.0;
 	} else if(strafe != 0 && quake_Host.noclip_anglehack) quake_CL.state.cmd.upmove -= quake_CL.m_forward.value * mouse_y; else quake_CL.state.cmd.forwardmove -= quake_CL.m_forward.value * mouse_y;
 	quake_IN.mouse_x = quake_IN.mouse_y = 0;
-};
-quake_IN.onclick = function() {
-	if(window.document.pointerLockElement != quake_VID.mainwindow) quake_VID.mainwindow.requestPointerLock();
-};
-quake_IN.onmousemove = function(e) {
-	if(window.document.pointerLockElement != quake_VID.mainwindow) return;
-	quake_IN.mouse_x += e.movementX;
-	quake_IN.mouse_y += e.movementY;
-};
-quake_IN.onpointerlockchange = function() {
-	if(window.document.pointerLockElement == quake_VID.mainwindow) return;
-	quake_Key.Event(27,true);
-	quake_Key.Event(27,false);
 };
 var quake_Key = function() { };
 quake_Key.__name__ = true;

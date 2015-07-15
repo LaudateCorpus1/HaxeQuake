@@ -1,7 +1,116 @@
 package quake;
 
 import js.Browser.document;
+import js.html.CanvasElement;
 import js.html.MouseEvent;
+
+@:access(quake.IN)
+private class StdMouseHandler  {
+    public static function attach():Void->Void {
+        if ((cast VID.mainwindow).requestPointerLock != null) {
+            VID.mainwindow.onclick = onclick;
+            document.onmousemove = onmousemove;
+            document.onpointerlockchange = onpointerlockchange;
+            return detach;
+        }
+        return null;
+    }
+
+    static function detach():Void {
+        VID.mainwindow.onclick = null;
+        document.onmousemove = null;
+        document.onpointerlockchange = null;
+    }
+
+    static function onclick():Void {
+        if (document.pointerLockElement != VID.mainwindow)
+            VID.mainwindow.requestPointerLock();
+    }
+
+    static function onmousemove(e:MouseEvent):Void {
+        if (document.pointerLockElement != VID.mainwindow)
+            return;
+        IN.applyMouseMovement(e.movementX, e.movementY);
+    }
+
+    static function onpointerlockchange():Void {
+        if (document.pointerLockElement == VID.mainwindow)
+            return;
+        IN.exitPointerLock();
+    }
+}
+
+@:access(quake.IN)
+private class MozMouseHandler {
+    public static function attach():Void->Void {
+        if ((cast VID.mainwindow).mozRequestPointerLock != null) {
+            VID.mainwindow.onclick = onclick;
+            document.onmousemove = onmousemove;
+            (cast document).onmozpointerlockchange = onmozpointerlockchange;
+            return detach;
+        }
+        return null;
+    }
+
+    static function detach():Void {
+        VID.mainwindow.onclick = null;
+        document.onmousemove = null;
+        (cast document).onmozpointerlockchange = null;
+    }
+
+    static function onclick():Void {
+        if ((cast document).mozPointerLockElement != VID.mainwindow)
+            (cast VID.mainwindow).mozRequestPointerLock();
+    }
+
+    static function onmousemove(e:MouseEvent):Void {
+        if ((cast document).mozPointerLockElement != VID.mainwindow)
+            return;
+        IN.applyMouseMovement((cast e).mozMovementX, (cast e).mozMovementY);
+    }
+
+    static function onmozpointerlockchange():Void {
+        if ((cast document).mozPointerLockElement == VID.mainwindow)
+            return;
+        IN.exitPointerLock();
+    }
+}
+
+@:access(quake.IN)
+private class WebkitMouseHandler {
+    public static function attach():Void->Void {
+        if ((cast VID.mainwindow).webkitRequestPointerLock != null) {
+            VID.mainwindow.onclick = onclick;
+            document.onmousemove = onmousemove;
+            (cast document).onwebkitpointerlockchange = onwebkitpointerlockchange;
+            return detach;
+        }
+        return null;
+    }
+
+    static function detach():Void {
+        VID.mainwindow.onclick = null;
+        document.onmousemove = null;
+        (cast document).onwebkitpointerlockchange = null;
+    }
+
+    static function onclick():Void {
+        if ((cast document).webkitPointerLockElement != VID.mainwindow)
+            (cast VID.mainwindow).webkitRequestPointerLock();
+    }
+
+    static function onmousemove(e:MouseEvent):Void {
+        if ((cast document).webkitPointerLockElement != VID.mainwindow)
+            return;
+        IN.applyMouseMovement((cast e).webkitMovementX, (cast e).webkitMovementY);
+    }
+
+    static function onwebkitpointerlockchange():Void {
+        if ((cast document).webkitPointerLockElement == VID.mainwindow)
+            return;
+        IN.exitPointerLock();
+    }
+}
 
 class IN {
 
@@ -11,23 +120,29 @@ class IN {
     static var old_mouse_y = 0.0;
     static var mouse_avail = false;
     static var m_filter:Cvar;
+    static var detachMouseHandler:Void->Void;
 
     public static function Init():Void {
         m_filter = Cvar.RegisterVariable('m_filter', '1');
         if (COM.CheckParm('-nomouse') != null)
             return;
-        VID.mainwindow.onclick = onclick;
-        document.onmousemove = onmousemove;
-        document.onpointerlockchange = onpointerlockchange;
-        mouse_avail = true;
+        detachMouseHandler = attachMouseHandler();
+        if (detachMouseHandler != null)
+            mouse_avail = true;
+    }
+
+    public static function attachMouseHandler():Void->Void {
+        var detach = StdMouseHandler.attach();
+        if (detach == null)
+            detach = MozMouseHandler.attach();
+        if (detach == null)
+            detach = WebkitMouseHandler.attach();
+        return detach;
     }
 
     public static function Shutdown():Void {
-        if (mouse_avail) {
-            VID.mainwindow.onclick = null;
-            document.onmousemove = null;
-            document.onpointerlockchange = null;
-        }
+        if (detachMouseHandler != null)
+            detachMouseHandler();
     }
 
     public static function Move():Void {
@@ -75,21 +190,12 @@ class IN {
         IN.mouse_x = IN.mouse_y = 0;
     }
 
-    static function onclick():Void {
-        if (document.pointerLockElement != VID.mainwindow)
-            VID.mainwindow.requestPointerLock();
+    static inline function applyMouseMovement(x:Int, y:Int):Void {
+        IN.mouse_x += x;
+        IN.mouse_y += y;
     }
 
-    static function onmousemove(e:MouseEvent):Void {
-        if (document.pointerLockElement != VID.mainwindow)
-            return;
-        mouse_x += e.movementX;
-        mouse_y += e.movementY;
-    }
-
-    static function onpointerlockchange():Void {
-        if (document.pointerLockElement == VID.mainwindow)
-            return;
+    static inline function exitPointerLock():Void {
         Key.Event(escape, true);
         Key.Event(escape, false);
     }

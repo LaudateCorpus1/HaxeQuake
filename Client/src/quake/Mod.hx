@@ -1275,9 +1275,9 @@ class Mod {
                             cmds[cmds.length] = vert.v[0] * Mod.loadmodel.scale[0] + Mod.loadmodel.scale_origin[0];
                             cmds[cmds.length] = vert.v[1] * Mod.loadmodel.scale[1] + Mod.loadmodel.scale_origin[1];
                             cmds[cmds.length] = vert.v[2] * Mod.loadmodel.scale[2] + Mod.loadmodel.scale_origin[2];
-                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex][0];
-                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex][1];
-                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex][2];
+                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3];
+                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 1];
+                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 2];
                         }
                     }
                 }
@@ -1294,9 +1294,9 @@ class Mod {
                     cmds[cmds.length] = vert.v[0] * Mod.loadmodel.scale[0] + Mod.loadmodel.scale_origin[0];
                     cmds[cmds.length] = vert.v[1] * Mod.loadmodel.scale[1] + Mod.loadmodel.scale_origin[1];
                     cmds[cmds.length] = vert.v[2] * Mod.loadmodel.scale[2] + Mod.loadmodel.scale_origin[2];
-                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex][0];
-                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex][1];
-                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex][2];
+                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3];
+                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 1];
+                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 2];
                 }
             }
         }

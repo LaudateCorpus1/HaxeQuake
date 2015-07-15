@@ -1389,8 +1389,8 @@ quake_CL.ParseStatic = function() {
 	ent.frame = ent.baseline.frame;
 	ent.skinnum = ent.baseline.skin;
 	ent.effects = ent.baseline.effects;
-	ent.origin = new Float32Array(ent.baseline.origin);
-	ent.angles = new Float32Array(ent.baseline.angles);
+	ent.origin.set(ent.baseline.origin);
+	ent.angles.set(ent.baseline.angles);
 	quake_R.currententity = ent;
 	var tmp;
 	var v1 = ent.origin;
@@ -1803,22 +1803,16 @@ quake_CL.UpdateTEnts = function() {
 		}
 		while(d > 0.0) {
 			var ent = quake_CL.NewTempEntity();
-			var tmp2;
-			var v = new Float32Array(3);
-			v[0] = org_0;
-			v[1] = org_1;
-			v[2] = org_2;
-			tmp2 = v;
-			ent.origin = tmp2;
+			var this1 = ent.origin;
+			this1[0] = org_0;
+			this1[1] = org_1;
+			this1[2] = org_2;
 			ent.model = b.model;
-			var tmp3;
+			var this2 = ent.angles;
 			var z = Math.random() * 360.0;
-			var v1 = new Float32Array(3);
-			v1[0] = pitch;
-			v1[1] = yaw;
-			v1[2] = z;
-			tmp3 = v1;
-			ent.angles = tmp3;
+			this2[0] = pitch;
+			this2[1] = yaw;
+			this2[2] = z;
 			org_0 += dist_0 * 30.0;
 			org_1 += dist_1 * 30.0;
 			org_2 += dist_2 * 30.0;

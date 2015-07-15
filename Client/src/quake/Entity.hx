@@ -7,9 +7,9 @@ import quake.Mod.EntEffect;
 class Entity {
     var leafs:Array<Int> = [];
     var model:MModel;
-    var angles = new Vec();
+    var angles(default,never) = new Vec();
     var msg_angles = [new Vec(), new Vec()];
-    var origin = new Vec();
+    var origin(default,never) = new Vec();
     var msg_origins = [new Vec(), new Vec()];
     var frame = 0;
     var syncbase = 0.0;
@@ -23,7 +23,7 @@ class Entity {
     var visframe = 0;
     var dlightframe = 0;
     var dlightbits = 0;
-    var baseline = new EntityState();
+    var baseline(default,never) = new EntityState();
     function new(n = -1) {
         num = n;
     }

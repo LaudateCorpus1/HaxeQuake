@@ -1302,8 +1302,8 @@ class CL {
         ent.frame = ent.baseline.frame;
         ent.skinnum = ent.baseline.skin;
         ent.effects = ent.baseline.effects;
-        ent.origin = ent.baseline.origin.copy();
-        ent.angles = ent.baseline.angles.copy();
+        ent.origin.setVector(ent.baseline.origin);
+        ent.angles.setVector(ent.baseline.angles);
         R.currententity = ent;
         R.SplitEntityOnNode(Vec.Add(ent.origin, ent.model.mins), Vec.Add(ent.origin, ent.model.maxs), CL.state.worldmodel.nodes[0]);
     }
@@ -1650,9 +1650,9 @@ class CL {
             }
             while (d > 0.0) {
                 var ent = NewTempEntity();
-                ent.origin = Vec.ofArray(org);
+                ent.origin.setValues(org[0], org[1], org[2]);
                 ent.model = b.model;
-                ent.angles = Vec.of(pitch, yaw, Math.random() * 360.0);
+                ent.angles.setValues(pitch, yaw, Math.random() * 360.0);
                 org[0] += dist[0] * 30.0;
                 org[1] += dist[1] * 30.0;
                 org[2] += dist[2] * 30.0;

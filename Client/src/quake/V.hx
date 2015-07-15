@@ -285,7 +285,7 @@ class V {
 	static function CalcRefdef():Void {
 		DriftPitch();
 
-		var ent:{angles:Vec, origin:Vec} = CL.entities[CL.state.viewentity];
+		var ent = CL.entities[CL.state.viewentity];
 		ent.angles[1] = CL.state.viewangles[1];
 		ent.angles[0] = -CL.state.viewangles[0];
 		var bob = CalcBob();

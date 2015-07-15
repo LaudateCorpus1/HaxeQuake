@@ -1523,11 +1523,10 @@ class R {
 
     static var tracercount = 0;
     static function RocketTrail(start:Vec, end:Vec, type:Int):Void {
-        var vec = [end[0] - start[0], end[1] - start[1], end[2] - start[2]];
-        var len = Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+        var vec = Vec.of(end[0] - start[0], end[1] - start[1], end[2] - start[2]);
+        var len = Vec.Normalize(vec);
         if (len == 0.0)
             return;
-        vec = [vec[0] / len, vec[1] / len, vec[2] / len];
 
         var allocated;
         if (type == 4)

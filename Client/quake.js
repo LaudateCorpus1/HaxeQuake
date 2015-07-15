@@ -12707,10 +12707,15 @@ quake_R.TeleportSplash = function(org) {
 	}
 };
 quake_R.RocketTrail = function(start,end,type) {
-	var vec = [end[0] - start[0],end[1] - start[1],end[2] - start[2]];
-	var len = Math.sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+	var tmp;
+	var v = new Float32Array(3);
+	v[0] = end[0] - start[0];
+	v[1] = end[1] - start[1];
+	v[2] = end[2] - start[2];
+	tmp = v;
+	var vec = tmp;
+	var len = quake__$Vec_Vec_$Impl_$.Normalize(vec);
 	if(len == 0.0) return;
-	vec = [vec[0] / len,vec[1] / len,vec[2] / len];
 	var allocated;
 	if(type == 4) allocated = quake_R.AllocParticles(Math.floor(len / 6.0)); else allocated = quake_R.AllocParticles(Math.floor(len / 3.0));
 	var _g = 0;

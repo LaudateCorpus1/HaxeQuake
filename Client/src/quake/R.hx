@@ -28,20 +28,13 @@ using Tools;
 
 @:publicFields
 private class Particle {
-    var type:ParticleType;
-    var ramp:Float;
-    var die:Float;
-    var org(default,null):Vec;
-    var vel(default,null):Vec;
-    var color:Int;
-    function new() {
-        this.type = tracer;
-        this.ramp = 0.0;
-        this.die = -1;
-        this.org = new Vec();
-        this.vel = new Vec();
-        this.color = 0;
-    }
+    var type:ParticleType = tracer;
+    var ramp:Float = 0;
+    var die:Float = -1;
+    var org(default,never) = new Vec();
+    var vel(default,never) = new Vec();
+    var color:Int = 0;
+    function new() {}
 }
 
 @:publicFields

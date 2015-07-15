@@ -14120,12 +14120,12 @@ var quake__$PR_PRStatement = function(view,ofs) {
 };
 quake__$PR_PRStatement.__name__ = true;
 var quake__$R_Particle = function() {
-	this.type = 0;
-	this.ramp = 0.0;
-	this.die = -1;
-	this.org = new Float32Array(3);
-	this.vel = new Float32Array(3);
 	this.color = 0;
+	this.vel = new Float32Array(3);
+	this.org = new Float32Array(3);
+	this.die = -1;
+	this.ramp = 0;
+	this.type = 0;
 };
 quake__$R_Particle.__name__ = true;
 var quake_Sfx = function(n) {

@@ -920,21 +920,21 @@ class R {
                 chain[2] += surf.verts.length;
                 for (k in 0...surf.verts.length) {
                     var vert = surf.verts[k];
-                    cmds[cmds.length] = vert[0];
-                    cmds[cmds.length] = vert[1];
-                    cmds[cmds.length] = vert[2];
-                    cmds[cmds.length] = vert[3];
-                    cmds[cmds.length] = vert[4];
-                    cmds[cmds.length] = vert[5];
-                    cmds[cmds.length] = vert[6];
-                    cmds[cmds.length] = styles[0];
-                    cmds[cmds.length] = styles[1];
-                    cmds[cmds.length] = styles[2];
-                    cmds[cmds.length] = styles[3];
+                    cmds.push(vert[0]);
+                    cmds.push(vert[1]);
+                    cmds.push(vert[2]);
+                    cmds.push(vert[3]);
+                    cmds.push(vert[4]);
+                    cmds.push(vert[5]);
+                    cmds.push(vert[6]);
+                    cmds.push(styles[0]);
+                    cmds.push(styles[1]);
+                    cmds.push(styles[2]);
+                    cmds.push(styles[3]);
                 }
             }
             if (chain[2] != 0) {
-                m.chains[m.chains.length] = chain;
+                m.chains.push(chain);
                 verts += chain[2];
             }
         }
@@ -952,15 +952,15 @@ class R {
                 chain[2] += surf.verts.length;
                 for (k in 0...surf.verts.length) {
                     var vert = surf.verts[k];
-                    cmds[cmds.length] = vert[0];
-                    cmds[cmds.length] = vert[1];
-                    cmds[cmds.length] = vert[2];
-                    cmds[cmds.length] = vert[3];
-                    cmds[cmds.length] = vert[4];
+                    cmds.push(vert[0]);
+                    cmds.push(vert[1]);
+                    cmds.push(vert[2]);
+                    cmds.push(vert[3]);
+                    cmds.push(vert[4]);
                 }
             }
             if (chain[2] != 0) {
-                m.chains[m.chains.length] = chain;
+                m.chains.push(chain);
                 verts += chain[2];
             }
         }
@@ -1005,21 +1005,21 @@ class R {
                     }
                     chain[2] += surf.verts.length;
                     for (vert in surf.verts) {
-                        cmds[cmds.length] = vert[0];
-                        cmds[cmds.length] = vert[1];
-                        cmds[cmds.length] = vert[2];
-                        cmds[cmds.length] = vert[3];
-                        cmds[cmds.length] = vert[4];
-                        cmds[cmds.length] = vert[5];
-                        cmds[cmds.length] = vert[6];
-                        cmds[cmds.length] = styles[0];
-                        cmds[cmds.length] = styles[1];
-                        cmds[cmds.length] = styles[2];
-                        cmds[cmds.length] = styles[3];
+                        cmds.push(vert[0]);
+                        cmds.push(vert[1]);
+                        cmds.push(vert[2]);
+                        cmds.push(vert[3]);
+                        cmds.push(vert[4]);
+                        cmds.push(vert[5]);
+                        cmds.push(vert[6]);
+                        cmds.push(styles[0]);
+                        cmds.push(styles[1]);
+                        cmds.push(styles[2]);
+                        cmds.push(styles[3]);
                     }
                 }
                 if (chain[2] != 0) {
-                    leaf.cmds[leaf.cmds.length] = chain;
+                    leaf.cmds.push(chain);
                     ++leaf.skychain;
                     ++leaf.waterchain;
                     verts += chain[2];
@@ -1042,13 +1042,13 @@ class R {
                     chain[1] += surf.verts.length;
                     for (l in 0...surf.verts.length) {
                         var vert = surf.verts[l];
-                        cmds[cmds.length] = vert[0];
-                        cmds[cmds.length] = vert[1];
-                        cmds[cmds.length] = vert[2];
+                        cmds.push(vert[0]);
+                        cmds.push(vert[1]);
+                        cmds.push(vert[2]);
                     }
                 }
                 if (chain[1] != 0) {
-                    leaf.cmds[leaf.cmds.length] = chain;
+                    leaf.cmds.push(chain);
                     ++leaf.waterchain;
                     verts += chain[1];
                 }
@@ -1070,15 +1070,15 @@ class R {
                     chain[2] += surf.verts.length;
                     for (l in 0...surf.verts.length) {
                         var vert = surf.verts[l];
-                        cmds[cmds.length] = vert[0];
-                        cmds[cmds.length] = vert[1];
-                        cmds[cmds.length] = vert[2];
-                        cmds[cmds.length] = vert[3];
-                        cmds[cmds.length] = vert[4];
+                        cmds.push(vert[0]);
+                        cmds.push(vert[1]);
+                        cmds.push(vert[2]);
+                        cmds.push(vert[3]);
+                        cmds.push(vert[4]);
                     }
                 }
                 if (chain[2] != 0) {
-                    leaf.cmds[leaf.cmds.length] = chain;
+                    leaf.cmds.push(chain);
                     verts += chain[2];
                 }
             }
@@ -2006,10 +2006,10 @@ class R {
                 }
             }
             if (i >= 3) {
-                fa.verts[fa.verts.length] = fa.verts[0];
-                fa.verts[fa.verts.length] = fa.verts[fa.verts.length - 2];
+                fa.verts.push(fa.verts[0]);
+                fa.verts.push(fa.verts[fa.verts.length - 2]);
             }
-            fa.verts[fa.verts.length] = vert;
+            fa.verts.push(vert);
         }
     }
 

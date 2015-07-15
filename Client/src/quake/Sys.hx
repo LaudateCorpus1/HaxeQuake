@@ -96,14 +96,14 @@ class Sys {
                     {
                         if (text.length == 0)
                             continue;
-                        argv[argv.length] = text;
+                        argv.push(text);
                         text = '';
                         continue;
                     }
                     text += cmdline.charAt(i);
                 }
                 if (text.length != 0)
-                    argv[argv.length] = text;
+                    argv.push(text);
             }
             COM.InitArgv(argv);
 

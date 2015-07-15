@@ -6033,22 +6033,22 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 		var triangle = triangles[i];
 		if(triangle.facesfront) {
 			var vert = stverts[triangle.vertindex[0]];
-			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+			cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+			cmds.push((vert.t + 0.5) / loadmodel.skinheight);
 			vert = stverts[triangle.vertindex[1]];
-			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+			cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+			cmds.push((vert.t + 0.5) / loadmodel.skinheight);
 			vert = stverts[triangle.vertindex[2]];
-			cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+			cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+			cmds.push((vert.t + 0.5) / loadmodel.skinheight);
 			continue;
 		}
 		var _g21 = 0;
 		while(_g21 < 3) {
 			var j = _g21++;
 			var vert1 = stverts[triangle.vertindex[j]];
-			if(vert1.onseam) cmds[cmds.length] = (vert1.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth; else cmds[cmds.length] = (vert1.s + 0.5) / loadmodel.skinwidth;
-			cmds[cmds.length] = (vert1.t + 0.5) / loadmodel.skinheight;
+			if(vert1.onseam) cmds.push((vert1.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth); else cmds.push((vert1.s + 0.5) / loadmodel.skinwidth);
+			cmds.push((vert1.t + 0.5) / loadmodel.skinheight);
 		}
 	}
 	var group;
@@ -6075,12 +6075,12 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 						var l = _g6++;
 						var vert2 = frame.v[triangle1.vertindex[l]];
 						if(vert2.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
-						cmds[cmds.length] = vert2.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
-						cmds[cmds.length] = vert2.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
-						cmds[cmds.length] = vert2.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
-						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3];
-						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3 + 1];
-						cmds[cmds.length] = quake_R.avertexnormals[vert2.lightnormalindex * 3 + 2];
+						cmds.push(vert2.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
+						cmds.push(vert2.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
+						cmds.push(vert2.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
+						cmds.push(quake_R.avertexnormals[vert2.lightnormalindex * 3]);
+						cmds.push(quake_R.avertexnormals[vert2.lightnormalindex * 3 + 1]);
+						cmds.push(quake_R.avertexnormals[vert2.lightnormalindex * 3 + 2]);
 					}
 				}
 			}
@@ -6098,12 +6098,12 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 				var k1 = _g42++;
 				var vert3 = frame.v[triangle2.vertindex[k1]];
 				if(vert3.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
-				cmds[cmds.length] = vert3.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
-				cmds[cmds.length] = vert3.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
-				cmds[cmds.length] = vert3.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
-				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3];
-				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3 + 1];
-				cmds[cmds.length] = quake_R.avertexnormals[vert3.lightnormalindex * 3 + 2];
+				cmds.push(vert3.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
+				cmds.push(vert3.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
+				cmds.push(vert3.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
+				cmds.push(quake_R.avertexnormals[vert3.lightnormalindex * 3]);
+				cmds.push(quake_R.avertexnormals[vert3.lightnormalindex * 3 + 1]);
+				cmds.push(quake_R.avertexnormals[vert3.lightnormalindex * 3 + 2]);
 			}
 		}
 	}
@@ -6515,7 +6515,7 @@ quake_Mod_$Brush.LoadTextures = function(loadmodel,view) {
 		}
 		loadmodel.textures[i1] = tx1;
 	}
-	loadmodel.textures[loadmodel.textures.length] = quake_R.notexture_mip;
+	loadmodel.textures.push(quake_R.notexture_mip);
 };
 quake_Mod_$Brush.LoadLighting = function(loadmodel,view) {
 	var fileofs = view.getUint32(68,true);
@@ -7107,7 +7107,7 @@ quake_Mod_$Sprite.LoadSpriteFrame = function(identifier,model,inframe,frame) {
 	quake_GL.gl.generateMipmap(3553);
 	quake_GL.gl.texParameterf(3553,10241,quake_GL.filter_min);
 	quake_GL.gl.texParameterf(3553,10240,quake_GL.filter_max);
-	quake_GL.textures[quake_GL.textures.length] = glt;
+	quake_GL.textures.push(glt);
 	frame.texturenum = glt.texnum;
 	return inframe + 16 + frame.width * frame.height;
 };
@@ -8131,15 +8131,15 @@ quake_Q.btoa = function(src) {
 	var i = 0;
 	while(i < len) {
 		var c = (src[i] << 16) + (src[i + 1] << 8) + src[i + 2];
-		val[val.length] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c >> 18) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c >> 12 & 63) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c >> 6 & 63) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c & 63);
+		val.push("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c >> 18) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c >> 12 & 63) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c >> 6 & 63) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c & 63));
 		i += 3;
 	}
 	if(src.length - len == 1) {
 		var c1 = src[len];
-		val[val.length] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c1 >> 2) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt((c1 & 3) << 4) + "==";
+		val.push("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c1 >> 2) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt((c1 & 3) << 4) + "==");
 	} else if(src.length - len == 2) {
 		var c2 = (src[len] << 8) + src[len + 1];
-		val[val.length] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c2 >> 10) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c2 >> 4 & 63) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt((c2 & 15) << 2) + "=";
+		val.push("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c2 >> 10) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt(c2 >> 4 & 63) + "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/".charAt((c2 & 15) << 2) + "=");
 	}
 	return val.join("");
 };
@@ -8840,13 +8840,13 @@ quake_Sys.main = function() {
 				}
 				if(quotes == false && c == 32) {
 					if(text.length == 0) continue;
-					argv[argv.length] = text;
+					argv.push(text);
 					text = "";
 					continue;
 				}
 				text += cmdline.charAt(i);
 			}
-			if(text.length != 0) argv[argv.length] = text;
+			if(text.length != 0) argv.push(text);
 		}
 		quake_COM.InitArgv(argv);
 		var elem = window.document.documentElement;
@@ -12121,21 +12121,21 @@ quake_R.MakeBrushModelDisplayLists = function(m) {
 			while(_g5 < _g41) {
 				var k = _g5++;
 				var vert = surf.verts[k];
-				cmds[cmds.length] = vert[0];
-				cmds[cmds.length] = vert[1];
-				cmds[cmds.length] = vert[2];
-				cmds[cmds.length] = vert[3];
-				cmds[cmds.length] = vert[4];
-				cmds[cmds.length] = vert[5];
-				cmds[cmds.length] = vert[6];
-				cmds[cmds.length] = styles_0;
-				cmds[cmds.length] = styles_1;
-				cmds[cmds.length] = styles_2;
-				cmds[cmds.length] = styles_3;
+				cmds.push(vert[0]);
+				cmds.push(vert[1]);
+				cmds.push(vert[2]);
+				cmds.push(vert[3]);
+				cmds.push(vert[4]);
+				cmds.push(vert[5]);
+				cmds.push(vert[6]);
+				cmds.push(styles_0);
+				cmds.push(styles_1);
+				cmds.push(styles_2);
+				cmds.push(styles_3);
 			}
 		}
 		if(chain[2] != 0) {
-			m.chains[m.chains.length] = chain;
+			m.chains.push(chain);
 			verts += chain[2];
 		}
 	}
@@ -12160,15 +12160,15 @@ quake_R.MakeBrushModelDisplayLists = function(m) {
 			while(_g51 < _g42) {
 				var k1 = _g51++;
 				var vert1 = surf1.verts[k1];
-				cmds[cmds.length] = vert1[0];
-				cmds[cmds.length] = vert1[1];
-				cmds[cmds.length] = vert1[2];
-				cmds[cmds.length] = vert1[3];
-				cmds[cmds.length] = vert1[4];
+				cmds.push(vert1[0]);
+				cmds.push(vert1[1]);
+				cmds.push(vert1[2]);
+				cmds.push(vert1[3]);
+				cmds.push(vert1[4]);
 			}
 		}
 		if(chain1[2] != 0) {
-			m.chains[m.chains.length] = chain1;
+			m.chains.push(chain1);
 			verts += chain1[2];
 		}
 	}
@@ -12230,21 +12230,21 @@ quake_R.MakeWorldModelDisplayLists = function(m) {
 				while(_g61 < _g7.length) {
 					var vert = _g7[_g61];
 					++_g61;
-					cmds[cmds.length] = vert[0];
-					cmds[cmds.length] = vert[1];
-					cmds[cmds.length] = vert[2];
-					cmds[cmds.length] = vert[3];
-					cmds[cmds.length] = vert[4];
-					cmds[cmds.length] = vert[5];
-					cmds[cmds.length] = vert[6];
-					cmds[cmds.length] = styles_0;
-					cmds[cmds.length] = styles_1;
-					cmds[cmds.length] = styles_2;
-					cmds[cmds.length] = styles_3;
+					cmds.push(vert[0]);
+					cmds.push(vert[1]);
+					cmds.push(vert[2]);
+					cmds.push(vert[3]);
+					cmds.push(vert[4]);
+					cmds.push(vert[5]);
+					cmds.push(vert[6]);
+					cmds.push(styles_0);
+					cmds.push(styles_1);
+					cmds.push(styles_2);
+					cmds.push(styles_3);
 				}
 			}
 			if(chain[2] != 0) {
-				leaf.cmds[leaf.cmds.length] = chain;
+				leaf.cmds.push(chain);
 				++leaf.skychain;
 				++leaf.waterchain;
 				verts += chain[2];
@@ -12277,13 +12277,13 @@ quake_R.MakeWorldModelDisplayLists = function(m) {
 				while(_g71 < _g62) {
 					var l = _g71++;
 					var vert1 = surf1.verts[l];
-					cmds[cmds.length] = vert1[0];
-					cmds[cmds.length] = vert1[1];
-					cmds[cmds.length] = vert1[2];
+					cmds.push(vert1[0]);
+					cmds.push(vert1[1]);
+					cmds.push(vert1[2]);
 				}
 			}
 			if(chain1[1] != 0) {
-				leaf1.cmds[leaf1.cmds.length] = chain1;
+				leaf1.cmds.push(chain1);
 				++leaf1.waterchain;
 				verts += chain1[1];
 			}
@@ -12315,15 +12315,15 @@ quake_R.MakeWorldModelDisplayLists = function(m) {
 				while(_g72 < _g63) {
 					var l1 = _g72++;
 					var vert2 = surf2.verts[l1];
-					cmds[cmds.length] = vert2[0];
-					cmds[cmds.length] = vert2[1];
-					cmds[cmds.length] = vert2[2];
-					cmds[cmds.length] = vert2[3];
-					cmds[cmds.length] = vert2[4];
+					cmds.push(vert2[0]);
+					cmds.push(vert2[1]);
+					cmds.push(vert2[2]);
+					cmds.push(vert2[3]);
+					cmds.push(vert2[4]);
 				}
 			}
 			if(chain2[2] != 0) {
-				leaf2.cmds[leaf2.cmds.length] = chain2;
+				leaf2.cmds.push(chain2);
 				verts += chain2[2];
 			}
 		}
@@ -13303,10 +13303,10 @@ quake_R.BuildSurfaceDisplayList = function(fa) {
 			}
 		}
 		if(i >= 3) {
-			fa.verts[fa.verts.length] = fa.verts[0];
-			fa.verts[fa.verts.length] = fa.verts[fa.verts.length - 2];
+			fa.verts.push(fa.verts[0]);
+			fa.verts.push(fa.verts[fa.verts.length - 2]);
 		}
-		fa.verts[fa.verts.length] = vert;
+		fa.verts.push(vert);
 	}
 };
 quake_R.BuildLightmaps = function() {

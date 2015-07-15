@@ -131,23 +131,23 @@ class Mod_Alias {
             var triangle = triangles[i];
             if (triangle.facesfront) {
                 var vert = stverts[triangle.vertindex[0]];
-                cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+                cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+                cmds.push((vert.t + 0.5) / loadmodel.skinheight);
                 vert = stverts[triangle.vertindex[1]];
-                cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+                cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+                cmds.push((vert.t + 0.5) / loadmodel.skinheight);
                 vert = stverts[triangle.vertindex[2]];
-                cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+                cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+                cmds.push((vert.t + 0.5) / loadmodel.skinheight);
                 continue;
             }
             for (j in 0...3) {
                 var vert = stverts[triangle.vertindex[j]];
                 if (vert.onseam)
-                    cmds[cmds.length] = (vert.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth;
+                    cmds.push((vert.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth);
                 else
-                    cmds[cmds.length] = (vert.s + 0.5) / loadmodel.skinwidth;
-                cmds[cmds.length] = (vert.t + 0.5) / loadmodel.skinheight;
+                    cmds.push((vert.s + 0.5) / loadmodel.skinwidth);
+                cmds.push((vert.t + 0.5) / loadmodel.skinheight);
             }
         }
 
@@ -164,12 +164,12 @@ class Mod_Alias {
                             var vert = frame.v[triangle.vertindex[l]];
                             if (vert.lightnormalindex >= 162)
                                 Sys.Error('lightnormalindex >= NUMVERTEXNORMALS');
-                            cmds[cmds.length] = vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
-                            cmds[cmds.length] = vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
-                            cmds[cmds.length] = vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
-                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3];
-                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 1];
-                            cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 2];
+                            cmds.push(vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
+                            cmds.push(vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
+                            cmds.push(vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
+                            cmds.push(R.avertexnormals[vert.lightnormalindex * 3]);
+                            cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 1]);
+                            cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 2]);
                         }
                     }
                 }
@@ -183,12 +183,12 @@ class Mod_Alias {
                     var vert = frame.v[triangle.vertindex[k]];
                     if (vert.lightnormalindex >= 162)
                         Sys.Error('lightnormalindex >= NUMVERTEXNORMALS');
-                    cmds[cmds.length] = vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0];
-                    cmds[cmds.length] = vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1];
-                    cmds[cmds.length] = vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2];
-                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3];
-                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 1];
-                    cmds[cmds.length] = R.avertexnormals[vert.lightnormalindex * 3 + 2];
+                    cmds.push(vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
+                    cmds.push(vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
+                    cmds.push(vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
+                    cmds.push(R.avertexnormals[vert.lightnormalindex * 3]);
+                    cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 1]);
+                    cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 2]);
                 }
             }
         }

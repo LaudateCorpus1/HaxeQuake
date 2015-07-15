@@ -346,7 +346,7 @@ class Mod_Brush {
             loadmodel.textures[i] = tx;
         }
 
-        loadmodel.textures[loadmodel.textures.length] = R.notexture_mip;
+        loadmodel.textures.push(R.notexture_mip);
     }
 
     static function LoadLighting(loadmodel:MModel, view:DataView):Void {

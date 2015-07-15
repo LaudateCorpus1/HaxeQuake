@@ -114,16 +114,16 @@ class Q {
         var i = 0;
         while (i < len) {
             var c = (src[i] << 16) + (src[i + 1] << 8) + src[i + 2];
-            val[val.length] = str.charAt(c >> 18) + str.charAt((c >> 12) & 63) + str.charAt((c >> 6) & 63) + str.charAt(c & 63);
+            val.push(str.charAt(c >> 18) + str.charAt((c >> 12) & 63) + str.charAt((c >> 6) & 63) + str.charAt(c & 63));
             i += 3;
         }
         if ((src.length - len) == 1) {
             var c = src[len];
-            val[val.length] = str.charAt(c >> 2) + str.charAt((c & 3) << 4) + '==';
+            val.push(str.charAt(c >> 2) + str.charAt((c & 3) << 4) + '==');
         }
         else if ((src.length - len) == 2) {
             var c = (src[len] << 8) + src[len + 1];
-            val[val.length] = str.charAt(c >> 10) + str.charAt((c >> 4) & 63) + str.charAt((c & 15) << 2) + '=';
+            val.push(str.charAt(c >> 10) + str.charAt((c >> 4) & 63) + str.charAt((c & 15) << 2) + '=');
         }
         return val.join('');
     }

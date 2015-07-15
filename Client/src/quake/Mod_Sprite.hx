@@ -115,7 +115,7 @@ class Mod_Sprite {
         gl.generateMipmap(RenderingContext.TEXTURE_2D);
         gl.texParameterf(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, GL.filter_min);
         gl.texParameterf(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, GL.filter_max);
-        GL.textures[GL.textures.length] = glt;
+        GL.textures.push(glt);
         frame.texturenum = glt.texnum;
         return inframe + 16 + frame.width * frame.height;
     }

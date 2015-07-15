@@ -630,15 +630,15 @@ class Host {
         }
         var f = ['5\n' + Host.SavegameComment() + '\n'];
         for (i in 0...16)
-            f[f.length] = client.spawn_parms[i].toFixed(6) + '\n';
-        f[f.length] = Host.current_skill + '\n' + PR.GetString(PR.globals.mapname) + '\n' + SV.server.time.toFixed(6) + '\n';
+            f.push(client.spawn_parms[i].toFixed(6) + '\n');
+        f.push(Host.current_skill + '\n' + PR.GetString(PR.globals.mapname) + '\n' + SV.server.time.toFixed(6) + '\n');
         for (ls in SV.server.lightstyles) {
             if (ls.length != 0)
                 f.push(ls + '\n');
             else
                 f.push('m\n');
         }
-        f[f.length] = '{\n';
+        f.push('{\n');
         for (def in PR.globaldefs) {
             var type = def.type;
             if ((type & 0x8000) == 0)
@@ -646,16 +646,16 @@ class Host {
             var type:EType = type & 0x7fff;
             if ((type != ev_string) && (type != ev_float) && (type != ev_entity))
                 continue;
-            f[f.length] = '"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR._globals, def.ofs) + '"\n';
+            f.push('"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR._globals, def.ofs) + '"\n');
         }
-        f[f.length] = '}\n';
+        f.push('}\n');
         for (i in 0...SV.server.num_edicts) {
             var ed = SV.server.edicts[i];
             if (ed.free) {
-                f[f.length] = '{\n}\n';
+                f.push('{\n}\n');
                 continue;
             }
-            f[f.length] = '{\n';
+            f.push('{\n');
             for (def in PR.fielddefs) {
                 var name = PR.GetString(def.name);
                 if (name.charCodeAt(name.length - 2) == 95)
@@ -670,9 +670,9 @@ class Host {
                     else
                         continue;
                 }
-                f[f.length] = '"' + name + '" "' + PR.UglyValueString(type, ed._v, def.ofs) + '"\n';
+                f.push('"' + name + '" "' + PR.UglyValueString(type, ed._v, def.ofs) + '"\n');
             }
-            f[f.length] = '}\n';
+            f.push('}\n');
         }
         var name = COM.DefaultExtension(Cmd.argv[1], '.sav');
         Console.Print('Saving game to ' + name + '...\n');
@@ -745,7 +745,7 @@ class Host {
                 Host.Error('Host.Loadgame_f: parse error');
         }
 
-        f[f.length] = '';
+        f.push('');
         var entnum = 0;
         var data = f.slice(i).join('\n');
         while(true) {

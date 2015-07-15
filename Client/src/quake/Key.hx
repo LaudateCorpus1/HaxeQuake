@@ -112,7 +112,7 @@ class Key {
 		if (key == KeyCode.enter) {
 			Cmd.text += Key.edit_line + '\n';
 			Console.Print(']' + Key.edit_line + '\n');
-			Key.lines[Key.lines.length] = Key.edit_line;
+			Key.lines.push(Key.edit_line);
 			Key.edit_line = '';
 			Key.history_line = Key.lines.length;
 			return;
@@ -279,13 +279,13 @@ class Key {
 	}
 
 	static function WriteBindings():String {
-		var f = [];
+		var f = new StringBuf();
 		for (i in 0...bindings.length) {
 			var b = bindings[i];
 			if (b != null)
-				f[f.length] = 'bind "' + KeynumToString(i) + '" "' + b + '"\n';
+				f.add('bind "' + KeynumToString(i) + '" "' + b + '"\n');
 		}
-		return f.join('');
+		return f.toString();
 	}
 
 	static function Init():Void {

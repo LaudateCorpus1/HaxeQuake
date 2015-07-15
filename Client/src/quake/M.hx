@@ -719,11 +719,11 @@ class M {
 		entersound = true;
 	}
 
-	static function FindKeysForCommand(command) {
+	static function FindKeysForCommand(command:String):Array<Int> {
 		var twokeys = [];
 		for (i in 0...Key.bindings.length) {
 			if (Key.bindings[i] == command) {
-				twokeys[twokeys.length] = i;
+				twokeys.push(i);
 				if (twokeys.length == 2)
 					return twokeys;
 			}

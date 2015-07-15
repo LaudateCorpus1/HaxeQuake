@@ -3982,9 +3982,9 @@ quake_Host.Savegame_f = function() {
 	var _g = 0;
 	while(_g < 16) {
 		var i = _g++;
-		f[f.length] = client.spawn_parms[i].toFixed(6) + "\n";
+		f.push(client.spawn_parms[i].toFixed(6) + "\n");
 	}
-	f[f.length] = quake_Host.current_skill + "\n" + quake_PR.GetString(quake_PR._globals_int[34]) + "\n" + quake_SV.server.time.toFixed(6) + "\n";
+	f.push(quake_Host.current_skill + "\n" + quake_PR.GetString(quake_PR._globals_int[34]) + "\n" + quake_SV.server.time.toFixed(6) + "\n");
 	var _g1 = 0;
 	var _g11 = quake_SV.server.lightstyles;
 	while(_g1 < _g11.length) {
@@ -3992,7 +3992,7 @@ quake_Host.Savegame_f = function() {
 		++_g1;
 		if(ls.length != 0) f.push(ls + "\n"); else f.push("m\n");
 	}
-	f[f.length] = "{\n";
+	f.push("{\n");
 	var _g2 = 0;
 	var _g12 = quake_PR.globaldefs;
 	while(_g2 < _g12.length) {
@@ -4002,19 +4002,19 @@ quake_Host.Savegame_f = function() {
 		if((type & 32768) == 0) continue;
 		var type1 = type & 32767;
 		if(type1 != 1 && type1 != 2 && type1 != 4) continue;
-		f[f.length] = "\"" + quake_PR.GetString(def.name) + "\" \"" + quake_PR.UglyValueString(type1,quake_PR._globals,def.ofs) + "\"\n";
+		f.push("\"" + quake_PR.GetString(def.name) + "\" \"" + quake_PR.UglyValueString(type1,quake_PR._globals,def.ofs) + "\"\n");
 	}
-	f[f.length] = "}\n";
+	f.push("}\n");
 	var _g13 = 0;
 	var _g3 = quake_SV.server.num_edicts;
 	while(_g13 < _g3) {
 		var i1 = _g13++;
 		var ed = quake_SV.server.edicts[i1];
 		if(ed.free) {
-			f[f.length] = "{\n}\n";
+			f.push("{\n}\n");
 			continue;
 		}
-		f[f.length] = "{\n";
+		f.push("{\n");
 		var _g21 = 0;
 		var _g31 = quake_PR.fielddefs;
 		while(_g21 < _g31.length) {
@@ -4029,9 +4029,9 @@ quake_Host.Savegame_f = function() {
 					if(ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0) continue;
 				} else continue;
 			}
-			f[f.length] = "\"" + name1 + "\" \"" + quake_PR.UglyValueString(type2,ed._v,def1.ofs) + "\"\n";
+			f.push("\"" + name1 + "\" \"" + quake_PR.UglyValueString(type2,ed._v,def1.ofs) + "\"\n");
 		}
-		f[f.length] = "}\n";
+		f.push("}\n");
 	}
 	var name = quake_COM.DefaultExtension(quake_Cmd.argv[1],".sav");
 	quake_Console.Print("Saving game to " + name + "...\n");
@@ -4099,7 +4099,7 @@ quake_Host.Loadgame_f = function() {
 		}
 		if(!quake_ED.ParseEpair(quake_PR._globals,key,token[3])) quake_Host.Error("Host.Loadgame_f: parse error");
 	}
-	f1[f1.length] = "";
+	f1.push("");
 	var entnum = 0;
 	var data = f1.slice(i).join("\n");
 	while(true) {
@@ -4780,7 +4780,7 @@ quake_Key.ProcessConsole = function(key) {
 	if(key == 13) {
 		quake_Cmd.text += quake_Key.edit_line + "\n";
 		quake_Console.Print("]" + quake_Key.edit_line + "\n");
-		quake_Key.lines[quake_Key.lines.length] = quake_Key.edit_line;
+		quake_Key.lines.push(quake_Key.edit_line);
 		quake_Key.edit_line = "";
 		quake_Key.history_line = quake_Key.lines.length;
 		return;
@@ -4915,15 +4915,18 @@ quake_Key.Bind_f = function() {
 	quake_Key.bindings[b] = cmd;
 };
 quake_Key.WriteBindings = function() {
-	var f = [];
+	var f_b = "";
 	var _g1 = 0;
 	var _g = quake_Key.bindings.length;
 	while(_g1 < _g) {
 		var i = _g1++;
 		var b = quake_Key.bindings[i];
-		if(b != null) f[f.length] = "bind \"" + quake_Key.KeynumToString(i) + "\" \"" + b + "\"\n";
+		if(b != null) {
+			var x = "bind \"" + quake_Key.KeynumToString(i) + "\" \"" + b + "\"\n";
+			f_b += x == null?"null":"" + x;
+		}
 	}
-	return f.join("");
+	return f_b;
 };
 quake_Key.Init = function() {
 	var _g = 32;
@@ -5569,7 +5572,7 @@ quake_M.FindKeysForCommand = function(command) {
 	while(_g1 < _g) {
 		var i = _g1++;
 		if(quake_Key.bindings[i] == command) {
-			twokeys[twokeys.length] = i;
+			twokeys.push(i);
 			if(twokeys.length == 2) return twokeys;
 		}
 	}

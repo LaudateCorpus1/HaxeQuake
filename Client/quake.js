@@ -5957,8 +5957,8 @@ quake_Mod.LoadModel = function(mod,crash) {
 };
 quake_Mod.LoadTextures = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((2 << 3) + 4,true);
-	view.getUint32((2 << 3) + 8,true);
+	var fileofs = view.getUint32(20,true);
+	view.getUint32(20 + 4,true);
 	quake_Mod.loadmodel.textures = [];
 	var nummiptex = view.getUint32(fileofs,true);
 	var dataofs = fileofs + 4;
@@ -6038,30 +6038,30 @@ quake_Mod.LoadTextures = function(buf) {
 };
 quake_Mod.LoadLighting = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((8 << 3) + 4,true);
-	var filelen = view.getUint32((8 << 3) + 8,true);
+	var fileofs = view.getUint32(68,true);
+	var filelen = view.getUint32(68 + 4,true);
 	if(filelen == 0) return;
 	quake_Mod.loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
 	quake_Mod.loadmodel.lightdata.set(new Uint8Array(buf,fileofs,filelen));
 };
 quake_Mod.LoadVisibility = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((4 << 3) + 4,true);
-	var filelen = view.getUint32((4 << 3) + 8,true);
+	var fileofs = view.getUint32(36,true);
+	var filelen = view.getUint32(36 + 4,true);
 	if(filelen == 0) return;
 	quake_Mod.loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
 	quake_Mod.loadmodel.visdata.set(new Uint8Array(buf,fileofs,filelen));
 };
 quake_Mod.LoadEntities = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((0 << 3) + 4,true);
-	var filelen = view.getUint32((0 << 3) + 8,true);
+	var fileofs = view.getUint32(4,true);
+	var filelen = view.getUint32(4 + 4,true);
 	quake_Mod.loadmodel.entities = quake_Q.memstr(new Uint8Array(buf,fileofs,filelen));
 };
 quake_Mod.LoadVertexes = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((3 << 3) + 4,true);
-	var filelen = view.getUint32((3 << 3) + 8,true);
+	var fileofs = view.getUint32(28,true);
+	var filelen = view.getUint32(28 + 4,true);
 	if(filelen % 12 != 0) quake_Sys.Error("Mod.LoadVisibility: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 12 | 0;
 	quake_Mod.loadmodel.vertexes = [];
@@ -6083,8 +6083,8 @@ quake_Mod.LoadVertexes = function(buf) {
 };
 quake_Mod.LoadSubmodels = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((14 << 3) + 4,true);
-	var filelen = view.getUint32((14 << 3) + 8,true);
+	var fileofs = view.getUint32(116,true);
+	var filelen = view.getUint32(116 + 4,true);
 	var count = filelen >> 6;
 	if(count == 0) quake_Sys.Error("Mod.LoadSubmodels: funny lump size in " + quake_Mod.loadmodel.name);
 	quake_Mod.loadmodel.submodels = [];
@@ -6213,8 +6213,8 @@ quake_Mod.LoadSubmodels = function(buf) {
 };
 quake_Mod.LoadEdges = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((12 << 3) + 4,true);
-	var filelen = view.getUint32((12 << 3) + 8,true);
+	var fileofs = view.getUint32(100,true);
+	var filelen = view.getUint32(100 + 4,true);
 	if((filelen & 3) != 0) quake_Sys.Error("Mod.LoadEdges: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen >> 2;
 	quake_Mod.loadmodel.edges = [];
@@ -6227,8 +6227,8 @@ quake_Mod.LoadEdges = function(buf) {
 };
 quake_Mod.LoadTexinfo = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((6 << 3) + 4,true);
-	var filelen = view.getUint32((6 << 3) + 8,true);
+	var fileofs = view.getUint32(52,true);
+	var filelen = view.getUint32(52 + 4,true);
 	if(filelen % 40 != 0) quake_Sys.Error("Mod.LoadTexinfo: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 40 | 0;
 	quake_Mod.loadmodel.texinfo = [];
@@ -6246,8 +6246,8 @@ quake_Mod.LoadTexinfo = function(buf) {
 };
 quake_Mod.LoadFaces = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((7 << 3) + 4,true);
-	var filelen = view.getUint32((7 << 3) + 8,true);
+	var fileofs = view.getUint32(60,true);
+	var filelen = view.getUint32(60 + 4,true);
 	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadFaces: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 20 | 0;
 	quake_Mod.loadmodel.firstface = 0;
@@ -6323,8 +6323,8 @@ quake_Mod.SetParent = function(node,parent) {
 };
 quake_Mod.LoadNodes = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((5 << 3) + 4,true);
-	var filelen = view.getUint32((5 << 3) + 8,true);
+	var fileofs = view.getUint32(44,true);
+	var filelen = view.getUint32(44 + 4,true);
 	if(filelen == 0 || filelen % 24 != 0) quake_Sys.Error("Mod.LoadNodes: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 24 | 0;
 	quake_Mod.loadmodel.nodes = [];
@@ -6381,8 +6381,8 @@ quake_Mod.LoadNodes = function(buf) {
 };
 quake_Mod.LoadLeafs = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((10 << 3) + 4,true);
-	var filelen = view.getUint32((10 << 3) + 8,true);
+	var fileofs = view.getUint32(84,true);
+	var filelen = view.getUint32(84 + 4,true);
 	if(filelen % 28 != 0) quake_Sys.Error("Mod.LoadLeafs: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 28 | 0;
 	quake_Mod.loadmodel.leafs = [];
@@ -6425,8 +6425,8 @@ quake_Mod.LoadLeafs = function(buf) {
 };
 quake_Mod.LoadClipnodes = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((9 << 3) + 4,true);
-	var filelen = view.getUint32((9 << 3) + 8,true);
+	var fileofs = view.getUint32(76,true);
+	var filelen = view.getUint32(76 + 4,true);
 	var count = filelen >> 3;
 	quake_Mod.loadmodel.clipnodes = [];
 	quake_Mod.loadmodel.hulls = [];
@@ -6515,8 +6515,8 @@ quake_Mod.MakeHull0 = function() {
 };
 quake_Mod.LoadMarksurfaces = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((11 << 3) + 4,true);
-	var filelen = view.getUint32((11 << 3) + 8,true);
+	var fileofs = view.getUint32(92,true);
+	var filelen = view.getUint32(92 + 4,true);
 	var count = filelen >> 1;
 	quake_Mod.loadmodel.marksurfaces = [];
 	var _g = 0;
@@ -6529,8 +6529,8 @@ quake_Mod.LoadMarksurfaces = function(buf) {
 };
 quake_Mod.LoadSurfedges = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((13 << 3) + 4,true);
-	var filelen = view.getUint32((13 << 3) + 8,true);
+	var fileofs = view.getUint32(108,true);
+	var filelen = view.getUint32(108 + 4,true);
 	var count = filelen >> 2;
 	quake_Mod.loadmodel.surfedges = [];
 	var _g = 0;
@@ -6541,8 +6541,8 @@ quake_Mod.LoadSurfedges = function(buf) {
 };
 quake_Mod.LoadPlanes = function(buf) {
 	var view = new DataView(buf);
-	var fileofs = view.getUint32((1 << 3) + 4,true);
-	var filelen = view.getUint32((1 << 3) + 8,true);
+	var fileofs = view.getUint32(12,true);
+	var filelen = view.getUint32(12 + 4,true);
 	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadPlanes: funny lump size in " + quake_Mod.loadmodel.name);
 	var count = filelen / 20 | 0;
 	quake_Mod.loadmodel.planes = [];

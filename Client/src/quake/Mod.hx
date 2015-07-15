@@ -440,13 +440,14 @@ class Mod {
         }
         loadmodel = mod;
         mod.needload = false;
-        switch (new DataView(buf).getUint32(0, true)) {
+        var view = new DataView(buf);
+        switch (view.getUint32(0, true)) {
             case IDPOLYHEADER:
-                LoadAliasModel(buf);
+                LoadAliasModel(view);
             case IDSPRITEHEADER:
-                LoadSpriteModel(buf);
+                LoadSpriteModel(view);
             default:
-                LoadBrushModel(buf);
+                LoadBrushModel(view);
         }
         return mod;
     }
@@ -463,8 +464,7 @@ class Mod {
     =====================================================
     */
 
-    static function LoadTextures(buf:ArrayBuffer):Void {
-        var view = new DataView(buf);
+    static function LoadTextures(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.textures, true);
         var filelen = view.getUint32(ModelLumpOffsets.textures + 4, true);
         loadmodel.textures = [];
@@ -480,19 +480,19 @@ class Mod {
             miptexofs += fileofs;
             var tx = new MTexture();
             {
-                tx.name = Q.memstr(new Uint8Array(buf, miptexofs, 16));
+                tx.name = Q.memstr(new Uint8Array(view.buffer, miptexofs, 16));
                 tx.width = view.getUint32(miptexofs + 16, true);
                 tx.height = view.getUint32(miptexofs + 20, true);
             }
             if (tx.name.substring(0, 3).toLowerCase() == 'sky') {
-                R.InitSky(new Uint8Array(buf, miptexofs + view.getUint32(miptexofs + 24, true), 32768));
+                R.InitSky(new Uint8Array(view.buffer, miptexofs + view.getUint32(miptexofs + 24, true), 32768));
                 tx.texturenum = R.solidskytexture;
                 R.skytexturenum = i;
                 tx.sky = true;
             }
             else
             {
-                var glt = GL.LoadTexture(tx.name, tx.width, tx.height, new Uint8Array(buf, miptexofs + view.getUint32(miptexofs + 24, true), tx.width * tx.height));
+                var glt = GL.LoadTexture(tx.name, tx.width, tx.height, new Uint8Array(view.buffer, miptexofs + view.getUint32(miptexofs + 24, true), tx.width * tx.height));
                 tx.texturenum = glt.texnum;
                 if (tx.name.charCodeAt(0) == 42)
                     tx.turbulent = true;
@@ -548,35 +548,31 @@ class Mod {
         loadmodel.textures[loadmodel.textures.length] = R.notexture_mip;
     }
 
-    static function LoadLighting(buf:ArrayBuffer) {
-        var view = new DataView(buf);
+    static function LoadLighting(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.lighting, true);
         var filelen = view.getUint32(ModelLumpOffsets.lighting + 4, true);
         if (filelen == 0)
             return;
         loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
-        loadmodel.lightdata.set(new Uint8Array(buf, fileofs, filelen));
+        loadmodel.lightdata.set(new Uint8Array(view.buffer, fileofs, filelen));
     }
 
-    static function LoadVisibility(buf) {
-        var view = new DataView(buf);
+    static function LoadVisibility(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.visibility, true);
         var filelen = view.getUint32(ModelLumpOffsets.visibility + 4, true);
         if (filelen == 0)
             return;
         loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
-        loadmodel.visdata.set(new Uint8Array(buf, fileofs, filelen));
+        loadmodel.visdata.set(new Uint8Array(view.buffer, fileofs, filelen));
     }
 
-    static function LoadEntities(buf) {
-        var view = new DataView(buf);
+    static function LoadEntities(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.entities, true);
         var filelen = view.getUint32(ModelLumpOffsets.entities + 4, true);
-        loadmodel.entities = Q.memstr(new Uint8Array(buf, fileofs, filelen));
+        loadmodel.entities = Q.memstr(new Uint8Array(view.buffer, fileofs, filelen));
     }
 
-    static function LoadVertexes(buf) {
-        var view = new DataView(buf);
+    static function LoadVertexes(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.vertexes, true);
         var filelen = view.getUint32(ModelLumpOffsets.vertexes + 4, true);
         if ((filelen % 12) != 0)
@@ -589,8 +585,7 @@ class Mod {
         }
     }
 
-    static function LoadSubmodels(buf) {
-        var view = new DataView(buf);
+    static function LoadSubmodels(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.models, true);
         var filelen = view.getUint32(ModelLumpOffsets.models + 4, true);
         var count = filelen >> 6;
@@ -664,8 +659,7 @@ class Mod {
         }
     }
 
-    static function LoadEdges(buf) {
-        var view = new DataView(buf);
+    static function LoadEdges(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.edges, true);
         var filelen = view.getUint32(ModelLumpOffsets.edges + 4, true);
         if ((filelen & 3) != 0)
@@ -678,8 +672,7 @@ class Mod {
         }
     }
 
-    static function LoadTexinfo(buf) {
-        var view = new DataView(buf);
+    static function LoadTexinfo(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.texinfo, true);
         var filelen = view.getUint32(ModelLumpOffsets.texinfo + 4, true);
         if ((filelen % 40) != 0)
@@ -704,8 +697,7 @@ class Mod {
         }
     }
 
-    static function LoadFaces(buf:ArrayBuffer) {
-        var view = new DataView(buf);
+    static function LoadFaces(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.faces, true);
         var filelen = view.getUint32(ModelLumpOffsets.faces + 4, true);
         if ((filelen % 20) != 0)
@@ -715,7 +707,7 @@ class Mod {
         loadmodel.numfaces = count;
         loadmodel.faces = [];
         for (i in 0...count) {
-            var styles = new Uint8Array(buf, fileofs + 12, 4);
+            var styles = new Uint8Array(view.buffer, fileofs + 12, 4);
             var out = new MSurface();
             {
                 out.plane = loadmodel.planes[view.getUint16(fileofs, true)];
@@ -778,8 +770,7 @@ class Mod {
         Mod.SetParent(node.children[1], node);
     }
 
-    static function LoadNodes(buf) {
-        var view = new DataView(buf);
+    static function LoadNodes(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.nodes, true);
         var filelen = view.getUint32(ModelLumpOffsets.nodes + 4, true);
         if ((filelen == 0) || ((filelen % 24) != 0))
@@ -817,8 +808,7 @@ class Mod {
         Mod.SetParent(loadmodel.nodes[0], null);
     }
 
-    static function LoadLeafs(buf) {
-        var view = new DataView(buf);
+    static function LoadLeafs(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.leafs, true);
         var filelen = view.getUint32(ModelLumpOffsets.leafs + 4, true);
         if ((filelen % 28) != 0)
@@ -845,8 +835,7 @@ class Mod {
         };
     }
 
-    static function LoadClipnodes(buf) {
-        var view = new DataView(buf);
+    static function LoadClipnodes(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.clipnodes, true);
         var filelen = view.getUint32(ModelLumpOffsets.clipnodes + 4, true);
         var count = filelen >> 3;
@@ -909,8 +898,7 @@ class Mod {
         loadmodel.hulls[0] = hull;
     }
 
-    static function LoadMarksurfaces(buf) {
-        var view = new DataView(buf);
+    static function LoadMarksurfaces(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.marksurfaces, true);
         var filelen = view.getUint32(ModelLumpOffsets.marksurfaces + 4, true);
         var count = filelen >> 1;
@@ -923,8 +911,7 @@ class Mod {
         }
     }
 
-    static function LoadSurfedges(buf) {
-        var view = new DataView(buf);
+    static function LoadSurfedges(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.surfedges, true);
         var filelen = view.getUint32(ModelLumpOffsets.surfedges + 4, true);
         var count = filelen >> 2;
@@ -933,8 +920,7 @@ class Mod {
             loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2), true);
     }
 
-    static function LoadPlanes(buf) {
-        var view = new DataView(buf);
+    static function LoadPlanes(view:DataView):Void {
         var fileofs = view.getUint32(ModelLumpOffsets.planes, true);
         var filelen = view.getUint32(ModelLumpOffsets.planes + 4, true);
         if ((filelen % 20) != 0)
@@ -958,29 +944,29 @@ class Mod {
         }
     }
 
-    static function LoadBrushModel(buffer:ArrayBuffer):Void {
-        loadmodel.type = brush;
-
-        var version = new DataView(buffer).getUint32(0, true);
+    static function LoadBrushModel(data:DataView):Void {
+        var version = data.getUint32(0, true);
         if (version != ModelVersion.brush)
             Sys.Error('Mod.LoadBrushModel: ' + loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.brush + ')');
 
-        LoadVertexes(buffer);
-        LoadEdges(buffer);
-        LoadSurfedges(buffer);
-        LoadTextures(buffer);
-        LoadLighting(buffer);
-        LoadPlanes(buffer);
-        LoadTexinfo(buffer);
-        LoadFaces(buffer);
-        LoadMarksurfaces(buffer);
-        LoadVisibility(buffer);
-        LoadLeafs(buffer);
-        LoadNodes(buffer);
-        LoadClipnodes(buffer);
+        loadmodel.type = brush;
+
+        LoadVertexes(data);
+        LoadEdges(data);
+        LoadSurfedges(data);
+        LoadTextures(data);
+        LoadLighting(data);
+        LoadPlanes(data);
+        LoadTexinfo(data);
+        LoadFaces(data);
+        LoadMarksurfaces(data);
+        LoadVisibility(data);
+        LoadLeafs(data);
+        LoadNodes(data);
+        LoadClipnodes(data);
         MakeHull0();
-        LoadEntities(buffer);
-        LoadSubmodels(buffer);
+        LoadEntities(data);
+        LoadSubmodels(data);
 
         var mins = [0.0, 0.0, 0.0];
         var maxs = [0.0, 0.0, 0.0];
@@ -1073,14 +1059,13 @@ class Mod {
         }
     }
 
-    static function LoadAllSkins(buffer, inmodel) {
+    static function LoadAllSkins(model:DataView, inmodel:Int):Int {
         loadmodel.skins = [];
-        var model = new DataView(buffer);
         var skinsize = loadmodel.skinwidth * loadmodel.skinheight;
         for (i in 0...loadmodel.numskins) {
             inmodel += 4;
             if (model.getUint32(inmodel - 4, true) == 0) {
-                var skin = new Uint8Array(buffer, inmodel, skinsize);
+                var skin = new Uint8Array(model.buffer, inmodel, skinsize);
                 Mod.FloodFillSkin(skin);
                 var g = new MSkin(false);
                 g.texturenum = GL.LoadTexture(loadmodel.name + '_' + i,
@@ -1089,7 +1074,7 @@ class Mod {
                         skin);
                 loadmodel.skins[i] = g;
                 if (loadmodel.player)
-                    TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), loadmodel.skins[i]);
+                    TranslatePlayerSkin(new Uint8Array(model.buffer, inmodel, skinsize), loadmodel.skins[i]);
                 inmodel += skinsize;
             }
             else
@@ -1106,14 +1091,14 @@ class Mod {
                     inmodel += 4;
                 }
                 for (j in 0...numskins) {
-                    var skin = new Uint8Array(buffer, inmodel, skinsize);
+                    var skin = new Uint8Array(model.buffer, inmodel, skinsize);
                     Mod.FloodFillSkin(skin);
                     group.skins[j].texturenum = GL.LoadTexture(loadmodel.name + '_' + i + '_' + j,
                         loadmodel.skinwidth,
                         loadmodel.skinheight,
                         skin);
                     if (loadmodel.player)
-                        Mod.TranslatePlayerSkin(new Uint8Array(buffer, inmodel, skinsize), group.skins[j]);
+                        Mod.TranslatePlayerSkin(new Uint8Array(model.buffer, inmodel, skinsize), group.skins[j]);
                     inmodel += skinsize;
                 }
                 loadmodel.skins[i] = group;
@@ -1122,9 +1107,8 @@ class Mod {
         return inmodel;
     }
 
-    static function LoadAllFrames(buffer, inmodel) {
+    static function LoadAllFrames(model:DataView, inmodel:Int):Void {
         loadmodel.frames = [];
-        var model = new DataView(buffer);
         for (i in 0...loadmodel.numframes) {
             inmodel += 4;
             if (model.getUint32(inmodel - 4, true) == 0) {
@@ -1132,7 +1116,7 @@ class Mod {
                 frame.group = false;
                 frame.bboxmin = [model.getUint8(inmodel), model.getUint8(inmodel + 1), model.getUint8(inmodel + 2)];
                 frame.bboxmax = [model.getUint8(inmodel + 4), model.getUint8(inmodel + 5), model.getUint8(inmodel + 6)];
-                frame.name = Q.memstr(new Uint8Array(buffer, inmodel + 8, 16));
+                frame.name = Q.memstr(new Uint8Array(model.buffer, inmodel + 8, 16));
                 frame.v = [];
                 inmodel += 24;
                 for (j in 0...loadmodel.numverts) {
@@ -1164,7 +1148,7 @@ class Mod {
                     var frame = group.frames[j];
                     frame.bboxmin = [model.getUint8(inmodel), model.getUint8(inmodel + 1), model.getUint8(inmodel + 2)];
                     frame.bboxmax = [model.getUint8(inmodel + 4), model.getUint8(inmodel + 5), model.getUint8(inmodel + 6)];
-                    frame.name = Q.memstr(new Uint8Array(buffer, inmodel + 8, 16));
+                    frame.name = Q.memstr(new Uint8Array(model.buffer, inmodel + 8, 16));
                     frame.v = [];
                     inmodel += 24;
                     for (k in 0...loadmodel.numverts) {
@@ -1180,13 +1164,13 @@ class Mod {
         }
     }
 
-    static function LoadAliasModel(buffer:ArrayBuffer) {
-        loadmodel.type = alias;
-        loadmodel.player = loadmodel.name == 'progs/player.mdl';
-        var model = new DataView(buffer);
+    static function LoadAliasModel(model:DataView):Void {
         var version = model.getUint32(4, true);
         if (version != ModelVersion.alias)
             Sys.Error(loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.alias + ')');
+
+        loadmodel.type = alias;
+        loadmodel.player = loadmodel.name == 'progs/player.mdl';
         loadmodel.scale = Vec.of(model.getFloat32(8, true), model.getFloat32(12, true), model.getFloat32(16, true));
         loadmodel.scale_origin = Vec.of(model.getFloat32(20, true), model.getFloat32(24, true), model.getFloat32(28, true));
         loadmodel.boundingradius = model.getFloat32(32, true);
@@ -1209,7 +1193,7 @@ class Mod {
         loadmodel.mins = Vec.of(-16.0, -16.0, -16.0);
         loadmodel.maxs = Vec.of(16.0, 16.0, 16.0);
 
-        var inmodel = Mod.LoadAllSkins(buffer, 84);
+        var inmodel = Mod.LoadAllSkins(model, 84);
 
         loadmodel.stverts = [];
         for (i in 0...loadmodel.numverts) {
@@ -1234,7 +1218,7 @@ class Mod {
             inmodel += 16;
         }
 
-        Mod.LoadAllFrames(buffer, inmodel);
+        Mod.LoadAllFrames(model, inmodel);
 
         var cmds = [];
 
@@ -1309,8 +1293,7 @@ class Mod {
         gl.bufferData(RenderingContext.ARRAY_BUFFER, new Float32Array(cmds), RenderingContext.STATIC_DRAW);
     }
 
-    static function LoadSpriteFrame(identifier, buffer, inframe, frame) {
-        var model = new DataView(buffer);
+    static function LoadSpriteFrame(identifier:String, model:DataView, inframe:Int, frame:MFrame):Int {
         frame.origin = [model.getInt32(inframe, true), -model.getInt32(inframe + 4, true)];
         frame.width = model.getUint32(inframe + 8, true);
         frame.height = model.getUint32(inframe + 12, true);
@@ -1325,7 +1308,7 @@ class Mod {
             }
         }
 
-        var data = new Uint8Array(buffer, inframe + 16, size);
+        var data = new Uint8Array(model.buffer, inframe + 16, size);
         var scaled_width = frame.width, scaled_height = frame.height;
         if (((frame.width & (frame.width - 1)) != 0) || ((frame.height & (frame.height - 1)) != 0)) {
             --scaled_width;
@@ -1370,12 +1353,12 @@ class Mod {
         return inframe + 16 + frame.width * frame.height;
     }
 
-    static function LoadSpriteModel(buffer:ArrayBuffer) {
-        loadmodel.type = sprite;
-        var model = new DataView(buffer);
+    static function LoadSpriteModel(model:DataView):Void {
         var version = model.getUint32(4, true);
         if (version != ModelVersion.sprite)
             Sys.Error(loadmodel.name + ' has wrong version number (' + version + ' should be ' + ModelVersion.sprite + ')');
+
+        loadmodel.type = sprite;
         loadmodel.oriented = model.getUint32(8, true) == 3;
         loadmodel.boundingradius = model.getFloat32(12, true);
         loadmodel.width = model.getUint32(16, true);
@@ -1394,7 +1377,7 @@ class Mod {
             if (model.getUint32(inframe - 4, true) == 0) {
                 frame = new MFrame(false);
                 loadmodel.frames[i] = frame;
-                inframe = Mod.LoadSpriteFrame(loadmodel.name + '_' + i, buffer, inframe, frame);
+                inframe = Mod.LoadSpriteFrame(loadmodel.name + '_' + i, model, inframe, frame);
             }
             else
             {
@@ -1412,7 +1395,7 @@ class Mod {
                     inframe += 4;
                 }
                 for (j in 0...numframes)
-                    inframe = Mod.LoadSpriteFrame(loadmodel.name + '_' + i + '_' + j, buffer, inframe, group.frames[j]);
+                    inframe = Mod.LoadSpriteFrame(loadmodel.name + '_' + i + '_' + j, model, inframe, group.frames[j]);
             }
         }
     }

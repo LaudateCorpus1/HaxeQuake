@@ -5934,21 +5934,21 @@ quake_Mod.LoadModel = function(mod,crash) {
 	}
 	quake_Mod.loadmodel = mod;
 	mod.needload = false;
-	var _g = new DataView(buf).getUint32(0,true);
+	var view = new DataView(buf);
+	var _g = view.getUint32(0,true);
 	switch(_g) {
 	case 1330660425:
-		quake_Mod.LoadAliasModel(buf);
+		quake_Mod.LoadAliasModel(view);
 		break;
 	case 1347634249:
-		quake_Mod.LoadSpriteModel(buf);
+		quake_Mod.LoadSpriteModel(view);
 		break;
 	default:
-		quake_Mod.LoadBrushModel(buf);
+		quake_Mod.LoadBrushModel(view);
 	}
 	return mod;
 };
-quake_Mod.LoadTextures = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadTextures = function(view) {
 	var fileofs = view.getUint32(20,true);
 	view.getUint32(24,true);
 	quake_Mod.loadmodel.textures = [];
@@ -5965,16 +5965,16 @@ quake_Mod.LoadTextures = function(buf) {
 		}
 		miptexofs += fileofs;
 		var tx = new quake_MTexture();
-		tx.name = quake_Q.memstr(new Uint8Array(buf,miptexofs,16));
+		tx.name = quake_Q.memstr(new Uint8Array(view.buffer,miptexofs,16));
 		tx.width = view.getUint32(miptexofs + 16,true);
 		tx.height = view.getUint32(miptexofs + 20,true);
 		if(tx.name.substring(0,3).toLowerCase() == "sky") {
-			quake_R.InitSky(new Uint8Array(buf,miptexofs + view.getUint32(miptexofs + 24,true),32768));
+			quake_R.InitSky(new Uint8Array(view.buffer,miptexofs + view.getUint32(miptexofs + 24,true),32768));
 			tx.texturenum = quake_R.solidskytexture;
 			quake_R.skytexturenum = i;
 			tx.sky = true;
 		} else {
-			var glt = quake_GL.LoadTexture(tx.name,tx.width,tx.height,new Uint8Array(buf,miptexofs + view.getUint32(miptexofs + 24,true),tx.width * tx.height));
+			var glt = quake_GL.LoadTexture(tx.name,tx.width,tx.height,new Uint8Array(view.buffer,miptexofs + view.getUint32(miptexofs + 24,true),tx.width * tx.height));
 			tx.texturenum = glt.texnum;
 			if(HxOverrides.cca(tx.name,0) == 42) tx.turbulent = true;
 		}
@@ -6028,30 +6028,26 @@ quake_Mod.LoadTextures = function(buf) {
 	}
 	quake_Mod.loadmodel.textures[quake_Mod.loadmodel.textures.length] = quake_R.notexture_mip;
 };
-quake_Mod.LoadLighting = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadLighting = function(view) {
 	var fileofs = view.getUint32(68,true);
 	var filelen = view.getUint32(72,true);
 	if(filelen == 0) return;
 	quake_Mod.loadmodel.lightdata = new Uint8Array(new ArrayBuffer(filelen));
-	quake_Mod.loadmodel.lightdata.set(new Uint8Array(buf,fileofs,filelen));
+	quake_Mod.loadmodel.lightdata.set(new Uint8Array(view.buffer,fileofs,filelen));
 };
-quake_Mod.LoadVisibility = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadVisibility = function(view) {
 	var fileofs = view.getUint32(36,true);
 	var filelen = view.getUint32(40,true);
 	if(filelen == 0) return;
 	quake_Mod.loadmodel.visdata = new Uint8Array(new ArrayBuffer(filelen));
-	quake_Mod.loadmodel.visdata.set(new Uint8Array(buf,fileofs,filelen));
+	quake_Mod.loadmodel.visdata.set(new Uint8Array(view.buffer,fileofs,filelen));
 };
-quake_Mod.LoadEntities = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadEntities = function(view) {
 	var fileofs = view.getUint32(4,true);
 	var filelen = view.getUint32(8,true);
-	quake_Mod.loadmodel.entities = quake_Q.memstr(new Uint8Array(buf,fileofs,filelen));
+	quake_Mod.loadmodel.entities = quake_Q.memstr(new Uint8Array(view.buffer,fileofs,filelen));
 };
-quake_Mod.LoadVertexes = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadVertexes = function(view) {
 	var fileofs = view.getUint32(28,true);
 	var filelen = view.getUint32(32,true);
 	if(filelen % 12 != 0) quake_Sys.Error("Mod.LoadVisibility: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6073,8 +6069,7 @@ quake_Mod.LoadVertexes = function(buf) {
 		fileofs += 12;
 	}
 };
-quake_Mod.LoadSubmodels = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadSubmodels = function(view) {
 	var fileofs = view.getUint32(116,true);
 	var filelen = view.getUint32(120,true);
 	var count = filelen >> 6;
@@ -6203,8 +6198,7 @@ quake_Mod.LoadSubmodels = function(buf) {
 		fileofs += 64;
 	}
 };
-quake_Mod.LoadEdges = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadEdges = function(view) {
 	var fileofs = view.getUint32(100,true);
 	var filelen = view.getUint32(104,true);
 	if((filelen & 3) != 0) quake_Sys.Error("Mod.LoadEdges: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6217,8 +6211,7 @@ quake_Mod.LoadEdges = function(buf) {
 		fileofs += 4;
 	}
 };
-quake_Mod.LoadTexinfo = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadTexinfo = function(view) {
 	var fileofs = view.getUint32(52,true);
 	var filelen = view.getUint32(56,true);
 	if(filelen % 40 != 0) quake_Sys.Error("Mod.LoadTexinfo: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6236,8 +6229,7 @@ quake_Mod.LoadTexinfo = function(buf) {
 		fileofs += 40;
 	}
 };
-quake_Mod.LoadFaces = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadFaces = function(view) {
 	var fileofs = view.getUint32(60,true);
 	var filelen = view.getUint32(64,true);
 	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadFaces: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6248,7 +6240,7 @@ quake_Mod.LoadFaces = function(buf) {
 	var _g = 0;
 	while(_g < count) {
 		var i = _g++;
-		var styles = new Uint8Array(buf,fileofs + 12,4);
+		var styles = new Uint8Array(view.buffer,fileofs + 12,4);
 		var out = new quake_MSurface();
 		out.plane = quake_Mod.loadmodel.planes[view.getUint16(fileofs,true)];
 		out.firstedge = view.getUint16(fileofs + 4,true);
@@ -6313,8 +6305,7 @@ quake_Mod.SetParent = function(node,parent) {
 	quake_Mod.SetParent(node.children[0],node);
 	quake_Mod.SetParent(node.children[1],node);
 };
-quake_Mod.LoadNodes = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadNodes = function(view) {
 	var fileofs = view.getUint32(44,true);
 	var filelen = view.getUint32(48,true);
 	if(filelen == 0 || filelen % 24 != 0) quake_Sys.Error("Mod.LoadNodes: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6371,8 +6362,7 @@ quake_Mod.LoadNodes = function(buf) {
 	}
 	quake_Mod.SetParent(quake_Mod.loadmodel.nodes[0],null);
 };
-quake_Mod.LoadLeafs = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadLeafs = function(view) {
 	var fileofs = view.getUint32(84,true);
 	var filelen = view.getUint32(88,true);
 	if(filelen % 28 != 0) quake_Sys.Error("Mod.LoadLeafs: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6415,8 +6405,7 @@ quake_Mod.LoadLeafs = function(buf) {
 		fileofs += 28;
 	}
 };
-quake_Mod.LoadClipnodes = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadClipnodes = function(view) {
 	var fileofs = view.getUint32(76,true);
 	var filelen = view.getUint32(80,true);
 	var count = filelen >> 3;
@@ -6505,8 +6494,7 @@ quake_Mod.MakeHull0 = function() {
 	}
 	quake_Mod.loadmodel.hulls[0] = hull;
 };
-quake_Mod.LoadMarksurfaces = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadMarksurfaces = function(view) {
 	var fileofs = view.getUint32(92,true);
 	var filelen = view.getUint32(96,true);
 	var count = filelen >> 1;
@@ -6519,8 +6507,7 @@ quake_Mod.LoadMarksurfaces = function(buf) {
 		quake_Mod.loadmodel.marksurfaces[i] = j;
 	}
 };
-quake_Mod.LoadSurfedges = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadSurfedges = function(view) {
 	var fileofs = view.getUint32(108,true);
 	var filelen = view.getUint32(112,true);
 	var count = filelen >> 2;
@@ -6531,8 +6518,7 @@ quake_Mod.LoadSurfedges = function(buf) {
 		quake_Mod.loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2),true);
 	}
 };
-quake_Mod.LoadPlanes = function(buf) {
-	var view = new DataView(buf);
+quake_Mod.LoadPlanes = function(view) {
 	var fileofs = view.getUint32(12,true);
 	var filelen = view.getUint32(16,true);
 	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadPlanes: funny lump size in " + quake_Mod.loadmodel.name);
@@ -6562,26 +6548,26 @@ quake_Mod.LoadPlanes = function(buf) {
 		fileofs += 20;
 	}
 };
-quake_Mod.LoadBrushModel = function(buffer) {
-	quake_Mod.loadmodel.type = 0;
-	var version = new DataView(buffer).getUint32(0,true);
+quake_Mod.LoadBrushModel = function(data) {
+	var version = data.getUint32(0,true);
 	if(version != 29) quake_Sys.Error("Mod.LoadBrushModel: " + quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + 29 + ")");
-	quake_Mod.LoadVertexes(buffer);
-	quake_Mod.LoadEdges(buffer);
-	quake_Mod.LoadSurfedges(buffer);
-	quake_Mod.LoadTextures(buffer);
-	quake_Mod.LoadLighting(buffer);
-	quake_Mod.LoadPlanes(buffer);
-	quake_Mod.LoadTexinfo(buffer);
-	quake_Mod.LoadFaces(buffer);
-	quake_Mod.LoadMarksurfaces(buffer);
-	quake_Mod.LoadVisibility(buffer);
-	quake_Mod.LoadLeafs(buffer);
-	quake_Mod.LoadNodes(buffer);
-	quake_Mod.LoadClipnodes(buffer);
+	quake_Mod.loadmodel.type = 0;
+	quake_Mod.LoadVertexes(data);
+	quake_Mod.LoadEdges(data);
+	quake_Mod.LoadSurfedges(data);
+	quake_Mod.LoadTextures(data);
+	quake_Mod.LoadLighting(data);
+	quake_Mod.LoadPlanes(data);
+	quake_Mod.LoadTexinfo(data);
+	quake_Mod.LoadFaces(data);
+	quake_Mod.LoadMarksurfaces(data);
+	quake_Mod.LoadVisibility(data);
+	quake_Mod.LoadLeafs(data);
+	quake_Mod.LoadNodes(data);
+	quake_Mod.LoadClipnodes(data);
 	quake_Mod.MakeHull0();
-	quake_Mod.LoadEntities(buffer);
-	quake_Mod.LoadSubmodels(buffer);
+	quake_Mod.LoadEntities(data);
+	quake_Mod.LoadSubmodels(data);
 	var mins_0 = 0.0;
 	var mins_1 = 0.0;
 	var mins_2 = 0.0;
@@ -6659,9 +6645,8 @@ quake_Mod.FloodFillSkin = function(skin) {
 		}
 	}
 };
-quake_Mod.LoadAllSkins = function(buffer,inmodel) {
+quake_Mod.LoadAllSkins = function(model,inmodel) {
 	quake_Mod.loadmodel.skins = [];
-	var model = new DataView(buffer);
 	var skinsize = quake_Mod.loadmodel.skinwidth * quake_Mod.loadmodel.skinheight;
 	var _g1 = 0;
 	var _g = quake_Mod.loadmodel.numskins;
@@ -6669,12 +6654,12 @@ quake_Mod.LoadAllSkins = function(buffer,inmodel) {
 		var i = _g1++;
 		inmodel += 4;
 		if(model.getUint32(inmodel - 4,true) == 0) {
-			var skin = new Uint8Array(buffer,inmodel,skinsize);
+			var skin = new Uint8Array(model.buffer,inmodel,skinsize);
 			quake_Mod.FloodFillSkin(skin);
 			var g = new quake_MSkin(false);
 			g.texturenum = quake_GL.LoadTexture(quake_Mod.loadmodel.name + "_" + i,quake_Mod.loadmodel.skinwidth,quake_Mod.loadmodel.skinheight,skin);
 			quake_Mod.loadmodel.skins[i] = g;
-			if(quake_Mod.loadmodel.player) quake_Mod.TranslatePlayerSkin(new Uint8Array(buffer,inmodel,skinsize),quake_Mod.loadmodel.skins[i]);
+			if(quake_Mod.loadmodel.player) quake_Mod.TranslatePlayerSkin(new Uint8Array(model.buffer,inmodel,skinsize),quake_Mod.loadmodel.skins[i]);
 			inmodel += skinsize;
 		} else {
 			var group = new quake_MSkin(true);
@@ -6692,10 +6677,10 @@ quake_Mod.LoadAllSkins = function(buffer,inmodel) {
 			var _g21 = 0;
 			while(_g21 < numskins) {
 				var j1 = _g21++;
-				var skin1 = new Uint8Array(buffer,inmodel,skinsize);
+				var skin1 = new Uint8Array(model.buffer,inmodel,skinsize);
 				quake_Mod.FloodFillSkin(skin1);
 				group.skins[j1].texturenum = quake_GL.LoadTexture(quake_Mod.loadmodel.name + "_" + i + "_" + j1,quake_Mod.loadmodel.skinwidth,quake_Mod.loadmodel.skinheight,skin1);
-				if(quake_Mod.loadmodel.player) quake_Mod.TranslatePlayerSkin(new Uint8Array(buffer,inmodel,skinsize),group.skins[j1]);
+				if(quake_Mod.loadmodel.player) quake_Mod.TranslatePlayerSkin(new Uint8Array(model.buffer,inmodel,skinsize),group.skins[j1]);
 				inmodel += skinsize;
 			}
 			quake_Mod.loadmodel.skins[i] = group;
@@ -6703,9 +6688,8 @@ quake_Mod.LoadAllSkins = function(buffer,inmodel) {
 	}
 	return inmodel;
 };
-quake_Mod.LoadAllFrames = function(buffer,inmodel) {
+quake_Mod.LoadAllFrames = function(model,inmodel) {
 	quake_Mod.loadmodel.frames = [];
-	var model = new DataView(buffer);
 	var _g1 = 0;
 	var _g = quake_Mod.loadmodel.numframes;
 	while(_g1 < _g) {
@@ -6716,7 +6700,7 @@ quake_Mod.LoadAllFrames = function(buffer,inmodel) {
 			frame.group = false;
 			frame.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
 			frame.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
-			frame.name = quake_Q.memstr(new Uint8Array(buffer,inmodel + 8,16));
+			frame.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
 			frame.v = [];
 			inmodel += 24;
 			var _g3 = 0;
@@ -6749,7 +6733,7 @@ quake_Mod.LoadAllFrames = function(buffer,inmodel) {
 				var frame1 = group.frames[j2];
 				frame1.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
 				frame1.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
-				frame1.name = quake_Q.memstr(new Uint8Array(buffer,inmodel + 8,16));
+				frame1.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
 				frame1.v = [];
 				inmodel += 24;
 				var _g4 = 0;
@@ -6764,12 +6748,11 @@ quake_Mod.LoadAllFrames = function(buffer,inmodel) {
 		}
 	}
 };
-quake_Mod.LoadAliasModel = function(buffer) {
-	quake_Mod.loadmodel.type = 2;
-	quake_Mod.loadmodel.player = quake_Mod.loadmodel.name == "progs/player.mdl";
-	var model = new DataView(buffer);
+quake_Mod.LoadAliasModel = function(model) {
 	var version = model.getUint32(4,true);
 	if(version != 6) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + 6 + ")");
+	quake_Mod.loadmodel.type = 2;
+	quake_Mod.loadmodel.player = quake_Mod.loadmodel.name == "progs/player.mdl";
 	var tmp;
 	var x = model.getFloat32(8,true);
 	var y = model.getFloat32(12,true);
@@ -6817,7 +6800,7 @@ quake_Mod.LoadAliasModel = function(buffer) {
 	v3[2] = 16.0;
 	tmp3 = v3;
 	quake_Mod.loadmodel.maxs = tmp3;
-	var inmodel = quake_Mod.LoadAllSkins(buffer,84);
+	var inmodel = quake_Mod.LoadAllSkins(model,84);
 	quake_Mod.loadmodel.stverts = [];
 	var _g1 = 0;
 	var _g = quake_Mod.loadmodel.numverts;
@@ -6834,7 +6817,7 @@ quake_Mod.LoadAliasModel = function(buffer) {
 		quake_Mod.loadmodel.triangles[i1] = new quake_MTriangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]);
 		inmodel += 16;
 	}
-	quake_Mod.LoadAllFrames(buffer,inmodel);
+	quake_Mod.LoadAllFrames(model,inmodel);
 	var cmds = [];
 	var _g12 = 0;
 	var _g3 = quake_Mod.loadmodel.numtris;
@@ -6921,8 +6904,7 @@ quake_Mod.LoadAliasModel = function(buffer) {
 	quake_GL.gl.bindBuffer(34962,quake_Mod.loadmodel.cmds);
 	quake_GL.gl.bufferData(34962,new Float32Array(cmds),35044);
 };
-quake_Mod.LoadSpriteFrame = function(identifier,buffer,inframe,frame) {
-	var model = new DataView(buffer);
+quake_Mod.LoadSpriteFrame = function(identifier,model,inframe,frame) {
 	frame.origin = [model.getInt32(inframe,true),-model.getInt32(inframe + 4,true)];
 	frame.width = model.getUint32(inframe + 8,true);
 	frame.height = model.getUint32(inframe + 12,true);
@@ -6938,7 +6920,7 @@ quake_Mod.LoadSpriteFrame = function(identifier,buffer,inframe,frame) {
 			return inframe + 16 + frame.width * frame.height;
 		}
 	}
-	var data = new Uint8Array(buffer,inframe + 16,size);
+	var data = new Uint8Array(model.buffer,inframe + 16,size);
 	var scaled_width = frame.width;
 	var scaled_height = frame.height;
 	if((frame.width & frame.width - 1) != 0 || (frame.height & frame.height - 1) != 0) {
@@ -6980,11 +6962,10 @@ quake_Mod.LoadSpriteFrame = function(identifier,buffer,inframe,frame) {
 	frame.texturenum = glt.texnum;
 	return inframe + 16 + frame.width * frame.height;
 };
-quake_Mod.LoadSpriteModel = function(buffer) {
-	quake_Mod.loadmodel.type = 1;
-	var model = new DataView(buffer);
+quake_Mod.LoadSpriteModel = function(model) {
 	var version = model.getUint32(4,true);
 	if(version != 1) quake_Sys.Error(quake_Mod.loadmodel.name + " has wrong version number (" + version + " should be " + 1 + ")");
+	quake_Mod.loadmodel.type = 1;
 	quake_Mod.loadmodel.oriented = model.getUint32(8,true) == 3;
 	quake_Mod.loadmodel.boundingradius = model.getFloat32(12,true);
 	quake_Mod.loadmodel.width = model.getUint32(16,true);
@@ -7019,7 +7000,7 @@ quake_Mod.LoadSpriteModel = function(buffer) {
 		if(model.getUint32(inframe - 4,true) == 0) {
 			frame = new quake_MFrame(false);
 			quake_Mod.loadmodel.frames[i] = frame;
-			inframe = quake_Mod.LoadSpriteFrame(quake_Mod.loadmodel.name + "_" + i,buffer,inframe,frame);
+			inframe = quake_Mod.LoadSpriteFrame(quake_Mod.loadmodel.name + "_" + i,model,inframe,frame);
 		} else {
 			group = new quake_MFrame(true);
 			group.frames = [];
@@ -7038,7 +7019,7 @@ quake_Mod.LoadSpriteModel = function(buffer) {
 			var _g21 = 0;
 			while(_g21 < numframes) {
 				var j1 = _g21++;
-				inframe = quake_Mod.LoadSpriteFrame(quake_Mod.loadmodel.name + "_" + i + "_" + j1,buffer,inframe,group.frames[j1]);
+				inframe = quake_Mod.LoadSpriteFrame(quake_Mod.loadmodel.name + "_" + i + "_" + j1,model,inframe,group.frames[j1]);
 			}
 		}
 	}

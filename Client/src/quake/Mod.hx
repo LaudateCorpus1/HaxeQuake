@@ -9,15 +9,16 @@ import js.html.webgl.RenderingContext;
 import js.html.webgl.Buffer;
 import js.html.webgl.Texture;
 import quake.GL.gl;
-import quake.GL.GLTexture;
 
 import quake.Mod_Alias.Trivert;
+import quake.Mod_Alias.Skin;
 import quake.Mod_Brush.Hull;
 import quake.Mod_Brush.ClipNode;
 import quake.Mod_Brush.Surface;
 import quake.Mod_Brush.Leaf;
 import quake.Mod_Brush.Node;
 import quake.Mod_Brush.Texinfo;
+import quake.Mod_Brush.MTexture;
 
 @:enum abstract ModelType(Int) {
     var brush = 0;
@@ -36,7 +37,7 @@ class MModel {
     var numtris:Int;
     var cmds:Buffer;
     var numskins:Int;
-    var skins:Array<MSkin>;
+    var skins:Array<Skin>;
     var type:ModelType;
     var mins:Vec;
     var maxs:Vec;
@@ -83,18 +84,6 @@ class MModel {
 
 
 @:publicFields
-class MSkin {
-    var group:Bool;
-    var skins:Array<MSkin>;
-    var interval:Float;
-    var texturenum:GLTexture;
-    var playertexture:Texture;
-    function new(g) {
-        this.group = g;
-    }
-}
-
-@:publicFields
 class MFrame {
     var name:String;
     var group:Bool;
@@ -111,21 +100,6 @@ class MFrame {
     function new(g) {
         this.group = g;
     }
-}
-
-@:publicFields
-class MTexture {
-    var name:String;
-    var width:Int;
-    var height:Int;
-    var anim_base:Int;
-    var anim_frame:Int;
-    var anims:Array<Int>;
-    var alternate_anims:Array<Int>;
-    var sky:Bool;
-    var turbulent:Bool;
-    var texturenum:Texture;
-    function new() {}
 }
 
 @:enum abstract ModelEffect(Int) to Int {

@@ -5,10 +5,11 @@ import js.html.DataView;
 import js.html.Uint8Array;
 import js.html.Float32Array;
 import js.html.webgl.RenderingContext;
+import js.html.webgl.Texture;
 import quake.Mod.MModel;
-import quake.Mod.MSkin;
 import quake.Mod.MFrame;
 import quake.GL.gl;
+import quake.GL.GLTexture;
 
 @:publicFields
 private class STVert {
@@ -39,6 +40,18 @@ class Trivert {
     function new(v, lightnormalindex) {
         this.v = v;
         this.lightnormalindex = lightnormalindex;
+    }
+}
+
+@:publicFields
+class Skin {
+    var group:Bool;
+    var skins:Array<Skin>;
+    var interval:Float;
+    var texturenum:GLTexture;
+    var playertexture:Texture;
+    function new(g) {
+        this.group = g;
     }
 }
 
@@ -194,7 +207,7 @@ class Mod_Alias {
             if (model.getUint32(inmodel - 4, true) == 0) {
                 var skin = new Uint8Array(model.buffer, inmodel, skinsize);
                 FloodFillSkin(loadmodel, skin);
-                var g = new MSkin(false);
+                var g = new Skin(false);
                 g.texturenum = GL.LoadTexture(loadmodel.name + '_' + i,
                         loadmodel.skinwidth,
                         loadmodel.skinheight,
@@ -206,11 +219,11 @@ class Mod_Alias {
             }
             else
             {
-                var group = new MSkin(true);
+                var group = new Skin(true);
                 var numskins = model.getUint32(inmodel, true);
                 inmodel += 4;
                 for (j in 0...numskins) {
-                    var s = new MSkin(false);
+                    var s = new Skin(false);
                     s.interval = model.getFloat32(inmodel, true);
                     if (s.interval <= 0.0)
                         Sys.Error('Mod.LoadAllSkins: interval<=0');
@@ -325,7 +338,7 @@ class Mod_Alias {
         }
     }
 
-    static function TranslatePlayerSkin(loadmodel:MModel, data:Uint8Array, skin:MSkin):Void {
+    static function TranslatePlayerSkin(loadmodel:MModel, data:Uint8Array, skin:Skin):Void {
         if (loadmodel.skinwidth != 512 || loadmodel.skinheight != 256)
             data = GL.ResampleTexture(data, loadmodel.skinwidth, loadmodel.skinheight, 512, 256);
         var out = new Uint8Array(new ArrayBuffer(512 * 256 * 4));

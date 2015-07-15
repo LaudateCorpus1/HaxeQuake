@@ -5847,17 +5847,10 @@ var quake_MModel = function(name) {
 	this.needload = true;
 };
 quake_MModel.__name__ = true;
-var quake_MSkin = function(g) {
-	this.group = g;
-};
-quake_MSkin.__name__ = true;
 var quake_MFrame = function(g) {
 	this.group = g;
 };
 quake_MFrame.__name__ = true;
-var quake_MTexture = function() {
-};
-quake_MTexture.__name__ = true;
 var quake_Mod = function() { };
 quake_Mod.__name__ = true;
 quake_Mod.Init = function() {
@@ -5942,6 +5935,10 @@ var quake_Trivert = function(v,lightnormalindex) {
 	this.lightnormalindex = lightnormalindex;
 };
 quake_Trivert.__name__ = true;
+var quake_Skin = function(g) {
+	this.group = g;
+};
+quake_Skin.__name__ = true;
 var quake_Mod_$Alias = function() { };
 quake_Mod_$Alias.__name__ = true;
 quake_Mod_$Alias.Init = function() {
@@ -6122,19 +6119,19 @@ quake_Mod_$Alias.LoadAllSkins = function(loadmodel,model,inmodel) {
 		if(model.getUint32(inmodel - 4,true) == 0) {
 			var skin = new Uint8Array(model.buffer,inmodel,skinsize);
 			quake_Mod_$Alias.FloodFillSkin(loadmodel,skin);
-			var g = new quake_MSkin(false);
+			var g = new quake_Skin(false);
 			g.texturenum = quake_GL.LoadTexture(loadmodel.name + "_" + i,loadmodel.skinwidth,loadmodel.skinheight,skin);
 			loadmodel.skins[i] = g;
 			if(loadmodel.player) quake_Mod_$Alias.TranslatePlayerSkin(loadmodel,new Uint8Array(model.buffer,inmodel,skinsize),loadmodel.skins[i]);
 			inmodel += skinsize;
 		} else {
-			var group = new quake_MSkin(true);
+			var group = new quake_Skin(true);
 			var numskins = model.getUint32(inmodel,true);
 			inmodel += 4;
 			var _g2 = 0;
 			while(_g2 < numskins) {
 				var j = _g2++;
-				var s = new quake_MSkin(false);
+				var s = new quake_Skin(false);
 				s.interval = model.getFloat32(inmodel,true);
 				if(s.interval <= 0.0) quake_Sys.Error("Mod.LoadAllSkins: interval<=0");
 				group.skins[j] = s;
@@ -6287,6 +6284,9 @@ var quake_Texinfo = function(v,t,f) {
 	this.flags = f;
 };
 quake_Texinfo.__name__ = true;
+var quake_MTexture = function() {
+};
+quake_MTexture.__name__ = true;
 var quake_Mod_$Brush = function() { };
 quake_Mod_$Brush.__name__ = true;
 quake_Mod_$Brush.Init = function() {

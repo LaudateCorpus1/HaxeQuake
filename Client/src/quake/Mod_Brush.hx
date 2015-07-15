@@ -2,8 +2,8 @@ package quake;
 
 import js.html.DataView;
 import js.html.Uint8Array;
+import js.html.webgl.Texture;
 import quake.Mod.MModel;
-import quake.Mod.MTexture;
 
 @:publicFields
 class Hull {
@@ -83,6 +83,21 @@ class Texinfo {
         texture = t;
         flags = f;
     }
+}
+
+@:publicFields
+class MTexture {
+    var name:String;
+    var width:Int;
+    var height:Int;
+    var anim_base:Int;
+    var anim_frame:Int;
+    var anims:Array<Int>;
+    var alternate_anims:Array<Int>;
+    var sky:Bool;
+    var turbulent:Bool;
+    var texturenum:Texture;
+    function new() {}
 }
 
 private class LumpOffsets {

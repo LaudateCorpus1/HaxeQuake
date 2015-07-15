@@ -12,6 +12,7 @@ import js.html.webgl.RenderingContext;
 import quake.Mod;
 import quake.GL.gl;
 import quake.Mod_Brush.Node;
+import quake.Mod_Brush.MTexture;
 import quake.Mod_Brush.Leaf;
 import quake.Mod_Brush.Surface;
 import quake.Def.ClientStat;

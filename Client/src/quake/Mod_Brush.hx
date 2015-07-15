@@ -8,8 +8,24 @@ import quake.Mod.MTexinfo;
 import quake.Mod.MSurface;
 import quake.Mod.MLeaf;
 import quake.Mod.MNode;
-import quake.Mod.MHull;
-import quake.Mod.MClipNode;
+
+@:publicFields
+class Hull {
+    var clipnodes:Array<ClipNode>;
+    var planes:Array<Plane>;
+    var firstclipnode:Int;
+    var lastclipnode:Int;
+    var clip_mins:Vec;
+    var clip_maxs:Vec;
+    function new() {}
+}
+
+@:publicFields
+class ClipNode {
+    var planenum:Int;
+    var children:Array<Contents>;
+    function new() {}
+}
 
 private class LumpOffsets {
     public static inline var entities     = (0 << 3) + 4;
@@ -484,7 +500,7 @@ class Mod_Brush {
 
         loadmodel.hulls = [];
         loadmodel.hulls[1] = {
-            var h = new MHull();
+            var h = new Hull();
             h.clipnodes = loadmodel.clipnodes;
             h.firstclipnode = 0;
             h.lastclipnode = count - 1;
@@ -494,7 +510,7 @@ class Mod_Brush {
             h;
         };
         loadmodel.hulls[2] = {
-            var h = new MHull();
+            var h = new Hull();
             h.clipnodes = loadmodel.clipnodes;
             h.firstclipnode = 0;
             h.lastclipnode = count - 1;
@@ -504,12 +520,12 @@ class Mod_Brush {
             h;
         };
         for (i in 0...count) {
-            loadmodel.clipnodes[i] = {
-                var n = new MClipNode();
+            loadmodel.clipnodes.push({
+                var n = new ClipNode();
                 n.planenum = view.getUint32(fileofs, true);
                 n.children = [view.getInt16(fileofs + 4, true), view.getInt16(fileofs + 6, true)];
                 n;
-            };
+            });
             fileofs += 8;
         }
     }
@@ -517,7 +533,7 @@ class Mod_Brush {
     static function MakeHull0(loadmodel:MModel) {
         var clipnodes = [];
         var hull = {
-            var h = new MHull();
+            var h = new Hull();
             h.clipnodes = clipnodes;
             h.lastclipnode = loadmodel.nodes.length - 1;
             h.planes = loadmodel.planes;
@@ -527,7 +543,7 @@ class Mod_Brush {
         };
         for (i in 0...loadmodel.nodes.length) {
             var node = loadmodel.nodes[i];
-            var out = new MClipNode();
+            var out = new ClipNode();
             out.planenum = node.planenum;
             out.children = [];
             var child = node.children[0];
@@ -579,7 +595,7 @@ class Mod_Brush {
             out.origin = Vec.of(view.getFloat32(fileofs + 24, true), view.getFloat32(fileofs + 28, true), view.getFloat32(fileofs + 32, true));
             out.hulls = [
                 {
-                    var h = new MHull();
+                    var h = new Hull();
                     h.clipnodes = clipnodes;
                     h.firstclipnode = view.getUint32(fileofs + 36, true);
                     h.lastclipnode = loadmodel.nodes.length - 1;
@@ -589,7 +605,7 @@ class Mod_Brush {
                     h;
                 },
                 {
-                    var h = new MHull();
+                    var h = new Hull();
                     h.clipnodes = loadmodel.clipnodes;
                     h.firstclipnode = view.getUint32(fileofs + 40, true);
                     h.lastclipnode = loadmodel.clipnodes.length - 1;
@@ -599,7 +615,7 @@ class Mod_Brush {
                     h;
                 },
                 {
-                    var h = new MHull();
+                    var h = new Hull();
                     h.clipnodes = loadmodel.clipnodes;
                     h.firstclipnode = view.getUint32(fileofs + 44, true);
                     h.lastclipnode = loadmodel.clipnodes.length - 1;

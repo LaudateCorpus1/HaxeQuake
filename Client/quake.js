@@ -3086,7 +3086,7 @@ quake_ED.LoadFromFile = function(data) {
 var quake_Edict = function(num) {
 	this.num = num;
 	this.free = false;
-	this.area = new quake_MLink();
+	this.area = new quake_EdictLink();
 	this.area.ent = this;
 	this.leafnums = [];
 	this.baseline = new quake_EntityState();
@@ -3107,6 +3107,9 @@ quake_Edict.prototype = {
 		this.free = false;
 	}
 };
+var quake_EdictLink = function() {
+};
+quake_EdictLink.__name__ = true;
 var quake__$EdictVarOfs_EdictVarOfs_$Impl_$ = {};
 quake__$EdictVarOfs_EdictVarOfs_$Impl_$.__name__ = true;
 var quake_Entity = function(n) {
@@ -5849,12 +5852,6 @@ var quake_MTrivert = function(v,lightnormalindex) {
 	this.lightnormalindex = lightnormalindex;
 };
 quake_MTrivert.__name__ = true;
-var quake_MHull = function() {
-};
-quake_MHull.__name__ = true;
-var quake_MClipNode = function() {
-};
-quake_MClipNode.__name__ = true;
 var quake_MSkin = function(g) {
 	this.group = g;
 };
@@ -5891,12 +5888,6 @@ quake_MTrace.__name__ = true;
 var quake_MMoveClip = function() {
 };
 quake_MMoveClip.__name__ = true;
-var quake_MAreaNode = function() {
-};
-quake_MAreaNode.__name__ = true;
-var quake_MLink = function() {
-};
-quake_MLink.__name__ = true;
 var quake_Mod = function() { };
 quake_Mod.__name__ = true;
 quake_Mod.Init = function() {
@@ -6296,6 +6287,12 @@ quake_Mod_$Alias.TranslatePlayerSkin = function(loadmodel,data,skin) {
 	quake_GL.gl.texParameteri(3553,10241,quake_GL.filter_min);
 	quake_GL.gl.texParameteri(3553,10240,quake_GL.filter_max);
 };
+var quake_Hull = function() {
+};
+quake_Hull.__name__ = true;
+var quake_ClipNode = function() {
+};
+quake_ClipNode.__name__ = true;
 var quake_Mod_$Brush = function() { };
 quake_Mod_$Brush.__name__ = true;
 quake_Mod_$Brush.Init = function() {
@@ -6779,7 +6776,7 @@ quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 	loadmodel.clipnodes = [];
 	loadmodel.hulls = [];
 	var tmp;
-	var h = new quake_MHull();
+	var h = new quake_Hull();
 	h.clipnodes = loadmodel.clipnodes;
 	h.firstclipnode = 0;
 	h.lastclipnode = count - 1;
@@ -6801,7 +6798,7 @@ quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 	tmp = h;
 	loadmodel.hulls[1] = tmp;
 	var tmp1;
-	var h1 = new quake_MHull();
+	var h1 = new quake_Hull();
 	h1.clipnodes = loadmodel.clipnodes;
 	h1.firstclipnode = 0;
 	h1.lastclipnode = count - 1;
@@ -6824,20 +6821,20 @@ quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 	loadmodel.hulls[2] = tmp1;
 	var _g = 0;
 	while(_g < count) {
-		var i = _g++;
+		_g++;
 		var tmp6;
-		var n = new quake_MClipNode();
+		var n = new quake_ClipNode();
 		n.planenum = view.getUint32(fileofs,true);
 		n.children = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
 		tmp6 = n;
-		loadmodel.clipnodes[i] = tmp6;
+		loadmodel.clipnodes.push(tmp6);
 		fileofs += 8;
 	}
 };
 quake_Mod_$Brush.MakeHull0 = function(loadmodel) {
 	var clipnodes = [];
 	var tmp;
-	var h = new quake_MHull();
+	var h = new quake_Hull();
 	h.clipnodes = clipnodes;
 	h.lastclipnode = loadmodel.nodes.length - 1;
 	h.planes = loadmodel.planes;
@@ -6850,7 +6847,7 @@ quake_Mod_$Brush.MakeHull0 = function(loadmodel) {
 	while(_g1 < _g) {
 		var i = _g1++;
 		var node = loadmodel.nodes[i];
-		var out = new quake_MClipNode();
+		var out = new quake_ClipNode();
 		out.planenum = node.planenum;
 		out.children = [];
 		var child = node.children[0];
@@ -6935,7 +6932,7 @@ quake_Mod_$Brush.LoadSubmodels = function(loadmodel,view) {
 		tmp4 = v4;
 		out.origin = tmp4;
 		var tmp5;
-		var h = new quake_MHull();
+		var h = new quake_Hull();
 		h.clipnodes = clipnodes;
 		h.firstclipnode = view.getUint32(fileofs + 36,true);
 		h.lastclipnode = loadmodel.nodes.length - 1;
@@ -6944,7 +6941,7 @@ quake_Mod_$Brush.LoadSubmodels = function(loadmodel,view) {
 		h.clip_maxs = new Float32Array(3);
 		tmp5 = h;
 		var tmp6;
-		var h1 = new quake_MHull();
+		var h1 = new quake_Hull();
 		h1.clipnodes = loadmodel.clipnodes;
 		h1.firstclipnode = view.getUint32(fileofs + 40,true);
 		h1.lastclipnode = loadmodel.clipnodes.length - 1;
@@ -6965,7 +6962,7 @@ quake_Mod_$Brush.LoadSubmodels = function(loadmodel,view) {
 		h1.clip_maxs = tmp9;
 		tmp6 = h1;
 		var tmp7;
-		var h2 = new quake_MHull();
+		var h2 = new quake_Hull();
 		h2.clipnodes = loadmodel.clipnodes;
 		h2.firstclipnode = view.getUint32(fileofs + 44,true);
 		h2.lastclipnode = loadmodel.clipnodes.length - 1;
@@ -11104,7 +11101,7 @@ quake_SV.RunClients = function() {
 quake_SV.InitBoxHull = function() {
 	quake_SV.box_clipnodes = [];
 	quake_SV.box_planes = [];
-	quake_SV.box_hull = new quake_MHull();
+	quake_SV.box_hull = new quake_Hull();
 	quake_SV.box_hull.clipnodes = quake_SV.box_clipnodes;
 	quake_SV.box_hull.planes = quake_SV.box_planes;
 	quake_SV.box_hull.firstclipnode = 0;
@@ -11113,7 +11110,7 @@ quake_SV.InitBoxHull = function() {
 	while(_g < 6) {
 		var i = _g++;
 		var side = i & 1;
-		var node = new quake_MClipNode();
+		var node = new quake_ClipNode();
 		node.planenum = i;
 		node.children = [];
 		node.children[side] = -1;
@@ -11153,11 +11150,11 @@ quake_SV.HullForEntity = function(ent,mins,maxs,offset) {
 	return hull;
 };
 quake_SV.CreateAreaNode = function(depth,mins,maxs) {
-	var anode = new quake_MAreaNode();
+	var anode = new quake__$SV_AreaNode();
 	quake_SV.areanodes.push(anode);
-	anode.trigger_edicts = new quake_MLink();
+	anode.trigger_edicts = new quake_EdictLink();
 	anode.trigger_edicts.prev = anode.trigger_edicts.next = anode.trigger_edicts;
-	anode.solid_edicts = new quake_MLink();
+	anode.solid_edicts = new quake_EdictLink();
 	anode.solid_edicts.prev = anode.solid_edicts.next = anode.solid_edicts;
 	if(depth == 4) {
 		anode.axis = -1;
@@ -14196,6 +14193,9 @@ var quake_Sfx = function(n) {
 	this.name = n;
 };
 quake_Sfx.__name__ = true;
+var quake__$SV_AreaNode = function() {
+};
+quake__$SV_AreaNode.__name__ = true;
 var quake_Sbar = function() { };
 quake_Sbar.__name__ = true;
 quake_Sbar.Init = function() {

@@ -3,15 +3,15 @@ package quake;
 import js.html.ArrayBuffer;
 import js.html.Float32Array;
 import js.html.Int32Array;
-import quake.Mod.MLink;
 import quake.Entity.EntityState;
 import quake.SV.EntFlag;
+import quake.Edict;
 
 @:publicFields
 class Edict {
     var num:Int;
     var free:Bool;
-    var area:MLink;
+    var area:EdictLink;
     var leafnums:Array<Int>;
     var baseline:EntityState;
     var freetime:Float;
@@ -33,7 +33,7 @@ class Edict {
     function new(num:Int) {
         this.num = num;
         this.free = false;
-        this.area = new MLink();
+        this.area = new EdictLink();
         this.area.ent = this;
         this.leafnums = [];
         this.baseline = new EntityState();
@@ -56,4 +56,12 @@ class Edict {
             _v_int[i] = 0;
         free = false;
     }
+}
+
+@:publicFields
+class EdictLink {
+    var prev:EdictLink;
+    var next:EdictLink;
+    var ent:Edict;
+    function new() {}
 }

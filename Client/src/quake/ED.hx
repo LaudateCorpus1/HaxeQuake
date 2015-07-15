@@ -3,7 +3,6 @@ package quake;
 import js.html.ArrayBuffer;
 import js.html.Float32Array;
 import js.html.Int32Array;
-import quake.Mod.MLink;
 import quake.PR.EType;
 import quake.PR.PRDef;
 import quake.SV.MoveType;

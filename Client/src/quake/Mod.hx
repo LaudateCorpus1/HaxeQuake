@@ -11,7 +11,8 @@ import js.html.webgl.Texture;
 import quake.GL.gl;
 import quake.GL.GLTexture;
 
-// TODO this is a mess - there are 3 types of models and we should have classes for each one specifically
+import quake.Mod_Brush.Hull;
+import quake.Mod_Brush.ClipNode;
 
 @:enum abstract MModelType(Int) {
     var brush = 0;
@@ -55,7 +56,7 @@ class MModel {
     var visdata:Uint8Array;
     var random:Bool;
     var nodes:Array<MNode>;
-    var hulls:Array<MHull>;
+    var hulls:Array<Hull>;
     var entities:String;
     var needload:Bool;
     var scale:Vec;
@@ -66,7 +67,7 @@ class MModel {
     var width:Int;
     var height:Int;
     var planes:Array<Plane>;
-    var clipnodes:Array<MClipNode>;
+    var clipnodes:Array<ClipNode>;
     var origin:Vec;
 
     function new(name:String) {
@@ -87,23 +88,7 @@ class MTrivert {
     }
 }
 
-@:publicFields
-class MHull {
-    var clipnodes:Array<MClipNode>;
-    var planes:Array<Plane>;
-    var firstclipnode:Int;
-    var lastclipnode:Int;
-    var clip_mins:Vec;
-    var clip_maxs:Vec;
-    function new() {}
-}
 
-@:publicFields
-class MClipNode {
-    var planenum:Int;
-    var children:Array<Contents>;
-    function new() {}
-}
 
 @:publicFields
 class MSkin {
@@ -242,24 +227,6 @@ class MMoveClip {
     var end:Vec;
     var passedict:Edict;
     function new() {}
-}
-
-
-@:publicFields
-class MAreaNode {
-    var axis:Int;
-    var dist:Float;
-    var children:Array<MAreaNode>;
-    var trigger_edicts:MLink;
-    var solid_edicts:MLink;
-    function new() {}
-}
-
-class MLink {
-    public var prev:MLink;
-    public var next:MLink;
-    public var ent:Edict;
-    public function new() {}
 }
 
 @:enum abstract EntEffect(Int) to Int {

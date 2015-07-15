@@ -7,7 +7,19 @@ import js.html.Uint8Array;
 import quake.CL.ClientCmd;
 import quake.Host.HClient;
 import quake.Mod;
+import quake.Mod_Brush;
 import quake.Protocol;
+import quake.Edict;
+
+@:publicFields
+private class AreaNode {
+    var axis:Int;
+    var dist:Float;
+    var children:Array<AreaNode>;
+    var trigger_edicts:EdictLink;
+    var solid_edicts:EdictLink;
+    function new() {}
+}
 
 @:publicFields
 private class ServerStatic {
@@ -121,10 +133,10 @@ class SV {
     static var reconnect:MSG;
     static var clientdatagram = new MSG(1024);
 
-    static var areanodes:Array<MAreaNode>;
-    static var box_clipnodes:Array<MClipNode>;
+    static var areanodes:Array<AreaNode>;
+    static var box_clipnodes:Array<ClipNode>;
     static var box_planes:Array<Plane>;
-    static var box_hull:MHull;
+    static var box_hull:Hull;
     static var steptrace:MTrace;
     static var player:Edict;
     static var fatpvs = [];
@@ -1907,7 +1919,7 @@ class SV {
     static function InitBoxHull():Void {
         box_clipnodes = [];
         box_planes = [];
-        box_hull = new MHull();
+        box_hull = new Hull();
 
         box_hull.clipnodes = box_clipnodes;
         box_hull.planes = box_planes;
@@ -1917,7 +1929,7 @@ class SV {
         for (i in 0...6) {
             var side = i & 1;
 
-            var node = new MClipNode();
+            var node = new ClipNode();
             node.planenum = i;
             node.children = [];
             node.children[side] = empty;
@@ -1936,7 +1948,7 @@ class SV {
         }
     }
 
-    static function HullForEntity(ent:Edict, mins:Vec, maxs:Vec, offset:Vec):MHull {
+    static function HullForEntity(ent:Edict, mins:Vec, maxs:Vec, offset:Vec):Hull {
         if (ent.v.solid != SolidType.bsp) {
             box_planes[0].dist = ent.v.maxs - mins[0];
             box_planes[1].dist = ent.v.mins - maxs[0];
@@ -1970,13 +1982,13 @@ class SV {
         return hull;
     }
 
-    static function CreateAreaNode(depth:Int, mins:Vec, maxs:Vec):MAreaNode {
-        var anode = new MAreaNode();
+    static function CreateAreaNode(depth:Int, mins:Vec, maxs:Vec):AreaNode {
+        var anode = new AreaNode();
         areanodes.push(anode);
 
-        anode.trigger_edicts = new MLink();
+        anode.trigger_edicts = new EdictLink();
         anode.trigger_edicts.prev = anode.trigger_edicts.next = anode.trigger_edicts;
-        anode.solid_edicts = new MLink();
+        anode.solid_edicts = new EdictLink();
         anode.solid_edicts.prev = anode.solid_edicts.next = anode.solid_edicts;
 
         if (depth == 4) {
@@ -2003,7 +2015,7 @@ class SV {
         ent.area.prev = ent.area.next = null;
     }
 
-    static function TouchLinks(ent:Edict, node:MAreaNode):Void {
+    static function TouchLinks(ent:Edict, node:AreaNode):Void {
         var l = node.trigger_edicts.next;
         while (l != node.trigger_edicts) {
             var touch = l.ent;
@@ -2105,7 +2117,7 @@ class SV {
             TouchLinks(ent, areanodes[0]);
     }
 
-    static function HullPointContents(hull:MHull, num:Int, p:Vec):Contents {
+    static function HullPointContents(hull:Hull, num:Int, p:Vec):Contents {
         while (num >= 0) {
             if (num < hull.firstclipnode || num > hull.lastclipnode)
                 Sys.Error('SV.HullPointContents: bad node number');
@@ -2136,7 +2148,7 @@ class SV {
         return Move(origin, ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs), origin, 0, ent).startsolid;
     }
 
-    static function RecursiveHullCheck(hull:MHull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:MTrace):Bool {
+    static function RecursiveHullCheck(hull:Hull, num:Int, p1f:Float, p2f:Float, p1:Vec, p2:Vec, trace:MTrace):Bool {
         if (num < 0) {
             if (num != Contents.solid) {
                 trace.allsolid = false;
@@ -2248,7 +2260,7 @@ class SV {
         return trace;
     }
 
-    static function ClipToLinks(node:MAreaNode, clip:MMoveClip):Void {
+    static function ClipToLinks(node:AreaNode, clip:MMoveClip):Void {
         var l = node.solid_edicts.next;
         while (l != node.solid_edicts) {
             var touch = l.ent;

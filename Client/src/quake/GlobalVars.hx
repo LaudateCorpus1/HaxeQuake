@@ -26,6 +26,14 @@ abstract GlobalVars(Int) {
         PR._globals_float[OFS_RETURN + 2] = v[2];
     }
 
+    public inline function SetReturnFloat(f:Float):Void {
+        PR._globals_float[OFS_RETURN] = f;
+    }
+
+    public inline function SetReturnInt(i:Int):Void {
+        PR._globals_int[OFS_RETURN] = i;
+    }
+
     public inline function GetVector(ofs:Int):Vec {
         return Vec.of(PR._globals_float[ofs], PR._globals_float[ofs + 1], PR._globals_float[ofs + 2]);
     }

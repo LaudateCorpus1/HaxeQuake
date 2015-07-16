@@ -13798,14 +13798,16 @@ quake_PF.ftos = function() {
 	quake_PR._globals_int[1] = quake_PR.string_temp;
 };
 quake_PF.fabs = function() {
-	quake_PR._globals_float[1] = Math.abs(quake_PR._globals_float[4]);
+	var f = Math.abs(quake_PR._globals_float[4]);
+	quake_PR._globals_float[1] = f;
 };
 quake_PF.vtos = function() {
 	quake_PR.TempString(quake_PR._globals_float[4].toFixed(1) + " " + quake_PR._globals_float[5].toFixed(1) + " " + quake_PR._globals_float[6].toFixed(1));
 	quake_PR._globals_int[1] = quake_PR.string_temp;
 };
 quake_PF.Spawn = function() {
-	quake_PR._globals_int[1] = quake_ED.Alloc().num;
+	var i = quake_ED.Alloc().num;
+	quake_PR._globals_int[1] = i;
 };
 quake_PF.Remove = function() {
 	quake_ED.Free(quake_SV.server.edicts[quake_PR._globals_int[4]]);

@@ -337,7 +337,7 @@ class PF {
     }
 
     static function fabs() {
-        PR._globals_float[OFS_RETURN] = Math.abs(PR._globals_float[4]);
+        PR.globals.SetReturnFloat(Math.abs(PR._globals_float[4]));
     }
 
     static function vtos() {
@@ -348,7 +348,7 @@ class PF {
     }
 
     static function Spawn() {
-        PR._globals_int[OFS_RETURN] = ED.Alloc().num;
+        PR.globals.SetReturnInt(ED.Alloc().num);
     }
 
     static function Remove() {

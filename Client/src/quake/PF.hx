@@ -631,7 +631,7 @@ class PF {
     static function WriteEntity() WriteDest().WriteShort(PR._globals_int[7]);
 
     static function makestatic() {
-        var ent:Edict = SV.server.edicts[PR._globals_int[4]];
+        var ent = SV.server.edicts[PR._globals_int[4]];
         var message = SV.server.signon;
         message.WriteByte(SVC.spawnstatic);
         message.WriteByte(SV.ModelIndex(PR.GetString(ent.v.model)));

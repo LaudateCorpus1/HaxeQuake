@@ -754,7 +754,7 @@ class Host {
                 break;
             if (COM.token.charCodeAt(0) != 123)
                 Sys.Error('Host.Loadgame_f: found ' + COM.token + ' when expecting {');
-            var ent:Edict = SV.server.edicts[entnum++];
+            var ent = SV.server.edicts[entnum++];
             for (j in 0...PR.entityfields)
                 ent._v_int[j] = 0;
             ent.free = false;
@@ -1201,7 +1201,7 @@ class Host {
     static function FindViewthing():Edict {
         if (SV.server.active) {
             for (i in 0...SV.server.num_edicts) {
-                var e:Edict = SV.server.edicts[i];
+                var e = SV.server.edicts[i];
                 if (PR.GetString(e.v.classname) == 'viewthing')
                     return e;
             }

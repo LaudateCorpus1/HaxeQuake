@@ -650,7 +650,7 @@ class PR {
 					var ptr = PR._globals_int[st.b];
 					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = PR._globals_int[st.a];
 				case PROp.storep_v:
-					var ed:Edict = SV.server.edicts[Math.floor(PR._globals_int[st.b] / PR.edict_size)];
+					var ed = SV.server.edicts[Math.floor(PR._globals_int[st.b] / PR.edict_size)];
 					var ptr = ((PR._globals_int[st.b] % PR.edict_size) - 96) >> 2;
 					ed._v_int[ptr] = PR._globals_int[st.a];
 					ed._v_int[ptr + 1] = PR._globals_int[st.a + 1];
@@ -663,7 +663,7 @@ class PR {
 				case PROp.load_f | PROp.load_fld | PROp.load_ent | PROp.load_s | PROp.load_fnc:
 					PR._globals_int[st.c] = SV.server.edicts[PR._globals_int[st.a]]._v_int[PR._globals_int[st.b]];
 				case PROp.load_v:
-					var ed:Edict = SV.server.edicts[PR._globals_int[st.a]];
+					var ed = SV.server.edicts[PR._globals_int[st.a]];
 					var ptr = PR._globals_int[st.b];
 					PR._globals_int[st.c] = ed._v_int[ptr];
 					PR._globals_int[st.c + 1] = ed._v_int[ptr + 1];

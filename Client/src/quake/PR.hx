@@ -693,7 +693,7 @@ class PR {
 					if (PR.depth == exitdepth)
 						return;
 				case PROp.state:
-					var ed:Edict = SV.server.edicts[PR.globals.self];
+					var ed = SV.server.edicts[PR.globals.self];
 					ed.v.nextthink = PR.globals.time + 0.1;
 					ed.v.frame = PR._globals_float[st.a];
 					ed.v.think = PR._globals_int[st.b];

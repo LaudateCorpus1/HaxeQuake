@@ -13567,10 +13567,11 @@ quake_PF.centerprint = function() {
 };
 quake_PF.normalize = function() {
 	var tmp;
+	var ofs = 4;
 	var v = new Float32Array(3);
-	v[0] = quake_PR._globals_float[4];
-	v[1] = quake_PR._globals_float[4 + 1];
-	v[2] = quake_PR._globals_float[4 + 2];
+	v[0] = quake_PR._globals_float[ofs];
+	v[1] = quake_PR._globals_float[ofs + 1];
+	v[2] = quake_PR._globals_float[ofs + 2];
 	tmp = v;
 	var newvalue = tmp;
 	quake__$Vec_Vec_$Impl_$.Normalize(newvalue);
@@ -13579,7 +13580,8 @@ quake_PF.normalize = function() {
 	quake_PR._globals_float[1 + 2] = newvalue[2];
 };
 quake_PF.vlen = function() {
-	quake_PR._globals_float[1] = Math.sqrt(quake_PR._globals_float[4] * quake_PR._globals_float[4] + quake_PR._globals_float[4 + 1] * quake_PR._globals_float[4 + 1] + quake_PR._globals_float[4 + 2] * quake_PR._globals_float[4 + 2]);
+	var f = Math.sqrt(quake_PR._globals_float[4] * quake_PR._globals_float[4] + quake_PR._globals_float[4 + 1] * quake_PR._globals_float[4 + 1] + quake_PR._globals_float[4 + 2] * quake_PR._globals_float[4 + 2]);
+	quake_PR._globals_float[1] = f;
 };
 quake_PF.vectoyaw = function() {
 	var value1 = quake_PR._globals_float[4];
@@ -13619,20 +13621,23 @@ quake_PF.vectoangles = function() {
 	quake_PR._globals_float[1 + 1] = yaw;
 };
 quake_PF.random = function() {
-	quake_PR._globals_float[1] = Math.random();
+	var f = Math.random();
+	quake_PR._globals_float[1] = f;
 };
 quake_PF.particle = function() {
 	var tmp;
+	var ofs = 4;
 	var v = new Float32Array(3);
-	v[0] = quake_PR._globals_float[4];
-	v[1] = quake_PR._globals_float[5];
-	v[2] = quake_PR._globals_float[6];
+	v[0] = quake_PR._globals_float[ofs];
+	v[1] = quake_PR._globals_float[ofs + 1];
+	v[2] = quake_PR._globals_float[ofs + 2];
 	tmp = v;
 	var tmp1;
+	var ofs1 = 7;
 	var v1 = new Float32Array(3);
-	v1[0] = quake_PR._globals_float[7];
-	v1[1] = quake_PR._globals_float[8];
-	v1[2] = quake_PR._globals_float[9];
+	v1[0] = quake_PR._globals_float[ofs1];
+	v1[1] = quake_PR._globals_float[ofs1 + 1];
+	v1[2] = quake_PR._globals_float[ofs1 + 2];
 	tmp1 = v1;
 	quake_SV.StartParticle(tmp,tmp1,quake_PR._globals_float[10] | 0,quake_PR._globals_float[13] | 0);
 };

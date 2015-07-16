@@ -115,13 +115,13 @@ class PF {
     }
 
     static function normalize():Void {
-        var newvalue = Vec.of(PR._globals_float[OFS_PARM0], PR._globals_float[OFS_PARM0 + 1], PR._globals_float[OFS_PARM0 + 2]);
+        var newvalue = PR.globals.GetVector(OFS_PARM0);
         Vec.Normalize(newvalue);
         PR.globals.SetReturnVector(newvalue);
     }
 
     static function vlen():Void {
-        PR._globals_float[OFS_RETURN] = Math.sqrt(PR._globals_float[OFS_PARM0] * PR._globals_float[OFS_PARM0] + PR._globals_float[OFS_PARM0 + 1] * PR._globals_float[OFS_PARM0 + 1] + PR._globals_float[OFS_PARM0 + 2] * PR._globals_float[OFS_PARM0 + 2]);
+        PR.globals.SetReturnFloat(Math.sqrt(PR._globals_float[OFS_PARM0] * PR._globals_float[OFS_PARM0] + PR._globals_float[OFS_PARM0 + 1] * PR._globals_float[OFS_PARM0 + 1] + PR._globals_float[OFS_PARM0 + 2] * PR._globals_float[OFS_PARM0 + 2]));
     }
 
     static function vectoyaw() {
@@ -159,13 +159,16 @@ class PF {
     }
 
     static function random() {
-        PR._globals_float[OFS_RETURN] = Math.random();
+        PR.globals.SetReturnFloat(Math.random());
     }
 
     static function particle() {
-        SV.StartParticle(Vec.of(PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]),
-            Vec.of(PR._globals_float[7], PR._globals_float[8], PR._globals_float[9]),
-            Std.int(PR._globals_float[10]), Std.int(PR._globals_float[13]));
+        SV.StartParticle(
+            PR.globals.GetVector(OFS_PARM0),
+            PR.globals.GetVector(OFS_PARM1),
+            PR.globals.GetIntFromFloat(OFS_PARM2),
+            PR.globals.GetIntFromFloat(OFS_PARM3)
+        );
     }
 
     static function ambientsound() {

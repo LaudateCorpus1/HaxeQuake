@@ -7946,13 +7946,13 @@ quake_PR.ExecuteProgram = function(fnum) {
 			s += st.a - 1;
 			break;
 		case 51:case 52:case 53:case 54:case 55:case 56:case 57:case 58:case 59:
-			quake_PR.argc = st.op - 51;
 			if(quake_PR._globals_int[st.a] == 0) quake_PR.RunError("NULL function");
 			var newf = quake_PR.functions[quake_PR._globals_int[st.a]];
 			if(newf.first_statement < 0) {
-				var ptr3 = -newf.first_statement;
-				if(ptr3 >= quake_PF.builtin.length) quake_PR.RunError("Bad builtin call number");
-				quake_PF.builtin[ptr3]();
+				var idx = -newf.first_statement;
+				if(idx >= quake_PF.builtin.length) quake_PR.RunError("Bad builtin call number");
+				quake_PF.argc = st.op - 51;
+				quake_PF.builtin[idx]();
 				continue;
 			}
 			s = quake_PR.EnterFunction(newf);
@@ -13459,7 +13459,7 @@ quake_PF.__name__ = true;
 quake_PF.VarString = function(first) {
 	var out = "";
 	var _g1 = first;
-	var _g = quake_PR.argc;
+	var _g = quake_PF.argc;
 	while(_g1 < _g) {
 		var i = _g1++;
 		out += quake_PR.GetString(quake_PR._globals_int[4 + i * 3]);

@@ -202,7 +202,6 @@ class PR {
 	static var xstatement:Int;
 	static var xfunction:PRFunction;
 	static var stack:Array<PRStackItem>;
-	static var argc:Int;
 	static var localstack:Array<Int>;
 	static var localstack_used:Int;
 
@@ -678,15 +677,11 @@ class PR {
 				case PROp.jump:
 					s += st.a - 1;
 				case PROp.call0 | PROp.call1 | PROp.call2 | PROp.call3 | PROp.call4 | PROp.call5 | PROp.call6 | PROp.call7 | PROp.call8:
-					PR.argc = st.op - PROp.call0;
 					if (PR._globals_int[st.a] == 0)
 						PR.RunError('NULL function');
 					var newf = PR.functions[PR._globals_int[st.a]];
 					if (newf.first_statement < 0) {
-						var ptr = -newf.first_statement;
-						if (ptr >= PF.builtin.length)
-							PR.RunError('Bad builtin call number');
-						PF.builtin[ptr]();
+						PF.call(st.op - PROp.call0, -newf.first_statement);
 						continue;
 					}
 					s = PR.EnterFunction(newf);

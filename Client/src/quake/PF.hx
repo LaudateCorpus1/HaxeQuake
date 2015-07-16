@@ -9,9 +9,18 @@ using Tools;
 
 class PF {
 
+    static var argc:Int;
+
+    public static inline function call(argc:Int, idx:Int):Void {
+        if (idx >= builtin.length)
+            PR.RunError('Bad builtin call number');
+        PF.argc = argc;
+        builtin[idx]();
+    }
+
     static function VarString(first:Int) {
         var out = '';
-        for (i in first...PR.argc)
+        for (i in first...argc)
             out += PR.GetString(PR._globals_int[OFS_PARM0 + i * 3]);
         return out;
     }
@@ -658,7 +667,7 @@ class PF {
         PR.RunError('unimplemented builtin');
     }
 
-    public static var builtin:Array<Void->Void> = [
+    static var builtin:Array<Void->Void> = [
         Fixme,
         makevectors,
         setorigin,

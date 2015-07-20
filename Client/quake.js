@@ -341,7 +341,6 @@ quake__$CL_Score.__name__ = true;
 var quake__$CL_ClientState = function() {
 	this.cdtrack = 0;
 	this.viewent = new quake_Entity();
-	this.num_statics = 0;
 	this.viewentity = 0;
 	this.last_received_message = 0.0;
 	this.oldtime = 0.0;
@@ -822,6 +821,7 @@ quake_CL.ClearState = function() {
 		quake_CL.cls.signon = 0;
 	}
 	quake_CL.state = new quake__$CL_ClientState();
+	quake_CL.static_entities.length = 0;
 	quake_CL.cls.message.cursize = 0;
 	quake_CL.entities = [];
 	quake_CL.dlights = [];
@@ -1383,7 +1383,7 @@ quake_CL.ParseClientdata = function(bits) {
 };
 quake_CL.ParseStatic = function() {
 	var ent = new quake_Entity();
-	quake_CL.static_entities[quake_CL.state.num_statics++] = ent;
+	quake_CL.static_entities.push(ent);
 	quake_CL.ParseBaseline(ent);
 	ent.model = quake_CL.state.model_precache[ent.baseline.modelindex];
 	ent.frame = ent.baseline.frame;
@@ -11891,11 +11891,12 @@ quake_R.DrawAliasModel = function(e) {
 quake_R.DrawEntitiesOnList = function() {
 	if(quake_R.drawentities.value == 0) return;
 	var vis = quake_R.novis.value != 0?quake_Mod_$Brush.novis:quake_Mod_$Brush.LeafPVS(quake_R.viewleaf,quake_CL.state.worldmodel);
-	var _g1 = 0;
-	var _g = quake_CL.state.num_statics;
-	while(_g1 < _g) {
-		var i = _g1++;
-		quake_R.currententity = quake_CL.static_entities[i];
+	var _g = 0;
+	var _g1 = quake_CL.static_entities;
+	while(_g < _g1.length) {
+		var e = _g1[_g];
+		++_g;
+		quake_R.currententity = e;
 		if(quake_R.currententity.model == null) continue;
 		var j = 0;
 		while(j < quake_R.currententity.leafs.length) {
@@ -11918,8 +11919,8 @@ quake_R.DrawEntitiesOnList = function() {
 	var _g11 = 0;
 	var _g3 = quake_CL.numvisedicts;
 	while(_g11 < _g3) {
-		var i1 = _g11++;
-		quake_R.currententity = quake_CL.visedicts[i1];
+		var i = _g11++;
+		quake_R.currententity = quake_CL.visedicts[i];
 		if(quake_R.currententity.model == null) continue;
 		var _g21 = quake_R.currententity.model.type;
 		switch(_g21) {
@@ -11934,19 +11935,20 @@ quake_R.DrawEntitiesOnList = function() {
 	}
 	quake_GL.gl.depthMask(false);
 	quake_GL.gl.enable(3042);
-	var _g12 = 0;
-	var _g4 = quake_CL.state.num_statics;
-	while(_g12 < _g4) {
-		var i2 = _g12++;
-		quake_R.currententity = quake_CL.static_entities[i2];
+	var _g4 = 0;
+	var _g12 = quake_CL.static_entities;
+	while(_g4 < _g12.length) {
+		var e1 = _g12[_g4];
+		++_g4;
+		quake_R.currententity = e1;
 		if(quake_R.currententity.model == null) continue;
 		if(quake_R.currententity.model.type == 1) quake_R.DrawSpriteModel(quake_R.currententity);
 	}
 	var _g13 = 0;
 	var _g5 = quake_CL.numvisedicts;
 	while(_g13 < _g5) {
-		var i3 = _g13++;
-		quake_R.currententity = quake_CL.visedicts[i3];
+		var i1 = _g13++;
+		quake_R.currententity = quake_CL.visedicts[i1];
 		if(quake_R.currententity.model == null) continue;
 		if(quake_R.currententity.model.type == 1) quake_R.DrawSpriteModel(quake_R.currententity);
 	}

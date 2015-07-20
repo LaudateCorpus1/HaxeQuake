@@ -671,8 +671,8 @@ class R {
         if (R.drawentities.value == 0)
             return;
         var vis = (R.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(R.viewleaf, CL.state.worldmodel);
-        for (i in 0...CL.state.num_statics) {
-            R.currententity = CL.static_entities[i];
+        for (e in CL.static_entities) {
+            R.currententity = e;
             if (R.currententity.model == null)
                 continue;
             var j = 0;
@@ -707,8 +707,8 @@ class R {
         }
         gl.depthMask(false);
         gl.enable(RenderingContext.BLEND);
-        for (i in 0...CL.state.num_statics) {
-            R.currententity = CL.static_entities[i];
+        for (e in CL.static_entities) {
+            R.currententity = e;
             if (R.currententity.model == null)
                 continue;
             if (R.currententity.model.type == sprite)

@@ -113,7 +113,6 @@ private class ClientState {
     var oldtime = 0.0;
     var last_received_message = 0.0;
     var viewentity = 0;
-    var num_statics = 0;
     var viewent = new Entity();
     var cdtrack = 0;
     var looptrack = 0;
@@ -594,10 +593,10 @@ class CL {
 
     // main
 
-    public static var cls(default,null) = new ClientStatic();
+    public static var cls(default,never) = new ClientStatic();
     public static var state(default,null):ClientState;
-    public static var static_entities(default,null):Array<Entity> = [];
-    public static var visedicts(default,null):Array<Entity> = [];
+    public static var static_entities(default,never):Array<Entity> = [];
+    public static var visedicts(default,never):Array<Entity> = [];
 
     static function Rcon_f() {
         if (CL.rcon_password.string.length == 0) {
@@ -658,6 +657,7 @@ class CL {
         }
 
         state = new ClientState();
+        static_entities.clear();
         cls.message.cursize = 0;
 
         entities = [];
@@ -1296,7 +1296,7 @@ class CL {
 
     static function ParseStatic() {
         var ent = new Entity();
-        CL.static_entities[CL.state.num_statics++] = ent;
+        CL.static_entities.push(ent);
         CL.ParseBaseline(ent);
         ent.model = CL.state.model_precache[ent.baseline.modelindex];
         ent.frame = ent.baseline.frame;

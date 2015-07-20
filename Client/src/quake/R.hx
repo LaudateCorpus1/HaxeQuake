@@ -18,6 +18,25 @@ import quake.Mod_Brush.Surface;
 import quake.Def.ClientStat;
 using Tools;
 
+@:publicFields
+private class Rect {
+    var x:Int;
+    var y:Int;
+    var width:Int;
+    var height:Int;
+    function new() {}
+}
+
+@:publicFields
+private class RefDef {
+    var vrect(default,never) = new Rect();
+    var vieworg(default,never) = new Vec();
+    var viewangles(default,never) = new Vec();
+    var fov_x:Float;
+    var fov_y:Float;
+    function new() {}
+}
+
 @:enum private abstract ParticleType(Int) {
     var tracer = 0;
     var grav = 1;
@@ -317,17 +336,10 @@ class R {
 
     static var frustum = [new Plane(), new Plane(), new Plane(), new Plane()];
 
-    static var vup = new Vec();
-    static var vpn = new Vec();
-    static var vright = new Vec();
-
-    static var refdef = {
-        vrect: {x: 0, y: 0, width: 0, height: 0},
-        vieworg: new Vec(),
-        viewangles: new Vec(),
-        fov_x: 0.0,
-        fov_y: 0.0,
-    }
+    static var vup(default,never) = new Vec();
+    static var vpn(default,never) = new Vec();
+    static var vright(default,never) = new Vec();
+    static var refdef(default,never) = new RefDef();
 
     static function CullBox(mins:Vec, maxs:Vec):Bool {
         if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[0]) == 2)

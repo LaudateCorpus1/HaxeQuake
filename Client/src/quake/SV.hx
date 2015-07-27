@@ -650,7 +650,7 @@ class SV {
         }
 
         for (i in 1...server.num_edicts)
-            server.edicts[i].v.effects = Std.int(server.edicts[i].v.effects) & ~EntityEffect.muzzleflash;
+            server.edicts[i].v.effects = Std.int(server.edicts[i].v.effects) & ~EF_MUZZLEFLASH;
     }
 
     static function ModelIndex(name:String):Int {

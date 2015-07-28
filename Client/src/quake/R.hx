@@ -109,9 +109,9 @@ class R {
         }
         var sides = Vec.BoxOnPlaneSide(emins, emaxs, node.plane);
         if ((sides & 1) != 0)
-            SplitEntityOnNode(emins, emaxs, node.children[0]);
+            SplitEntityOnNode(emins, emaxs, node.child0);
         if ((sides & 2) != 0)
-            SplitEntityOnNode(emins, emaxs, node.children[1]);
+            SplitEntityOnNode(emins, emaxs, node.child1);
     }
 
     // light
@@ -178,11 +178,11 @@ class R {
                 dist = Vec.DotProduct(light.origin, splitplane.normal) - splitplane.dist;
 
             if (dist > light.radius) {
-                node = node.children[0];
+                node = node.child0;
                 continue;
             }
             if (dist < -light.radius) {
-                node = node.children[1];
+                node = node.child1;
                 continue;
             }
 
@@ -197,11 +197,11 @@ class R {
                 surf.dlightbits += bit;
             }
 
-            var child = node.children[0];
+            var child = node.child0;
             if (child.contents >= 0)
                 MarkLights(light, bit, child);
 
-            child = node.children[1];
+            child = node.child1;
             if (child.contents >= 0)
                 MarkLights(light, bit, child);
 
@@ -266,7 +266,7 @@ class R {
         var side = front < 0;
 
         if ((back < 0) == side)
-            return RecursiveLightPoint(node.children[side ? 1 : 0], start, end);
+            return RecursiveLightPoint(side ? node.child1 : node.child0, start, end);
 
         var frac = front / (front - back);
         var mid = Vec.of(
@@ -275,7 +275,7 @@ class R {
             start[2] + (end[2] - start[2]) * frac
         );
 
-        var r = RecursiveLightPoint(node.children[side ? 1 : 0], start, mid);
+        var r = RecursiveLightPoint(side ? node.child1 : node.child0, start, mid);
         if (r >= 0)
             return r;
 
@@ -318,7 +318,7 @@ class R {
             }
             return r >> 8;
         }
-        return RecursiveLightPoint(node.children[side ? 0 : 1], mid, end);
+        return RecursiveLightPoint(side ? node.child0 : node.child1, mid, end);
     }
 
     static function LightPoint(p:Vec):Int {
@@ -1853,8 +1853,8 @@ class R {
                 R.drawsky = true;
             return;
         }
-        R.RecursiveWorldNode(node.children[0]);
-        R.RecursiveWorldNode(node.children[1]);
+        R.RecursiveWorldNode(node.child0);
+        R.RecursiveWorldNode(node.child1);
     }
 
     static function DrawWorld() {

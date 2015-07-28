@@ -6309,7 +6309,7 @@ quake_Mod_$Brush.PointInLeaf = function(p,model) {
 		var tmp;
 		var v2 = node.plane.normal;
 		tmp = p[0] * v2[0] + p[1] * v2[1] + p[2] * v2[2];
-		if(tmp - node.plane.dist > 0) node = node.children[0]; else node = node.children[1];
+		if(tmp - node.plane.dist > 0) node = node.child0; else node = node.child1;
 	}
 };
 quake_Mod_$Brush.LeafPVS = function(leaf,model) {
@@ -6753,18 +6753,17 @@ quake_Mod_$Brush.LoadNodes = function(loadmodel,view) {
 		var i1 = _g1++;
 		var out = loadmodel.nodes[i1];
 		out.plane = loadmodel.planes[out.planenum];
-		out.children = [];
 		var children1 = children[i1];
-		if(children1[0] >= 0) out.children[0] = loadmodel.nodes[children1[0]]; else out.children[0] = loadmodel.leafs[-1 - children1[0]];
-		if(children1[1] >= 0) out.children[1] = loadmodel.nodes[children1[1]]; else out.children[1] = loadmodel.leafs[-1 - children1[1]];
+		if(children1[0] >= 0) out.child0 = loadmodel.nodes[children1[0]]; else out.child0 = loadmodel.leafs[-1 - children1[0]];
+		if(children1[1] >= 0) out.child1 = loadmodel.nodes[children1[1]]; else out.child1 = loadmodel.leafs[-1 - children1[1]];
 	}
 	quake_Mod_$Brush.SetParent(loadmodel.nodes[0],null);
 };
 quake_Mod_$Brush.SetParent = function(node,parent) {
 	node.parent = parent;
 	if(node.contents < 0) return;
-	quake_Mod_$Brush.SetParent(node.children[0],node);
-	quake_Mod_$Brush.SetParent(node.children[1],node);
+	quake_Mod_$Brush.SetParent(node.child0,node);
+	quake_Mod_$Brush.SetParent(node.child1,node);
 };
 quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 	var fileofs = view.getUint32(76,true);
@@ -6847,9 +6846,9 @@ quake_Mod_$Brush.MakeHull0 = function(loadmodel) {
 		var out = new quake_ClipNode();
 		out.planenum = node.planenum;
 		out.children = [];
-		var child = node.children[0];
+		var child = node.child0;
 		out.children[0] = child.contents < 0?child.contents:child.num;
-		child = node.children[1];
+		child = node.child1;
 		out.children[1] = child.contents < 0?child.contents:child.num;
 		clipnodes[i] = out;
 	}
@@ -9544,9 +9543,9 @@ quake_SV.AddToFatPVS = function(org,node) {
 		}
 		var normal = node.plane.normal;
 		var d = org[0] * normal[0] + org[1] * normal[1] + org[2] * normal[2] - node.plane.dist;
-		if(d > 8.0) node = node.children[0]; else {
-			if(d >= -8.0) quake_SV.AddToFatPVS(org,node.children[0]);
-			node = node.children[1];
+		if(d > 8.0) node = node.child0; else {
+			if(d >= -8.0) quake_SV.AddToFatPVS(org,node.child0);
+			node = node.child1;
 		}
 	}
 };
@@ -11213,8 +11212,8 @@ quake_SV.FindTouchedLeafs = function(ent,node) {
 	v1[2] = ent._v_float[6];
 	tmp1 = v1;
 	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide(tmp,tmp1,node.plane);
-	if((sides & 1) != 0) quake_SV.FindTouchedLeafs(ent,node.children[0]);
-	if((sides & 2) != 0) quake_SV.FindTouchedLeafs(ent,node.children[1]);
+	if((sides & 1) != 0) quake_SV.FindTouchedLeafs(ent,node.child0);
+	if((sides & 2) != 0) quake_SV.FindTouchedLeafs(ent,node.child1);
 };
 quake_SV.LinkEdict = function(ent,touch_triggers) {
 	if(ent.free || ent == quake_SV.server.edicts[0]) return;
@@ -11483,8 +11482,8 @@ quake_R.SplitEntityOnNode = function(emins,emaxs,node) {
 		return;
 	}
 	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide(emins,emaxs,node.plane);
-	if((sides & 1) != 0) quake_R.SplitEntityOnNode(emins,emaxs,node.children[0]);
-	if((sides & 2) != 0) quake_R.SplitEntityOnNode(emins,emaxs,node.children[1]);
+	if((sides & 1) != 0) quake_R.SplitEntityOnNode(emins,emaxs,node.child0);
+	if((sides & 2) != 0) quake_R.SplitEntityOnNode(emins,emaxs,node.child1);
 };
 quake_R.AnimateLight = function() {
 	if(quake_R.fullbright.value == 0) {
@@ -11555,11 +11554,11 @@ quake_R.MarkLights = function(light,bit,node) {
 			dist = tmp - splitplane.dist;
 		}
 		if(dist > light.radius) {
-			node = node.children[0];
+			node = node.child0;
 			continue;
 		}
 		if(dist < -light.radius) {
-			node = node.children[1];
+			node = node.child1;
 			continue;
 		}
 		var _g1 = 0;
@@ -11574,9 +11573,9 @@ quake_R.MarkLights = function(light,bit,node) {
 			}
 			surf.dlightbits += bit;
 		}
-		var child = node.children[0];
+		var child = node.child0;
 		if(child.contents >= 0) quake_R.MarkLights(light,bit,child);
-		child = node.children[1];
+		child = node.child1;
 		if(child.contents >= 0) quake_R.MarkLights(light,bit,child);
 		break;
 	}
@@ -11634,7 +11633,7 @@ quake_R.RecursiveLightPoint = function(node,start,end) {
 	var front = start[0] * normal[0] + start[1] * normal[1] + start[2] * normal[2] - node.plane.dist;
 	var back = end[0] * normal[0] + end[1] * normal[1] + end[2] * normal[2] - node.plane.dist;
 	var side = front < 0;
-	if(back < 0 == side) return quake_R.RecursiveLightPoint(node.children[side?1:0],start,end);
+	if(back < 0 == side) return quake_R.RecursiveLightPoint(side?node.child1:node.child0,start,end);
 	var frac = front / (front - back);
 	var tmp;
 	var v = new Float32Array(3);
@@ -11643,7 +11642,7 @@ quake_R.RecursiveLightPoint = function(node,start,end) {
 	v[2] = start[2] + (end[2] - start[2]) * frac;
 	tmp = v;
 	var mid = tmp;
-	var r = quake_R.RecursiveLightPoint(node.children[side?1:0],start,mid);
+	var r = quake_R.RecursiveLightPoint(side?node.child1:node.child0,start,mid);
 	if(r >= 0) return r;
 	if(back < 0 == side) return -1;
 	var _g1 = 0;
@@ -11702,7 +11701,7 @@ quake_R.RecursiveLightPoint = function(node,start,end) {
 		}
 		return r >> 8;
 	}
-	return quake_R.RecursiveLightPoint(node.children[side?0:1],mid,end);
+	return quake_R.RecursiveLightPoint(side?node.child0:node.child1,mid,end);
 };
 quake_R.LightPoint = function(p) {
 	if(quake_CL.state.worldmodel.lightdata == null) return 255;
@@ -13120,8 +13119,8 @@ quake_R.RecursiveWorldNode = function(node) {
 		if(node.skychain != node.waterchain) quake_R.drawsky = true;
 		return;
 	}
-	quake_R.RecursiveWorldNode(node.children[0]);
-	quake_R.RecursiveWorldNode(node.children[1]);
+	quake_R.RecursiveWorldNode(node.child0);
+	quake_R.RecursiveWorldNode(node.child1);
 };
 quake_R.DrawWorld = function() {
 	var clmodel = quake_CL.state.worldmodel;

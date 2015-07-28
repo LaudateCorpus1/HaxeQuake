@@ -358,11 +358,11 @@ class SV {
             var normal = node.plane.normal;
             var d = org[0] * normal[0] + org[1] * normal[1] + org[2] * normal[2] - node.plane.dist;
             if (d > 8.0) {
-                node = node.children[0];
+                node = node.child0;
             } else {
                 if (d >= -8.0)
-                    AddToFatPVS(org, node.children[0]);
-                node = node.children[1];
+                    AddToFatPVS(org, node.child0);
+                node = node.child1;
             }
         }
     }
@@ -2090,9 +2090,9 @@ class SV {
                                        Vec.of(ent.v.absmax, ent.v.absmax1, ent.v.absmax2),
                                        node.plane);
         if ((sides & 1) != 0)
-            FindTouchedLeafs(ent, node.children[0]);
+            FindTouchedLeafs(ent, node.child0);
         if ((sides & 2) != 0)
-            FindTouchedLeafs(ent, node.children[1]);
+            FindTouchedLeafs(ent, node.child1);
     }
 
     static function LinkEdict(ent:Edict, touch_triggers:Bool):Void {

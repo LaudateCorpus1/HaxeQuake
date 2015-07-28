@@ -50,7 +50,8 @@ class Node {
     var plane:Plane;
     var num:Int;
     var parent:Node;
-    var children:Array<Node>;
+    var child0:Node;
+    var child1:Node;
     var numfaces:Int;
     var firstface:Int;
     var visframe:Int;
@@ -139,9 +140,9 @@ class Mod_Brush {
             if (node.contents < 0)
                 return cast node;
             if ((Vec.DotProduct(p, node.plane.normal) - node.plane.dist) > 0)
-                node = node.children[0];
+                node = node.child0;
             else
-                node = node.children[1];
+                node = node.child1;
         }
     }
 
@@ -539,16 +540,15 @@ class Mod_Brush {
         for (i in 0...count) {
             var out = loadmodel.nodes[i];
             out.plane = loadmodel.planes[out.planenum];
-            out.children = [];
             var children = children[i];
             if (children[0] >= 0)
-                out.children[0] = loadmodel.nodes[children[0]];
+                out.child0 = loadmodel.nodes[children[0]];
             else
-                out.children[0] = loadmodel.leafs[-1 - children[0]];
+                out.child0 = loadmodel.leafs[-1 - children[0]];
             if (children[1] >= 0)
-                out.children[1] = loadmodel.nodes[children[1]];
+                out.child1 = loadmodel.nodes[children[1]];
             else
-                out.children[1] = loadmodel.leafs[-1 - children[1]];
+                out.child1 = loadmodel.leafs[-1 - children[1]];
         }
         SetParent(loadmodel.nodes[0], null);
     }
@@ -557,8 +557,8 @@ class Mod_Brush {
         node.parent = parent;
         if (node.contents < 0)
             return;
-        SetParent(node.children[0], node);
-        SetParent(node.children[1], node);
+        SetParent(node.child0, node);
+        SetParent(node.child1, node);
     }
 
     static function LoadClipnodes(loadmodel:MModel, view:DataView):Void {
@@ -615,10 +615,12 @@ class Mod_Brush {
             var out = new ClipNode();
             out.planenum = node.planenum;
             out.children = [];
-            var child = node.children[0];
+
+            var child = node.child0;
             out.children[0] = child.contents < 0 ? child.contents : child.num;
-            child = node.children[1];
+            child = node.child1;
             out.children[1] = child.contents < 0 ? child.contents : child.num;
+
             clipnodes[i] = out;
         }
         loadmodel.hulls[0] = hull;

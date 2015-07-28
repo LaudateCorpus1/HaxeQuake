@@ -19,7 +19,8 @@ class Hull {
 @:publicFields
 class ClipNode {
     var planenum:Int;
-    var children:Array<Contents>;
+    var child0:Int;
+    var child1:Int;
     function new() {}
 }
 
@@ -592,7 +593,8 @@ class Mod_Brush {
             loadmodel.clipnodes.push({
                 var n = new ClipNode();
                 n.planenum = view.getUint32(fileofs, true);
-                n.children = [view.getInt16(fileofs + 4, true), view.getInt16(fileofs + 6, true)];
+                n.child0 = view.getInt16(fileofs + 4, true);
+                n.child1 = view.getInt16(fileofs + 6, true);
                 n;
             });
             fileofs += 8;
@@ -614,12 +616,11 @@ class Mod_Brush {
             var node = loadmodel.nodes[i];
             var out = new ClipNode();
             out.planenum = node.planenum;
-            out.children = [];
 
             var child = node.child0;
-            out.children[0] = child.contents < 0 ? child.contents : child.num;
+            out.child0 = child.contents < 0 ? child.contents : child.num;
             child = node.child1;
-            out.children[1] = child.contents < 0 ? child.contents : child.num;
+            out.child1 = child.contents < 0 ? child.contents : child.num;
 
             clipnodes[i] = out;
         }

@@ -6821,7 +6821,8 @@ quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 		var tmp6;
 		var n = new quake_ClipNode();
 		n.planenum = view.getUint32(fileofs,true);
-		n.children = [view.getInt16(fileofs + 4,true),view.getInt16(fileofs + 6,true)];
+		n.child0 = view.getInt16(fileofs + 4,true);
+		n.child1 = view.getInt16(fileofs + 6,true);
 		tmp6 = n;
 		loadmodel.clipnodes.push(tmp6);
 		fileofs += 8;
@@ -6845,11 +6846,10 @@ quake_Mod_$Brush.MakeHull0 = function(loadmodel) {
 		var node = loadmodel.nodes[i];
 		var out = new quake_ClipNode();
 		out.planenum = node.planenum;
-		out.children = [];
 		var child = node.child0;
-		out.children[0] = child.contents < 0?child.contents:child.num;
+		out.child0 = child.contents < 0?child.contents:child.num;
 		child = node.child1;
-		out.children[1] = child.contents < 0?child.contents:child.num;
+		out.child1 = child.contents < 0?child.contents:child.num;
 		clipnodes[i] = out;
 	}
 	loadmodel.hulls[0] = hull;
@@ -11108,9 +11108,10 @@ quake_SV.InitBoxHull = function() {
 		var side = i & 1;
 		var node = new quake_ClipNode();
 		node.planenum = i;
-		node.children = [];
-		node.children[side] = -1;
-		if(i != 5) node.children[side ^ 1] = i + 1; else node.children[side ^ 1] = -2;
+		if(side == 0) node.child0 = -1; else node.child1 = -1;
+		if(i != 5) {
+			if(side == 0) node.child1 = i + 1; else node.child0 = i + 1;
+		} else if(side == 0) node.child1 = -2; else node.child0 = -2;
 		quake_SV.box_clipnodes.push(node);
 		var plane = new quake_Plane();
 		plane.type = i >> 1;
@@ -11256,7 +11257,7 @@ quake_SV.HullPointContents = function(hull,num,p) {
 		var plane = hull.planes[node.planenum];
 		var d;
 		if(plane.type <= 2) d = p[plane.type] - plane.dist; else d = plane.normal[0] * p[0] + plane.normal[1] * p[1] + plane.normal[2] * p[2] - plane.dist;
-		if(d >= 0.0) num = node.children[0]; else num = node.children[1];
+		if(d >= 0.0) num = node.child0; else num = node.child1;
 	}
 	return num;
 };
@@ -11298,8 +11299,8 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 		t1 = plane.normal[0] * p1[0] + plane.normal[1] * p1[1] + plane.normal[2] * p1[2] - plane.dist;
 		t2 = plane.normal[0] * p2[0] + plane.normal[1] * p2[1] + plane.normal[2] * p2[2] - plane.dist;
 	}
-	if(t1 >= 0.0 && t2 >= 0.0) return quake_SV.RecursiveHullCheck(hull,node.children[0],p1f,p2f,p1,p2,trace);
-	if(t1 < 0.0 && t2 < 0.0) return quake_SV.RecursiveHullCheck(hull,node.children[1],p1f,p2f,p1,p2,trace);
+	if(t1 >= 0.0 && t2 >= 0.0) return quake_SV.RecursiveHullCheck(hull,node.child0,p1f,p2f,p1,p2,trace);
+	if(t1 < 0.0 && t2 < 0.0) return quake_SV.RecursiveHullCheck(hull,node.child1,p1f,p2f,p1,p2,trace);
 	var frac = (t1 + (t1 < 0.0?0.03125:-0.03125)) / (t1 - t2);
 	if(frac < 0.0) frac = 0.0; else if(frac > 1.0) frac = 1.0;
 	var midf = p1f + (p2f - p1f) * frac;
@@ -11310,11 +11311,11 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	v[2] = p1[2] + frac * (p2[2] - p1[2]);
 	tmp = v;
 	var mid = tmp;
-	var side = t1 < 0.0?1:0;
-	if(!quake_SV.RecursiveHullCheck(hull,node.children[side],p1f,midf,p1,mid,trace)) return false;
-	if(quake_SV.HullPointContents(hull,node.children[1 - side],mid) != -2) return quake_SV.RecursiveHullCheck(hull,node.children[1 - side],midf,p2f,mid,p2,trace);
+	var side = t1 < 0.0;
+	if(!quake_SV.RecursiveHullCheck(hull,side?node.child1:node.child0,p1f,midf,p1,mid,trace)) return false;
+	if(quake_SV.HullPointContents(hull,side?node.child0:node.child1,mid) != -2) return quake_SV.RecursiveHullCheck(hull,side?node.child0:node.child1,midf,p2f,mid,p2,trace);
 	if(trace.allsolid) return false;
-	if(side == 0) {
+	if(!side) {
 		trace.plane.normal = new Float32Array(plane.normal);
 		trace.plane.dist = plane.dist;
 	} else {

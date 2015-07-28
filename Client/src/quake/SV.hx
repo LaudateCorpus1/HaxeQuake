@@ -1962,12 +1962,23 @@ class SV {
 
             var node = new ClipNode();
             node.planenum = i;
-            node.children = [];
-            node.children[side] = empty;
-            if (i != 5)
-                node.children[side ^ 1] = i + 1;
+
+            if (side == 0)
+                node.child0 = Contents.empty;
             else
-                node.children[side ^ 1] = solid;
+                node.child1 = Contents.empty;
+
+            if (i != 5) {
+                if (side == 0)
+                    node.child1 = i + 1;
+                else
+                    node.child0 = i + 1;
+            } else {
+                if (side == 0)
+                    node.child1 = Contents.solid;
+                else
+                    node.child0 = Contents.solid;
+            }
             box_clipnodes.push(node);
 
             var plane = new Plane();
@@ -2160,9 +2171,9 @@ class SV {
             else
                 d = plane.normal[0] * p[0] + plane.normal[1] * p[1] + plane.normal[2] * p[2] - plane.dist;
             if (d >= 0.0)
-                num = node.children[0];
+                num = node.child0;
             else
-                num = node.children[1];
+                num = node.child1;
         }
         return num;
     }
@@ -2209,9 +2220,9 @@ class SV {
         }
 
         if (t1 >= 0.0 && t2 >= 0.0)
-            return RecursiveHullCheck(hull, node.children[0], p1f, p2f, p1, p2, trace);
+            return RecursiveHullCheck(hull, node.child0, p1f, p2f, p1, p2, trace);
         if (t1 < 0.0 && t2 < 0.0)
-            return RecursiveHullCheck(hull, node.children[1], p1f, p2f, p1, p2, trace);
+            return RecursiveHullCheck(hull, node.child1, p1f, p2f, p1, p2, trace);
 
         var frac = (t1 + (t1 < 0.0 ? 0.03125 : -0.03125)) / (t1 - t2);
         if (frac < 0.0)
@@ -2225,18 +2236,18 @@ class SV {
             p1[1] + frac * (p2[1] - p1[1]),
             p1[2] + frac * (p2[2] - p1[2])
         );
-        var side = t1 < 0.0 ? 1 : 0;
+        var side = t1 < 0.0;
 
-        if (!RecursiveHullCheck(hull, node.children[side], p1f, midf, p1, mid, trace))
+        if (!RecursiveHullCheck(hull, side ? node.child1 : node.child0, p1f, midf, p1, mid, trace))
             return false;
 
-        if (HullPointContents(hull, node.children[1 - side], mid) != Contents.solid)
-            return RecursiveHullCheck(hull, node.children[1 - side], midf, p2f, mid, p2, trace);
+        if (HullPointContents(hull, side ? node.child0 : node.child1, mid) != Contents.solid)
+            return RecursiveHullCheck(hull, side ? node.child0 : node.child1, midf, p2f, mid, p2, trace);
 
         if (trace.allsolid)
             return false;
 
-        if (side == 0) {
+        if (!side) {
             trace.plane.normal = plane.normal.copy();
             trace.plane.dist = plane.dist;
         } else {

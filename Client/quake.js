@@ -6818,13 +6818,11 @@ quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 	var _g = 0;
 	while(_g < count) {
 		_g++;
-		var tmp6;
 		var n = new quake_ClipNode();
 		n.planenum = view.getUint32(fileofs,true);
 		n.child0 = view.getInt16(fileofs + 4,true);
 		n.child1 = view.getInt16(fileofs + 6,true);
-		tmp6 = n;
-		loadmodel.clipnodes.push(tmp6);
+		loadmodel.clipnodes.push(n);
 		fileofs += 8;
 	}
 };

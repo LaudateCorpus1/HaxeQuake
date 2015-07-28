@@ -590,13 +590,11 @@ class Mod_Brush {
             h;
         };
         for (i in 0...count) {
-            loadmodel.clipnodes.push({
-                var n = new ClipNode();
-                n.planenum = view.getUint32(fileofs, true);
-                n.child0 = view.getInt16(fileofs + 4, true);
-                n.child1 = view.getInt16(fileofs + 6, true);
-                n;
-            });
+            var n = new ClipNode();
+            n.planenum = view.getUint32(fileofs, true);
+            n.child0 = view.getInt16(fileofs + 4, true);
+            n.child1 = view.getInt16(fileofs + 6, true);
+            loadmodel.clipnodes.push(n);
             fileofs += 8;
         }
     }

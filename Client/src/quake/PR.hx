@@ -137,9 +137,9 @@ private class PRFunction {
 @:publicFields
 private class PRStatement {
 	var op:PROp;
-	var a:Int;
-	var b:Int;
-	var c:Int;
+	var a:Eval;
+	var b:Eval;
+	var c:Eval;
 
 	function new(view:DataView, ofs:Int) {
 		op = view.getUint16(ofs, true);
@@ -171,6 +171,36 @@ private class PRStackItem {
 	var OFS_PARM6    = 22;
 	var OFS_PARM7    = 25;
 	var RESERVED_OFS = 28;
+}
+
+abstract Eval(Int) to Int from Int {
+	public inline function new(ofs) {
+		this = ofs;
+	}
+
+	public var float(get,set):Float;
+	inline function get_float() return PR._globals_float[this];
+	inline function set_float(v) return PR._globals_float[this] = v;
+
+	public var float1(get,set):Float;
+	inline function get_float1() return PR._globals_float[this + 1];
+	inline function set_float1(v) return PR._globals_float[this + 1] = v;
+
+	public var float2(get,set):Float;
+	inline function get_float2() return PR._globals_float[this + 2];
+	inline function set_float2(v) return PR._globals_float[this + 2] = v;
+
+	public var int(get,set):Int;
+	inline function get_int() return PR._globals_int[this];
+	inline function set_int(v) return PR._globals_int[this] = v;
+
+	public var int1(get,set):Int;
+	inline function get_int1() return PR._globals_int[this + 1];
+	inline function set_int1(v) return PR._globals_int[this + 1] = v;
+
+	public var int2(get,set):Int;
+	inline function get_int2() return PR._globals_int[this + 2];
+	inline function set_int2(v) return PR._globals_int[this + 2] = v;
 }
 
 
@@ -562,141 +592,140 @@ class PR {
 			PR.xstatement = s;
 			if (PR.trace)
 				PR.PrintStatement(st);
+
 			switch (st.op) {
 				case PROp.add_f:
-					PR._globals_float[st.c] = PR._globals_float[st.a] + PR._globals_float[st.b];
+					st.c.float = st.a.float + st.b.float;
 				case PROp.add_v:
-					PR._globals_float[st.c] = PR._globals_float[st.a] + PR._globals_float[st.b];
-					PR._globals_float[st.c + 1] = PR._globals_float[st.a + 1] + PR._globals_float[st.b + 1];
-					PR._globals_float[st.c + 2] = PR._globals_float[st.a + 2] + PR._globals_float[st.b + 2];
+					st.c.float = st.a.float + st.b.float;
+					st.c.float1 = st.a.float1 + st.b.float1;
+					st.c.float2 = st.a.float2 + st.b.float2;
 				case PROp.sub_f:
-					PR._globals_float[st.c] = PR._globals_float[st.a] - PR._globals_float[st.b];
+					st.c.float = st.a.float - st.b.float;
 				case PROp.sub_v:
-					PR._globals_float[st.c] = PR._globals_float[st.a] - PR._globals_float[st.b];
-					PR._globals_float[st.c + 1] = PR._globals_float[st.a + 1] - PR._globals_float[st.b + 1];
-					PR._globals_float[st.c + 2] = PR._globals_float[st.a + 2] - PR._globals_float[st.b + 2];
+					st.c.float = st.a.float - st.b.float;
+					st.c.float1 = st.a.float1 - st.b.float1;
+					st.c.float2 = st.a.float2 - st.b.float2;
 				case PROp.mul_f:
-					PR._globals_float[st.c] = PR._globals_float[st.a] * PR._globals_float[st.b];
+					st.c.float = st.a.float * st.b.float;
 				case PROp.mul_v:
-					PR._globals_float[st.c] = PR._globals_float[st.a] * PR._globals_float[st.b] +
-						PR._globals_float[st.a + 1] * PR._globals_float[st.b + 1] +
-						PR._globals_float[st.a + 2] * PR._globals_float[st.b + 2];
+					st.c.float = st.a.float * st.b.float + st.a.float1 * st.b.float1 + st.a.float2 * st.b.float2;
 				case PROp.mul_fv:
-					PR._globals_float[st.c] = PR._globals_float[st.a] * PR._globals_float[st.b];
-					PR._globals_float[st.c + 1] = PR._globals_float[st.a] * PR._globals_float[st.b + 1];
-					PR._globals_float[st.c + 2] = PR._globals_float[st.a] * PR._globals_float[st.b + 2];
+					st.c.float = st.a.float * st.b.float;
+					st.c.float1 = st.a.float * st.b.float1;
+					st.c.float2 = st.a.float * st.b.float2;
 				case PROp.mul_vf:
-					PR._globals_float[st.c] = PR._globals_float[st.b] * PR._globals_float[st.a];
-					PR._globals_float[st.c + 1] = PR._globals_float[st.b] * PR._globals_float[st.a + 1];
-					PR._globals_float[st.c + 2] = PR._globals_float[st.b] * PR._globals_float[st.a + 2];
+					st.c.float = st.b.float * st.a.float;
+					st.c.float1 = st.b.float * st.a.float1;
+					st.c.float2 = st.b.float * st.a.float2;
 				case PROp.div_f:
-					PR._globals_float[st.c] = PR._globals_float[st.a] / PR._globals_float[st.b];
+					st.c.float = st.a.float / st.b.float;
 				case PROp.bitand:
-					PR._globals_float[st.c] = Std.int(PR._globals_float[st.a]) & Std.int(PR._globals_float[st.b]);
+					st.c.float = Std.int(st.a.float) & Std.int(st.b.float);
 				case PROp.bitor:
-					PR._globals_float[st.c] = Std.int(PR._globals_float[st.a]) | Std.int(PR._globals_float[st.b]);
+					st.c.float = Std.int(st.a.float) | Std.int(st.b.float);
 				case PROp.ge:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] >= PR._globals_float[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.float >= st.b.float) ? 1.0 : 0.0;
 				case PROp.le:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] <= PR._globals_float[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.float <= st.b.float) ? 1.0 : 0.0;
 				case PROp.gt:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] > PR._globals_float[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.float > st.b.float) ? 1.0 : 0.0;
 				case PROp.lt:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] < PR._globals_float[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.float < st.b.float) ? 1.0 : 0.0;
 				case PROp.and:
-					PR._globals_float[st.c] = ((PR._globals_float[st.a] != 0.0) && (PR._globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
+					st.c.float = ((st.a.float != 0.0) && (st.b.float != 0.0)) ? 1.0 : 0.0;
 				case PROp.or:
-					PR._globals_float[st.c] = ((PR._globals_float[st.a] != 0.0) || (PR._globals_float[st.b] != 0.0)) ? 1.0 : 0.0;
+					st.c.float = ((st.a.float != 0.0) || (st.b.float != 0.0)) ? 1.0 : 0.0;
 				case PROp.not_f:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] == 0.0) ? 1.0 : 0.0;
+					st.c.float = (st.a.float == 0.0) ? 1.0 : 0.0;
 				case PROp.not_v:
-					PR._globals_float[st.c] = ((PR._globals_float[st.a] == 0.0) &&
-						(PR._globals_float[st.a + 1] == 0.0) &&
-						(PR._globals_float[st.a + 2] == 0.0)) ? 1.0 : 0.0;
+					st.c.float = ((st.a.float == 0.0) &&
+						(st.a.float1 == 0.0) &&
+						(st.a.float2 == 0.0)) ? 1.0 : 0.0;
 				case PROp.not_s:
-					if (PR._globals_int[st.a] != 0)
-						PR._globals_float[st.c] = (PR.strings[PR._globals_int[st.a]] == 0) ? 1.0 : 0.0;
+					if (st.a.int != 0)
+						st.c.float = (PR.strings[st.a.int] == 0) ? 1.0 : 0.0;
 					else
-						PR._globals_float[st.c] = 1.0;
+						st.c.float = 1.0;
 				case PROp.not_fnc | PROp.not_ent:
-					PR._globals_float[st.c] = (PR._globals_int[st.a] == 0) ? 1.0 : 0.0;
+					st.c.float = (st.a.int == 0) ? 1.0 : 0.0;
 				case PROp.eq_f:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] == PR._globals_float[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.float == st.b.float) ? 1.0 : 0.0;
 				case PROp.eq_v:
-					PR._globals_float[st.c] = ((PR._globals_float[st.a] == PR._globals_float[st.b])
-						&& (PR._globals_float[st.a + 1] == PR._globals_float[st.b + 1])
-						&& (PR._globals_float[st.a + 2] == PR._globals_float[st.b + 2])) ? 1.0 : 0.0;
+					st.c.float = ((st.a.float == st.b.float)
+						&& (st.a.float1 == st.b.float1)
+						&& (st.a.float2 == st.b.float2)) ? 1.0 : 0.0;
 				case PROp.eq_s:
-					PR._globals_float[st.c] = (PR.GetString(PR._globals_int[st.a]) == PR.GetString(PR._globals_int[st.b])) ? 1.0 : 0.0;
+					st.c.float = (PR.GetString(st.a.int) == PR.GetString(st.b.int)) ? 1.0 : 0.0;
 				case PROp.eq_e | PROp.eq_fnc:
-					PR._globals_float[st.c] = (PR._globals_int[st.a] == PR._globals_int[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.int == st.b.int) ? 1.0 : 0.0;
 				case PROp.ne_f:
-					PR._globals_float[st.c] = (PR._globals_float[st.a] != PR._globals_float[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.float != st.b.float) ? 1.0 : 0.0;
 				case PROp.ne_v:
-					PR._globals_float[st.c] = ((PR._globals_float[st.a] != PR._globals_float[st.b])
-						|| (PR._globals_float[st.a + 1] != PR._globals_float[st.b + 1])
-						|| (PR._globals_float[st.a + 2] != PR._globals_float[st.b + 2])) ? 1.0 : 0.0;
+					st.c.float = ((st.a.float != st.b.float)
+						|| (st.a.float1 != st.b.float1)
+						|| (st.a.float2 != st.b.float2)) ? 1.0 : 0.0;
 				case PROp.ne_s:
-					PR._globals_float[st.c] = (PR.GetString(PR._globals_int[st.a]) != PR.GetString(PR._globals_int[st.b])) ? 1.0 : 0.0;
+					st.c.float = (PR.GetString(st.a.int) != PR.GetString(st.b.int)) ? 1.0 : 0.0;
 				case PROp.ne_e | PROp.ne_fnc:
-					PR._globals_float[st.c] = (PR._globals_int[st.a] != PR._globals_int[st.b]) ? 1.0 : 0.0;
+					st.c.float = (st.a.int != st.b.int) ? 1.0 : 0.0;
 				case PROp.store_f | PROp.store_ent | PROp.store_fld | PROp.store_s |PROp.store_fnc:
-					PR._globals_int[st.b] = PR._globals_int[st.a];
+					st.b.int = st.a.int;
 				case PROp.store_v:
-					PR._globals_int[st.b] = PR._globals_int[st.a];
-					PR._globals_int[st.b + 1] = PR._globals_int[st.a + 1];
-					PR._globals_int[st.b + 2] = PR._globals_int[st.a + 2];
+					st.b.int = st.a.int;
+					st.b.int1 = st.a.int1;
+					st.b.int2 = st.a.int2;
 				case PROp.storep_f | PROp.storep_ent | PROp.storep_fld | PROp.storep_s | PROp.storep_fnc:
-					var ptr = PR._globals_int[st.b];
-					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = PR._globals_int[st.a];
+					var ptr = st.b.int;
+					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = st.a.int;
 				case PROp.storep_v:
-					var ed = SV.server.edicts[Math.floor(PR._globals_int[st.b] / PR.edict_size)];
-					var ptr = ((PR._globals_int[st.b] % PR.edict_size) - 96) >> 2;
-					ed._v_int[ptr] = PR._globals_int[st.a];
-					ed._v_int[ptr + 1] = PR._globals_int[st.a + 1];
-					ed._v_int[ptr + 2] = PR._globals_int[st.a + 2];
+					var ed = SV.server.edicts[Math.floor(st.b.int / PR.edict_size)];
+					var ptr = ((st.b.int % PR.edict_size) - 96) >> 2;
+					ed._v_int[ptr] = st.a.int;
+					ed._v_int[ptr + 1] = st.a.int1;
+					ed._v_int[ptr + 2] = st.a.int2;
 				case PROp.address:
-					var ed = PR._globals_int[st.a];
+					var ed = st.a.int;
 					if (ed == 0 && !SV.server.loading)
 						PR.RunError('assignment to world entity');
-					PR._globals_int[st.c] = ed * PR.edict_size + 96 + (PR._globals_int[st.b] << 2);
+					st.c.int = ed * PR.edict_size + 96 + (st.b.int << 2);
 				case PROp.load_f | PROp.load_fld | PROp.load_ent | PROp.load_s | PROp.load_fnc:
-					PR._globals_int[st.c] = SV.server.edicts[PR._globals_int[st.a]]._v_int[PR._globals_int[st.b]];
+					st.c.int = SV.server.edicts[st.a.int]._v_int[st.b.int];
 				case PROp.load_v:
-					var ed = SV.server.edicts[PR._globals_int[st.a]];
-					var ptr = PR._globals_int[st.b];
-					PR._globals_int[st.c] = ed._v_int[ptr];
-					PR._globals_int[st.c + 1] = ed._v_int[ptr + 1];
-					PR._globals_int[st.c + 2] = ed._v_int[ptr + 2];
+					var ed = SV.server.edicts[st.a.int];
+					var ptr = st.b.int;
+					st.c.int = ed._v_int[ptr];
+					st.c.int1 = ed._v_int[ptr + 1];
+					st.c.int2 = ed._v_int[ptr + 2];
 				case PROp.jz:
-					if (PR._globals_int[st.a] == 0)
+					if (st.a.int == 0)
 						s += st.b - 1;
 				case PROp.jnz:
-					if (PR._globals_int[st.a] != 0)
+					if (st.a.int != 0)
 						s += st.b - 1;
 				case PROp.jump:
 					s += st.a - 1;
 				case PROp.call0 | PROp.call1 | PROp.call2 | PROp.call3 | PROp.call4 | PROp.call5 | PROp.call6 | PROp.call7 | PROp.call8:
-					if (PR._globals_int[st.a] == 0)
+					if (st.a.int == 0)
 						PR.RunError('NULL function');
-					var newf = PR.functions[PR._globals_int[st.a]];
+					var newf = PR.functions[st.a.int];
 					if (newf.first_statement < 0) {
 						PF.call(st.op - PROp.call0, -newf.first_statement);
 						continue;
 					}
 					s = PR.EnterFunction(newf);
 				case PROp.done | PROp.ret:
-					PR._globals_int[OFS_RETURN] = PR._globals_int[st.a];
-					PR._globals_int[OFS_RETURN + 1] = PR._globals_int[st.a + 1];
-					PR._globals_int[OFS_RETURN + 2] = PR._globals_int[st.a + 2];
+					PR._globals_int[OFS_RETURN] = st.a.int;
+					PR._globals_int[OFS_RETURN + 1] = st.a.int1;
+					PR._globals_int[OFS_RETURN + 2] = st.a.int2;
 					s = PR.LeaveFunction();
 					if (PR.depth == exitdepth)
 						return;
 				case PROp.state:
 					var ed = SV.server.edicts[PR.globals.self];
 					ed.v.nextthink = PR.globals.time + 0.1;
-					ed.v.frame = PR._globals_float[st.a];
-					ed.v.think = PR._globals_int[st.b];
+					ed.v.frame = st.a.float;
+					ed.v.think = st.b.int;
 				default:
 					PR.RunError('Bad opcode ' + st.op);
 			}

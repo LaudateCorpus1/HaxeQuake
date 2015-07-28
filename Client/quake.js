@@ -7882,7 +7882,8 @@ quake_PR.ExecuteProgram = function(fnum) {
 			quake_PR._globals_float[st.c] = quake_PR._globals_float[st.a] == quake_PR._globals_float[st.b] && quake_PR._globals_float[st.a + 1] == quake_PR._globals_float[st.b + 1] && quake_PR._globals_float[st.a + 2] == quake_PR._globals_float[st.b + 2]?1.0:0.0;
 			break;
 		case 12:
-			quake_PR._globals_float[st.c] = quake_PR.GetString(quake_PR._globals_int[st.a]) == quake_PR.GetString(quake_PR._globals_int[st.b])?1.0:0.0;
+			var v = quake_PR.GetString(quake_PR._globals_int[st.a]) == quake_PR.GetString(quake_PR._globals_int[st.b])?1.0:0.0;
+			quake_PR._globals_float[st.c] = v;
 			break;
 		case 13:case 14:
 			quake_PR._globals_float[st.c] = quake_PR._globals_int[st.a] == quake_PR._globals_int[st.b]?1.0:0.0;
@@ -7894,7 +7895,8 @@ quake_PR.ExecuteProgram = function(fnum) {
 			quake_PR._globals_float[st.c] = quake_PR._globals_float[st.a] != quake_PR._globals_float[st.b] || quake_PR._globals_float[st.a + 1] != quake_PR._globals_float[st.b + 1] || quake_PR._globals_float[st.a + 2] != quake_PR._globals_float[st.b + 2]?1.0:0.0;
 			break;
 		case 17:
-			quake_PR._globals_float[st.c] = quake_PR.GetString(quake_PR._globals_int[st.a]) != quake_PR.GetString(quake_PR._globals_int[st.b])?1.0:0.0;
+			var v1 = quake_PR.GetString(quake_PR._globals_int[st.a]) != quake_PR.GetString(quake_PR._globals_int[st.b])?1.0:0.0;
+			quake_PR._globals_float[st.c] = v1;
 			break;
 		case 18:case 19:
 			quake_PR._globals_float[st.c] = quake_PR._globals_int[st.a] != quake_PR._globals_int[st.b]?1.0:0.0;

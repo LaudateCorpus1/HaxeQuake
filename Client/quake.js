@@ -11572,10 +11572,8 @@ quake_R.MarkLights = function(light,bit,node) {
 			}
 			surf.dlightbits += bit;
 		}
-		var child = node.child0;
-		if(child.contents >= 0) quake_R.MarkLights(light,bit,child);
-		child = node.child1;
-		if(child.contents >= 0) quake_R.MarkLights(light,bit,child);
+		if(node.child0.contents >= 0) quake_R.MarkLights(light,bit,node.child0);
+		if(node.child1.contents >= 0) quake_R.MarkLights(light,bit,node.child1);
 		break;
 	}
 };

@@ -9915,7 +9915,8 @@ quake_SV.SpawnServer = function(map) {
 	ent._v_float[9] = 4;
 	ent._v_float[8] = 7;
 	if(quake_Host.coop.value != 0) quake_PR._globals_float[36] = quake_Host.coop.value; else quake_PR._globals_float[35] = quake_Host.deathmatch.value;
-	quake_PR._globals_int[34] = quake_PR.NewString(map,64);
+	var value = quake_PR.NewString(map,64);
+	quake_PR._globals_int[34] = value;
 	quake_PR._globals_float[38] = quake_SV.svs.serverflags;
 	quake_ED.LoadFromFile(quake_SV.server.worldmodel.entities);
 	quake_SV.server.active = true;
@@ -10816,7 +10817,7 @@ quake_SV.Physics = function() {
 			quake_Sys.Error("SV.Physics: bad movetype " + (ent._v_float[8] | 0));
 		}
 	}
-	if(quake_PR._globals_float[33] != 0.0) quake_PR._globals_float[33]--;
+	if(quake_PR._globals_float[33] != 0.0) quake_PR._globals_float[33] = quake_PR._globals_float[33] - 1;
 	quake_SV.server.time += quake_Host.frametime;
 };
 quake_SV.SetIdealPitch = function() {

@@ -1633,7 +1633,7 @@ class SV {
             }
         }
         if (PR.globals.force_retouch != 0.0)
-            PR.globals.force_retouch--;
+            PR.globals.force_retouch -= 1;
         server.time += Host.frametime;
     }
 

@@ -1,25 +1,9 @@
 package quake;
 
-#if macro
-import haxe.macro.Context;
-import haxe.macro.Expr;
-import haxe.macro.Type;
-#else
 import quake.PR.PROffset;
-#end
 
+@:build(quake.GlobalVarsMacro.build())
 abstract GlobalVars(Int) {
-    @:resolve
-    macro function resolve(ethis:Expr, field:String):Expr {
-        var eIndex = macro GlobalVarOfs.$field;
-        var viewField = switch (Context.typeof(eIndex)) {
-            case TAbstract(_, [TInst(_.get() => {kind: KExpr({expr: EConst(CString(s))})}, _)]): s;
-            default: throw false;
-        }
-        return macro @:pos(Context.currentPos()) PR.$viewField[$eIndex];
-    }
-
-    #if !macro
     public inline function SetReturnVector(v:Vec):Void {
         PR._globals_float[OFS_RETURN] = v[0];
         PR._globals_float[OFS_RETURN + 1] = v[1];
@@ -49,5 +33,4 @@ abstract GlobalVars(Int) {
     public inline function GetInt(ofs:Int):Int {
         return PR._globals_int[ofs];
     }
-    #end
 }

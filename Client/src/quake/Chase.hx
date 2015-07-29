@@ -21,7 +21,6 @@ class Chase {
         var r = new Vec();
         Vec.AngleVectors(CL.state.viewangles, forward, r);
         var tr = new Trace();
-        tr.plane = new Plane();
         var org = R.refdef.vieworg;
         SV.RecursiveHullCheck(CL.state.worldmodel.hulls[0], 0, 0.0, 1.0, org, Vec.of(
             org[0] + 4096.0 * forward[0],

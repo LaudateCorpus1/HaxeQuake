@@ -40,13 +40,13 @@ private class MoveClip {
 
 @:publicFields
 class Trace {
-    var allsolid:Bool;
-    var startsolid:Bool;
-    var inopen:Bool;
-    var inwater:Bool;
-    var plane:Plane;
-    var fraction:Float;
-    var endpos:Vec;
+    var allsolid:Bool = false;
+    var startsolid:Bool = false;
+    var inopen:Bool = false;
+    var inwater:Bool = false;
+    var plane(default,never):Plane = new Plane();
+    var fraction:Float = 0.0;
+    var endpos(default,never):Vec = new Vec();
     var ent:Edict;
     function new() {}
 }
@@ -2258,7 +2258,7 @@ class SV {
             frac -= 0.1;
             if (frac < 0.0) {
                 trace.fraction = midf;
-                trace.endpos = mid.copy();
+                trace.endpos.setVector(mid);
                 Console.DPrint('backup past 0\n');
                 return false;
             }
@@ -2269,7 +2269,7 @@ class SV {
         }
 
         trace.fraction = midf;
-        trace.endpos = mid.copy();
+        trace.endpos.setVector(mid);
         return false;
     }
 
@@ -2277,8 +2277,7 @@ class SV {
         var trace = new Trace();
         trace.fraction = 1.0;
         trace.allsolid = true;
-        trace.endpos = end.copy();
-        trace.plane = new Plane();
+        trace.endpos.setVector(end);
 
         var offset = new Vec();
         var hull = HullForEntity(ent, mins, maxs, offset);

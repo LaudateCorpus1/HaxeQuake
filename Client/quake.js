@@ -2179,7 +2179,6 @@ quake_Chase.Update = function() {
 	var r = new Float32Array(3);
 	quake__$Vec_Vec_$Impl_$.AngleVectors(quake_CL.state.viewangles,forward,r);
 	var tr = new quake_Trace();
-	tr.plane = new quake_Plane();
 	var org = quake_R.refdef.vieworg;
 	var tmp;
 	var v = new Float32Array(3);
@@ -11323,7 +11322,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 		frac -= 0.1;
 		if(frac < 0.0) {
 			trace.fraction = midf;
-			trace.endpos = new Float32Array(mid);
+			trace.endpos.set(mid);
 			quake_Console.DPrint("backup past 0\n");
 			return false;
 		}
@@ -11333,15 +11332,14 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 		mid[2] = p1[2] + frac * (p2[2] - p1[2]);
 	}
 	trace.fraction = midf;
-	trace.endpos = new Float32Array(mid);
+	trace.endpos.set(mid);
 	return false;
 };
 quake_SV.ClipMoveToEntity = function(ent,start,mins,maxs,end) {
 	var trace = new quake_Trace();
 	trace.fraction = 1.0;
 	trace.allsolid = true;
-	trace.endpos = new Float32Array(end);
-	trace.plane = new quake_Plane();
+	trace.endpos.set(end);
 	var offset = new Float32Array(3);
 	var hull = quake_SV.HullForEntity(ent,mins,maxs,offset);
 	var tmp;
@@ -11443,6 +11441,13 @@ var quake__$SV_MoveClip = function() {
 };
 quake__$SV_MoveClip.__name__ = true;
 var quake_Trace = function() {
+	this.endpos = new Float32Array(3);
+	this.fraction = 0.0;
+	this.plane = new quake_Plane();
+	this.inwater = false;
+	this.inopen = false;
+	this.startsolid = false;
+	this.allsolid = false;
 };
 quake_Trace.__name__ = true;
 var quake_Plane = function() {

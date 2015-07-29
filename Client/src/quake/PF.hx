@@ -41,7 +41,7 @@ class PF {
         var forward = new Vec();
         var right = new Vec();
         var up = new Vec();
-        Vec.AngleVectors(Vec.of(PR._globals_float[OFS_PARM0], PR._globals_float[OFS_PARM0 + 1], PR._globals_float[OFS_PARM0 + 2]), forward, right, up);
+        Vec.AngleVectors(PR.globals.GetVector(OFS_PARM0), forward, right, up);
         PR.globals.v_forward = forward[0];
         PR.globals.v_forward1 = forward[1];
         PR.globals.v_forward2 = forward[2];

@@ -13488,10 +13488,11 @@ quake_PF.makevectors = function() {
 	var right = new Float32Array(3);
 	var up = new Float32Array(3);
 	var tmp;
+	var ofs = 4;
 	var v = new Float32Array(3);
-	v[0] = quake_PR._globals_float[4];
-	v[1] = quake_PR._globals_float[4 + 1];
-	v[2] = quake_PR._globals_float[4 + 2];
+	v[0] = quake_PR._globals_float[ofs];
+	v[1] = quake_PR._globals_float[ofs + 1];
+	v[2] = quake_PR._globals_float[ofs + 2];
 	tmp = v;
 	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward,right,up);
 	quake_PR._globals_float[59] = forward[0];

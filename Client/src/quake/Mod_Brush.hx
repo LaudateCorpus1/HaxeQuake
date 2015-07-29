@@ -132,15 +132,14 @@ class Mod_Brush {
     }
 
     public static function PointInLeaf(p:Vec, model:MModel):Leaf {
-        if (model == null)
-            Sys.Error('Mod.PointInLeaf: bad model');
-        if (model.nodes == null)
+        if (model == null || model.nodes == null)
             Sys.Error('Mod.PointInLeaf: bad model');
         var node = model.nodes[0];
         while (true) {
             if (node.contents < 0)
                 return cast node;
-            if ((Vec.DotProduct(p, node.plane.normal) - node.plane.dist) > 0)
+            var plane = node.plane;
+            if ((Vec.DotProduct(p, plane.normal) - plane.dist) > 0)
                 node = node.child0;
             else
                 node = node.child1;

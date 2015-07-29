@@ -6301,15 +6301,15 @@ quake_Mod_$Brush.Init = function() {
 	}
 };
 quake_Mod_$Brush.PointInLeaf = function(p,model) {
-	if(model == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
-	if(model.nodes == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
+	if(model == null || model.nodes == null) quake_Sys.Error("Mod.PointInLeaf: bad model");
 	var node = model.nodes[0];
 	while(true) {
 		if(node.contents < 0) return node;
+		var plane = node.plane;
 		var tmp;
-		var v2 = node.plane.normal;
+		var v2 = plane.normal;
 		tmp = p[0] * v2[0] + p[1] * v2[1] + p[2] * v2[2];
-		if(tmp - node.plane.dist > 0) node = node.child0; else node = node.child1;
+		if(tmp - plane.dist > 0) node = node.child0; else node = node.child1;
 	}
 };
 quake_Mod_$Brush.LeafPVS = function(leaf,model) {

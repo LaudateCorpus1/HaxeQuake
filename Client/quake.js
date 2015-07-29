@@ -13494,13 +13494,15 @@ quake_PF.makevectors = function() {
 	v[2] = quake_PR._globals_float[4 + 2];
 	tmp = v;
 	quake__$Vec_Vec_$Impl_$.AngleVectors(tmp,forward,right,up);
-	var _g = 0;
-	while(_g < 3) {
-		var i = _g++;
-		quake_PR._globals_float[59 + i] = forward[i];
-		quake_PR._globals_float[65 + i] = right[i];
-		quake_PR._globals_float[62 + i] = up[i];
-	}
+	quake_PR._globals_float[59] = forward[0];
+	quake_PR._globals_float[60] = forward[1];
+	quake_PR._globals_float[61] = forward[2];
+	quake_PR._globals_float[65] = right[0];
+	quake_PR._globals_float[66] = right[1];
+	quake_PR._globals_float[67] = right[2];
+	quake_PR._globals_float[62] = up[0];
+	quake_PR._globals_float[63] = up[1];
+	quake_PR._globals_float[64] = up[2];
 };
 quake_PF.setorigin = function() {
 	var e = quake_SV.server.edicts[quake_PR._globals_int[4]];

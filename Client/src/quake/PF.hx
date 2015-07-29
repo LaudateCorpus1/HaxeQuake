@@ -42,11 +42,15 @@ class PF {
         var right = new Vec();
         var up = new Vec();
         Vec.AngleVectors(Vec.of(PR._globals_float[OFS_PARM0], PR._globals_float[OFS_PARM0 + 1], PR._globals_float[OFS_PARM0 + 2]), forward, right, up);
-        for (i in 0...3) {
-            PR._globals_float[GlobalVarOfs.v_forward + i] = forward[i];
-            PR._globals_float[GlobalVarOfs.v_right + i] = right[i];
-            PR._globals_float[GlobalVarOfs.v_up + i] = up[i];
-        }
+        PR.globals.v_forward = forward[0];
+        PR.globals.v_forward1 = forward[1];
+        PR.globals.v_forward2 = forward[2];
+        PR.globals.v_right = right[0];
+        PR.globals.v_right1 = right[1];
+        PR.globals.v_right2 = right[2];
+        PR.globals.v_up = up[0];
+        PR.globals.v_up1 = up[1];
+        PR.globals.v_up2 = up[2];
     }
 
     static function setorigin():Void {

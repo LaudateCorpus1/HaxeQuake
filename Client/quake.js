@@ -6533,16 +6533,13 @@ quake_Mod_$Brush.LoadPlanes = function(loadmodel,view) {
 	while(_g < count) {
 		var i = _g++;
 		var out = new quake_Plane();
-		var tmp;
+		var this1 = out.normal;
 		var x = view.getFloat32(fileofs,true);
 		var y = view.getFloat32(fileofs + 4,true);
 		var z = view.getFloat32(fileofs + 8,true);
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp = v;
-		out.normal = tmp;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
 		out.dist = view.getFloat32(fileofs + 12,true);
 		out.type = view.getUint32(fileofs + 16,true);
 		out.signbits = 0;
@@ -8654,7 +8651,7 @@ quake__$Vec_Vec_$Impl_$.Perpendicular = function(v) {
 	quake__$Vec_Vec_$Impl_$.Normalize(dst);
 	return dst;
 };
-quake__$Vec_Vec_$Impl_$.RotatePointAroundVector = function(dir,point,degrees) {
+quake__$Vec_Vec_$Impl_$.RotatePointAroundVector = function(dir,point,degrees,out) {
 	var r = quake__$Vec_Vec_$Impl_$.Perpendicular(dir);
 	var up = quake__$Vec_Vec_$Impl_$.CrossProduct(r,dir);
 	var m = [[r[0],up[0],dir[0]],[r[1],up[1],dir[1]],[r[2],up[2],dir[2]]];
@@ -8663,13 +8660,10 @@ quake__$Vec_Vec_$Impl_$.RotatePointAroundVector = function(dir,point,degrees) {
 	var c = Math.cos(degrees * Math.PI / 180.0);
 	var zrot = [[c,s,0],[-s,c,0],[0.0,0.0,1.0]];
 	var rot = quake__$Vec_Vec_$Impl_$.ConcatRotations(quake__$Vec_Vec_$Impl_$.ConcatRotations(m,zrot),im);
-	var tmp;
-	var v = new Float32Array(3);
-	v[0] = rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2];
-	v[1] = rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2];
-	v[2] = rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2];
-	tmp = v;
-	return tmp;
+	out[0] = rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2];
+	out[1] = rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2];
+	out[2] = rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2];
+	return out;
 };
 quake__$Vec_Vec_$Impl_$.Anglemod = function(a) {
 	return (a % 360.0 + 360.0) % 360.0;
@@ -11116,7 +11110,6 @@ quake_SV.InitBoxHull = function() {
 		quake_SV.box_clipnodes.push(node);
 		var plane = new quake_Plane();
 		plane.type = i >> 1;
-		plane.normal = new Float32Array(3);
 		plane.normal[i >> 1] = 1.0;
 		plane.dist = 0.0;
 		quake_SV.box_planes.push(plane);
@@ -11317,16 +11310,13 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	if(quake_SV.HullPointContents(hull,side?node.child0:node.child1,mid) != -2) return quake_SV.RecursiveHullCheck(hull,side?node.child0:node.child1,midf,p2f,mid,p2,trace);
 	if(trace.allsolid) return false;
 	if(!side) {
-		trace.plane.normal = new Float32Array(plane.normal);
+		trace.plane.normal.set(plane.normal);
 		trace.plane.dist = plane.dist;
 	} else {
-		var tmp1;
-		var v1 = new Float32Array(3);
-		v1[0] = -plane.normal[0];
-		v1[1] = -plane.normal[1];
-		v1[2] = -plane.normal[2];
-		tmp1 = v1;
-		trace.plane.normal = tmp1;
+		var this1 = trace.plane.normal;
+		this1[0] = -plane.normal[0];
+		this1[1] = -plane.normal[1];
+		this1[2] = -plane.normal[2];
 		trace.plane.dist = -plane.dist;
 	}
 	while(quake_SV.HullPointContents(hull,hull.firstclipnode,mid) == -2) {
@@ -11351,33 +11341,22 @@ quake_SV.ClipMoveToEntity = function(ent,start,mins,maxs,end) {
 	trace.fraction = 1.0;
 	trace.allsolid = true;
 	trace.endpos = new Float32Array(end);
-	var tmp;
-	var p = new quake_Plane();
-	var tmp3;
-	var v = new Float32Array(3);
-	v[0] = 0.0;
-	v[1] = 0.0;
-	v[2] = 0.0;
-	tmp3 = v;
-	p.normal = tmp3;
-	p.dist = 0.0;
-	tmp = p;
-	trace.plane = tmp;
+	trace.plane = new quake_Plane();
 	var offset = new Float32Array(3);
 	var hull = quake_SV.HullForEntity(ent,mins,maxs,offset);
+	var tmp;
+	var v = new Float32Array(3);
+	v[0] = start[0] - offset[0];
+	v[1] = start[1] - offset[1];
+	v[2] = start[2] - offset[2];
+	tmp = v;
 	var tmp1;
 	var v1 = new Float32Array(3);
-	v1[0] = start[0] - offset[0];
-	v1[1] = start[1] - offset[1];
-	v1[2] = start[2] - offset[2];
+	v1[0] = end[0] - offset[0];
+	v1[1] = end[1] - offset[1];
+	v1[2] = end[2] - offset[2];
 	tmp1 = v1;
-	var tmp2;
-	var v2 = new Float32Array(3);
-	v2[0] = end[0] - offset[0];
-	v2[1] = end[1] - offset[1];
-	v2[2] = end[2] - offset[2];
-	tmp2 = v2;
-	quake_SV.RecursiveHullCheck(hull,hull.firstclipnode,0.0,1.0,tmp1,tmp2,trace);
+	quake_SV.RecursiveHullCheck(hull,hull.firstclipnode,0.0,1.0,tmp,tmp1,trace);
 	if(trace.fraction != 1.0) {
 		trace.endpos[0] = trace.endpos[0] + offset[0];
 		trace.endpos[1] = trace.endpos[1] + offset[1];
@@ -11467,6 +11446,10 @@ var quake_Trace = function() {
 };
 quake_Trace.__name__ = true;
 var quake_Plane = function() {
+	this.signbits = 0;
+	this.dist = 0;
+	this.normal = new Float32Array(3);
+	this.type = 0;
 };
 quake_Plane.__name__ = true;
 var quake__$R_RefDef = function() {
@@ -11987,10 +11970,10 @@ quake_R.PolyBlend = function() {
 	quake_GL.gl.drawArrays(5,0,4);
 };
 quake_R.SetFrustum = function() {
-	quake_R.frustum[0].normal = quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vup,quake_R.vpn,-(90.0 - quake_R.refdef.fov_x * 0.5));
-	quake_R.frustum[1].normal = quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vup,quake_R.vpn,90.0 - quake_R.refdef.fov_x * 0.5);
-	quake_R.frustum[2].normal = quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vright,quake_R.vpn,90.0 - quake_R.refdef.fov_y * 0.5);
-	quake_R.frustum[3].normal = quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vright,quake_R.vpn,-(90.0 - quake_R.refdef.fov_y * 0.5));
+	quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vup,quake_R.vpn,-(90.0 - quake_R.refdef.fov_x * 0.5),quake_R.frustum[0].normal);
+	quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vup,quake_R.vpn,90.0 - quake_R.refdef.fov_x * 0.5,quake_R.frustum[1].normal);
+	quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vright,quake_R.vpn,90.0 - quake_R.refdef.fov_y * 0.5,quake_R.frustum[2].normal);
+	quake__$Vec_Vec_$Impl_$.RotatePointAroundVector(quake_R.vright,quake_R.vpn,-(90.0 - quake_R.refdef.fov_y * 0.5),quake_R.frustum[3].normal);
 	var _g = 0;
 	while(_g < 4) {
 		var i = _g++;

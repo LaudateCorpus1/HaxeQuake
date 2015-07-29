@@ -367,7 +367,7 @@ class Mod_Brush {
         loadmodel.planes = [];
         for (i in 0...count) {
             var out = new Plane();
-            out.normal = Vec.of(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
+            out.normal.setValues(view.getFloat32(fileofs, true), view.getFloat32(fileofs + 4, true), view.getFloat32(fileofs + 8, true));
             out.dist = view.getFloat32(fileofs + 12, true);
             out.type = view.getUint32(fileofs + 16, true);
             out.signbits = 0;

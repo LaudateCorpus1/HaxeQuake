@@ -1983,7 +1983,6 @@ class SV {
 
             var plane = new Plane();
             plane.type = i >> 1;
-            plane.normal = new Vec();
             plane.normal[i >> 1] = 1.0;
             plane.dist = 0.0;
             box_planes.push(plane);
@@ -2248,10 +2247,10 @@ class SV {
             return false;
 
         if (!side) {
-            trace.plane.normal = plane.normal.copy();
+            trace.plane.normal.setVector(plane.normal);
             trace.plane.dist = plane.dist;
         } else {
-            trace.plane.normal = Vec.of(-plane.normal[0], -plane.normal[1], -plane.normal[2]);
+            trace.plane.normal.setValues(-plane.normal[0], -plane.normal[1], -plane.normal[2]);
             trace.plane.dist = -plane.dist;
         }
 
@@ -2279,12 +2278,7 @@ class SV {
         trace.fraction = 1.0;
         trace.allsolid = true;
         trace.endpos = end.copy();
-        trace.plane = {
-            var p = new Plane();
-            p.normal = Vec.of(0.0, 0.0, 0.0);
-            p.dist = 0.0;
-            p;
-        };
+        trace.plane = new Plane();
 
         var offset = new Vec();
         var hull = HullForEntity(ent, mins, maxs, offset);

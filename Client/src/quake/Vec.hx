@@ -67,7 +67,7 @@ abstract Vec(Float32Array) to Float32Array {
         return dst;
     }
 
-    public static function RotatePointAroundVector(dir:Vec, point:Vec, degrees:Float):Vec {
+    public static function RotatePointAroundVector(dir:Vec, point:Vec, degrees:Float, out:Vec):Vec {
         var r = Perpendicular(dir);
         var up = CrossProduct(r, dir);
         var m = [
@@ -84,11 +84,10 @@ abstract Vec(Float32Array) to Float32Array {
         var c = Math.cos(degrees * Math.PI / 180.0);
         var zrot = [[c, s, 0], [-s, c, 0], [0.0, 0.0, 1.0]];
         var rot = ConcatRotations(ConcatRotations(m, zrot), im);
-        return Vec.of(
-            rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2],
-            rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2],
-            rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2]
-        );
+        out[0] = rot[0][0] * point[0] + rot[0][1] * point[1] + rot[0][2] * point[2];
+        out[1] = rot[1][0] * point[0] + rot[1][1] * point[1] + rot[1][2] * point[2];
+        out[2] = rot[2][0] * point[0] + rot[2][1] * point[1] + rot[2][2] * point[2];
+        return out;
     }
 
     public static function Anglemod(a:Float):Float {

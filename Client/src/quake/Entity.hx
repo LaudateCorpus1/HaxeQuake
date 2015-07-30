@@ -7,9 +7,11 @@ class Entity {
     var leafs:Array<Int> = [];
     var model:MModel;
     var angles(default,never) = new Vec();
-    var msg_angles = [new Vec(), new Vec()];
+    var msg_angles0(default,never) = new Vec();
+    var msg_angles1(default,never) = new Vec();
     var origin(default,never) = new Vec();
-    var msg_origins = [new Vec(), new Vec()];
+    var msg_origins0(default,never) = new Vec();
+    var msg_origins1(default,never) = new Vec();
     var frame = 0;
     var syncbase = 0.0;
     var colormap:Int;

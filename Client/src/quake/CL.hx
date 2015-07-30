@@ -872,25 +872,25 @@ class CL {
             oldorg[1] = ent.origin[1];
             oldorg[2] = ent.origin[2];
             if (ent.forcelink) {
-                ent.origin.setVector(ent.msg_origins[0]);
-                ent.angles.setVector(ent.msg_angles[0]);
+                ent.origin.setVector(ent.msg_origins0);
+                ent.angles.setVector(ent.msg_angles0);
             }
             else
             {
                 var f = frac;
                 for (j in 0...3) {
-                    delta[j] = ent.msg_origins[0][j] - ent.msg_origins[1][j];
+                    delta[j] = ent.msg_origins0[j] - ent.msg_origins1[j];
                     if ((delta[j] > 100.0) || (delta[j] < -100.0))
                         f = 1.0;
                 }
                 for (j in 0...3) {
-                    ent.origin[j] = ent.msg_origins[1][j] + f * delta[j];
-                    var d = ent.msg_angles[0][j] - ent.msg_angles[1][j];
+                    ent.origin[j] = ent.msg_origins1[j] + f * delta[j];
+                    var d = ent.msg_angles0[j] - ent.msg_angles1[j];
                     if (d > 180.0)
                         d -= 360.0;
                     else if (d < -180.0)
                         d += 360.0;
-                    ent.angles[j] = ent.msg_angles[1][j] + f * d;
+                    ent.angles[j] = ent.msg_angles1[j] + f * d;
                 }
             }
 
@@ -1219,23 +1219,23 @@ class CL {
         ent.skinnum = ((bits & U.skin) != 0) ? MSG.ReadByte() : ent.baseline.skin;
         ent.effects = ((bits & U.effects) != 0) ? cast MSG.ReadByte() : ent.baseline.effects;
 
-        ent.msg_origins[1].setVector(ent.msg_origins[0]);
-        ent.msg_angles[1].setVector(ent.msg_angles[0]);
-        ent.msg_origins[0][0] = ((bits & U.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
-        ent.msg_angles[0][0] = ((bits & U.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
-        ent.msg_origins[0][1] = ((bits & U.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
-        ent.msg_angles[0][1] = ((bits & U.angle2) != 0) ? MSG.ReadAngle() : ent.baseline.angles[1];
-        ent.msg_origins[0][2] = ((bits & U.origin3) != 0) ? MSG.ReadCoord() : ent.baseline.origin[2];
-        ent.msg_angles[0][2] = ((bits & U.angle3) != 0) ? MSG.ReadAngle() : ent.baseline.angles[2];
+        ent.msg_origins1.setVector(ent.msg_origins0);
+        ent.msg_angles1.setVector(ent.msg_angles0);
+        ent.msg_origins0[0] = ((bits & U.origin1) != 0) ? MSG.ReadCoord() : ent.baseline.origin[0];
+        ent.msg_angles0[0] = ((bits & U.angle1) != 0) ? MSG.ReadAngle() : ent.baseline.angles[0];
+        ent.msg_origins0[1] = ((bits & U.origin2) != 0) ? MSG.ReadCoord() : ent.baseline.origin[1];
+        ent.msg_angles0[1] = ((bits & U.angle2) != 0) ? MSG.ReadAngle() : ent.baseline.angles[1];
+        ent.msg_origins0[2] = ((bits & U.origin3) != 0) ? MSG.ReadCoord() : ent.baseline.origin[2];
+        ent.msg_angles0[2] = ((bits & U.angle3) != 0) ? MSG.ReadAngle() : ent.baseline.angles[2];
 
         if ((bits & U.nolerp) != 0)
             ent.forcelink = true;
 
         if (forcelink) {
-            ent.origin.setVector(ent.msg_origins[0]);
-            ent.msg_origins[1].setVector(ent.origin);
-            ent.angles.setVector(ent.msg_angles[0]);
-            ent.msg_angles[1].setVector(ent.angles);
+            ent.origin.setVector(ent.msg_origins0);
+            ent.msg_origins1.setVector(ent.origin);
+            ent.angles.setVector(ent.msg_angles0);
+            ent.msg_angles1.setVector(ent.angles);
             ent.forcelink = true;
         }
     }

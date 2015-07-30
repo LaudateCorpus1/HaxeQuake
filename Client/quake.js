@@ -1028,23 +1028,23 @@ quake_CL.RelinkEntities = function() {
 		oldorg[1] = ent.origin[1];
 		oldorg[2] = ent.origin[2];
 		if(ent.forcelink) {
-			ent.origin.set(ent.msg_origins[0]);
-			ent.angles.set(ent.msg_angles[0]);
+			ent.origin.set(ent.msg_origins0);
+			ent.angles.set(ent.msg_angles0);
 		} else {
 			var f = frac;
 			var _g21 = 0;
 			while(_g21 < 3) {
 				var j = _g21++;
-				delta[j] = ent.msg_origins[0][j] - ent.msg_origins[1][j];
+				delta[j] = ent.msg_origins0[j] - ent.msg_origins1[j];
 				if(delta[j] > 100.0 || delta[j] < -100.0) f = 1.0;
 			}
 			var _g22 = 0;
 			while(_g22 < 3) {
 				var j1 = _g22++;
-				ent.origin[j1] = ent.msg_origins[1][j1] + f * delta[j1];
-				var d1 = ent.msg_angles[0][j1] - ent.msg_angles[1][j1];
+				ent.origin[j1] = ent.msg_origins1[j1] + f * delta[j1];
+				var d1 = ent.msg_angles0[j1] - ent.msg_angles1[j1];
 				if(d1 > 180.0) d1 -= 360.0; else if(d1 < -180.0) d1 += 360.0;
-				ent.angles[j1] = ent.msg_angles[1][j1] + f * d1;
+				ent.angles[j1] = ent.msg_angles1[j1] + f * d1;
 			}
 		}
 		if((ent.model.flags & 8) != 0) ent.angles[1] = bobjrotate;
@@ -1302,26 +1302,26 @@ quake_CL.ParseUpdate = function(bits) {
 	if(ent.colormap > quake_CL.state.maxclients) quake_Sys.Error("i >= cl.maxclients");
 	ent.skinnum = (bits & 4096) != 0?quake_MSG.ReadByte():ent.baseline.skin;
 	ent.effects = (bits & 8192) != 0?quake_MSG.ReadByte():ent.baseline.effects;
-	ent.msg_origins[1].set(ent.msg_origins[0]);
-	ent.msg_angles[1].set(ent.msg_angles[0]);
+	ent.msg_origins1.set(ent.msg_origins0);
+	ent.msg_angles1.set(ent.msg_angles0);
 	var v = (bits & 2) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[0];
-	ent.msg_origins[0][0] = v;
+	ent.msg_origins0[0] = v;
 	var v1 = (bits & 256) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[0];
-	ent.msg_angles[0][0] = v1;
+	ent.msg_angles0[0] = v1;
 	var v2 = (bits & 4) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[1];
-	ent.msg_origins[0][1] = v2;
+	ent.msg_origins0[1] = v2;
 	var v3 = (bits & 16) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[1];
-	ent.msg_angles[0][1] = v3;
+	ent.msg_angles0[1] = v3;
 	var v4 = (bits & 8) != 0?quake_MSG.ReadShort() * 0.125:ent.baseline.origin[2];
-	ent.msg_origins[0][2] = v4;
+	ent.msg_origins0[2] = v4;
 	var v5 = (bits & 512) != 0?quake_MSG.ReadChar() * 1.40625:ent.baseline.angles[2];
-	ent.msg_angles[0][2] = v5;
+	ent.msg_angles0[2] = v5;
 	if((bits & 32) != 0) ent.forcelink = true;
 	if(forcelink) {
-		ent.origin.set(ent.msg_origins[0]);
-		ent.msg_origins[1].set(ent.origin);
-		ent.angles.set(ent.msg_angles[0]);
-		ent.msg_angles[1].set(ent.angles);
+		ent.origin.set(ent.msg_origins0);
+		ent.msg_origins1.set(ent.origin);
+		ent.angles.set(ent.msg_angles0);
+		ent.msg_angles1.set(ent.angles);
 		ent.forcelink = true;
 	}
 };
@@ -3119,9 +3119,11 @@ var quake_Entity = function(n) {
 	this.skinnum = 0;
 	this.syncbase = 0.0;
 	this.frame = 0;
-	this.msg_origins = [new Float32Array(3),new Float32Array(3)];
+	this.msg_origins1 = new Float32Array(3);
+	this.msg_origins0 = new Float32Array(3);
 	this.origin = new Float32Array(3);
-	this.msg_angles = [new Float32Array(3),new Float32Array(3)];
+	this.msg_angles1 = new Float32Array(3);
+	this.msg_angles0 = new Float32Array(3);
 	this.angles = new Float32Array(3);
 	this.leafs = [];
 	this.num = n;

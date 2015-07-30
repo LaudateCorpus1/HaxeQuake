@@ -61,7 +61,6 @@ private class ClientStatic {
 
 @:publicFields
 class ClientCmd {
-    var viewangles:Vec;
     var forwardmove:Float = 0.0;
     var sidemove:Float = 0.0;
     var upmove:Float = 0.0;

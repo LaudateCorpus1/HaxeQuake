@@ -81,8 +81,9 @@ private class Score {
 private class ClientState {
     var mtime = [0.0, 0.0];
     var time = 0.0;
-    var viewangles= new Vec();
-    var mviewangles = [new Vec(), new Vec()];
+    var viewangles(default,never) = new Vec();
+    var mviewangles0(default,never) = new Vec();
+    var mviewangles1(default,never) = new Vec();
     var mvelocity0(default,never) = new Vec();
     var mvelocity1(default,never) = new Vec();
     var velocity(default,never) = new Vec();
@@ -232,8 +233,8 @@ class CL {
             NET.message.cursize = view.getUint32(CL.cls.demoofs, true);
             if (NET.message.cursize > 8000)
                 Sys.Error('Demo message > MAX_MSGLEN');
-            CL.state.mviewangles[1] = CL.state.mviewangles[0];
-            CL.state.mviewangles[0] = Vec.of(view.getFloat32(CL.cls.demoofs + 4, true), view.getFloat32(CL.cls.demoofs + 8, true), view.getFloat32(CL.cls.demoofs + 12, true));
+            CL.state.mviewangles1.setVector(CL.state.mviewangles0);
+            CL.state.mviewangles0.setValues(view.getFloat32(CL.cls.demoofs + 4, true), view.getFloat32(CL.cls.demoofs + 8, true), view.getFloat32(CL.cls.demoofs + 12, true));
             CL.cls.demoofs += 16;
             if ((CL.cls.demoofs + NET.message.cursize) > CL.cls.demosize) {
                 CL.StopPlayback();
@@ -846,12 +847,12 @@ class CL {
 
         if (CL.cls.demoplayback) {
             for (i in 0...3) {
-                var d = CL.state.mviewangles[0][i] - CL.state.mviewangles[1][i];
+                var d = CL.state.mviewangles0[i] - CL.state.mviewangles1[i];
                 if (d > 180.0)
                     d -= 360.0;
                 else if (d < -180.0)
                     d += 360.0;
-                CL.state.viewangles[i] = CL.state.mviewangles[1][i] + frac * d;
+                CL.state.viewangles[i] = CL.state.mviewangles1[i] + frac * d;
             }
         }
 

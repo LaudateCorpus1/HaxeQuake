@@ -361,7 +361,8 @@ var quake__$CL_ClientState = function() {
 	this.velocity = new Float32Array(3);
 	this.mvelocity1 = new Float32Array(3);
 	this.mvelocity0 = new Float32Array(3);
-	this.mviewangles = [new Float32Array(3),new Float32Array(3)];
+	this.mviewangles1 = new Float32Array(3);
+	this.mviewangles0 = new Float32Array(3);
 	this.viewangles = new Float32Array(3);
 	this.time = 0.0;
 	this.mtime = [0.0,0.0];
@@ -511,17 +512,14 @@ quake_CL.GetMessage = function() {
 		var view = new DataView(quake_CL.cls.demofile);
 		quake_NET.message.cursize = view.getUint32(quake_CL.cls.demoofs,true);
 		if(quake_NET.message.cursize > 8000) quake_Sys.Error("Demo message > MAX_MSGLEN");
-		quake_CL.state.mviewangles[1] = quake_CL.state.mviewangles[0];
-		var tmp;
+		quake_CL.state.mviewangles1.set(quake_CL.state.mviewangles0);
+		var this1 = quake_CL.state.mviewangles0;
 		var x = view.getFloat32(quake_CL.cls.demoofs + 4,true);
 		var y = view.getFloat32(quake_CL.cls.demoofs + 8,true);
 		var z = view.getFloat32(quake_CL.cls.demoofs + 12,true);
-		var v = new Float32Array(3);
-		v[0] = x;
-		v[1] = y;
-		v[2] = z;
-		tmp = v;
-		quake_CL.state.mviewangles[0] = tmp;
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
 		quake_CL.cls.demoofs += 16;
 		if(quake_CL.cls.demoofs + quake_NET.message.cursize > quake_CL.cls.demosize) {
 			quake_CL.StopPlayback();
@@ -1006,9 +1004,9 @@ quake_CL.RelinkEntities = function() {
 		var _g = 0;
 		while(_g < 3) {
 			var i = _g++;
-			var d = quake_CL.state.mviewangles[0][i] - quake_CL.state.mviewangles[1][i];
+			var d = quake_CL.state.mviewangles0[i] - quake_CL.state.mviewangles1[i];
 			if(d > 180.0) d -= 360.0; else if(d < -180.0) d += 360.0;
-			quake_CL.state.viewangles[i] = quake_CL.state.mviewangles[1][i] + frac * d;
+			quake_CL.state.viewangles[i] = quake_CL.state.mviewangles1[i] + frac * d;
 		}
 	}
 	var bobjrotate = quake__$Vec_Vec_$Impl_$.Anglemod(100.0 * quake_CL.state.time);

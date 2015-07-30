@@ -1656,7 +1656,7 @@ class Render {
         var tmax = (surf.extents[1] >> 4) + 1;
         var size = smax * tmax;
         var tex = CL.state.worldmodel.texinfo[surf.texinfo];
-        var impact = new Vec(), local = [];
+        var impact = new Vec();
 
         var blocklights = [];
         for (i in 0...size)
@@ -1675,15 +1675,15 @@ class Render {
             impact[0] = light.origin[0] - surf.plane.normal[0] * dist;
             impact[1] = light.origin[1] - surf.plane.normal[1] * dist;
             impact[2] = light.origin[2] - surf.plane.normal[2] * dist;
-            local[0] = Vec.DotProduct(impact, Vec.ofArray(tex.vecs[0])) + tex.vecs[0][3] - surf.texturemins[0];
-            local[1] = Vec.DotProduct(impact, Vec.ofArray(tex.vecs[1])) + tex.vecs[1][3] - surf.texturemins[1];
+            var local0 = Vec.DotProduct(impact, Vec.ofArray(tex.vecs[0])) + tex.vecs[0][3] - surf.texturemins[0];
+            var local1 = Vec.DotProduct(impact, Vec.ofArray(tex.vecs[1])) + tex.vecs[1][3] - surf.texturemins[1];
             for (t in 0...tmax) {
-                var td = local[1] - (t << 4);
+                var td = local1 - (t << 4);
                 if (td < 0.0)
                     td = -td;
                 var td = Math.floor(td);
                 for (s in 0...smax) {
-                    var sd = local[0] - (s << 4);
+                    var sd = local0 - (s << 4);
                     if (sd < 0)
                         sd = -sd;
                     var sd = Math.floor(sd);

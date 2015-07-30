@@ -12887,7 +12887,6 @@ quake_Render.AddDynamicLights = function(surf) {
 	var size = smax * tmax;
 	var tex = quake_CL.state.worldmodel.texinfo[surf.texinfo];
 	var impact = new Float32Array(3);
-	var local = [];
 	var blocklights = [];
 	var _g = 0;
 	while(_g < size) {
@@ -12921,7 +12920,7 @@ quake_Render.AddDynamicLights = function(surf) {
 		tmp3 = v;
 		var v21 = tmp3;
 		tmp1 = impact[0] * v21[0] + impact[1] * v21[1] + impact[2] * v21[2];
-		local[0] = tmp1 + tex.vecs[0][3] - surf.texturemins[0];
+		var local0 = tmp1 + tex.vecs[0][3] - surf.texturemins[0];
 		var tmp2;
 		var tmp4;
 		var a1 = tex.vecs[1];
@@ -12932,17 +12931,17 @@ quake_Render.AddDynamicLights = function(surf) {
 		tmp4 = v3;
 		var v22 = tmp4;
 		tmp2 = impact[0] * v22[0] + impact[1] * v22[1] + impact[2] * v22[2];
-		local[1] = tmp2 + tex.vecs[1][3] - surf.texturemins[1];
+		var local1 = tmp2 + tex.vecs[1][3] - surf.texturemins[1];
 		var _g11 = 0;
 		while(_g11 < tmax) {
 			var t = _g11++;
-			var td = local[1] - (t << 4);
+			var td = local1 - (t << 4);
 			if(td < 0.0) td = -td;
 			var td1 = Math.floor(td);
 			var _g2 = 0;
 			while(_g2 < smax) {
 				var s = _g2++;
-				var sd = local[0] - (s << 4);
+				var sd = local0 - (s << 4);
 				if(sd < 0) sd = -sd;
 				var sd1 = Math.floor(sd);
 				if(sd1 > td1) dist = sd1 + (td1 >> 1); else dist = td1 + (sd1 >> 1);

@@ -824,7 +824,7 @@ class Host {
             p = p.substring(0, i);
         text += p + '\n';
         for (i in 0...SV.svs.maxclients) {
-            var client:HClient = SV.svs.clients[i];
+            var client = SV.svs.clients[i];
             if ((!client.active) || (!client.spawned))
                 continue;
             if ((Host.teamplay.value != 0) && (teamonly) && (client.edict.v.team != save.edict.v.team))
@@ -857,7 +857,7 @@ class Host {
         text += p + '\n';
         var save = Host.client;
         for (i in 0...SV.svs.maxclients) {
-            var client:HClient = SV.svs.clients[i];
+            var client = SV.svs.clients[i];
             if ((!client.active) || (!client.spawned))
                 continue;
             if (SV.GetClientName(client).toLowerCase() != Cmd.argv[1].toLowerCase())

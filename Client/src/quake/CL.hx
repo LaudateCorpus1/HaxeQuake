@@ -46,7 +46,7 @@ private class ClientStatic {
     var td_startframe:Int;
     var td_lastframe:Int;
     var td_starttime:Float;
-    var message:MSG;
+    var message(default,null):MSG;
     var netcon:INETSocket;
     var signon:Int;
     var forcetrack:Int;

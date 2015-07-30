@@ -84,8 +84,8 @@ private class ClientState {
     var viewangles= new Vec();
     var mviewangles = [new Vec(), new Vec()];
     var mvelocity = [new Vec(), new Vec()];
-    var velocity= new Vec();
-    var cmd = new ClientCmd();
+    var velocity(default,never) = new Vec();
+    var cmd(default,never) = new ClientCmd();
     var movemessages = 0;
     var stats = [
         0, 0, 0, 0, 0, 0, 0, 0,
@@ -102,7 +102,7 @@ private class ClientState {
     ];
     var faceanimtime = 0.0;
     var cshifts = [[0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0], [0.0, 0.0, 0.0, 0.0]];
-    var punchangle= new Vec();
+    var punchangle(default,never) = new Vec();
     var idealpitch = 0.0;
     var pitchvel = 0.0;
     var driftmove = 0.0;
@@ -113,7 +113,7 @@ private class ClientState {
     var oldtime = 0.0;
     var last_received_message = 0.0;
     var viewentity = 0;
-    var viewent = new Entity();
+    var viewent(default,never) = new Entity();
     var cdtrack = 0;
     var looptrack = 0;
     var inwater:Bool;

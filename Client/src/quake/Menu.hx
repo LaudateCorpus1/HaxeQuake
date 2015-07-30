@@ -24,7 +24,7 @@ import quake.GL.gl;
 
 
 @:publicFields
-class M {
+class Menu {
 
 	static var state = MenuState.none;
 

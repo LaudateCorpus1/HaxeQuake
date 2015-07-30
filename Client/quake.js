@@ -2413,7 +2413,7 @@ quake_Console.ToggleConsole_f = function() {
 	quake_SCR.EndLoadingPlaque();
 	if(quake_Key.dest == 1) {
 		if(quake_CL.cls.state != 2) {
-			quake_M.Menu_Main_f();
+			quake_Menu.Menu_Main_f();
 			return;
 		}
 		quake_Key.dest = 0;
@@ -3739,7 +3739,7 @@ quake_Host.Init = function() {
 	quake_SCR.Init();
 	quake_R.Init();
 	quake_S.Init();
-	quake_M.Init();
+	quake_Menu.Init();
 	quake_CDAudio.Init();
 	quake_Sbar.Init();
 	quake_CL.Init();
@@ -3762,7 +3762,7 @@ quake_Host.Shutdown = function() {
 };
 quake_Host.Quit_f = function() {
 	if(quake_Key.dest != 1) {
-		quake_M.Menu_Quit_f();
+		quake_Menu.Menu_Quit_f();
 		return;
 	}
 	quake_Sys.Quit();
@@ -4994,7 +4994,7 @@ quake_Key.Event = function(key,down) {
 	if(key == 134) quake_Key.shift_down = down;
 	if(key == 27) {
 		if(!down) return;
-		if(quake_Key.dest == 2) quake_Key.Message(key); else if(quake_Key.dest == 3) quake_M.Keydown(key); else quake_M.ToggleMenu_f();
+		if(quake_Key.dest == 2) quake_Key.Message(key); else if(quake_Key.dest == 3) quake_Menu.Keydown(key); else quake_Menu.ToggleMenu_f();
 		return;
 	}
 	var kb;
@@ -5012,7 +5012,7 @@ quake_Key.Event = function(key,down) {
 		return;
 	}
 	if(quake_CL.cls.demoplayback && quake_Key.consolekeys[key] && quake_Key.dest == 0) {
-		quake_M.ToggleMenu_f();
+		quake_Menu.ToggleMenu_f();
 		return;
 	}
 	if(quake_Key.dest == 3 && (key == 27 || key >= 135 && key <= 146) || quake_Key.dest == 1 && !quake_Key.consolekeys[key] || quake_Key.dest == 0 && (!quake_Console.forcedup || !quake_Key.consolekeys[key])) {
@@ -5023,155 +5023,155 @@ quake_Key.Event = function(key,down) {
 		return;
 	}
 	if(quake_Key.shift_down) key = quake_Key.shift[key];
-	if(quake_Key.dest == 2) quake_Key.Message(key); else if(quake_Key.dest == 3) quake_M.Keydown(key); else quake_Key.ProcessConsole(key);
+	if(quake_Key.dest == 2) quake_Key.Message(key); else if(quake_Key.dest == 3) quake_Menu.Keydown(key); else quake_Key.ProcessConsole(key);
 };
-var quake_M = function() { };
-quake_M.__name__ = true;
-quake_M.DrawCharacter = function(cx,line,num) {
+var quake_Menu = function() { };
+quake_Menu.__name__ = true;
+quake_Menu.DrawCharacter = function(cx,line,num) {
 	quake_Draw.Character(cx + (quake_VID.width >> 1) - 160,line + (quake_VID.height >> 1) - 100,num);
 };
-quake_M.Print = function(cx,cy,str) {
+quake_Menu.Print = function(cx,cy,str) {
 	quake_Draw.StringWhite(cx + (quake_VID.width >> 1) - 160,cy + (quake_VID.height >> 1) - 100,str);
 };
-quake_M.PrintWhite = function(cx,cy,str) {
+quake_Menu.PrintWhite = function(cx,cy,str) {
 	quake_Draw.String(cx + (quake_VID.width >> 1) - 160,cy + (quake_VID.height >> 1) - 100,str);
 };
-quake_M.DrawPic = function(x,y,pic) {
+quake_Menu.DrawPic = function(x,y,pic) {
 	quake_Draw.Pic(x + (quake_VID.width >> 1) - 160,y + (quake_VID.height >> 1) - 100,pic);
 };
-quake_M.DrawPicTranslate = function(x,y,pic,top,bottom) {
+quake_Menu.DrawPicTranslate = function(x,y,pic,top,bottom) {
 	quake_Draw.PicTranslate(x + (quake_VID.width >> 1) - 160,y + (quake_VID.height >> 1) - 100,pic,top,bottom);
 };
-quake_M.DrawTextBox = function(x,y,width,lines) {
+quake_Menu.DrawTextBox = function(x,y,width,lines) {
 	var cx;
 	var cy = y;
-	quake_M.DrawPic(x,cy,quake_M.box_tl);
+	quake_Menu.DrawPic(x,cy,quake_Menu.box_tl);
 	var _g = 0;
 	while(_g < lines) {
 		_g++;
-		quake_M.DrawPic(x,cy += 8,quake_M.box_ml);
+		quake_Menu.DrawPic(x,cy += 8,quake_Menu.box_ml);
 	}
-	quake_M.DrawPic(x,cy + 8,quake_M.box_bl);
+	quake_Menu.DrawPic(x,cy + 8,quake_Menu.box_bl);
 	cx = x + 8;
 	var p;
 	while(width > 0) {
 		cy = y;
-		quake_M.DrawPic(cx,y,quake_M.box_tm);
-		p = quake_M.box_mm;
+		quake_Menu.DrawPic(cx,y,quake_Menu.box_tm);
+		p = quake_Menu.box_mm;
 		var _g1 = 0;
 		while(_g1 < lines) {
 			var n = _g1++;
-			quake_M.DrawPic(cx,cy += 8,p);
-			if(n == 0) p = quake_M.box_mm2;
+			quake_Menu.DrawPic(cx,cy += 8,p);
+			if(n == 0) p = quake_Menu.box_mm2;
 		}
-		quake_M.DrawPic(cx,cy + 8,quake_M.box_bm);
+		quake_Menu.DrawPic(cx,cy + 8,quake_Menu.box_bm);
 		width -= 2;
 		cx += 16;
 	}
 	cy = y;
-	quake_M.DrawPic(cx,cy,quake_M.box_tr);
+	quake_Menu.DrawPic(cx,cy,quake_Menu.box_tr);
 	var _g2 = 0;
 	while(_g2 < lines) {
 		_g2++;
-		quake_M.DrawPic(cx,cy += 8,quake_M.box_mr);
+		quake_Menu.DrawPic(cx,cy += 8,quake_Menu.box_mr);
 	}
-	quake_M.DrawPic(cx,cy + 8,quake_M.box_br);
+	quake_Menu.DrawPic(cx,cy + 8,quake_Menu.box_br);
 };
-quake_M.ToggleMenu_f = function() {
-	quake_M.entersound = true;
+quake_Menu.ToggleMenu_f = function() {
+	quake_Menu.entersound = true;
 	if(quake_Key.dest == 3) {
-		if(quake_M.state != 1) {
-			quake_M.Menu_Main_f();
+		if(quake_Menu.state != 1) {
+			quake_Menu.Menu_Main_f();
 			return;
 		}
 		quake_Key.dest = 0;
-		quake_M.state = 0;
+		quake_Menu.state = 0;
 		return;
 	}
-	quake_M.Menu_Main_f();
+	quake_Menu.Menu_Main_f();
 };
-quake_M.Menu_Main_f = function() {
+quake_Menu.Menu_Main_f = function() {
 	if(quake_Key.dest != 3) {
-		quake_M.save_demonum = quake_CL.cls.demonum;
+		quake_Menu.save_demonum = quake_CL.cls.demonum;
 		quake_CL.cls.demonum = -1;
 	}
 	quake_Key.dest = 3;
-	quake_M.state = 1;
-	quake_M.entersound = true;
+	quake_Menu.state = 1;
+	quake_Menu.entersound = true;
 };
-quake_M.Main_Draw = function() {
-	quake_M.DrawPic(16,4,quake_M.qplaque);
-	quake_M.DrawPic(160 - (quake_M.ttl_main.width >> 1),4,quake_M.ttl_main);
-	quake_M.DrawPic(72,32,quake_M.mainmenu);
-	quake_M.DrawPic(54,32 + quake_M.main_cursor * 20,quake_M.menudot[Math.floor(quake_Host.realtime * 10.0) % 6]);
+quake_Menu.Main_Draw = function() {
+	quake_Menu.DrawPic(16,4,quake_Menu.qplaque);
+	quake_Menu.DrawPic(160 - (quake_Menu.ttl_main.width >> 1),4,quake_Menu.ttl_main);
+	quake_Menu.DrawPic(72,32,quake_Menu.mainmenu);
+	quake_Menu.DrawPic(54,32 + quake_Menu.main_cursor * 20,quake_Menu.menudot[Math.floor(quake_Host.realtime * 10.0) % 6]);
 };
-quake_M.Main_Key = function(k) {
+quake_Menu.Main_Key = function(k) {
 	switch(k) {
 	case 27:
 		quake_Key.dest = 0;
-		quake_M.state = 0;
-		quake_CL.cls.demonum = quake_M.save_demonum;
+		quake_Menu.state = 0;
+		quake_CL.cls.demonum = quake_Menu.save_demonum;
 		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != 2) quake_CL.NextDemo();
 		break;
 	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.main_cursor >= 5) quake_M.main_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.main_cursor >= 5) quake_Menu.main_cursor = 0;
 		break;
 	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.main_cursor < 0) quake_M.main_cursor = 4;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.main_cursor < 0) quake_Menu.main_cursor = 4;
 		break;
 	case 13:
-		quake_M.entersound = true;
-		var _g = quake_M.main_cursor;
+		quake_Menu.entersound = true;
+		var _g = quake_Menu.main_cursor;
 		switch(_g) {
 		case 0:
-			quake_M.Menu_SinglePlayer_f();
+			quake_Menu.Menu_SinglePlayer_f();
 			break;
 		case 1:
-			quake_M.Menu_MultiPlayer_f();
+			quake_Menu.Menu_MultiPlayer_f();
 			break;
 		case 2:
-			quake_M.Menu_Options_f();
+			quake_Menu.Menu_Options_f();
 			break;
 		case 3:
-			quake_M.Menu_Help_f();
+			quake_Menu.Menu_Help_f();
 			break;
 		case 4:
-			quake_M.Menu_Quit_f();
+			quake_Menu.Menu_Quit_f();
 			break;
 		}
 		break;
 	default:
 	}
 };
-quake_M.Menu_SinglePlayer_f = function() {
+quake_Menu.Menu_SinglePlayer_f = function() {
 	quake_Key.dest = 3;
-	quake_M.state = 2;
-	quake_M.entersound = true;
+	quake_Menu.state = 2;
+	quake_Menu.entersound = true;
 };
-quake_M.SinglePlayer_Draw = function() {
-	quake_M.DrawPic(16,4,quake_M.qplaque);
-	quake_M.DrawPic(160 - (quake_M.ttl_sgl.width >> 1),4,quake_M.ttl_sgl);
-	quake_M.DrawPic(72,32,quake_M.sp_menu);
-	quake_M.DrawPic(54,32 + quake_M.singleplayer_cursor * 20,quake_M.menudot[Math.floor(quake_Host.realtime * 10.0) % 6]);
+quake_Menu.SinglePlayer_Draw = function() {
+	quake_Menu.DrawPic(16,4,quake_Menu.qplaque);
+	quake_Menu.DrawPic(160 - (quake_Menu.ttl_sgl.width >> 1),4,quake_Menu.ttl_sgl);
+	quake_Menu.DrawPic(72,32,quake_Menu.sp_menu);
+	quake_Menu.DrawPic(54,32 + quake_Menu.singleplayer_cursor * 20,quake_Menu.menudot[Math.floor(quake_Host.realtime * 10.0) % 6]);
 };
-quake_M.SinglePlayer_Key = function(k) {
+quake_Menu.SinglePlayer_Key = function(k) {
 	switch(k) {
 	case 27:
-		quake_M.Menu_Main_f();
+		quake_Menu.Menu_Main_f();
 		break;
 	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.singleplayer_cursor >= 3) quake_M.singleplayer_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.singleplayer_cursor >= 3) quake_Menu.singleplayer_cursor = 0;
 		break;
 	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.singleplayer_cursor < 0) quake_M.singleplayer_cursor = 2;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.singleplayer_cursor < 0) quake_Menu.singleplayer_cursor = 2;
 		break;
 	case 13:
-		quake_M.entersound = true;
-		var _g = quake_M.singleplayer_cursor;
+		quake_Menu.entersound = true;
+		var _g = quake_Menu.singleplayer_cursor;
 		switch(_g) {
 		case 0:
 			if(quake_SV.server.active) {
@@ -5182,30 +5182,30 @@ quake_M.SinglePlayer_Key = function(k) {
 			quake_Cmd.text += "maxplayers 1\nmap start\n";
 			break;
 		case 1:
-			quake_M.Menu_Load_f();
+			quake_Menu.Menu_Load_f();
 			break;
 		case 2:
-			quake_M.Menu_Save_f();
+			quake_Menu.Menu_Save_f();
 			break;
 		}
 		break;
 	}
 };
-quake_M.ScanSaves = function() {
+quake_Menu.ScanSaves = function() {
 	var searchpaths = quake_COM.searchpaths;
 	var search = "Quake." + quake_COM.gamedir[0].filename + "/s";
 	quake_COM.searchpaths = quake_COM.gamedir;
 	var _g1 = 0;
-	var _g = quake_M.max_savegames;
+	var _g = quake_Menu.max_savegames;
 	while(_g1 < _g) {
 		var i = _g1++;
-		var f = quake_M.localStorage.getItem(search + i + ".sav");
-		if(f != null) quake_M.removable[i] = true; else {
-			quake_M.removable[i] = false;
+		var f = quake_Menu.localStorage.getItem(search + i + ".sav");
+		if(f != null) quake_Menu.removable[i] = true; else {
+			quake_Menu.removable[i] = false;
 			f = quake_COM.LoadTextFile("s" + i + ".sav");
 			if(f == null) {
-				quake_M.filenames[i] = "--- UNUSED SLOT ---";
-				quake_M.loadable[i] = false;
+				quake_Menu.filenames[i] = "--- UNUSED SLOT ---";
+				quake_Menu.loadable[i] = false;
 				continue;
 			}
 		}
@@ -5225,215 +5225,215 @@ quake_M.ScanSaves = function() {
 			if(c1 == 13) break;
 			if(c1 == 95) name[j] = " "; else name[j] = String.fromCharCode(c1);
 		}
-		quake_M.filenames[i] = name.join("");
-		quake_M.loadable[i] = true;
+		quake_Menu.filenames[i] = name.join("");
+		quake_Menu.loadable[i] = true;
 	}
 	quake_COM.searchpaths = searchpaths;
 };
-quake_M.Menu_Load_f = function() {
-	quake_M.entersound = true;
-	quake_M.state = 3;
+quake_Menu.Menu_Load_f = function() {
+	quake_Menu.entersound = true;
+	quake_Menu.state = 3;
 	quake_Key.dest = 3;
-	quake_M.ScanSaves();
+	quake_Menu.ScanSaves();
 };
-quake_M.Menu_Save_f = function() {
+quake_Menu.Menu_Save_f = function() {
 	if(!quake_SV.server.active || quake_CL.state.intermission != 0 || quake_SV.svs.maxclients != 1) return;
-	quake_M.entersound = true;
-	quake_M.state = 4;
+	quake_Menu.entersound = true;
+	quake_Menu.state = 4;
 	quake_Key.dest = 3;
-	quake_M.ScanSaves();
+	quake_Menu.ScanSaves();
 };
-quake_M.Load_Draw = function() {
-	quake_M.DrawPic(160 - (quake_M.p_load.width >> 1),4,quake_M.p_load);
+quake_Menu.Load_Draw = function() {
+	quake_Menu.DrawPic(160 - (quake_Menu.p_load.width >> 1),4,quake_Menu.p_load);
 	var _g1 = 0;
-	var _g = quake_M.max_savegames;
+	var _g = quake_Menu.max_savegames;
 	while(_g1 < _g) {
 		var i = _g1++;
-		quake_M.Print(16,32 + (i << 3),quake_M.filenames[i]);
+		quake_Menu.Print(16,32 + (i << 3),quake_Menu.filenames[i]);
 	}
-	quake_M.DrawCharacter(8,32 + (quake_M.load_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
+	quake_Menu.DrawCharacter(8,32 + (quake_Menu.load_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
 };
-quake_M.Save_Draw = function() {
-	quake_M.DrawPic(160 - (quake_M.p_save.width >> 1),4,quake_M.p_save);
+quake_Menu.Save_Draw = function() {
+	quake_Menu.DrawPic(160 - (quake_Menu.p_save.width >> 1),4,quake_Menu.p_save);
 	var _g1 = 0;
-	var _g = quake_M.max_savegames;
+	var _g = quake_Menu.max_savegames;
 	while(_g1 < _g) {
 		var i = _g1++;
-		quake_M.Print(16,32 + (i << 3),quake_M.filenames[i]);
+		quake_Menu.Print(16,32 + (i << 3),quake_Menu.filenames[i]);
 	}
-	quake_M.DrawCharacter(8,32 + (quake_M.load_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
+	quake_Menu.DrawCharacter(8,32 + (quake_Menu.load_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
 };
-quake_M.Load_Key = function(k) {
+quake_Menu.Load_Key = function(k) {
 	switch(k) {
 	case 27:
-		quake_M.Menu_SinglePlayer_f();
+		quake_Menu.Menu_SinglePlayer_f();
 		break;
 	case 13:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(!quake_M.loadable[quake_M.load_cursor]) return;
-		quake_M.state = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(!quake_Menu.loadable[quake_Menu.load_cursor]) return;
+		quake_Menu.state = 0;
 		quake_Key.dest = 0;
 		quake_SCR.BeginLoadingPlaque();
-		quake_Cmd.text += "load s" + quake_M.load_cursor + "\n";
+		quake_Cmd.text += "load s" + quake_Menu.load_cursor + "\n";
 		break;
 	case 128:case 130:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.load_cursor < 0) quake_M.load_cursor = quake_M.max_savegames - 1;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.load_cursor < 0) quake_Menu.load_cursor = quake_Menu.max_savegames - 1;
 		break;
 	case 129:case 131:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.load_cursor >= quake_M.max_savegames) quake_M.load_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.load_cursor >= quake_Menu.max_savegames) quake_Menu.load_cursor = 0;
 		return;
 	case 148:
-		if(!quake_M.removable[quake_M.load_cursor]) return;
+		if(!quake_Menu.removable[quake_Menu.load_cursor]) return;
 		if(!window.confirm("Delete selected game?")) return;
-		quake_M.localStorage.removeItem("Quake." + quake_COM.gamedir[0].filename + "/s" + quake_M.load_cursor + ".sav");
-		quake_M.ScanSaves();
+		quake_Menu.localStorage.removeItem("Quake." + quake_COM.gamedir[0].filename + "/s" + quake_Menu.load_cursor + ".sav");
+		quake_Menu.ScanSaves();
 		break;
 	default:
 	}
 };
-quake_M.Save_Key = function(k) {
+quake_Menu.Save_Key = function(k) {
 	switch(k) {
 	case 27:
-		quake_M.Menu_SinglePlayer_f();
+		quake_Menu.Menu_SinglePlayer_f();
 		break;
 	case 13:
-		quake_M.state = 0;
+		quake_Menu.state = 0;
 		quake_Key.dest = 0;
-		quake_Cmd.text += "save s" + quake_M.load_cursor + "\n";
+		quake_Cmd.text += "save s" + quake_Menu.load_cursor + "\n";
 		break;
 	case 128:case 130:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.load_cursor < 0) quake_M.load_cursor = quake_M.max_savegames - 1;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.load_cursor < 0) quake_Menu.load_cursor = quake_Menu.max_savegames - 1;
 		break;
 	case 129:case 131:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.load_cursor >= quake_M.max_savegames) quake_M.load_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.load_cursor >= quake_Menu.max_savegames) quake_Menu.load_cursor = 0;
 		break;
 	case 148:
-		if(!quake_M.removable[quake_M.load_cursor]) return;
+		if(!quake_Menu.removable[quake_Menu.load_cursor]) return;
 		if(!window.confirm("Delete selected game?")) return;
-		quake_M.localStorage.removeItem("Quake." + quake_COM.gamedir[0].filename + "/s" + quake_M.load_cursor + ".sav");
-		quake_M.ScanSaves();
+		quake_Menu.localStorage.removeItem("Quake." + quake_COM.gamedir[0].filename + "/s" + quake_Menu.load_cursor + ".sav");
+		quake_Menu.ScanSaves();
 		break;
 	default:
 	}
 };
-quake_M.Menu_MultiPlayer_f = function() {
+quake_Menu.Menu_MultiPlayer_f = function() {
 	quake_Key.dest = 3;
-	quake_M.state = 5;
-	quake_M.entersound = true;
-	quake_M.multiplayer_myname = quake_CL.$name.string;
-	quake_M.multiplayer_top = quake_M.multiplayer_oldtop = (quake_CL.color.value | 0) >> 4;
-	quake_M.multiplayer_bottom = quake_M.multiplayer_oldbottom = (quake_CL.color.value | 0) & 15;
+	quake_Menu.state = 5;
+	quake_Menu.entersound = true;
+	quake_Menu.multiplayer_myname = quake_CL.$name.string;
+	quake_Menu.multiplayer_top = quake_Menu.multiplayer_oldtop = (quake_CL.color.value | 0) >> 4;
+	quake_Menu.multiplayer_bottom = quake_Menu.multiplayer_oldbottom = (quake_CL.color.value | 0) & 15;
 };
-quake_M.MultiPlayer_Draw = function() {
-	quake_M.DrawPic(16,4,quake_M.qplaque);
-	quake_M.DrawPic(160 - (quake_M.p_multi.width >> 1),4,quake_M.p_multi);
-	quake_M.Print(64,40,"Join game at:");
-	quake_M.DrawTextBox(72,48,22,1);
-	quake_M.Print(80,56,quake_M.multiplayer_joinname.substring(quake_M.multiplayer_joinname.length - 21));
-	quake_M.Print(64,72,"Your name");
-	quake_M.DrawTextBox(160,64,16,1);
-	quake_M.Print(168,72,quake_M.multiplayer_myname);
-	quake_M.Print(64,96,"Shirt color");
-	quake_M.Print(64,120,"Pants color");
-	quake_M.DrawTextBox(64,148,14,1);
-	quake_M.Print(72,156,"Accept Changes");
-	quake_M.DrawPic(160,80,quake_M.bigbox);
-	quake_M.DrawPicTranslate(172,88,quake_M.menuplyr,(quake_M.multiplayer_top << 4) + (quake_M.multiplayer_top >= 8?4:11),(quake_M.multiplayer_bottom << 4) + (quake_M.multiplayer_bottom >= 8?4:11));
-	quake_M.DrawCharacter(56,quake_M.multiplayer_cursor_table[quake_M.multiplayer_cursor],12 + ((quake_Host.realtime * 4 | 0) & 1));
-	if(quake_M.multiplayer_cursor == 0) quake_M.DrawCharacter(quake_M.multiplayer_joinname.length <= 20?80 + (quake_M.multiplayer_joinname.length << 3):248,56,10 + ((quake_Host.realtime * 4 | 0) & 1)); else if(quake_M.multiplayer_cursor == 1) quake_M.DrawCharacter(168 + (quake_M.multiplayer_myname.length << 3),72,10 + ((quake_Host.realtime * 4 | 0) & 1));
-	if(!quake_NET_$WEBS.available) quake_M.PrintWhite(52,172,"No Communications Available");
+quake_Menu.MultiPlayer_Draw = function() {
+	quake_Menu.DrawPic(16,4,quake_Menu.qplaque);
+	quake_Menu.DrawPic(160 - (quake_Menu.p_multi.width >> 1),4,quake_Menu.p_multi);
+	quake_Menu.Print(64,40,"Join game at:");
+	quake_Menu.DrawTextBox(72,48,22,1);
+	quake_Menu.Print(80,56,quake_Menu.multiplayer_joinname.substring(quake_Menu.multiplayer_joinname.length - 21));
+	quake_Menu.Print(64,72,"Your name");
+	quake_Menu.DrawTextBox(160,64,16,1);
+	quake_Menu.Print(168,72,quake_Menu.multiplayer_myname);
+	quake_Menu.Print(64,96,"Shirt color");
+	quake_Menu.Print(64,120,"Pants color");
+	quake_Menu.DrawTextBox(64,148,14,1);
+	quake_Menu.Print(72,156,"Accept Changes");
+	quake_Menu.DrawPic(160,80,quake_Menu.bigbox);
+	quake_Menu.DrawPicTranslate(172,88,quake_Menu.menuplyr,(quake_Menu.multiplayer_top << 4) + (quake_Menu.multiplayer_top >= 8?4:11),(quake_Menu.multiplayer_bottom << 4) + (quake_Menu.multiplayer_bottom >= 8?4:11));
+	quake_Menu.DrawCharacter(56,quake_Menu.multiplayer_cursor_table[quake_Menu.multiplayer_cursor],12 + ((quake_Host.realtime * 4 | 0) & 1));
+	if(quake_Menu.multiplayer_cursor == 0) quake_Menu.DrawCharacter(quake_Menu.multiplayer_joinname.length <= 20?80 + (quake_Menu.multiplayer_joinname.length << 3):248,56,10 + ((quake_Host.realtime * 4 | 0) & 1)); else if(quake_Menu.multiplayer_cursor == 1) quake_Menu.DrawCharacter(168 + (quake_Menu.multiplayer_myname.length << 3),72,10 + ((quake_Host.realtime * 4 | 0) & 1));
+	if(!quake_NET_$WEBS.available) quake_Menu.PrintWhite(52,172,"No Communications Available");
 };
-quake_M.MultiPlayer_Key = function(k) {
-	if(k == 27) quake_M.Menu_Main_f();
+quake_Menu.MultiPlayer_Key = function(k) {
+	if(k == 27) quake_Menu.Menu_Main_f();
 	switch(k) {
 	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.multiplayer_cursor < 0) quake_M.multiplayer_cursor = 4;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.multiplayer_cursor < 0) quake_Menu.multiplayer_cursor = 4;
 		return;
 	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.multiplayer_cursor >= 5) quake_M.multiplayer_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.multiplayer_cursor >= 5) quake_Menu.multiplayer_cursor = 0;
 		return;
 	case 130:
-		if(quake_M.multiplayer_cursor == 2) {
-			if(--quake_M.multiplayer_top < 0) quake_M.multiplayer_top = 13;
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		} else if(quake_M.multiplayer_cursor == 3) {
-			if(--quake_M.multiplayer_bottom < 0) quake_M.multiplayer_bottom = 13;
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(quake_Menu.multiplayer_cursor == 2) {
+			if(--quake_Menu.multiplayer_top < 0) quake_Menu.multiplayer_top = 13;
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		} else if(quake_Menu.multiplayer_cursor == 3) {
+			if(--quake_Menu.multiplayer_bottom < 0) quake_Menu.multiplayer_bottom = 13;
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		}
 		return;
 	case 131:
-		if(quake_M.multiplayer_cursor == 2) {
-			if(quake_M.multiplayer_top <= 12) ++quake_M.multiplayer_top; else quake_M.multiplayer_top = 0;
-		} else if(quake_M.multiplayer_cursor == 3) {
-			if(quake_M.multiplayer_bottom <= 12) ++quake_M.multiplayer_bottom; else quake_M.multiplayer_bottom = 0;
+		if(quake_Menu.multiplayer_cursor == 2) {
+			if(quake_Menu.multiplayer_top <= 12) ++quake_Menu.multiplayer_top; else quake_Menu.multiplayer_top = 0;
+		} else if(quake_Menu.multiplayer_cursor == 3) {
+			if(quake_Menu.multiplayer_bottom <= 12) ++quake_Menu.multiplayer_bottom; else quake_Menu.multiplayer_bottom = 0;
 		} else return;
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		return;
 	case 13:
-		var _g = quake_M.multiplayer_cursor;
+		var _g = quake_Menu.multiplayer_cursor;
 		switch(_g) {
 		case 0:
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 			if(!quake_NET_$WEBS.available) return;
 			quake_Key.dest = 0;
-			quake_M.state = 0;
+			quake_Menu.state = 0;
 			quake_Cmd.text += "connect \"";
-			if(quake_M.multiplayer_joinname.substring(0,5) != "ws://") quake_Cmd.text += "ws://";
-			quake_Cmd.text += quake_M.multiplayer_joinname + "\"\n";
+			if(quake_Menu.multiplayer_joinname.substring(0,5) != "ws://") quake_Cmd.text += "ws://";
+			quake_Cmd.text += quake_Menu.multiplayer_joinname + "\"\n";
 			break;
 		case 2:
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-			if(quake_M.multiplayer_top <= 12) ++quake_M.multiplayer_top; else quake_M.multiplayer_top = 0;
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+			if(quake_Menu.multiplayer_top <= 12) ++quake_Menu.multiplayer_top; else quake_Menu.multiplayer_top = 0;
 			break;
 		case 3:
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-			if(quake_M.multiplayer_bottom <= 12) ++quake_M.multiplayer_bottom; else quake_M.multiplayer_bottom = 0;
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+			if(quake_Menu.multiplayer_bottom <= 12) ++quake_Menu.multiplayer_bottom; else quake_Menu.multiplayer_bottom = 0;
 			break;
 		case 4:
-			if(quake_CL.$name.string != quake_M.multiplayer_myname) quake_Cmd.text += "name \"" + quake_M.multiplayer_myname + "\"\n";
-			if(quake_M.multiplayer_top != quake_M.multiplayer_oldtop || quake_M.multiplayer_bottom != quake_M.multiplayer_oldbottom) {
-				quake_M.multiplayer_oldtop = quake_M.multiplayer_top;
-				quake_M.multiplayer_oldbottom = quake_M.multiplayer_bottom;
-				quake_Cmd.text += "color " + quake_M.multiplayer_top + " " + quake_M.multiplayer_bottom + "\n";
+			if(quake_CL.$name.string != quake_Menu.multiplayer_myname) quake_Cmd.text += "name \"" + quake_Menu.multiplayer_myname + "\"\n";
+			if(quake_Menu.multiplayer_top != quake_Menu.multiplayer_oldtop || quake_Menu.multiplayer_bottom != quake_Menu.multiplayer_oldbottom) {
+				quake_Menu.multiplayer_oldtop = quake_Menu.multiplayer_top;
+				quake_Menu.multiplayer_oldbottom = quake_Menu.multiplayer_bottom;
+				quake_Cmd.text += "color " + quake_Menu.multiplayer_top + " " + quake_Menu.multiplayer_bottom + "\n";
 			}
-			quake_M.entersound = true;
+			quake_Menu.entersound = true;
 			break;
 		}
 		break;
 	case 127:
-		if(quake_M.multiplayer_cursor == 0) {
-			if(quake_M.multiplayer_joinname.length != 0) quake_M.multiplayer_joinname = quake_M.multiplayer_joinname.substring(0,quake_M.multiplayer_joinname.length - 1);
+		if(quake_Menu.multiplayer_cursor == 0) {
+			if(quake_Menu.multiplayer_joinname.length != 0) quake_Menu.multiplayer_joinname = quake_Menu.multiplayer_joinname.substring(0,quake_Menu.multiplayer_joinname.length - 1);
 			return;
 		}
-		if(quake_M.multiplayer_cursor == 1) {
-			if(quake_M.multiplayer_myname.length != 0) quake_M.multiplayer_myname = quake_M.multiplayer_myname.substring(0,quake_M.multiplayer_myname.length - 1);
+		if(quake_Menu.multiplayer_cursor == 1) {
+			if(quake_Menu.multiplayer_myname.length != 0) quake_Menu.multiplayer_myname = quake_Menu.multiplayer_myname.substring(0,quake_Menu.multiplayer_myname.length - 1);
 		}
 		return;
 	default:
 	}
 	if(k < 32 || k > 127) return;
-	if(quake_M.multiplayer_cursor == 0) {
-		quake_M.multiplayer_joinname += String.fromCharCode(k);
+	if(quake_Menu.multiplayer_cursor == 0) {
+		quake_Menu.multiplayer_joinname += String.fromCharCode(k);
 		return;
 	}
-	if(quake_M.multiplayer_cursor == 1) {
-		if(quake_M.multiplayer_myname.length <= 14) quake_M.multiplayer_myname += String.fromCharCode(k);
+	if(quake_Menu.multiplayer_cursor == 1) {
+		if(quake_Menu.multiplayer_myname.length <= 14) quake_Menu.multiplayer_myname += String.fromCharCode(k);
 	}
 };
-quake_M.Menu_Options_f = function() {
+quake_Menu.Menu_Options_f = function() {
 	quake_Key.dest = 3;
-	quake_M.state = 6;
-	quake_M.entersound = true;
+	quake_Menu.state = 6;
+	quake_Menu.entersound = true;
 };
-quake_M.AdjustSliders = function(dir) {
-	quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-	var _g = quake_M.options_cursor;
+quake_Menu.AdjustSliders = function(dir) {
+	quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+	var _g = quake_Menu.options_cursor;
 	switch(_g) {
 	case 3:
 		quake_SCR.viewsize.value += dir * 10;
@@ -5480,93 +5480,93 @@ quake_M.AdjustSliders = function(dir) {
 		break;
 	}
 };
-quake_M.DrawSlider = function(x,y,range) {
+quake_Menu.DrawSlider = function(x,y,range) {
 	if(range < 0) range = 0; else if(range > 1) range = 1;
-	quake_M.DrawCharacter(x - 8,y,128);
-	quake_M.DrawCharacter(x,y,129);
-	quake_M.DrawCharacter(x + 8,y,129);
-	quake_M.DrawCharacter(x + 16,y,129);
-	quake_M.DrawCharacter(x + 24,y,129);
-	quake_M.DrawCharacter(x + 32,y,129);
-	quake_M.DrawCharacter(x + 40,y,129);
-	quake_M.DrawCharacter(x + 48,y,129);
-	quake_M.DrawCharacter(x + 56,y,129);
-	quake_M.DrawCharacter(x + 64,y,129);
-	quake_M.DrawCharacter(x + 72,y,129);
-	quake_M.DrawCharacter(x + 80,y,130);
-	quake_M.DrawCharacter(x + Math.floor(72 * range),y,131);
+	quake_Menu.DrawCharacter(x - 8,y,128);
+	quake_Menu.DrawCharacter(x,y,129);
+	quake_Menu.DrawCharacter(x + 8,y,129);
+	quake_Menu.DrawCharacter(x + 16,y,129);
+	quake_Menu.DrawCharacter(x + 24,y,129);
+	quake_Menu.DrawCharacter(x + 32,y,129);
+	quake_Menu.DrawCharacter(x + 40,y,129);
+	quake_Menu.DrawCharacter(x + 48,y,129);
+	quake_Menu.DrawCharacter(x + 56,y,129);
+	quake_Menu.DrawCharacter(x + 64,y,129);
+	quake_Menu.DrawCharacter(x + 72,y,129);
+	quake_Menu.DrawCharacter(x + 80,y,130);
+	quake_Menu.DrawCharacter(x + Math.floor(72 * range),y,131);
 };
-quake_M.Options_Draw = function() {
-	quake_M.DrawPic(16,4,quake_M.qplaque);
-	quake_M.DrawPic(160 - (quake_M.p_option.width >> 1),4,quake_M.p_option);
-	quake_M.Print(48,32,"Customize controls");
-	quake_M.Print(88,40,"Go to console");
-	quake_M.Print(56,48,"Reset to defaults");
-	quake_M.Print(104,56,"Screen size");
-	quake_M.DrawSlider(220,56,(quake_SCR.viewsize.value - 30) / 90);
-	quake_M.Print(112,64,"Brightness");
-	quake_M.DrawSlider(220,64,(1.0 - quake_V.gamma.value) * 2.0);
-	quake_M.Print(104,72,"Mouse Speed");
-	quake_M.DrawSlider(220,72,(quake_CL.sensitivity.value - 1) / 10);
-	quake_M.Print(72,80,"CD Music Volume");
-	quake_M.DrawSlider(220,80,quake_S.bgmvolume.value);
-	quake_M.Print(96,88,"Sound Volume");
-	quake_M.DrawSlider(220,88,quake_S.volume.value);
-	quake_M.Print(112,96,"Always Run");
-	quake_M.Print(220,96,quake_CL.forwardspeed.value > 200.0?"on":"off");
-	quake_M.Print(96,104,"Invert Mouse");
-	quake_M.Print(220,104,quake_CL.m_pitch.value < 0.0?"on":"off");
-	quake_M.Print(112,112,"Lookspring");
-	quake_M.Print(220,112,quake_CL.lookspring.value != 0?"on":"off");
-	quake_M.Print(112,120,"Lookstrafe");
-	quake_M.Print(220,120,quake_CL.lookstrafe.value != 0?"on":"off");
-	quake_M.DrawCharacter(200,32 + (quake_M.options_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
+quake_Menu.Options_Draw = function() {
+	quake_Menu.DrawPic(16,4,quake_Menu.qplaque);
+	quake_Menu.DrawPic(160 - (quake_Menu.p_option.width >> 1),4,quake_Menu.p_option);
+	quake_Menu.Print(48,32,"Customize controls");
+	quake_Menu.Print(88,40,"Go to console");
+	quake_Menu.Print(56,48,"Reset to defaults");
+	quake_Menu.Print(104,56,"Screen size");
+	quake_Menu.DrawSlider(220,56,(quake_SCR.viewsize.value - 30) / 90);
+	quake_Menu.Print(112,64,"Brightness");
+	quake_Menu.DrawSlider(220,64,(1.0 - quake_V.gamma.value) * 2.0);
+	quake_Menu.Print(104,72,"Mouse Speed");
+	quake_Menu.DrawSlider(220,72,(quake_CL.sensitivity.value - 1) / 10);
+	quake_Menu.Print(72,80,"CD Music Volume");
+	quake_Menu.DrawSlider(220,80,quake_S.bgmvolume.value);
+	quake_Menu.Print(96,88,"Sound Volume");
+	quake_Menu.DrawSlider(220,88,quake_S.volume.value);
+	quake_Menu.Print(112,96,"Always Run");
+	quake_Menu.Print(220,96,quake_CL.forwardspeed.value > 200.0?"on":"off");
+	quake_Menu.Print(96,104,"Invert Mouse");
+	quake_Menu.Print(220,104,quake_CL.m_pitch.value < 0.0?"on":"off");
+	quake_Menu.Print(112,112,"Lookspring");
+	quake_Menu.Print(220,112,quake_CL.lookspring.value != 0?"on":"off");
+	quake_Menu.Print(112,120,"Lookstrafe");
+	quake_Menu.Print(220,120,quake_CL.lookstrafe.value != 0?"on":"off");
+	quake_Menu.DrawCharacter(200,32 + (quake_Menu.options_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
 };
-quake_M.Options_Key = function(k) {
+quake_Menu.Options_Key = function(k) {
 	switch(k) {
 	case 27:
-		quake_M.Menu_Main_f();
+		quake_Menu.Menu_Main_f();
 		return;
 	case 13:
-		quake_M.entersound = true;
-		var _g = quake_M.options_cursor;
+		quake_Menu.entersound = true;
+		var _g = quake_Menu.options_cursor;
 		switch(_g) {
 		case 0:
-			quake_M.Menu_Keys_f();
+			quake_Menu.Menu_Keys_f();
 			return;
 		case 1:
-			quake_M.state = 0;
+			quake_Menu.state = 0;
 			quake_Console.ToggleConsole_f();
 			return;
 		case 2:
 			quake_Cmd.text += "exec default.cfg\n";
 			return;
 		default:
-			quake_M.AdjustSliders(1);
+			quake_Menu.AdjustSliders(1);
 		}
 		return;
 	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.options_cursor < 0) quake_M.options_cursor = 11;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.options_cursor < 0) quake_Menu.options_cursor = 11;
 		return;
 	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.options_cursor >= 12) quake_M.options_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.options_cursor >= 12) quake_Menu.options_cursor = 0;
 		return;
 	case 130:
-		quake_M.AdjustSliders(-1);
+		quake_Menu.AdjustSliders(-1);
 		return;
 	case 131:
-		quake_M.AdjustSliders(1);
+		quake_Menu.AdjustSliders(1);
 		break;
 	}
 };
-quake_M.Menu_Keys_f = function() {
+quake_Menu.Menu_Keys_f = function() {
 	quake_Key.dest = 3;
-	quake_M.state = 7;
-	quake_M.entersound = true;
+	quake_Menu.state = 7;
+	quake_Menu.entersound = true;
 };
-quake_M.FindKeysForCommand = function(command) {
+quake_Menu.FindKeysForCommand = function(command) {
 	var twokeys = [];
 	var _g1 = 0;
 	var _g = quake_Key.bindings.length;
@@ -5579,7 +5579,7 @@ quake_M.FindKeysForCommand = function(command) {
 	}
 	return twokeys;
 };
-quake_M.UnbindCommand = function(command) {
+quake_Menu.UnbindCommand = function(command) {
 	var _g1 = 0;
 	var _g = quake_Key.bindings.length;
 	while(_g1 < _g) {
@@ -5587,120 +5587,120 @@ quake_M.UnbindCommand = function(command) {
 		if(quake_Key.bindings[i] == command) quake_Key.bindings[i] = null;
 	}
 };
-quake_M.Keys_Draw = function() {
-	quake_M.DrawPic(160 - (quake_M.ttl_cstm.width >> 1),4,quake_M.ttl_cstm);
-	if(quake_M.bind_grab) {
-		quake_M.Print(12,32,"Press a key or button for this action");
-		quake_M.DrawCharacter(130,48 + (quake_M.keys_cursor << 3),61);
+quake_Menu.Keys_Draw = function() {
+	quake_Menu.DrawPic(160 - (quake_Menu.ttl_cstm.width >> 1),4,quake_Menu.ttl_cstm);
+	if(quake_Menu.bind_grab) {
+		quake_Menu.Print(12,32,"Press a key or button for this action");
+		quake_Menu.DrawCharacter(130,48 + (quake_Menu.keys_cursor << 3),61);
 	} else {
-		quake_M.Print(18,32,"Enter to change, backspace to clear");
-		quake_M.DrawCharacter(130,48 + (quake_M.keys_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
+		quake_Menu.Print(18,32,"Enter to change, backspace to clear");
+		quake_Menu.DrawCharacter(130,48 + (quake_Menu.keys_cursor << 3),12 + ((quake_Host.realtime * 4 | 0) & 1));
 	}
 	var y = 48;
 	var _g1 = 0;
-	var _g = quake_M.bindnames.length;
+	var _g = quake_Menu.bindnames.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		quake_M.Print(16,y,quake_M.bindnames[i][1]);
-		var keys = quake_M.FindKeysForCommand(quake_M.bindnames[i][0]);
-		if(keys[0] == null) quake_M.Print(140,y,"???"); else {
+		quake_Menu.Print(16,y,quake_Menu.bindnames[i][1]);
+		var keys = quake_Menu.FindKeysForCommand(quake_Menu.bindnames[i][0]);
+		if(keys[0] == null) quake_Menu.Print(140,y,"???"); else {
 			var name = quake_Key.KeynumToString(keys[0]);
 			if(keys[1] != null) name += " or " + quake_Key.KeynumToString(keys[1]);
-			quake_M.Print(140,y,name);
+			quake_Menu.Print(140,y,name);
 		}
 		y += 8;
 	}
 };
-quake_M.Keys_Key = function(k) {
-	if(quake_M.bind_grab) {
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(k != 27 && k != 96) quake_Cmd.text = "bind \"" + quake_Key.KeynumToString(k) + "\" \"" + quake_M.bindnames[quake_M.keys_cursor][0] + "\"\n" + quake_Cmd.text;
-		quake_M.bind_grab = false;
+quake_Menu.Keys_Key = function(k) {
+	if(quake_Menu.bind_grab) {
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(k != 27 && k != 96) quake_Cmd.text = "bind \"" + quake_Key.KeynumToString(k) + "\" \"" + quake_Menu.bindnames[quake_Menu.keys_cursor][0] + "\"\n" + quake_Cmd.text;
+		quake_Menu.bind_grab = false;
 		return;
 	}
 	switch(k) {
 	case 27:
-		quake_M.Menu_Options_f();
+		quake_Menu.Menu_Options_f();
 		break;
 	case 130:case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_M.keys_cursor < 0) quake_M.keys_cursor = quake_M.bindnames.length - 1;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.keys_cursor < 0) quake_Menu.keys_cursor = quake_Menu.bindnames.length - 1;
 		break;
 	case 129:case 131:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_M.keys_cursor >= quake_M.bindnames.length) quake_M.keys_cursor = 0;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.keys_cursor >= quake_Menu.bindnames.length) quake_Menu.keys_cursor = 0;
 		break;
 	case 13:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(quake_M.FindKeysForCommand(quake_M.bindnames[quake_M.keys_cursor][0])[1] != null) quake_M.UnbindCommand(quake_M.bindnames[quake_M.keys_cursor][0]);
-		quake_M.bind_grab = true;
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(quake_Menu.FindKeysForCommand(quake_Menu.bindnames[quake_Menu.keys_cursor][0])[1] != null) quake_Menu.UnbindCommand(quake_Menu.bindnames[quake_Menu.keys_cursor][0]);
+		quake_Menu.bind_grab = true;
 		break;
 	case 127:case 148:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		quake_M.UnbindCommand(quake_M.bindnames[quake_M.keys_cursor][0]);
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		quake_Menu.UnbindCommand(quake_Menu.bindnames[quake_Menu.keys_cursor][0]);
 		break;
 	default:
 	}
 };
-quake_M.Menu_Help_f = function() {
+quake_Menu.Menu_Help_f = function() {
 	quake_Key.dest = 3;
-	quake_M.state = 8;
-	quake_M.entersound = true;
-	quake_M.help_page = 0;
+	quake_Menu.state = 8;
+	quake_Menu.entersound = true;
+	quake_Menu.help_page = 0;
 };
-quake_M.Help_Draw = function() {
-	quake_M.DrawPic(0,0,quake_M.help_pages[quake_M.help_page]);
+quake_Menu.Help_Draw = function() {
+	quake_Menu.DrawPic(0,0,quake_Menu.help_pages[quake_Menu.help_page]);
 };
-quake_M.Help_Key = function(k) {
+quake_Menu.Help_Key = function(k) {
 	switch(k) {
 	case 27:
-		quake_M.Menu_Main_f();
+		quake_Menu.Menu_Main_f();
 		return;
 	case 128:
 		break;
 	case 131:
-		quake_M.entersound = true;
-		if(++quake_M.help_page >= 6) quake_M.help_page = 0;
+		quake_Menu.entersound = true;
+		if(++quake_Menu.help_page >= 6) quake_Menu.help_page = 0;
 		return;
 	case 129:
 		break;
 	case 130:
-		quake_M.entersound = true;
-		if(--quake_M.help_page < 0) quake_M.help_page = 5;
+		quake_Menu.entersound = true;
+		if(--quake_Menu.help_page < 0) quake_Menu.help_page = 5;
 		break;
 	}
 };
-quake_M.Menu_Quit_f = function() {
-	if(quake_M.state == 9) return;
-	quake_M.wasInMenus = quake_Key.dest == 3;
+quake_Menu.Menu_Quit_f = function() {
+	if(quake_Menu.state == 9) return;
+	quake_Menu.wasInMenus = quake_Key.dest == 3;
 	quake_Key.dest = 3;
-	quake_M.quit_prevstate = quake_M.state;
-	quake_M.state = 9;
-	quake_M.entersound = true;
-	quake_M.msgNumber = Math.floor(Math.random() * quake_M.quitMessage.length);
+	quake_Menu.quit_prevstate = quake_Menu.state;
+	quake_Menu.state = 9;
+	quake_Menu.entersound = true;
+	quake_Menu.msgNumber = Math.floor(Math.random() * quake_Menu.quitMessage.length);
 };
-quake_M.Quit_Draw = function() {
-	if(quake_M.wasInMenus) {
-		quake_M.state = quake_M.quit_prevstate;
-		quake_M.recursiveDraw = true;
-		quake_M.DrawMenu();
-		quake_M.state = 9;
+quake_Menu.Quit_Draw = function() {
+	if(quake_Menu.wasInMenus) {
+		quake_Menu.state = quake_Menu.quit_prevstate;
+		quake_Menu.recursiveDraw = true;
+		quake_Menu.DrawMenu();
+		quake_Menu.state = 9;
 	}
-	quake_M.DrawTextBox(56,76,24,4);
-	quake_M.Print(64,84,quake_M.quitMessage[quake_M.msgNumber][0]);
-	quake_M.Print(64,92,quake_M.quitMessage[quake_M.msgNumber][1]);
-	quake_M.Print(64,100,quake_M.quitMessage[quake_M.msgNumber][2]);
-	quake_M.Print(64,108,quake_M.quitMessage[quake_M.msgNumber][3]);
+	quake_Menu.DrawTextBox(56,76,24,4);
+	quake_Menu.Print(64,84,quake_Menu.quitMessage[quake_Menu.msgNumber][0]);
+	quake_Menu.Print(64,92,quake_Menu.quitMessage[quake_Menu.msgNumber][1]);
+	quake_Menu.Print(64,100,quake_Menu.quitMessage[quake_Menu.msgNumber][2]);
+	quake_Menu.Print(64,108,quake_Menu.quitMessage[quake_Menu.msgNumber][3]);
 };
-quake_M.Quit_Key = function(k) {
+quake_Menu.Quit_Key = function(k) {
 	switch(k) {
 	case 27:case 110:
-		if(quake_M.wasInMenus) {
-			quake_M.state = quake_M.quit_prevstate;
-			quake_M.entersound = true;
+		if(quake_Menu.wasInMenus) {
+			quake_Menu.state = quake_Menu.quit_prevstate;
+			quake_Menu.entersound = true;
 		} else {
 			quake_Key.dest = 0;
-			quake_M.state = 0;
+			quake_Menu.state = 0;
 		}
 		break;
 	case 121:
@@ -5710,44 +5710,44 @@ quake_M.Quit_Key = function(k) {
 	default:
 	}
 };
-quake_M.Init = function() {
-	quake_Cmd.AddCommand("togglemenu",quake_M.ToggleMenu_f);
-	quake_Cmd.AddCommand("menu_main",quake_M.Menu_Main_f);
-	quake_Cmd.AddCommand("menu_singleplayer",quake_M.Menu_SinglePlayer_f);
-	quake_Cmd.AddCommand("menu_load",quake_M.Menu_Load_f);
-	quake_Cmd.AddCommand("menu_save",quake_M.Menu_Save_f);
-	quake_Cmd.AddCommand("menu_multiplayer",quake_M.Menu_MultiPlayer_f);
-	quake_Cmd.AddCommand("menu_setup",quake_M.Menu_MultiPlayer_f);
-	quake_Cmd.AddCommand("menu_options",quake_M.Menu_Options_f);
-	quake_Cmd.AddCommand("menu_keys",quake_M.Menu_Keys_f);
-	quake_Cmd.AddCommand("help",quake_M.Menu_Help_f);
-	quake_Cmd.AddCommand("menu_quit",quake_M.Menu_Quit_f);
-	quake_M.sfx_menu1 = quake_S.PrecacheSound("misc/menu1.wav");
-	quake_M.sfx_menu2 = quake_S.PrecacheSound("misc/menu2.wav");
-	quake_M.sfx_menu3 = quake_S.PrecacheSound("misc/menu3.wav");
-	quake_M.box_tl = quake_Draw.CachePic("box_tl");
-	quake_M.box_ml = quake_Draw.CachePic("box_ml");
-	quake_M.box_bl = quake_Draw.CachePic("box_bl");
-	quake_M.box_tm = quake_Draw.CachePic("box_tm");
-	quake_M.box_mm = quake_Draw.CachePic("box_mm");
-	quake_M.box_mm2 = quake_Draw.CachePic("box_mm2");
-	quake_M.box_bm = quake_Draw.CachePic("box_bm");
-	quake_M.box_tr = quake_Draw.CachePic("box_tr");
-	quake_M.box_mr = quake_Draw.CachePic("box_mr");
-	quake_M.box_br = quake_Draw.CachePic("box_br");
-	quake_M.qplaque = quake_Draw.CachePic("qplaque");
-	quake_M.menudot = [quake_Draw.CachePic("menudot1"),quake_Draw.CachePic("menudot2"),quake_Draw.CachePic("menudot3"),quake_Draw.CachePic("menudot4"),quake_Draw.CachePic("menudot5"),quake_Draw.CachePic("menudot6")];
-	quake_M.ttl_main = quake_Draw.CachePic("ttl_main");
-	quake_M.mainmenu = quake_Draw.CachePic("mainmenu");
-	quake_M.ttl_sgl = quake_Draw.CachePic("ttl_sgl");
-	quake_M.sp_menu = quake_Draw.CachePic("sp_menu");
-	quake_M.p_load = quake_Draw.CachePic("p_load");
-	quake_M.p_save = quake_Draw.CachePic("p_save");
-	quake_M.p_multi = quake_Draw.CachePic("p_multi");
-	quake_M.bigbox = quake_Draw.CachePic("bigbox");
-	quake_M.menuplyr = quake_Draw.CachePic("menuplyr");
+quake_Menu.Init = function() {
+	quake_Cmd.AddCommand("togglemenu",quake_Menu.ToggleMenu_f);
+	quake_Cmd.AddCommand("menu_main",quake_Menu.Menu_Main_f);
+	quake_Cmd.AddCommand("menu_singleplayer",quake_Menu.Menu_SinglePlayer_f);
+	quake_Cmd.AddCommand("menu_load",quake_Menu.Menu_Load_f);
+	quake_Cmd.AddCommand("menu_save",quake_Menu.Menu_Save_f);
+	quake_Cmd.AddCommand("menu_multiplayer",quake_Menu.Menu_MultiPlayer_f);
+	quake_Cmd.AddCommand("menu_setup",quake_Menu.Menu_MultiPlayer_f);
+	quake_Cmd.AddCommand("menu_options",quake_Menu.Menu_Options_f);
+	quake_Cmd.AddCommand("menu_keys",quake_Menu.Menu_Keys_f);
+	quake_Cmd.AddCommand("help",quake_Menu.Menu_Help_f);
+	quake_Cmd.AddCommand("menu_quit",quake_Menu.Menu_Quit_f);
+	quake_Menu.sfx_menu1 = quake_S.PrecacheSound("misc/menu1.wav");
+	quake_Menu.sfx_menu2 = quake_S.PrecacheSound("misc/menu2.wav");
+	quake_Menu.sfx_menu3 = quake_S.PrecacheSound("misc/menu3.wav");
+	quake_Menu.box_tl = quake_Draw.CachePic("box_tl");
+	quake_Menu.box_ml = quake_Draw.CachePic("box_ml");
+	quake_Menu.box_bl = quake_Draw.CachePic("box_bl");
+	quake_Menu.box_tm = quake_Draw.CachePic("box_tm");
+	quake_Menu.box_mm = quake_Draw.CachePic("box_mm");
+	quake_Menu.box_mm2 = quake_Draw.CachePic("box_mm2");
+	quake_Menu.box_bm = quake_Draw.CachePic("box_bm");
+	quake_Menu.box_tr = quake_Draw.CachePic("box_tr");
+	quake_Menu.box_mr = quake_Draw.CachePic("box_mr");
+	quake_Menu.box_br = quake_Draw.CachePic("box_br");
+	quake_Menu.qplaque = quake_Draw.CachePic("qplaque");
+	quake_Menu.menudot = [quake_Draw.CachePic("menudot1"),quake_Draw.CachePic("menudot2"),quake_Draw.CachePic("menudot3"),quake_Draw.CachePic("menudot4"),quake_Draw.CachePic("menudot5"),quake_Draw.CachePic("menudot6")];
+	quake_Menu.ttl_main = quake_Draw.CachePic("ttl_main");
+	quake_Menu.mainmenu = quake_Draw.CachePic("mainmenu");
+	quake_Menu.ttl_sgl = quake_Draw.CachePic("ttl_sgl");
+	quake_Menu.sp_menu = quake_Draw.CachePic("sp_menu");
+	quake_Menu.p_load = quake_Draw.CachePic("p_load");
+	quake_Menu.p_save = quake_Draw.CachePic("p_save");
+	quake_Menu.p_multi = quake_Draw.CachePic("p_multi");
+	quake_Menu.bigbox = quake_Draw.CachePic("bigbox");
+	quake_Menu.menuplyr = quake_Draw.CachePic("menuplyr");
 	quake_COM.LoadFile("gfx/menuplyr.lmp");
-	var data = quake_GL.ResampleTexture(quake_M.menuplyr.data,quake_M.menuplyr.width,quake_M.menuplyr.height,64,64);
+	var data = quake_GL.ResampleTexture(quake_Menu.menuplyr.data,quake_Menu.menuplyr.width,quake_Menu.menuplyr.height,64,64);
 	var trans = new Uint8Array(new ArrayBuffer(16384));
 	var _g = 0;
 	while(_g < 4096) {
@@ -5761,86 +5761,86 @@ quake_M.Init = function() {
 			trans[(i << 2) + 3] = 255;
 		}
 	}
-	quake_M.menuplyr.translate = quake_GL.gl.createTexture();
-	quake_GL.Bind(0,quake_M.menuplyr.translate);
+	quake_Menu.menuplyr.translate = quake_GL.gl.createTexture();
+	quake_GL.Bind(0,quake_Menu.menuplyr.translate);
 	quake_GL.gl.texImage2D(3553,0,6408,64,64,0,6408,5121,trans);
 	quake_GL.gl.texParameterf(3553,10241,9729);
 	quake_GL.gl.texParameterf(3553,10240,9729);
-	quake_M.p_option = quake_Draw.CachePic("p_option");
-	quake_M.ttl_cstm = quake_Draw.CachePic("ttl_cstm");
-	quake_M.help_pages = [quake_Draw.CachePic("help0"),quake_Draw.CachePic("help1"),quake_Draw.CachePic("help2"),quake_Draw.CachePic("help3"),quake_Draw.CachePic("help4"),quake_Draw.CachePic("help5")];
+	quake_Menu.p_option = quake_Draw.CachePic("p_option");
+	quake_Menu.ttl_cstm = quake_Draw.CachePic("ttl_cstm");
+	quake_Menu.help_pages = [quake_Draw.CachePic("help0"),quake_Draw.CachePic("help1"),quake_Draw.CachePic("help2"),quake_Draw.CachePic("help3"),quake_Draw.CachePic("help4"),quake_Draw.CachePic("help5")];
 };
-quake_M.DrawMenu = function() {
-	if(quake_M.state == 0 || quake_Key.dest != 3) return;
-	if(!quake_M.recursiveDraw) {
+quake_Menu.DrawMenu = function() {
+	if(quake_Menu.state == 0 || quake_Key.dest != 3) return;
+	if(!quake_Menu.recursiveDraw) {
 		if(quake_SCR.con_current != 0) quake_Draw.ConsoleBackground(quake_VID.height); else quake_Draw.FadeScreen();
-	} else quake_M.recursiveDraw = false;
-	var _g = quake_M.state;
+	} else quake_Menu.recursiveDraw = false;
+	var _g = quake_Menu.state;
 	switch(_g) {
 	case 1:
-		quake_M.Main_Draw();
+		quake_Menu.Main_Draw();
 		break;
 	case 2:
-		quake_M.SinglePlayer_Draw();
+		quake_Menu.SinglePlayer_Draw();
 		break;
 	case 3:
-		quake_M.Load_Draw();
+		quake_Menu.Load_Draw();
 		break;
 	case 4:
-		quake_M.Save_Draw();
+		quake_Menu.Save_Draw();
 		break;
 	case 5:
-		quake_M.MultiPlayer_Draw();
+		quake_Menu.MultiPlayer_Draw();
 		break;
 	case 6:
-		quake_M.Options_Draw();
+		quake_Menu.Options_Draw();
 		break;
 	case 7:
-		quake_M.Keys_Draw();
+		quake_Menu.Keys_Draw();
 		break;
 	case 8:
-		quake_M.Help_Draw();
+		quake_Menu.Help_Draw();
 		break;
 	case 9:
-		quake_M.Quit_Draw();
+		quake_Menu.Quit_Draw();
 		break;
 	case 0:
 		break;
 	}
-	if(quake_M.entersound) {
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_M.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		quake_M.entersound = false;
+	if(quake_Menu.entersound) {
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		quake_Menu.entersound = false;
 	}
 };
-quake_M.Keydown = function(key) {
-	var _g = quake_M.state;
+quake_Menu.Keydown = function(key) {
+	var _g = quake_Menu.state;
 	switch(_g) {
 	case 1:
-		quake_M.Main_Key(key);
+		quake_Menu.Main_Key(key);
 		break;
 	case 2:
-		quake_M.SinglePlayer_Key(key);
+		quake_Menu.SinglePlayer_Key(key);
 		break;
 	case 3:
-		quake_M.Load_Key(key);
+		quake_Menu.Load_Key(key);
 		break;
 	case 4:
-		quake_M.Save_Key(key);
+		quake_Menu.Save_Key(key);
 		break;
 	case 5:
-		quake_M.MultiPlayer_Key(key);
+		quake_Menu.MultiPlayer_Key(key);
 		break;
 	case 6:
-		quake_M.Options_Key(key);
+		quake_Menu.Options_Key(key);
 		break;
 	case 7:
-		quake_M.Keys_Key(key);
+		quake_Menu.Keys_Key(key);
 		break;
 	case 8:
-		quake_M.Help_Key(key);
+		quake_Menu.Help_Key(key);
 		break;
 	case 9:
-		quake_M.Quit_Key(key);
+		quake_Menu.Quit_Key(key);
 		break;
 	case 0:
 		break;
@@ -9212,7 +9212,7 @@ quake_SCR.UpdateScreen = function() {
 		quake_SCR.DrawCenterString();
 		quake_Sbar.DrawSbar();
 		quake_SCR.DrawConsole();
-		quake_M.DrawMenu();
+		quake_Menu.DrawMenu();
 	}
 	quake_GL.gl.disable(3042);
 	if(quake_SCR.screenshot) {
@@ -15031,23 +15031,23 @@ quake_Key.shift = [];
 quake_Key.down = [];
 quake_Key.names = [{ name : "TAB", keynum : 9},{ name : "ENTER", keynum : 13},{ name : "ESCAPE", keynum : 27},{ name : "SPACE", keynum : 32},{ name : "BACKSPACE", keynum : 127},{ name : "UPARROW", keynum : 128},{ name : "DOWNARROW", keynum : 129},{ name : "LEFTARROW", keynum : 130},{ name : "RIGHTARROW", keynum : 131},{ name : "ALT", keynum : 132},{ name : "CTRL", keynum : 133},{ name : "SHIFT", keynum : 134},{ name : "F1", keynum : 135},{ name : "F2", keynum : 136},{ name : "F3", keynum : 137},{ name : "F4", keynum : 138},{ name : "F5", keynum : 139},{ name : "F6", keynum : 140},{ name : "F7", keynum : 141},{ name : "F8", keynum : 142},{ name : "F9", keynum : 143},{ name : "F10", keynum : 144},{ name : "F11", keynum : 145},{ name : "F12", keynum : 146},{ name : "INS", keynum : 147},{ name : "DEL", keynum : 148},{ name : "PGDN", keynum : 149},{ name : "PGUP", keynum : 150},{ name : "HOME", keynum : 151},{ name : "END", keynum : 152},{ name : "MOUSE1", keynum : 200},{ name : "MOUSE2", keynum : 201},{ name : "MOUSE3", keynum : 202},{ name : "PAUSE", keynum : 255},{ name : "MWHEELUP", keynum : 239},{ name : "MWHEELDOWN", keynum : 240},{ name : "SEMICOLON", keynum : 59}];
 quake_Key.chat_buffer = "";
-quake_M.state = 0;
-quake_M.localStorage = js_Browser.getLocalStorage();
-quake_M.entersound = false;
-quake_M.main_cursor = 0;
-quake_M.singleplayer_cursor = 0;
-quake_M.load_cursor = 0;
-quake_M.max_savegames = 12;
-quake_M.filenames = [];
-quake_M.loadable = [];
-quake_M.removable = [];
-quake_M.multiplayer_cursor = 0;
-quake_M.multiplayer_cursor_table = [56,72,96,120,156];
-quake_M.multiplayer_joinname = "";
-quake_M.options_cursor = 0;
-quake_M.bindnames = [["+attack","attack"],["impulse 10","change weapon"],["+jump","jump / swim up"],["+forward","walk forward"],["+back","backpedal"],["+left","turn left"],["+right","turn right"],["+speed","run"],["+moveleft","step left"],["+moveright","step right"],["+strafe","sidestep"],["+lookup","look up"],["+lookdown","look down"],["centerview","center view"],["+mlook","mouse look"],["+klook","keyboard look"],["+moveup","swim up"],["+movedown","swim down"]];
-quake_M.keys_cursor = 0;
-quake_M.quitMessage = [["  Are you gonna quit","  this game just like","   everything else?",""],[" Milord, methinks that","   thou art a lowly"," quitter. Is this true?",""],[" Do I need to bust your","  face open for trying","        to quit?",""],[" Man, I oughta smack you","   for trying to quit!","     Press Y to get","      smacked out."],[" Press Y to quit like a","   big loser in life.","  Press N to stay proud","    and successful!"],["   If you press Y to","  quit, I will summon","  Satan all over your","      hard drive!"],["  Um, Asmodeus dislikes"," his children trying to"," quit. Press Y to return","   to your Tinkertoys."],["  If you quit now, I'll","  throw a blanket-party","   for you next time!",""]];
+quake_Menu.state = 0;
+quake_Menu.localStorage = js_Browser.getLocalStorage();
+quake_Menu.entersound = false;
+quake_Menu.main_cursor = 0;
+quake_Menu.singleplayer_cursor = 0;
+quake_Menu.load_cursor = 0;
+quake_Menu.max_savegames = 12;
+quake_Menu.filenames = [];
+quake_Menu.loadable = [];
+quake_Menu.removable = [];
+quake_Menu.multiplayer_cursor = 0;
+quake_Menu.multiplayer_cursor_table = [56,72,96,120,156];
+quake_Menu.multiplayer_joinname = "";
+quake_Menu.options_cursor = 0;
+quake_Menu.bindnames = [["+attack","attack"],["impulse 10","change weapon"],["+jump","jump / swim up"],["+forward","walk forward"],["+back","backpedal"],["+left","turn left"],["+right","turn right"],["+speed","run"],["+moveleft","step left"],["+moveright","step right"],["+strafe","sidestep"],["+lookup","look up"],["+lookdown","look down"],["centerview","center view"],["+mlook","mouse look"],["+klook","keyboard look"],["+moveup","swim up"],["+movedown","swim down"]];
+quake_Menu.keys_cursor = 0;
+quake_Menu.quitMessage = [["  Are you gonna quit","  this game just like","   everything else?",""],[" Milord, methinks that","   thou art a lowly"," quitter. Is this true?",""],[" Do I need to bust your","  face open for trying","        to quit?",""],[" Man, I oughta smack you","   for trying to quit!","     Press Y to get","      smacked out."],[" Press Y to quit like a","   big loser in life.","  Press N to stay proud","    and successful!"],["   If you press Y to","  quit, I will summon","  Satan all over your","      hard drive!"],["  Um, Asmodeus dislikes"," his children trying to"," quit. Press Y to return","   to your Tinkertoys."],["  If you quit now, I'll","  throw a blanket-party","   for you next time!",""]];
 quake_Mod.known = [];
 quake_NET.activeSockets = [];
 quake_NET.message = new quake_MSG(8192);

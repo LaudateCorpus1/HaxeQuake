@@ -357,9 +357,9 @@ class Key {
 			if (Key.dest == message)
 				Key.Message(key);
 			else if (Key.dest == menu)
-				M.Keydown(key);
+				Menu.Keydown(key);
 			else
-				M.ToggleMenu_f();
+				Menu.ToggleMenu_f();
 			return;
 		}
 
@@ -382,7 +382,7 @@ class Key {
 		}
 
 		if ((CL.cls.demoplayback) && (Key.consolekeys[key]) && (Key.dest == game)) {
-			M.ToggleMenu_f();
+			Menu.ToggleMenu_f();
 			return;
 		}
 
@@ -405,7 +405,7 @@ class Key {
 		if (Key.dest == message)
 			Key.Message(key);
 		else if (Key.dest == menu)
-			M.Keydown(key);
+			Menu.Keydown(key);
 		else
 			Key.ProcessConsole(key);
 	}

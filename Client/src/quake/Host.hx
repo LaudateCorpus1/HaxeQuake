@@ -347,7 +347,7 @@ class Host {
         SCR.Init();
         R.Init();
         S.Init();
-        M.Init();
+        Menu.Init();
         CDAudio.Init();
         Sbar.Init();
         CL.Init();
@@ -374,7 +374,7 @@ class Host {
 
     public static function Quit_f():Void {
         if (Key.dest != console) {
-            M.Menu_Quit_f();
+            Menu.Menu_Quit_f();
             return;
         }
         Sys.Quit();

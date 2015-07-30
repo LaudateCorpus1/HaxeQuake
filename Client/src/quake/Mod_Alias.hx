@@ -167,9 +167,9 @@ class Mod_Alias {
                             cmds.push(vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
                             cmds.push(vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
                             cmds.push(vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
-                            cmds.push(R.avertexnormals[vert.lightnormalindex * 3]);
-                            cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 1]);
-                            cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 2]);
+                            cmds.push(Render.avertexnormals[vert.lightnormalindex * 3]);
+                            cmds.push(Render.avertexnormals[vert.lightnormalindex * 3 + 1]);
+                            cmds.push(Render.avertexnormals[vert.lightnormalindex * 3 + 2]);
                         }
                     }
                 }
@@ -186,9 +186,9 @@ class Mod_Alias {
                     cmds.push(vert.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
                     cmds.push(vert.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
                     cmds.push(vert.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
-                    cmds.push(R.avertexnormals[vert.lightnormalindex * 3]);
-                    cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 1]);
-                    cmds.push(R.avertexnormals[vert.lightnormalindex * 3 + 2]);
+                    cmds.push(Render.avertexnormals[vert.lightnormalindex * 3]);
+                    cmds.push(Render.avertexnormals[vert.lightnormalindex * 3 + 1]);
+                    cmds.push(Render.avertexnormals[vert.lightnormalindex * 3 + 2]);
                 }
             }
         }

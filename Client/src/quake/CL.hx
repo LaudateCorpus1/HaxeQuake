@@ -897,7 +897,7 @@ class CL {
             if ((ent.model.flags & ModelEffect.rotate) != 0)
                 ent.angles[1] = bobjrotate;
             if ((ent.effects & EF_BRIGHTFIELD) != 0)
-                R.EntityParticles(ent);
+                Render.EntityParticles(ent);
             if ((ent.effects & EF_MUZZLEFLASH) != 0) {
                 dl = CL.AllocDlight(i);
                 var fv = new Vec();
@@ -924,24 +924,24 @@ class CL {
                 dl.die = CL.state.time + 0.001;
             }
             if ((ent.model.flags & ModelEffect.gib) != 0)
-                R.RocketTrail(oldorg, ent.origin, 2);
+                Render.RocketTrail(oldorg, ent.origin, 2);
             else if ((ent.model.flags & ModelEffect.zomgib) != 0)
-                R.RocketTrail(oldorg, ent.origin, 4);
+                Render.RocketTrail(oldorg, ent.origin, 4);
             else if ((ent.model.flags & ModelEffect.tracer) != 0)
-                R.RocketTrail(oldorg, ent.origin, 3);
+                Render.RocketTrail(oldorg, ent.origin, 3);
             else if ((ent.model.flags & ModelEffect.tracer2) != 0)
-                R.RocketTrail(oldorg, ent.origin, 5);
+                Render.RocketTrail(oldorg, ent.origin, 5);
             else if ((ent.model.flags & ModelEffect.rocket) != 0) {
-                R.RocketTrail(oldorg, ent.origin, 0);
+                Render.RocketTrail(oldorg, ent.origin, 0);
                 dl = CL.AllocDlight(i);
                 dl.origin.setVector(ent.origin);
                 dl.radius = 200.0;
                 dl.die = CL.state.time + 0.01;
             }
             else if ((ent.model.flags & ModelEffect.grenade) != 0)
-                R.RocketTrail(oldorg, ent.origin, 1);
+                Render.RocketTrail(oldorg, ent.origin, 1);
             else if ((ent.model.flags & ModelEffect.tracer3) != 0)
-                R.RocketTrail(oldorg, ent.origin, 6);
+                Render.RocketTrail(oldorg, ent.origin, 6);
 
             ent.forcelink = false;
             if ((i != CL.state.viewentity) || (Chase.active.value != 0))
@@ -1185,7 +1185,7 @@ class CL {
 
         CL.state.worldmodel = CL.state.model_precache[1];
         CL.EntityNum(0).model = CL.state.worldmodel;
-        R.NewMap();
+        Render.NewMap();
         Host.noclip_anglehack = false;
     }
 
@@ -1306,8 +1306,8 @@ class CL {
         ent.effects = ent.baseline.effects;
         ent.origin.setVector(ent.baseline.origin);
         ent.angles.setVector(ent.baseline.angles);
-        R.currententity = ent;
-        R.SplitEntityOnNode(Vec.Add(ent.origin, ent.model.mins), Vec.Add(ent.origin, ent.model.maxs), CL.state.worldmodel.nodes[0]);
+        Render.currententity = ent;
+        Render.SplitEntityOnNode(Vec.Add(ent.origin, ent.model.mins), Vec.Add(ent.origin, ent.model.maxs), CL.state.worldmodel.nodes[0]);
     }
 
     static function ParseStaticSound() {
@@ -1426,7 +1426,7 @@ class CL {
                 CL.state.scores[i].colors = MSG.ReadByte();
                 continue;
             case SVC.particle:
-                R.ParseParticleEffect();
+                Render.ParseParticleEffect();
                 continue;
             case SVC.spawnbaseline:
                 CL.ParseBaseline(CL.EntityNum(MSG.ReadShort()));
@@ -1567,19 +1567,19 @@ class CL {
         var pos = MSG.ReadVector();
         switch (type) {
             case wizspike:
-                R.RunParticleEffect(pos, Vec.origin, 20, 20);
+                Render.RunParticleEffect(pos, Vec.origin, 20, 20);
                 S.StartSound(-1, 0, CL.sfx_wizhit, pos, 1.0, 1.0);
             case knightspike:
-                R.RunParticleEffect(pos, Vec.origin, 226, 20);
+                Render.RunParticleEffect(pos, Vec.origin, 226, 20);
                 S.StartSound(-1, 0, CL.sfx_knighthit, pos, 1.0, 1.0);
             case spike:
-                R.RunParticleEffect(pos, Vec.origin, 0, 10);
+                Render.RunParticleEffect(pos, Vec.origin, 0, 10);
             case superspike:
-                R.RunParticleEffect(pos, Vec.origin, 0, 20);
+                Render.RunParticleEffect(pos, Vec.origin, 0, 20);
             case gunshot:
-                R.RunParticleEffect(pos, Vec.origin, 0, 20);
+                Render.RunParticleEffect(pos, Vec.origin, 0, 20);
             case explosion:
-                R.ParticleExplosion(pos);
+                Render.ParticleExplosion(pos);
                 var dl = CL.AllocDlight(0);
                 dl.origin.setVector(pos);
                 dl.radius = 350.0;
@@ -1587,16 +1587,16 @@ class CL {
                 dl.decay = 300.0;
                 S.StartSound(-1, 0, CL.sfx_r_exp3, pos, 1.0, 1.0);
             case tarexplosion:
-                R.BlobExplosion(pos);
+                Render.BlobExplosion(pos);
                 S.StartSound(-1, 0, CL.sfx_r_exp3, pos, 1.0, 1.0);
             case lavasplash:
-                R.LavaSplash(pos);
+                Render.LavaSplash(pos);
             case teleport:
-                R.TeleportSplash(pos);
+                Render.TeleportSplash(pos);
             case explosion2:
                 var colorStart = MSG.ReadByte();
                 var colorLength = MSG.ReadByte();
-                R.ParticleExplosion2(pos, colorStart, colorLength);
+                Render.ParticleExplosion2(pos, colorStart, colorLength);
                 var dl = CL.AllocDlight(0);
                 dl.origin.setVector(pos);
                 dl.radius = 350.0;
@@ -1668,7 +1668,7 @@ class CL {
         var grav = frametime * SV.gravity.value * 0.05;
         var dvel = frametime * 4.0;
 
-        for (p in R.particles) {
+        for (p in Render.particles) {
             if (p.die < state.time)
                 continue;
 
@@ -1682,14 +1682,14 @@ class CL {
                     if (p.ramp >= 6.0)
                         p.die = -1.0;
                     else
-                        p.color = R.ramp3[Math.floor(p.ramp)];
+                        p.color = Render.ramp3[Math.floor(p.ramp)];
                     p.vel[2] += grav;
                 case explode:
                     p.ramp += frametime * 10.0;
                     if (p.ramp >= 8.0)
                         p.die = -1.0;
                     else
-                        p.color = R.ramp1[Math.floor(p.ramp)];
+                        p.color = Render.ramp1[Math.floor(p.ramp)];
                     p.vel[0] += p.vel[0] * dvel;
                     p.vel[1] += p.vel[1] * dvel;
                     p.vel[2] += p.vel[2] * dvel - grav;
@@ -1698,7 +1698,7 @@ class CL {
                     if (p.ramp >= 8.0)
                         p.die = -1.0;
                     else
-                        p.color = R.ramp2[Math.floor(p.ramp)];
+                        p.color = Render.ramp2[Math.floor(p.ramp)];
                     p.vel[0] -= p.vel[0] * frametime;
                     p.vel[1] -= p.vel[1] * frametime;
                     p.vel[2] -= p.vel[2] * frametime + grav;

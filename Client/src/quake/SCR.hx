@@ -129,11 +129,11 @@ class SCR {
         V.RenderView();
         GL.Set2D();
 
-        if (R.dowarp)
-            R.WarpScreen();
+        if (Render.dowarp)
+            Render.WarpScreen();
 
         if (!Console.forcedup)
-            R.PolyBlend();
+            Render.PolyBlend();
 
         if (CL.cls.state == connecting) {
             DrawConsole();
@@ -147,8 +147,8 @@ class SCR {
         } else {
             if (V.crosshair.value != 0) {
                 Draw.Character(
-                    Std.int(R.refdef.vrect.x + (R.refdef.vrect.width >> 1) + V.crossx.value),
-                    Std.int(R.refdef.vrect.y + (R.refdef.vrect.height >> 1) + V.crossy.value),
+                    Std.int(Render.refdef.vrect.x + (Render.refdef.vrect.width >> 1) + V.crossx.value),
+                    Std.int(Render.refdef.vrect.y + (Render.refdef.vrect.height >> 1) + V.crossy.value),
                     "+".code
                 );
             }
@@ -226,7 +226,7 @@ class SCR {
             size *= 0.01;
         }
 
-        var vrect = R.refdef.vrect;
+        var vrect = Render.refdef.vrect;
         vrect.width = Math.floor(VID.width * size);
         if (vrect.width < 96) {
             size = 96.0 / vrect.width;
@@ -247,32 +247,32 @@ class SCR {
             fov.set("170");
 
         if ((vrect.width * 0.75) <= vrect.height) {
-            R.refdef.fov_x = fov.value;
-            R.refdef.fov_y = Math.atan(vrect.height / (vrect.width / Math.tan(fov.value * Math.PI / 360.0))) * 360.0 / Math.PI;
+            Render.refdef.fov_x = fov.value;
+            Render.refdef.fov_y = Math.atan(vrect.height / (vrect.width / Math.tan(fov.value * Math.PI / 360.0))) * 360.0 / Math.PI;
         } else {
-            R.refdef.fov_x = Math.atan(vrect.width / (vrect.height / Math.tan(fov.value * 0.82 * Math.PI / 360.0))) * 360.0 / Math.PI;
-            R.refdef.fov_y = fov.value * 0.82;
+            Render.refdef.fov_x = Math.atan(vrect.width / (vrect.height / Math.tan(fov.value * 0.82 * Math.PI / 360.0))) * 360.0 / Math.PI;
+            Render.refdef.fov_y = fov.value * 0.82;
         }
 
-        var ymax = 4.0 * Math.tan(R.refdef.fov_y * Math.PI / 360.0);
-        R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
-        R.perspective[5] = 4.0 / ymax;
+        var ymax = 4.0 * Math.tan(Render.refdef.fov_y * Math.PI / 360.0);
+        Render.perspective[0] = 4.0 / (ymax * Render.refdef.vrect.width / Render.refdef.vrect.height);
+        Render.perspective[5] = 4.0 / ymax;
         GL.ortho[0] = 2.0 / VID.width;
         GL.ortho[5] = -2.0 / VID.height;
 
-        R.warpwidth = Std.int(vrect.width * devicePixelRatio);
-        R.warpheight = Std.int(vrect.height * devicePixelRatio);
-        if (R.warpwidth > 2048)
-            R.warpwidth = 2048;
-        if (R.warpheight > 2048)
-            R.warpheight = 2048;
-        if (R.oldwarpwidth != R.warpwidth || R.oldwarpheight != R.warpheight) {
-            R.oldwarpwidth = R.warpwidth;
-            R.oldwarpheight = R.warpheight;
-            GL.Bind(0, R.warptexture);
-            gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, R.warpwidth, R.warpheight, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, null);
-            gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, R.warprenderbuffer);
-            gl.renderbufferStorage(RenderingContext.RENDERBUFFER, RenderingContext.DEPTH_COMPONENT16, R.warpwidth, R.warpheight);
+        Render.warpwidth = Std.int(vrect.width * devicePixelRatio);
+        Render.warpheight = Std.int(vrect.height * devicePixelRatio);
+        if (Render.warpwidth > 2048)
+            Render.warpwidth = 2048;
+        if (Render.warpheight > 2048)
+            Render.warpheight = 2048;
+        if (Render.oldwarpwidth != Render.warpwidth || Render.oldwarpheight != Render.warpheight) {
+            Render.oldwarpwidth = Render.warpwidth;
+            Render.oldwarpheight = Render.warpheight;
+            GL.Bind(0, Render.warptexture);
+            gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, Render.warpwidth, Render.warpheight, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, null);
+            gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, Render.warprenderbuffer);
+            gl.renderbufferStorage(RenderingContext.RENDERBUFFER, RenderingContext.DEPTH_COMPONENT16, Render.warpwidth, Render.warpheight);
             gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, null);
         }
     }
@@ -295,12 +295,12 @@ class SCR {
             return;
         }
         if (++count >= 3)
-            Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, turtle);
+            Draw.Pic(Render.refdef.vrect.x, Render.refdef.vrect.y, turtle);
     }
 
     static function DrawNet():Void {
         if ((Host.realtime - CL.state.last_received_message) >= 0.3 && !CL.cls.demoplayback)
-            Draw.Pic(R.refdef.vrect.x, R.refdef.vrect.y, net);
+            Draw.Pic(Render.refdef.vrect.x, Render.refdef.vrect.y, net);
     }
 
     static function DrawPause():Void {

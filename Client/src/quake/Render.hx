@@ -60,7 +60,7 @@ private class Particle {
 }
 
 @:publicFields
-class R {
+class Render {
     static var currententity:Entity;
 
     static var waterwarp:Cvar;
@@ -149,7 +149,7 @@ class R {
         for (l in CL.dlights) {
             if (l.die < CL.state.time || l.radius == 0.0)
                 continue;
-            if (Vec.Length(Vec.of(l.origin[0] - R.refdef.vieworg[0], l.origin[1] - R.refdef.vieworg[1], l.origin[2] - R.refdef.vieworg[2])) < (l.radius * 0.35)) {
+            if (Vec.Length(Vec.of(l.origin[0] - Render.refdef.vieworg[0], l.origin[1] - Render.refdef.vieworg[1], l.origin[2] - Render.refdef.vieworg[2])) < (l.radius * 0.35)) {
                 var a = l.radius * 0.0003;
                 V.blend[3] += a * (1.0 - V.blend[3]);
                 a /= V.blend[3];
@@ -208,10 +208,10 @@ class R {
     }
 
     static function PushDlights() {
-        if (R.flashblend.value != 0)
+        if (Render.flashblend.value != 0)
             return;
         for (i in 0...1024)
-            R.lightmap_modified[i] = 0;
+            Render.lightmap_modified[i] = 0;
 
         var bit = 1;
         for (l in CL.dlights) {
@@ -230,26 +230,26 @@ class R {
         }
 
         for (surf in CL.state.worldmodel.faces) {
-            if (surf.dlightframe == R.dlightframecount)
+            if (surf.dlightframe == Render.dlightframecount)
                 RemoveDynamicLights(surf);
-            else if (surf.dlightframe == (R.dlightframecount + 1))
+            else if (surf.dlightframe == (Render.dlightframecount + 1))
                 AddDynamicLights(surf);
         }
 
-        GL.Bind(0, R.dlightmap_texture);
+        GL.Bind(0, Render.dlightmap_texture);
         var start:Null<Int> = null;
         for (i in 0...1024) {
-            if (start == null && R.lightmap_modified[i] != 0)
+            if (start == null && Render.lightmap_modified[i] != 0)
                 start = i;
-            else if (start != null && R.lightmap_modified[i] == 0) {
+            else if (start != null && Render.lightmap_modified[i] == 0) {
                 gl.texSubImage2D(RenderingContext.TEXTURE_2D, 0, 0, start, 1024, i - start, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE,
-                    R.dlightmaps.subarray(start << 10, i << 10));
+                    Render.dlightmaps.subarray(start << 10, i << 10));
                 start = null;
             }
         }
         if (start != null) {
             gl.texSubImage2D(RenderingContext.TEXTURE_2D, 0, 0, start, 1024, 1024 - start, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE,
-                R.dlightmaps.subarray(start << 10, 1048576));
+                Render.dlightmaps.subarray(start << 10, 1048576));
         }
         dlightframecount++;
     }
@@ -322,7 +322,7 @@ class R {
     static function LightPoint(p:Vec):Int {
         if (CL.state.worldmodel.lightdata == null)
             return 255;
-        var r = R.RecursiveLightPoint(CL.state.worldmodel.nodes[0], p, Vec.of(p[0], p[1], p[2] - 2048.0));
+        var r = Render.RecursiveLightPoint(CL.state.worldmodel.nodes[0], p, Vec.of(p[0], p[1], p[2] - 2048.0));
         if (r == -1)
             return 0;
         return r;
@@ -340,13 +340,13 @@ class R {
     static var refdef(default,never) = new RefDef();
 
     static function CullBox(mins:Vec, maxs:Vec):Bool {
-        if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[0]) == 2)
+        if (Vec.BoxOnPlaneSide(mins, maxs, Render.frustum[0]) == 2)
             return true;
-        if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[1]) == 2)
+        if (Vec.BoxOnPlaneSide(mins, maxs, Render.frustum[1]) == 2)
             return true;
-        if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[2]) == 2)
+        if (Vec.BoxOnPlaneSide(mins, maxs, Render.frustum[2]) == 2)
             return true;
-        if (Vec.BoxOnPlaneSide(mins, maxs, R.frustum[3]) == 2)
+        if (Vec.BoxOnPlaneSide(mins, maxs, Render.frustum[3]) == 2)
             return true;
         return false;
     }
@@ -360,7 +360,7 @@ class R {
             program = GL.UseProgram('sprite');
         var num = e.frame;
         if (num >= e.model.numframes || num < 0) {
-            Console.DPrint('R.DrawSpriteModel: no such frame ' + num + '\n');
+            Console.DPrint('Render.DrawSpriteModel: no such frame ' + num + '\n');
             num = 0;
         }
         var frame = e.model.frames[num];
@@ -553,7 +553,7 @@ class R {
     static function DrawAliasModel(e:Entity):Void {
         var clmodel = e.model;
 
-        if (R.CullBox(
+        if (Render.CullBox(
             Vec.of(
                 e.origin[0] - clmodel.boundingradius,
                 e.origin[1] - clmodel.boundingradius,
@@ -567,7 +567,7 @@ class R {
             return;
 
         var program;
-        if ((e.colormap != 0) && (clmodel.player) && (R.nocolors.value == 0)) {
+        if ((e.colormap != 0) && (clmodel.player) && (Render.nocolors.value == 0)) {
             program = GL.UseProgram('player');
             var top = (CL.state.scores[e.colormap - 1].colors & 0xf0) + 4;
             var bottom = ((CL.state.scores[e.colormap - 1].colors & 0xf) << 4) + 4;
@@ -584,7 +584,7 @@ class R {
         gl.uniform3fv(program.uOrigin, e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]));
 
-        var ambientlight:Float = R.LightPoint(e.origin);
+        var ambientlight:Float = Render.LightPoint(e.origin);
         var shadelight = ambientlight;
         if ((e == CL.state.viewent) && (ambientlight < 24.0))
             ambientlight = shadelight = 24;
@@ -614,12 +614,12 @@ class R {
             Vec.DotProduct(Vec.of(-1.0, 0.0, 0.0), up)
         ]);
 
-        R.c_alias_polys += clmodel.numtris;
+        Render.c_alias_polys += clmodel.numtris;
 
         var time = CL.state.time + e.syncbase;
         var num = e.frame;
         if (num >= clmodel.numframes || num < 0) {
-            Console.DPrint('R.DrawAliasModel: no such frame ' + num + '\n');
+            Console.DPrint('Render.DrawAliasModel: no such frame ' + num + '\n');
             num = 0;
         }
         var frame = clmodel.frames[num];
@@ -642,7 +642,7 @@ class R {
 
         num = e.skinnum;
         if (num >= clmodel.numskins || num < 0) {
-            Console.DPrint('R.DrawAliasModel: no such skin # ' + num + '\n');
+            Console.DPrint('Render.DrawAliasModel: no such skin # ' + num + '\n');
             num = 0;
         }
         var skin = clmodel.skins[num];
@@ -666,69 +666,69 @@ class R {
     }
 
     static function DrawEntitiesOnList() {
-        if (R.drawentities.value == 0)
+        if (Render.drawentities.value == 0)
             return;
-        var vis = (R.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(R.viewleaf, CL.state.worldmodel);
+        var vis = (Render.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(Render.viewleaf, CL.state.worldmodel);
         for (e in CL.static_entities) {
-            R.currententity = e;
-            if (R.currententity.model == null)
+            Render.currententity = e;
+            if (Render.currententity.model == null)
                 continue;
             var j = 0;
-            while (j < R.currententity.leafs.length) {
-                var leaf = R.currententity.leafs[j];
+            while (j < Render.currententity.leafs.length) {
+                var leaf = Render.currententity.leafs[j];
                 if (leaf < 0 || (vis[leaf >> 3] & (1 << (leaf & 7))) != 0)
                     break;
                 j++;
 
             }
-            if (j == R.currententity.leafs.length)
+            if (j == Render.currententity.leafs.length)
                 continue;
-            switch (R.currententity.model.type) {
+            switch (Render.currententity.model.type) {
                 case alias:
-                    R.DrawAliasModel(R.currententity);
+                    Render.DrawAliasModel(Render.currententity);
                 case brush:
-                    R.DrawBrushModel(R.currententity);
+                    Render.DrawBrushModel(Render.currententity);
                 default:
             }
         }
         for (i in 0...CL.numvisedicts) {
-            R.currententity = CL.visedicts[i];
-            if (R.currententity.model == null)
+            Render.currententity = CL.visedicts[i];
+            if (Render.currententity.model == null)
                 continue;
-            switch (R.currententity.model.type) {
+            switch (Render.currententity.model.type) {
                 case alias:
-                    R.DrawAliasModel(R.currententity);
+                    Render.DrawAliasModel(Render.currententity);
                 case brush:
-                    R.DrawBrushModel(R.currententity);
+                    Render.DrawBrushModel(Render.currententity);
                 default:
             }
         }
         gl.depthMask(false);
         gl.enable(RenderingContext.BLEND);
         for (e in CL.static_entities) {
-            R.currententity = e;
-            if (R.currententity.model == null)
+            Render.currententity = e;
+            if (Render.currententity.model == null)
                 continue;
-            if (R.currententity.model.type == sprite)
-                R.DrawSpriteModel(R.currententity);
+            if (Render.currententity.model.type == sprite)
+                Render.DrawSpriteModel(Render.currententity);
         }
         for (i in 0...CL.numvisedicts) {
-            R.currententity = CL.visedicts[i];
-            if (R.currententity.model == null)
+            Render.currententity = CL.visedicts[i];
+            if (Render.currententity.model == null)
                 continue;
-            if (R.currententity.model.type == sprite)
-                R.DrawSpriteModel(R.currententity);
+            if (Render.currententity.model.type == sprite)
+                Render.DrawSpriteModel(Render.currententity);
         }
         gl.disable(RenderingContext.BLEND);
         gl.depthMask(true);
     }
 
     static function DrawViewModel() {
-        if (R.drawviewmodel.value == 0)
+        if (Render.drawviewmodel.value == 0)
             return;
         if (Chase.active.value != 0)
             return;
-        if (R.drawentities.value == 0)
+        if (Render.drawentities.value == 0)
             return;
         if ((CL.state.items & Def.it.invisibility) != 0)
             return;
@@ -740,31 +740,31 @@ class R {
         gl.depthRange(0.0, 0.3);
 
         var ymax = 4.0 * Math.tan(SCR.fov.value * 0.82 * Math.PI / 360.0);
-        R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
-        R.perspective[5] = 4.0 / ymax;
+        Render.perspective[0] = 4.0 / (ymax * Render.refdef.vrect.width / Render.refdef.vrect.height);
+        Render.perspective[5] = 4.0 / ymax;
         var program = GL.UseProgram('alias');
-        gl.uniformMatrix4fv(program.uPerspective, false, R.perspective);
+        gl.uniformMatrix4fv(program.uPerspective, false, Render.perspective);
 
-        R.DrawAliasModel(CL.state.viewent);
+        Render.DrawAliasModel(CL.state.viewent);
 
-        ymax = 4.0 * Math.tan(R.refdef.fov_y * Math.PI / 360.0);
-        R.perspective[0] = 4.0 / (ymax * R.refdef.vrect.width / R.refdef.vrect.height);
-        R.perspective[5] = 4.0 / ymax;
+        ymax = 4.0 * Math.tan(Render.refdef.fov_y * Math.PI / 360.0);
+        Render.perspective[0] = 4.0 / (ymax * Render.refdef.vrect.width / Render.refdef.vrect.height);
+        Render.perspective[5] = 4.0 / ymax;
         program = GL.UseProgram('alias');
-        gl.uniformMatrix4fv(program.uPerspective, false, R.perspective);
+        gl.uniformMatrix4fv(program.uPerspective, false, Render.perspective);
 
         gl.depthRange(0.0, 1.0);
     }
 
     static function PolyBlend() {
-        if (R.polyblend.value == 0)
+        if (Render.polyblend.value == 0)
             return;
         if (V.blend[3] == 0.0)
             return;
         var program = GL.UseProgram('fill');
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
-        var vrect = R.refdef.vrect;
+        var vrect = Render.refdef.vrect;
         gl.uniform4f(program.uRect, vrect.x, vrect.y, vrect.width, vrect.height);
         gl.uniform4fv(program.uColor, V.blend);
         gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
@@ -800,9 +800,9 @@ class R {
 
     static function Perspective() {
         var viewangles = [
-            R.refdef.viewangles[0] * Math.PI / 180.0,
-            (R.refdef.viewangles[1] - 90.0) * Math.PI / -180.0,
-            R.refdef.viewangles[2] * Math.PI / -180.0
+            Render.refdef.viewangles[0] * Math.PI / 180.0,
+            (Render.refdef.viewangles[1] - 90.0) * Math.PI / -180.0,
+            Render.refdef.viewangles[2] * Math.PI / -180.0
         ];
         var sp = Math.sin(viewangles[0]);
         var cp = Math.cos(viewangles[0]);
@@ -825,11 +825,11 @@ class R {
         for (program in GL.programs) {
             gl.useProgram(program.program);
             if (program.uViewOrigin != null)
-                gl.uniform3fv(program.uViewOrigin, R.refdef.vieworg);
+                gl.uniform3fv(program.uViewOrigin, Render.refdef.vieworg);
             if (program.uViewAngles != null)
                 gl.uniformMatrix3fv(program.uViewAngles, false, viewMatrix);
             if (program.uPerspective != null)
-                gl.uniformMatrix4fv(program.uPerspective, false, R.perspective);
+                gl.uniformMatrix4fv(program.uPerspective, false, Render.perspective);
             if (program.uGamma != null)
                 gl.uniform1f(program.uGamma, V.gamma.value);
         }
@@ -842,12 +842,12 @@ class R {
     static var oldwarpheight:Int;
 
     static function SetupGL() {
-        if (R.dowarp) {
-            gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, R.warpbuffer);
+        if (Render.dowarp) {
+            gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, Render.warpbuffer);
             gl.clear(RenderingContext.COLOR_BUFFER_BIT + RenderingContext.DEPTH_BUFFER_BIT);
-            gl.viewport(0, 0, R.warpwidth, R.warpheight);
+            gl.viewport(0, 0, Render.warpwidth, Render.warpheight);
         } else {
-            var vrect = R.refdef.vrect;
+            var vrect = Render.refdef.vrect;
             var pixelRatio = SCR.devicePixelRatio;
             gl.viewport(Std.int(vrect.x * pixelRatio), Std.int((VID.height - vrect.height - vrect.y) * pixelRatio), Std.int(vrect.width * pixelRatio), Std.int(vrect.height * pixelRatio));
         }
@@ -861,9 +861,9 @@ class R {
         AnimateLight();
         Vec.AngleVectors(refdef.viewangles, vpn, vright, vup);
         viewleaf = Mod_Brush.PointInLeaf(refdef.vieworg, CL.state.worldmodel);
-        V.SetContentsColor(R.viewleaf.contents);
+        V.SetContentsColor(Render.viewleaf.contents);
         V.CalcBlend();
-        dowarp = (R.waterwarp.value != 0) && (viewleaf.contents <= Contents.water);
+        dowarp = (Render.waterwarp.value != 0) && (viewleaf.contents <= Contents.water);
 
         SetFrustum();
         SetupGL();
@@ -881,16 +881,16 @@ class R {
     static function RenderView() {
         gl.finish();
         var time1;
-        if (R.speeds.value != 0)
+        if (Render.speeds.value != 0)
             time1 = Sys.FloatTime();
-        R.c_brush_verts = 0;
-        R.c_alias_polys = 0;
+        Render.c_brush_verts = 0;
+        Render.c_alias_polys = 0;
         gl.clear(RenderingContext.COLOR_BUFFER_BIT + RenderingContext.DEPTH_BUFFER_BIT);
-        R.RenderScene();
-        if (R.speeds.value != 0) {
+        Render.RenderScene();
+        if (Render.speeds.value != 0) {
             var time2 = Math.floor((Sys.FloatTime() - time1) * 1000.0);
-            var c_brush_polys = R.c_brush_verts / 3;
-            var c_alias_polys = R.c_alias_polys;
+            var c_brush_polys = Render.c_brush_verts / 3;
+            var c_alias_polys = Render.c_alias_polys;
             var msg = ((time2 >= 100) ? '' : ((time2 >= 10) ? ' ' : '  ')) + time2 + ' ms  ';
             msg += ((c_brush_polys >= 1000) ? '' : ((c_brush_polys >= 100) ? ' ' : ((c_brush_polys >= 10) ? '  ' : '   '))) + c_brush_polys + ' wpoly ';
             msg += ((c_alias_polys >= 1000) ? '' : ((c_alias_polys >= 100) ? ' ' : ((c_alias_polys >= 10) ? '  ' : '   '))) + c_alias_polys + ' epoly\n';
@@ -1108,7 +1108,7 @@ class R {
                 data[8 + (i << 4) + j] = data[128 + (i << 4) + j] = 0;
             }
         }
-        R.notexture_mip = {
+        Render.notexture_mip = {
             var t = new MTexture();
             t.name = 'notexture';
             t.width = 16;
@@ -1116,41 +1116,41 @@ class R {
             t.texturenum = gl.createTexture();
             t;
         };
-        GL.Bind(0, R.notexture_mip.texturenum);
+        GL.Bind(0, Render.notexture_mip.texturenum);
         GL.Upload(data, 16, 16);
 
-        R.solidskytexture = gl.createTexture();
-        GL.Bind(0, R.solidskytexture);
+        Render.solidskytexture = gl.createTexture();
+        GL.Bind(0, Render.solidskytexture);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
-        R.alphaskytexture = gl.createTexture();
-        GL.Bind(0, R.alphaskytexture);
-        gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
-        gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
-
-        R.lightmap_texture = gl.createTexture();
-        GL.Bind(0, R.lightmap_texture);
+        Render.alphaskytexture = gl.createTexture();
+        GL.Bind(0, Render.alphaskytexture);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
 
-        R.dlightmap_texture = gl.createTexture();
-        GL.Bind(0, R.dlightmap_texture);
+        Render.lightmap_texture = gl.createTexture();
+        GL.Bind(0, Render.lightmap_texture);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
 
-        R.lightstyle_texture = gl.createTexture();
-        GL.Bind(0, R.lightstyle_texture);
+        Render.dlightmap_texture = gl.createTexture();
+        GL.Bind(0, Render.dlightmap_texture);
+        gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
+        gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
+
+        Render.lightstyle_texture = gl.createTexture();
+        GL.Bind(0, Render.lightstyle_texture);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.NEAREST);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.NEAREST);
 
-        R.fullbright_texture = gl.createTexture();
-        GL.Bind(0, R.fullbright_texture);
+        Render.fullbright_texture = gl.createTexture();
+        GL.Bind(0, Render.fullbright_texture);
         gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, 1, 1, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, new Uint8Array([255, 0, 0, 0]));
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.NEAREST);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.NEAREST);
 
-        R.null_texture = gl.createTexture();
-        GL.Bind(0, R.null_texture);
+        Render.null_texture = gl.createTexture();
+        GL.Bind(0, Render.null_texture);
         gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, 1, 1, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 0]));
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.NEAREST);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.NEAREST);
@@ -1159,22 +1159,22 @@ class R {
     static var warprenderbuffer:Renderbuffer;
 
     static function Init() {
-        R.InitTextures();
+        Render.InitTextures();
 
-        Cmd.AddCommand('timerefresh', R.TimeRefresh_f);
-        Cmd.AddCommand('pointfile', R.ReadPointFile_f);
+        Cmd.AddCommand('timerefresh', Render.TimeRefresh_f);
+        Cmd.AddCommand('pointfile', Render.ReadPointFile_f);
 
-        R.waterwarp = Cvar.RegisterVariable('r_waterwarp', '1');
-        R.fullbright = Cvar.RegisterVariable('r_fullbright', '0');
-        R.drawentities = Cvar.RegisterVariable('r_drawentities', '1');
-        R.drawviewmodel = Cvar.RegisterVariable('r_drawviewmodel', '1');
-        R.novis = Cvar.RegisterVariable('r_novis', '0');
-        R.speeds = Cvar.RegisterVariable('r_speeds', '0');
-        R.polyblend = Cvar.RegisterVariable('gl_polyblend', '1');
-        R.flashblend = Cvar.RegisterVariable('gl_flashblend', '0');
-        R.nocolors = Cvar.RegisterVariable('gl_nocolors', '0');
+        Render.waterwarp = Cvar.RegisterVariable('r_waterwarp', '1');
+        Render.fullbright = Cvar.RegisterVariable('r_fullbright', '0');
+        Render.drawentities = Cvar.RegisterVariable('r_drawentities', '1');
+        Render.drawviewmodel = Cvar.RegisterVariable('r_drawviewmodel', '1');
+        Render.novis = Cvar.RegisterVariable('r_novis', '0');
+        Render.speeds = Cvar.RegisterVariable('r_speeds', '0');
+        Render.polyblend = Cvar.RegisterVariable('gl_polyblend', '1');
+        Render.flashblend = Cvar.RegisterVariable('gl_flashblend', '0');
+        Render.nocolors = Cvar.RegisterVariable('gl_nocolors', '0');
 
-        R.InitParticles();
+        Render.InitParticles();
 
         GL.CreateProgram('alias',
             ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight'],
@@ -1197,24 +1197,24 @@ class R {
             ['tTexture']);
         GL.CreateProgram('warp', ['uRect', 'uOrtho', 'uTime'], ['aPoint'], ['tTexture']);
 
-        R.warpbuffer = gl.createFramebuffer();
-        R.warptexture = gl.createTexture();
-        GL.Bind(0, R.warptexture);
+        Render.warpbuffer = gl.createFramebuffer();
+        Render.warptexture = gl.createTexture();
+        GL.Bind(0, Render.warptexture);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.LINEAR);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.LINEAR);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_WRAP_S, RenderingContext.CLAMP_TO_EDGE);
         gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_WRAP_T, RenderingContext.CLAMP_TO_EDGE);
-        R.warprenderbuffer = gl.createRenderbuffer();
-        gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, R.warprenderbuffer);
+        Render.warprenderbuffer = gl.createRenderbuffer();
+        gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, Render.warprenderbuffer);
         gl.renderbufferStorage(RenderingContext.RENDERBUFFER, RenderingContext.DEPTH_COMPONENT16, 0, 0);
         gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, null);
-        gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, R.warpbuffer);
-        gl.framebufferTexture2D(RenderingContext.FRAMEBUFFER, RenderingContext.COLOR_ATTACHMENT0, RenderingContext.TEXTURE_2D, R.warptexture, 0);
-        gl.framebufferRenderbuffer(RenderingContext.FRAMEBUFFER, RenderingContext.DEPTH_ATTACHMENT, RenderingContext.RENDERBUFFER, R.warprenderbuffer);
+        gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, Render.warpbuffer);
+        gl.framebufferTexture2D(RenderingContext.FRAMEBUFFER, RenderingContext.COLOR_ATTACHMENT0, RenderingContext.TEXTURE_2D, Render.warptexture, 0);
+        gl.framebufferRenderbuffer(RenderingContext.FRAMEBUFFER, RenderingContext.DEPTH_ATTACHMENT, RenderingContext.RENDERBUFFER, Render.warprenderbuffer);
         gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, null);
 
-        R.dlightvecs = gl.createBuffer();
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.dlightvecs);
+        Render.dlightvecs = gl.createBuffer();
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, Render.dlightvecs);
         gl.bufferData(RenderingContext.ARRAY_BUFFER, new Float32Array([
             0.0, -1.0, 0.0,
             0.0, 0.0, 1.0,
@@ -1236,19 +1236,19 @@ class R {
             0.0, 0.0, 1.0
         ]), RenderingContext.STATIC_DRAW);
 
-        R.MakeSky();
+        Render.MakeSky();
     }
 
     static function NewMap() {
         for (i in 0...CL.MAX_LIGHTSTYLES)
-            R.lightstylevalue[i] = 12;
+            Render.lightstylevalue[i] = 12;
 
-        R.ClearParticles();
-        R.BuildLightmaps();
+        Render.ClearParticles();
+        Render.BuildLightmaps();
 
         for (i in 0...1048576)
-            R.dlightmaps[i] = 0;
-        GL.Bind(0, R.dlightmap_texture);
+            Render.dlightmaps[i] = 0;
+        GL.Bind(0, Render.dlightmap_texture);
         gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.ALPHA, 1024, 1024, 0, RenderingContext.ALPHA, RenderingContext.UNSIGNED_BYTE, null);
     }
 
@@ -1256,8 +1256,8 @@ class R {
         gl.finish();
         var start = Sys.FloatTime();
         for (i in 0...128) {
-            R.refdef.viewangles[1] = i * 2.8125;
-            R.RenderView();
+            Render.refdef.viewangles[1] = i * 2.8125;
+            Render.RenderView();
         }
         gl.finish();
         var time = Sys.FloatTime() - start;
@@ -1343,12 +1343,12 @@ class R {
             if (org.length != 3)
                 break;
             ++c;
-            var p = R.AllocParticles(1);
+            var p = Render.AllocParticles(1);
             if (p.length == 0) {
                 Console.Print('Not enough free particles\n');
                 break;
             }
-            var p = R.particles[p[0]];
+            var p = Render.particles[p[0]];
             p.type = tracer;
             p.die = 99999.0;
             p.color = -c & 15;
@@ -1374,7 +1374,7 @@ class R {
             var p = particles[allocated[i]];
             p.type = (i & 1) != 0 ? explode : explode2;
             p.die = CL.state.time + 5.0;
-            p.color = R.ramp1[0];
+            p.color = Render.ramp1[0];
             p.ramp = Math.floor(Math.random() * 4.0);
             p.vel.setValues(
                 Math.random() * 512.0 - 256.0,
@@ -1412,9 +1412,9 @@ class R {
     }
 
     static function BlobExplosion(org:Vec) {
-        var allocated = R.AllocParticles(1024);
+        var allocated = Render.AllocParticles(1024);
         for (i in 0...allocated.length) {
-            var p = R.particles[allocated[i]];
+            var p = Render.particles[allocated[i]];
             p.die = CL.state.time + 1.0 + Math.random() * 0.4;
             if ((i & 1) != 0) {
                 p.type = blob;
@@ -1488,7 +1488,7 @@ class R {
     }
 
     static function TeleportSplash(org:Vec):Void {
-        var allocated = R.AllocParticles(896), i, j, k, l = 0;
+        var allocated = Render.AllocParticles(896), i, j, k, l = 0;
         var dir = new Vec();
         i = -16;
         while (i < 16) {
@@ -1498,7 +1498,7 @@ class R {
                 while (k < 32) {
                     if (l >= allocated.length)
                         return;
-                    var p = R.particles[allocated[l++]];
+                    var p = Render.particles[allocated[l++]];
                     p.die = CL.state.time + 0.2 + Math.random() * 0.16;
                     p.color = 7 + Math.floor(Math.random() * 8.0);
                     p.type = slowgrav;
@@ -1534,18 +1534,18 @@ class R {
 
         var allocated;
         if (type == 4)
-            allocated = R.AllocParticles(Math.floor(len / 6.0));
+            allocated = Render.AllocParticles(Math.floor(len / 6.0));
         else
-            allocated = R.AllocParticles(Math.floor(len / 3.0));
+            allocated = Render.AllocParticles(Math.floor(len / 3.0));
 
         for (idx in allocated) {
-            var p = R.particles[idx];
+            var p = Render.particles[idx];
             p.vel.setVector(Vec.origin);
             p.die = CL.state.time + 2.0;
             switch (type) {
                 case 0 | 1:
                     p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
-                    p.color = R.ramp3[Std.int(p.ramp)];
+                    p.color = Render.ramp3[Std.int(p.ramp)];
                     p.type = fire;
                     p.org.setValues(
                         start[0] + Math.random() * 6.0 - 3.0,
@@ -1564,11 +1564,11 @@ class R {
                     p.die = CL.state.time + 0.5;
                     p.type = tracer;
                     if (type == 3)
-                        p.color = 52 + ((R.tracercount++ & 4) << 1);
+                        p.color = 52 + ((Render.tracercount++ & 4) << 1);
                     else
-                        p.color = 230 + ((R.tracercount++ & 4) << 1);
+                        p.color = 230 + ((Render.tracercount++ & 4) << 1);
                     p.org.setVector(start);
-                    if ((R.tracercount & 1) != 0) {
+                    if ((Render.tracercount & 1) != 0) {
                         p.vel[0] = 30.0 * vec[1];
                         p.vel[2] = -30.0 * vec[0];
                     } else {
@@ -1615,9 +1615,9 @@ class R {
 
             gl.uniform3fv(program.uOrigin, p.org);
 
-            var scale = (p.org[0] - R.refdef.vieworg[0]) * R.vpn[0]
-                      + (p.org[1] - R.refdef.vieworg[1]) * R.vpn[1]
-                      + (p.org[2] - R.refdef.vieworg[2]) * R.vpn[2];
+            var scale = (p.org[0] - Render.refdef.vieworg[0]) * Render.vpn[0]
+                      + (p.org[1] - Render.refdef.vieworg[1]) * Render.vpn[1]
+                      + (p.org[2] - Render.refdef.vieworg[2]) * Render.vpn[2];
             if (scale < 20.0)
                 gl.uniform1f(program.uScale, 1 + 0.08);
             else
@@ -1702,13 +1702,13 @@ class R {
             var idx = surf.light_t + t;
             if (idx >= 1024)
                 Sys.Error('Funny lightmap_modified index: $idx < 1024');
-            R.lightmap_modified[idx] = 1;
+            Render.lightmap_modified[idx] = 1;
             var dest = (idx << 10) + surf.light_s;
             for (s in 0...smax) {
                 var bl = blocklights[i++] >> 7;
                 if (bl > 255)
                     bl = 255;
-                R.dlightmaps[dest + s] = bl;
+                Render.dlightmaps[dest + s] = bl;
             }
         }
     }
@@ -1720,10 +1720,10 @@ class R {
             var idx = surf.light_t + t;
             if (idx >= 1024)
                 Sys.Error('Funny lightmap_modified index: $idx < 1024');
-            R.lightmap_modified[idx] = 1;
+            Render.lightmap_modified[idx] = 1;
             var dest = (idx << 10) + surf.light_s;
             for (s in 0...smax)
-                R.dlightmaps[dest + s] = 0;
+                Render.dlightmaps[dest + s] = 0;
         }
     }
 
@@ -1736,7 +1736,7 @@ class R {
             var dest = (surf.light_t << 12) + (surf.light_s << 2) + maps;
             for (i in 0...tmax) {
                 for (j in 0...smax)
-                    R.lightmaps[dest + (j << 2)] = R.currentmodel.lightdata[lightmap + j];
+                    Render.lightmaps[dest + (j << 2)] = Render.currentmodel.lightdata[lightmap + j];
                 lightmap += smax;
                 dest += 4096;
             }
@@ -1746,7 +1746,7 @@ class R {
             var dest = (surf.light_t << 12) + (surf.light_s << 2) + maps;
             for (i in 0...tmax) {
                 for (j in 0...smax)
-                    R.lightmaps[dest + (j << 2)] = 0;
+                    Render.lightmaps[dest + (j << 2)] = 0;
                 dest += 4096;
             }
             maps++;
@@ -1757,21 +1757,21 @@ class R {
         var frame = 0;
         if (base.anim_base != null) {
             frame = base.anim_frame;
-            base = R.currententity.model.textures[base.anim_base];
+            base = Render.currententity.model.textures[base.anim_base];
         }
         var anims = base.anims;
         if (anims == null)
             return base;
-        if ((R.currententity.frame != 0) && (base.alternate_anims.length != 0))
+        if ((Render.currententity.frame != 0) && (base.alternate_anims.length != 0))
             anims = base.alternate_anims;
-        return R.currententity.model.textures[anims[(Math.floor(CL.state.time * 5.0) + frame) % anims.length]];
+        return Render.currententity.model.textures[anims[(Math.floor(CL.state.time * 5.0) + frame) % anims.length]];
     }
 
     static function DrawBrushModel(e:Entity):Void {
         var clmodel = e.model;
 
         if (clmodel.submodel) {
-            if (R.CullBox(
+            if (Render.CullBox(
                 Vec.of(
                     e.origin[0] + clmodel.mins[0],
                     e.origin[1] + clmodel.mins[1],
@@ -1784,7 +1784,7 @@ class R {
                 )))
                 return;
         } else {
-            if (R.CullBox(
+            if (Render.CullBox(
                 Vec.of(
                     e.origin[0] - clmodel.radius,
                     e.origin[1] - clmodel.radius,
@@ -1807,18 +1807,18 @@ class R {
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
         gl.vertexAttribPointer(program.aTexCoord, 4, RenderingContext.FLOAT, false, 44, 12);
         gl.vertexAttribPointer(program.aLightStyle, 4, RenderingContext.FLOAT, false, 44, 28);
-        if (R.fullbright.value != 0 || clmodel.lightdata == null)
-            GL.Bind(program.tLightmap, R.fullbright_texture);
+        if (Render.fullbright.value != 0 || clmodel.lightdata == null)
+            GL.Bind(program.tLightmap, Render.fullbright_texture);
         else
-            GL.Bind(program.tLightmap, R.lightmap_texture);
-        GL.Bind(program.tDlight, ((R.flashblend.value == 0) && (clmodel.submodel)) ? R.dlightmap_texture : R.null_texture);
-        GL.Bind(program.tLightStyle, R.lightstyle_texture);
+            GL.Bind(program.tLightmap, Render.lightmap_texture);
+        GL.Bind(program.tDlight, ((Render.flashblend.value == 0) && (clmodel.submodel)) ? Render.dlightmap_texture : Render.null_texture);
+        GL.Bind(program.tLightStyle, Render.lightstyle_texture);
         for (i in 0...clmodel.chains.length) {
             var chain = clmodel.chains[i];
-            var texture = R.TextureAnimation(clmodel.textures[chain[0]]);
+            var texture = Render.TextureAnimation(clmodel.textures[chain[0]]);
             if (texture.turbulent)
                 continue;
-            R.c_brush_verts += chain[2];
+            Render.c_brush_verts += chain[2];
             GL.Bind(program.tTexture, texture.texturenum);
             gl.drawArrays(RenderingContext.TRIANGLES, chain[1], chain[2]);
         }
@@ -1834,7 +1834,7 @@ class R {
             var texture = clmodel.textures[chain[0]];
             if (!texture.turbulent)
                 continue;
-            R.c_brush_verts += chain[2];
+            Render.c_brush_verts += chain[2];
             GL.Bind(program.tTexture, texture.texturenum);
             gl.drawArrays(RenderingContext.TRIANGLES, chain[1], chain[2]);
         }
@@ -1844,20 +1844,20 @@ class R {
         if (node.contents == Contents.solid)
             return;
         if (node.contents < 0) {
-            if (node.markvisframe != R.visframecount)
+            if (node.markvisframe != Render.visframecount)
                 return;
-            node.visframe = R.visframecount;
+            node.visframe = Render.visframecount;
             if (node.skychain != node.waterchain)
-                R.drawsky = true;
+                Render.drawsky = true;
             return;
         }
-        R.RecursiveWorldNode(node.child0);
-        R.RecursiveWorldNode(node.child1);
+        Render.RecursiveWorldNode(node.child0);
+        Render.RecursiveWorldNode(node.child1);
     }
 
     static function DrawWorld() {
         var clmodel = CL.state.worldmodel;
-        R.currententity = CL.entities[0];
+        Render.currententity = CL.entities[0];
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
 
         var program = GL.UseProgram('brush');
@@ -1866,23 +1866,23 @@ class R {
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
         gl.vertexAttribPointer(program.aTexCoord, 4, RenderingContext.FLOAT, false, 44, 12);
         gl.vertexAttribPointer(program.aLightStyle, 4, RenderingContext.FLOAT, false, 44, 28);
-        if (R.fullbright.value != 0 || clmodel.lightdata == null)
-            GL.Bind(program.tLightmap, R.fullbright_texture);
+        if (Render.fullbright.value != 0 || clmodel.lightdata == null)
+            GL.Bind(program.tLightmap, Render.fullbright_texture);
         else
-            GL.Bind(program.tLightmap, R.lightmap_texture);
-        if (R.flashblend.value == 0)
-            GL.Bind(program.tDlight, R.dlightmap_texture);
+            GL.Bind(program.tLightmap, Render.lightmap_texture);
+        if (Render.flashblend.value == 0)
+            GL.Bind(program.tDlight, Render.dlightmap_texture);
         else
-            GL.Bind(program.tDlight, R.null_texture);
-        GL.Bind(program.tLightStyle, R.lightstyle_texture);
+            GL.Bind(program.tDlight, Render.null_texture);
+        GL.Bind(program.tLightStyle, Render.lightstyle_texture);
         for (leaf in clmodel.leafs) {
-            if (leaf.visframe != R.visframecount || leaf.skychain == 0)
+            if (leaf.visframe != Render.visframecount || leaf.skychain == 0)
                 continue;
             if (CullBox(leaf.mins, leaf.maxs))
                 continue;
             for (j in 0...leaf.skychain) {
                 var cmds = leaf.cmds[j];
-                R.c_brush_verts += cmds[2];
+                Render.c_brush_verts += cmds[2];
                 GL.Bind(program.tTexture, TextureAnimation(clmodel.textures[cmds[0]]).texturenum);
                 gl.drawArrays(RenderingContext.TRIANGLES, cmds[1], cmds[2]);
             }
@@ -1895,13 +1895,13 @@ class R {
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 20, clmodel.waterchain);
         gl.vertexAttribPointer(program.aTexCoord, 2, RenderingContext.FLOAT, false, 20, clmodel.waterchain + 12);
         for (leaf in clmodel.leafs) {
-            if (leaf.visframe != R.visframecount || leaf.waterchain == leaf.cmds.length)
+            if (leaf.visframe != Render.visframecount || leaf.waterchain == leaf.cmds.length)
                 continue;
             if (CullBox(leaf.mins, leaf.maxs))
                 continue;
             for (j in leaf.waterchain...leaf.cmds.length) {
                 var cmds = leaf.cmds[j];
-                R.c_brush_verts += cmds[2];
+                Render.c_brush_verts += cmds[2];
                 GL.Bind(program.tTexture, clmodel.textures[cmds[0]].texturenum);
                 gl.drawArrays(RenderingContext.TRIANGLES, cmds[1], cmds[2]);
             }
@@ -1909,38 +1909,38 @@ class R {
     }
 
     static function MarkLeaves() {
-        if ((R.oldviewleaf == R.viewleaf) && (R.novis.value == 0))
+        if ((Render.oldviewleaf == Render.viewleaf) && (Render.novis.value == 0))
             return;
-        ++R.visframecount;
-        R.oldviewleaf = R.viewleaf;
-        var vis = (R.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(R.viewleaf, CL.state.worldmodel);
+        ++Render.visframecount;
+        Render.oldviewleaf = Render.viewleaf;
+        var vis = (Render.novis.value != 0) ? Mod_Brush.novis : Mod_Brush.LeafPVS(Render.viewleaf, CL.state.worldmodel);
         for (i in 0...CL.state.worldmodel.leafs.length) {
             if ((vis[i >> 3] & (1 << (i & 7))) == 0)
                 continue;
             var node:Node = CL.state.worldmodel.leafs[i + 1];
             while (node != null) {
-                if (node.markvisframe == R.visframecount)
+                if (node.markvisframe == Render.visframecount)
                     break;
-                node.markvisframe = R.visframecount;
+                node.markvisframe = Render.visframecount;
                 node = node.parent;
             }
         }
         do
         {
-            if (R.novis.value != 0)
+            if (Render.novis.value != 0)
                 break;
-            var p = [R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2]];
+            var p = [Render.refdef.vieworg[0], Render.refdef.vieworg[1], Render.refdef.vieworg[2]];
             var leaf;
-            if (R.viewleaf.contents <= Contents.water) {
-                leaf = Mod_Brush.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] + 16.0), CL.state.worldmodel);
+            if (Render.viewleaf.contents <= Contents.water) {
+                leaf = Mod_Brush.PointInLeaf(Vec.of(Render.refdef.vieworg[0], Render.refdef.vieworg[1], Render.refdef.vieworg[2] + 16.0), CL.state.worldmodel);
                 if (leaf.contents <= Contents.water)
                     break;
             } else {
-                leaf = Mod_Brush.PointInLeaf(Vec.of(R.refdef.vieworg[0], R.refdef.vieworg[1], R.refdef.vieworg[2] - 16.0), CL.state.worldmodel);
+                leaf = Mod_Brush.PointInLeaf(Vec.of(Render.refdef.vieworg[0], Render.refdef.vieworg[1], Render.refdef.vieworg[2] - 16.0), CL.state.worldmodel);
                 if (leaf.contents > Contents.water)
                     break;
             }
-            if (leaf == R.viewleaf)
+            if (leaf == Render.viewleaf)
                 break;
             vis = Mod_Brush.LeafPVS(leaf, CL.state.worldmodel);
             for (i in 0...CL.state.worldmodel.leafs.length) {
@@ -1948,15 +1948,15 @@ class R {
                     continue;
                 var node:Node = CL.state.worldmodel.leafs[i + 1];
                 while (node != null) {
-                    if (node.markvisframe == R.visframecount)
+                    if (node.markvisframe == Render.visframecount)
                         break;
-                    node.markvisframe = R.visframecount;
+                    node.markvisframe = Render.visframecount;
                     node = node.parent;
                 }
             }
         } while (false);
-        R.drawsky = false;
-        R.RecursiveWorldNode(CL.state.worldmodel.nodes[0]);
+        Render.drawsky = false;
+        Render.RecursiveWorldNode(CL.state.worldmodel.nodes[0]);
     }
 
     static var drawsky:Bool;
@@ -1970,10 +1970,10 @@ class R {
             var best2 = 0;
             var j = 0;
             while (j < w) {
-                if (R.allocated[i + j] >= best)
+                if (Render.allocated[i + j] >= best)
                     break;
-                if (R.allocated[i + j] > best2)
-                    best2 = R.allocated[i + j];
+                if (Render.allocated[i + j] > best2)
+                    best2 = Render.allocated[i + j];
                 j++;
             }
             if (j == w) {
@@ -1985,7 +1985,7 @@ class R {
         if (best > 1024)
             Sys.Error('AllocBlock: full');
         for (i in 0...w)
-            R.allocated[x + i] = best;
+            Render.allocated[x + i] = best;
         surf.light_s = x;
         surf.light_t = y;
     }
@@ -1995,15 +1995,15 @@ class R {
         fa.verts = [];
         if (fa.numedges <= 2)
             return;
-        var texinfo = R.currentmodel.texinfo[fa.texinfo];
-        var texture = R.currentmodel.textures[texinfo.texture];
+        var texinfo = Render.currentmodel.texinfo[fa.texinfo];
+        var texture = Render.currentmodel.textures[texinfo.texture];
         for (i in 0...fa.numedges) {
-            var index = R.currentmodel.surfedges[fa.firstedge + i];
+            var index = Render.currentmodel.surfedges[fa.firstedge + i];
             var vec;
             if (index > 0)
-                vec = R.currentmodel.vertexes[R.currentmodel.edges[index][0]];
+                vec = Render.currentmodel.vertexes[Render.currentmodel.edges[index][0]];
             else
-                vec = R.currentmodel.vertexes[R.currentmodel.edges[-index][1]];
+                vec = Render.currentmodel.vertexes[Render.currentmodel.edges[-index][1]];
             var vert = [vec[0], vec[1], vec[2]];
             if (!fa.sky) {
                 var s = Vec.DotProduct(vec, Vec.ofArray(texinfo.vecs[0])) + texinfo.vecs[0][3];
@@ -2027,33 +2027,33 @@ class R {
     static var currentmodel:MModel;
 
     static function BuildLightmaps():Void {
-        R.allocated = [];
+        Render.allocated = [];
         for (i in 0...1024)
-            R.allocated[i] = 0;
+            Render.allocated[i] = 0;
 
         for (i in 1...CL.state.model_precache.length) {
-            R.currentmodel = CL.state.model_precache[i];
-            if (R.currentmodel.type != brush)
+            Render.currentmodel = CL.state.model_precache[i];
+            if (Render.currentmodel.type != brush)
                 continue;
-            if (R.currentmodel.name.charCodeAt(0) != 42) {
-                for (j in 0...R.currentmodel.faces.length) {
-                    var surf = R.currentmodel.faces[j];
+            if (Render.currentmodel.name.charCodeAt(0) != 42) {
+                for (j in 0...Render.currentmodel.faces.length) {
+                    var surf = Render.currentmodel.faces[j];
                     if (!surf.sky && !surf.turbulent) {
-                        R.AllocBlock(surf);
-                        if (R.currentmodel.lightdata != null)
-                            R.BuildLightMap(surf);
+                        Render.AllocBlock(surf);
+                        if (Render.currentmodel.lightdata != null)
+                            Render.BuildLightMap(surf);
                     }
-                    R.BuildSurfaceDisplayList(surf);
+                    Render.BuildSurfaceDisplayList(surf);
                 }
             }
             if (i == 1)
-                R.MakeWorldModelDisplayLists(R.currentmodel);
+                Render.MakeWorldModelDisplayLists(Render.currentmodel);
             else
-                R.MakeBrushModelDisplayLists(R.currentmodel);
+                Render.MakeBrushModelDisplayLists(Render.currentmodel);
         }
 
-        GL.Bind(0, R.lightmap_texture);
-        gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, 1024, 1024, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, R.lightmaps);
+        GL.Bind(0, Render.lightmap_texture);
+        gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, 1024, 1024, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, Render.lightmaps);
     }
 
     // scan
@@ -2063,10 +2063,10 @@ class R {
         gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, null);
         gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, null);
         var program = GL.UseProgram('warp');
-        var vrect = R.refdef.vrect;
+        var vrect = Render.refdef.vrect;
         gl.uniform4f(program.uRect, vrect.x, vrect.y, vrect.width, vrect.height);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
-        GL.Bind(program.tTexture, R.warptexture);
+        GL.Bind(program.tTexture, Render.warptexture);
         gl.clear(RenderingContext.COLOR_BUFFER_BIT);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -2105,13 +2105,13 @@ class R {
         GL.CreateProgram('sky', ['uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uTime'], ['aPoint'], ['tSolid', 'tAlpha']);
         GL.CreateProgram('skyChain', ['uViewOrigin', 'uViewAngles', 'uPerspective'], ['aPoint'], []);
 
-        R.skyvecs = gl.createBuffer();
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.skyvecs);
+        Render.skyvecs = gl.createBuffer();
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, Render.skyvecs);
         gl.bufferData(RenderingContext.ARRAY_BUFFER, new Float32Array(vecs), RenderingContext.STATIC_DRAW);
     }
 
     static function DrawSkyBox() {
-        if (!R.drawsky)
+        if (!Render.drawsky)
             return;
 
         gl.colorMask(false, false, false, false);
@@ -2121,9 +2121,9 @@ class R {
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 12, clmodel.skychain);
         for (i in 0...clmodel.leafs.length) {
             var leaf = clmodel.leafs[i];
-            if ((leaf.visframe != R.visframecount) || (leaf.skychain == leaf.waterchain))
+            if ((leaf.visframe != Render.visframecount) || (leaf.skychain == leaf.waterchain))
                 continue;
-            if (R.CullBox(leaf.mins, leaf.maxs))
+            if (Render.CullBox(leaf.mins, leaf.maxs))
                 continue;
             for (j in leaf.skychain...leaf.waterchain) {
                 var cmds = leaf.cmds[j];
@@ -2138,9 +2138,9 @@ class R {
 
         program = GL.UseProgram('sky');
         gl.uniform2f(program.uTime, (Host.realtime * 0.125) % 1.0, (Host.realtime * 0.03125) % 1.0);
-        GL.Bind(program.tSolid, R.solidskytexture);
-        GL.Bind(program.tAlpha, R.alphaskytexture);
-        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, R.skyvecs);
+        GL.Bind(program.tSolid, Render.solidskytexture);
+        GL.Bind(program.tAlpha, Render.alphaskytexture);
+        gl.bindBuffer(RenderingContext.ARRAY_BUFFER, Render.skyvecs);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 12, 0);
 
         gl.uniform3f(program.uScale, 2.0, -2.0, 1.0);
@@ -2176,7 +2176,7 @@ class R {
             for (j in 0...128)
                 trans32[(i << 7) + j] = COM.LittleLong(VID.d_8to24table[src[(i << 8) + j + 128]] + 0xff000000);
         }
-        GL.Bind(0, R.solidskytexture);
+        GL.Bind(0, Render.solidskytexture);
         gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, 128, 128, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, new Uint8Array(trans));
         gl.generateMipmap(RenderingContext.TEXTURE_2D);
 
@@ -2189,7 +2189,7 @@ class R {
                     trans32[(i << 7) + j] = 0;
             }
         }
-        GL.Bind(0, R.alphaskytexture);
+        GL.Bind(0, Render.alphaskytexture);
         gl.texImage2D(RenderingContext.TEXTURE_2D, 0, RenderingContext.RGBA, 128, 128, 0, RenderingContext.RGBA, RenderingContext.UNSIGNED_BYTE, new Uint8Array(trans));
         gl.generateMipmap(RenderingContext.TEXTURE_2D);
     }

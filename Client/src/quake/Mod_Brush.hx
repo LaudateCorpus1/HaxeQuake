@@ -276,7 +276,7 @@ class Mod_Brush {
             var miptexofs = view.getInt32(dataofs, true);
             dataofs += 4;
             if (miptexofs == -1) {
-                loadmodel.textures[i] = R.notexture_mip;
+                loadmodel.textures[i] = Render.notexture_mip;
                 continue;
             }
             miptexofs += fileofs;
@@ -287,9 +287,9 @@ class Mod_Brush {
                 tx.height = view.getUint32(miptexofs + 20, true);
             }
             if (tx.name.substring(0, 3).toLowerCase() == 'sky') {
-                R.InitSky(new Uint8Array(view.buffer, miptexofs + view.getUint32(miptexofs + 24, true), 32768));
-                tx.texturenum = R.solidskytexture;
-                R.skytexturenum = i;
+                Render.InitSky(new Uint8Array(view.buffer, miptexofs + view.getUint32(miptexofs + 24, true), 32768));
+                tx.texturenum = Render.solidskytexture;
+                Render.skytexturenum = i;
                 tx.sky = true;
             }
             else
@@ -347,7 +347,7 @@ class Mod_Brush {
             loadmodel.textures[i] = tx;
         }
 
-        loadmodel.textures.push(R.notexture_mip);
+        loadmodel.textures.push(Render.notexture_mip);
     }
 
     static function LoadLighting(loadmodel:MModel, view:DataView):Void {

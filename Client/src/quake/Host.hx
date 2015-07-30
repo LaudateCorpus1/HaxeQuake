@@ -275,7 +275,7 @@ class Host {
             time2 = Sys.FloatTime();
 
         if (CL.cls.signon == 4) {
-            S.Update(R.refdef.vieworg, R.vpn, R.vright, R.vup);
+            S.Update(Render.refdef.vieworg, Render.vpn, Render.vright, Render.vup);
             CL.DecayLights();
         }
         else
@@ -345,7 +345,7 @@ class Host {
         VID.Init();
         Draw.Init();
         SCR.Init();
-        R.Init();
+        Render.Init();
         S.Init();
         Menu.Init();
         CDAudio.Init();

@@ -359,7 +359,8 @@ var quake__$CL_ClientState = function() {
 	this.movemessages = 0;
 	this.cmd = new quake_ClientCmd();
 	this.velocity = new Float32Array(3);
-	this.mvelocity = [new Float32Array(3),new Float32Array(3)];
+	this.mvelocity1 = new Float32Array(3);
+	this.mvelocity0 = new Float32Array(3);
 	this.mviewangles = [new Float32Array(3),new Float32Array(3)];
 	this.viewangles = new Float32Array(3);
 	this.time = 0.0;
@@ -998,9 +999,9 @@ quake_CL.LerpPoint = function() {
 quake_CL.RelinkEntities = function() {
 	var frac = quake_CL.LerpPoint();
 	quake_CL.numvisedicts = 0;
-	quake_CL.state.velocity[0] = quake_CL.state.mvelocity[1][0] + frac * (quake_CL.state.mvelocity[0][0] - quake_CL.state.mvelocity[1][0]);
-	quake_CL.state.velocity[1] = quake_CL.state.mvelocity[1][1] + frac * (quake_CL.state.mvelocity[0][1] - quake_CL.state.mvelocity[1][1]);
-	quake_CL.state.velocity[2] = quake_CL.state.mvelocity[1][2] + frac * (quake_CL.state.mvelocity[0][2] - quake_CL.state.mvelocity[1][2]);
+	quake_CL.state.velocity[0] = quake_CL.state.mvelocity1[0] + frac * (quake_CL.state.mvelocity0[0] - quake_CL.state.mvelocity1[0]);
+	quake_CL.state.velocity[1] = quake_CL.state.mvelocity1[1] + frac * (quake_CL.state.mvelocity0[1] - quake_CL.state.mvelocity1[1]);
+	quake_CL.state.velocity[2] = quake_CL.state.mvelocity1[2] + frac * (quake_CL.state.mvelocity0[2] - quake_CL.state.mvelocity1[2]);
 	if(quake_CL.cls.demoplayback) {
 		var _g = 0;
 		while(_g < 3) {
@@ -1346,7 +1347,7 @@ quake_CL.ParseBaseline = function(ent) {
 quake_CL.ParseClientdata = function(bits) {
 	quake_CL.state.viewheight = (bits & 1) != 0?quake_MSG.ReadChar():22;
 	quake_CL.state.idealpitch = (bits & 2) != 0?quake_MSG.ReadChar():0.0;
-	quake_CL.state.mvelocity[1] = new Float32Array(quake_CL.state.mvelocity[0]);
+	quake_CL.state.mvelocity1.set(quake_CL.state.mvelocity0);
 	var _g = 0;
 	while(_g < 3) {
 		var i1 = _g++;
@@ -1356,8 +1357,8 @@ quake_CL.ParseClientdata = function(bits) {
 		} else quake_CL.state.punchangle[i1] = 0.0;
 		if((bits & 32 << i1) != 0) {
 			var v1 = quake_MSG.ReadChar() * 16.0;
-			quake_CL.state.mvelocity[0][i1] = v1;
-		} else quake_CL.state.mvelocity[0][i1] = 0.0;
+			quake_CL.state.mvelocity0[i1] = v1;
+		} else quake_CL.state.mvelocity0[i1] = 0.0;
 	}
 	var i = quake_MSG.ReadLong();
 	if(quake_CL.state.items != i) {

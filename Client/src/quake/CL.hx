@@ -83,7 +83,8 @@ private class ClientState {
     var time = 0.0;
     var viewangles= new Vec();
     var mviewangles = [new Vec(), new Vec()];
-    var mvelocity = [new Vec(), new Vec()];
+    var mvelocity0(default,never) = new Vec();
+    var mvelocity1(default,never) = new Vec();
     var velocity(default,never) = new Vec();
     var cmd(default,never) = new ClientCmd();
     var movemessages = 0;
@@ -839,9 +840,9 @@ class CL {
 
         CL.numvisedicts = 0;
 
-        CL.state.velocity[0] = CL.state.mvelocity[1][0] + frac * (CL.state.mvelocity[0][0] - CL.state.mvelocity[1][0]);
-        CL.state.velocity[1] = CL.state.mvelocity[1][1] + frac * (CL.state.mvelocity[0][1] - CL.state.mvelocity[1][1]);
-        CL.state.velocity[2] = CL.state.mvelocity[1][2] + frac * (CL.state.mvelocity[0][2] - CL.state.mvelocity[1][2]);
+        CL.state.velocity[0] = CL.state.mvelocity1[0] + frac * (CL.state.mvelocity0[0] - CL.state.mvelocity1[0]);
+        CL.state.velocity[1] = CL.state.mvelocity1[1] + frac * (CL.state.mvelocity0[1] - CL.state.mvelocity1[1]);
+        CL.state.velocity[2] = CL.state.mvelocity1[2] + frac * (CL.state.mvelocity0[2] - CL.state.mvelocity1[2]);
 
         if (CL.cls.demoplayback) {
             for (i in 0...3) {
@@ -1255,16 +1256,16 @@ class CL {
         CL.state.viewheight = ((bits & SU.viewheight) != 0) ? MSG.ReadChar() : Protocol.default_viewheight;
         CL.state.idealpitch = ((bits & SU.idealpitch) != 0) ? MSG.ReadChar() : 0.0;
 
-        CL.state.mvelocity[1] = CL.state.mvelocity[0].copy();
+        CL.state.mvelocity1.setVector(CL.state.mvelocity0);
         for (i in 0...3) {
             if ((bits & (SU.punch1 << i)) != 0)
                 CL.state.punchangle[i] = MSG.ReadChar();
             else
                 CL.state.punchangle[i] = 0.0;
             if ((bits & (SU.velocity1 << i)) != 0)
-                CL.state.mvelocity[0][i] = MSG.ReadChar() * 16.0;
+                CL.state.mvelocity0[i] = MSG.ReadChar() * 16.0;
             else
-                CL.state.mvelocity[0][i] = 0.0;
+                CL.state.mvelocity0[i] = 0.0;
         }
 
         var i = MSG.ReadLong();

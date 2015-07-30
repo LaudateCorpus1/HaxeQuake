@@ -365,7 +365,8 @@ var quake__$CL_ClientState = function() {
 	this.mviewangles0 = new Float32Array(3);
 	this.viewangles = new Float32Array(3);
 	this.time = 0.0;
-	this.mtime = [0.0,0.0];
+	this.mtime1 = 0.0;
+	this.mtime0 = 0.0;
 };
 quake__$CL_ClientState.__name__ = true;
 var quake_MSG = function(capacity,size) {
@@ -503,7 +504,7 @@ quake_CL.GetMessage = function() {
 				if(quake_Host.framecount == quake_CL.cls.td_lastframe) return 0;
 				quake_CL.cls.td_lastframe = quake_Host.framecount;
 				if(quake_Host.framecount == quake_CL.cls.td_startframe + 1) quake_CL.cls.td_starttime = quake_Host.realtime;
-			} else if(quake_CL.state.time <= quake_CL.state.mtime[0]) return 0;
+			} else if(quake_CL.state.time <= quake_CL.state.mtime0) return 0;
 		}
 		if(quake_CL.cls.demoofs + 16 >= quake_CL.cls.demosize) {
 			quake_CL.StopPlayback();
@@ -730,7 +731,7 @@ quake_CL.SendMove = function() {
 	var buf = quake_CL.sendmovebuf;
 	buf.cursize = 0;
 	buf.WriteByte(3);
-	buf.WriteFloat(quake_CL.state.mtime[0]);
+	buf.WriteFloat(quake_CL.state.mtime0);
 	buf.WriteByte((quake_CL.state.viewangles[0] * 256 / 360 | 0) & 255);
 	buf.WriteByte((quake_CL.state.viewangles[1] * 256 / 360 | 0) & 255);
 	buf.WriteByte((quake_CL.state.viewangles[2] * 256 / 360 | 0) & 255);
@@ -974,22 +975,22 @@ quake_CL.DecayLights = function() {
 	}
 };
 quake_CL.LerpPoint = function() {
-	var f = quake_CL.state.mtime[0] - quake_CL.state.mtime[1];
+	var f = quake_CL.state.mtime0 - quake_CL.state.mtime1;
 	if(f == 0.0 || quake_CL.nolerp.value != 0 || quake_CL.cls.timedemo || quake_SV.server.active) {
-		quake_CL.state.time = quake_CL.state.mtime[0];
+		quake_CL.state.time = quake_CL.state.mtime0;
 		return 1.0;
 	}
 	if(f > 0.1) {
-		quake_CL.state.mtime[1] = quake_CL.state.mtime[0] - 0.1;
+		quake_CL.state.mtime1 = quake_CL.state.mtime0 - 0.1;
 		f = 0.1;
 	}
-	var frac = (quake_CL.state.time - quake_CL.state.mtime[1]) / f;
+	var frac = (quake_CL.state.time - quake_CL.state.mtime1) / f;
 	if(frac < 0.0) {
-		if(frac < -0.01) quake_CL.state.time = quake_CL.state.mtime[1];
+		if(frac < -0.01) quake_CL.state.time = quake_CL.state.mtime1;
 		return 0.0;
 	}
 	if(frac > 1.0) {
-		if(frac > 1.01) quake_CL.state.time = quake_CL.state.mtime[0];
+		if(frac > 1.01) quake_CL.state.time = quake_CL.state.mtime0;
 		return 1.0;
 	}
 	return frac;
@@ -1019,7 +1020,7 @@ quake_CL.RelinkEntities = function() {
 		var i1 = _g1++;
 		var ent = quake_CL.entities[i1];
 		if(ent.model == null) continue;
-		if(ent.msgtime != quake_CL.state.mtime[0]) {
+		if(ent.msgtime != quake_CL.state.mtime0) {
 			ent.model = null;
 			continue;
 		}
@@ -1289,8 +1290,8 @@ quake_CL.ParseUpdate = function(bits) {
 	}
 	if((bits & 1) != 0) bits += quake_MSG.ReadByte() << 8;
 	var ent = quake_CL.EntityNum((bits & 16384) != 0?quake_MSG.ReadShort():quake_MSG.ReadByte());
-	var forcelink = ent.msgtime != quake_CL.state.mtime[1];
-	ent.msgtime = quake_CL.state.mtime[0];
+	var forcelink = ent.msgtime != quake_CL.state.mtime1;
+	ent.msgtime = quake_CL.state.mtime0;
 	var model = quake_CL.state.model_precache[(bits & 1024) != 0?quake_MSG.ReadByte():ent.baseline.modelindex];
 	if(model != ent.model) {
 		ent.model = model;
@@ -1450,8 +1451,8 @@ quake_CL.ParseServerMessage = function() {
 			continue;
 			break;
 		case 7:
-			quake_CL.state.mtime[1] = quake_CL.state.mtime[0];
-			quake_CL.state.mtime[0] = quake_MSG.ReadFloat();
+			quake_CL.state.mtime1 = quake_CL.state.mtime0;
+			quake_CL.state.mtime0 = quake_MSG.ReadFloat();
 			continue;
 			break;
 		case 15:

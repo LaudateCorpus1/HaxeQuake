@@ -79,7 +79,8 @@ private class Score {
 
 @:publicFields
 private class ClientState {
-    var mtime = [0.0, 0.0];
+    var mtime0:Float = 0.0;
+    var mtime1:Float = 0.0;
     var time = 0.0;
     var viewangles(default,never) = new Vec();
     var mviewangles0(default,never) = new Vec();
@@ -222,7 +223,7 @@ class CL {
                     if (Host.framecount == (CL.cls.td_startframe + 1))
                         CL.cls.td_starttime = Host.realtime;
                 }
-                else if (CL.state.time <= CL.state.mtime[0])
+                else if (CL.state.time <= CL.state.mtime0)
                     return 0;
             }
             if ((CL.cls.demoofs + 16) >= CL.cls.demosize) {
@@ -548,7 +549,7 @@ class CL {
         var buf = CL.sendmovebuf;
         buf.cursize = 0;
         buf.WriteByte(CLC.move);
-        buf.WriteFloat(CL.state.mtime[0]);
+        buf.WriteFloat(CL.state.mtime0);
         buf.WriteAngle(CL.state.viewangles[0]);
         buf.WriteAngle(CL.state.viewangles[1]);
         buf.WriteAngle(CL.state.viewangles[2]);
@@ -811,24 +812,24 @@ class CL {
     }
 
     static function LerpPoint() {
-        var f = CL.state.mtime[0] - CL.state.mtime[1];
+        var f = CL.state.mtime0 - CL.state.mtime1;
         if ((f == 0.0) || (CL.nolerp.value != 0) || (CL.cls.timedemo) || (SV.server.active)) {
-            CL.state.time = CL.state.mtime[0];
+            CL.state.time = CL.state.mtime0;
             return 1.0;
         }
         if (f > 0.1) {
-            CL.state.mtime[1] = CL.state.mtime[0] - 0.1;
+            CL.state.mtime1 = CL.state.mtime0 - 0.1;
             f = 0.1;
         }
-        var frac = (CL.state.time - CL.state.mtime[1]) / f;
+        var frac = (CL.state.time - CL.state.mtime1) / f;
         if (frac < 0.0) {
             if (frac < -0.01)
-                CL.state.time = CL.state.mtime[1];
+                CL.state.time = CL.state.mtime1;
             return 0.0;
         }
         if (frac > 1.0) {
             if (frac > 1.01)
-                CL.state.time = CL.state.mtime[0];
+                CL.state.time = CL.state.mtime0;
             return 1.0;
         }
         return frac;
@@ -864,7 +865,7 @@ class CL {
             var ent = CL.entities[i];
             if (ent.model == null)
                 continue;
-            if (ent.msgtime != CL.state.mtime[0]) {
+            if (ent.msgtime != CL.state.mtime0) {
                 ent.model = null;
                 continue;
             }
@@ -1200,8 +1201,8 @@ class CL {
 
         var ent = CL.EntityNum(((bits & U.longentity) != 0) ? MSG.ReadShort() : MSG.ReadByte());
 
-        var forcelink = ent.msgtime != CL.state.mtime[1];
-        ent.msgtime = CL.state.mtime[0];
+        var forcelink = ent.msgtime != CL.state.mtime1;
+        ent.msgtime = CL.state.mtime0;
 
         var model = CL.state.model_precache[((bits & U.model) != 0) ? MSG.ReadByte() : ent.baseline.modelindex];
         if (model != ent.model) {
@@ -1357,8 +1358,8 @@ class CL {
             case SVC.nop:
                 continue;
             case SVC.time:
-                CL.state.mtime[1] = CL.state.mtime[0];
-                CL.state.mtime[0] = MSG.ReadFloat();
+                CL.state.mtime1 = CL.state.mtime0;
+                CL.state.mtime0 = MSG.ReadFloat();
                 continue;
             case SVC.clientdata:
                 CL.ParseClientdata(MSG.ReadShort());

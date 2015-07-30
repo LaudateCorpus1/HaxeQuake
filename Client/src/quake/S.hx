@@ -53,10 +53,10 @@ class S {
 	static var channels:Array<Channel> = [];
 	static var static_channels:Array<Channel> = [];
 	static var ambient_channels:Array<Channel> = [];
-	static var listener_origin= new Vec();
-	static var listener_forward= new Vec();
-	static var listener_right= new Vec();
-	static var listener_up= new Vec();
+	static var listener_origin(default,never) = new Vec();
+	static var listener_forward(default,never) = new Vec();
+	static var listener_right(default,never) = new Vec();
+	static var listener_up(default,never) = new Vec();
 	static var known_sfx:Array<Sfx> = [];
 
 	static var nosound:Cvar;

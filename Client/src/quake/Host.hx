@@ -254,7 +254,7 @@ class Host {
             return;
         }
 
-        var time1, time2, pass1, pass2, pass3, tot;
+        var time1 = null, time2 = null, pass1, pass2, pass3, tot;
 
         Cmd.Execute();
 
@@ -1040,7 +1040,7 @@ class Host {
         else if (PR.globals.deathmatch != 0.0)
             return;
         var save = Host.client;
-        var i, byNumber;
+        var i, byNumber = null;
         if ((Cmd.argv.length >= 3) && (Cmd.argv[1] == '#')) {
             i = Q.atoi(Cmd.argv[2]) - 1;
             if ((i < 0) || (i >= SV.svs.maxclients))
@@ -1076,7 +1076,7 @@ class Host {
                 return;
             who = SV.GetClientName(save);
         }
-        var message;
+        var message = null;
         if (Cmd.argv.length >= 3)
             message = COM.Parse(Cmd.args);
         if (message != null) {

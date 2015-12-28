@@ -246,7 +246,7 @@ class PF {
         var i = 1;
         if (check != SV.svs.maxclients)
             i += check;
-        var ent;
+        var ent = null;
         while (true) {
             if (i == SV.svs.maxclients + 1)
                 i = 1;
@@ -543,7 +543,7 @@ class PF {
         }
         var bestdir = dir.copy();
         var bestdist = SV.aim.value;
-        var bestent, end = new Vec();
+        var bestent = null, end = new Vec();
         for (i in 1...SV.server.num_edicts) {
             var check = SV.server.edicts[i];
             if (check.v.takedamage != DamageType.aim)

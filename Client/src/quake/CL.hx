@@ -50,7 +50,7 @@ private class ClientStatic {
     var netcon:INETSocket;
     var signon:Int;
     var forcetrack:Int;
-    
+
     function new() {
         this.state = disconnected;
         this.spawnparms = '';
@@ -248,7 +248,7 @@ class CL {
             return 1;
         };
 
-        var r;
+        var r = null;
         while (true) {
             r = NET.GetMessage(CL.cls.netcon);
             if ((r != 1) && (r != 2))
@@ -605,7 +605,7 @@ class CL {
             Console.Print('You must set \'rcon_password\' before\nissuing an rcon command.\n');
             return;
         }
-        var to;
+        var to = null;
         if ((CL.cls.state == connected) && (CL.cls.netcon != null)) {
             if (NET.drivers[CL.cls.netcon.driver] == NET_WEBS)
                 to = CL.cls.netcon.address.substring(5);
@@ -1617,7 +1617,7 @@ class CL {
 
     static function UpdateTEnts():Void {
         num_temp_entities = 0;
-        
+
         var dist = [0.0, 0.0, 0.0];
         var org = [0.0, 0.0, 0.0];
 

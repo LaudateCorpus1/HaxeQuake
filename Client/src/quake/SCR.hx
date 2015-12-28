@@ -206,7 +206,7 @@ class SCR {
         else if (viewsize.value > 120)
             viewsize.set("120");
 
-        var size, full;
+        var size, full = false;
         if (CL.state.intermission != 0) {
             full = true;
             size = 1.0;

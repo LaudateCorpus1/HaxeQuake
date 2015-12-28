@@ -285,7 +285,7 @@ class SV {
 
     static function ConnectClient(clientnum:Int):Void {
         var client = svs.clients[clientnum];
-        var spawn_parms;
+        var spawn_parms = null;
         if (server.loadgame) {
             spawn_parms = [];
             if (client.spawn_parms == null) {
@@ -1405,8 +1405,8 @@ class SV {
             return;
         d += 1.0;
         var i = normal[0] * ent.v.velocity + normal[1] * ent.v.velocity1 + normal[2] * ent.v.velocity2;
-        ent.v.velocity = (ent.v.velocity - normal[0] * i) * d; 
-        ent.v.velocity1 = (ent.v.velocity1 - normal[1] * i) * d; 
+        ent.v.velocity = (ent.v.velocity - normal[0] * i) * d;
+        ent.v.velocity1 = (ent.v.velocity1 - normal[1] * i) * d;
     }
 
     static function TryUnstick(ent:Edict, oldvel:Vec):Int {
@@ -1853,7 +1853,7 @@ class SV {
 
     static var readClientCmds = [
         'status',
-        'god', 
+        'god',
         'notarget',
         'fly',
         'name',

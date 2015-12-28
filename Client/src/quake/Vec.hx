@@ -102,7 +102,7 @@ abstract Vec(Float32Array) to Float32Array {
                 return 2;
             return 3;
         }
-        var dist1, dist2;
+        var dist1 = null, dist2 = null;
         switch (p.signbits) {
             case 0:
                 dist1 = p.normal[0] * emaxs[0] + p.normal[1] * emaxs[1] + p.normal[2] * emaxs[2];
@@ -141,7 +141,7 @@ abstract Vec(Float32Array) to Float32Array {
 
     public static function AngleVectors(angles:Vec, ?forward:Vec, ?right:Vec, ?up:Vec):Void {
         var angle;
-        
+
         angle = angles[0] * Math.PI / 180.0;
         var sp = Math.sin(angle);
         var cp = Math.cos(angle);

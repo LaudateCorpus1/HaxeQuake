@@ -278,7 +278,7 @@ class ED {
 	}
 
 	static function LoadFromFile(data:String):Void {
-		var ent, inhibit = 0;
+		var ent = null, inhibit = 0;
 		PR.globals.time = SV.server.time;
 
 		while (true) {

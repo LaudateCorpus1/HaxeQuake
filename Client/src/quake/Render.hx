@@ -623,7 +623,7 @@ class Render {
             num = 0;
         }
         var frame = clmodel.frames[num];
-        if (frame.group) {  
+        if (frame.group) {
             var num = frame.frames.length - 1;
             var fullinterval = frame.frames[num].interval;
             var targettime = time - Math.floor(time / fullinterval) * fullinterval;
@@ -646,7 +646,7 @@ class Render {
             num = 0;
         }
         var skin = clmodel.skins[num];
-        if (skin.group) {   
+        if (skin.group) {
             num = skin.skins.length - 1;
             var fullinterval = skin.skins[num].interval;
             var targettime = time - Math.floor(time / fullinterval) * fullinterval;
@@ -880,7 +880,7 @@ class Render {
 
     static function RenderView() {
         gl.finish();
-        var time1;
+        var time1 = null;
         if (Render.speeds.value != 0)
             time1 = Sys.FloatTime();
         Render.c_brush_verts = 0;
@@ -1964,7 +1964,7 @@ class Render {
     static function AllocBlock(surf:Surface) {
         var w = (surf.extents[0] >> 4) + 1;
         var h = (surf.extents[1] >> 4) + 1;
-        var x, y;
+        var x = null, y = null;
         var best = 1024;
         for (i in 0...(1024 - w)) {
             var best2 = 0;

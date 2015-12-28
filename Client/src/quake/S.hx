@@ -100,7 +100,7 @@ class S {
 	static function PrecacheSound(name:String):Sfx {
 		if (S.nosound.value != 0)
 			return null;
-		var sfx;
+		var sfx = null;
 		for (s in known_sfx) {
 			if (s.name == name) {
 				sfx = s;
@@ -117,7 +117,7 @@ class S {
 	}
 
 	static function PickChannel(entnum:Int, entchannel:Int):Channel {
-		var i, channel;
+		var i = null, channel = null;
 
 		if (entchannel != 0) {
 			i = 0;
@@ -507,7 +507,7 @@ class S {
 			Console.Print('Missing RIFF/WAVE chunks\n');
 			return false;
 		}
-		var p = 12, fmt, dataofs, datalen, cue, loopstart, samples;
+		var p = 12, fmt = null, dataofs = null, datalen = null, cue = null, loopstart = null, samples = null;
 		while (p < data.byteLength) {
 			switch (view.getUint32(p, true)) {
 			case 0x20746d66: // fmt

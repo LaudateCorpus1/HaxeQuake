@@ -68,7 +68,7 @@ class COM {
 		if (data.length == 0)
 			return null;
 
-		var i = 0, c;
+		var i = 0, c = null;
 		var skipwhite = true;
 		while (true) {
 			if (!skipwhite)
@@ -238,7 +238,7 @@ class COM {
 		var xhr = new XMLHttpRequest();
 		xhr.overrideMimeType('text/plain; charset=x-user-defined');
 		Draw.BeginDisc();
-		var i = searchpaths.length - 1; 
+		var i = searchpaths.length - 1;
 		while (i >= 0) {
 			var search = searchpaths[i--];
 			var netpath = search.filename + '/' + filename;
@@ -344,21 +344,19 @@ class COM {
 	}
 
 	static function InitFilesystem() {
-		var i, search;
-		
-		i = CheckParm('-basedir');
+		var i = CheckParm('-basedir'), search = null;
 		if (i != null)
 			search = argv[i + 1];
 		if (search != null)
 			AddGameDirectory(search);
 		else
 			AddGameDirectory('id1');
-			
+
 		if (rogue)
 			AddGameDirectory('rogue');
 		else if (hipnotic)
 			AddGameDirectory('hipnotic');
-			
+
 		i = CheckParm('-game');
 		if (i != null) {
 			search = argv[i + 1];
@@ -369,5 +367,5 @@ class COM {
 		}
 
 		gamedir = [searchpaths[searchpaths.length - 1]];
-	}	
+	}
 }

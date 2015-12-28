@@ -2392,10 +2392,7 @@ quake_Console.Print = function(msg) {
 	var _g = msg.length;
 	while(_g1 < _g) {
 		var i = _g1++;
-		if(quake_Console.text[quake_Console.current] == null) {
-			var tmp = quake_Console.current;
-			quake_Console.text[tmp] = new quake__$Console_ConsoleEntry("",quake_Host.realtime);
-		}
+		if(quake_Console.text[quake_Console.current] == null) quake_Console.text[quake_Console.current] = new quake__$Console_ConsoleEntry("",quake_Host.realtime);
 		if(HxOverrides.cca(msg,i) == 10) {
 			if(quake_Console.text.length >= 1024) {
 				quake_Console.text = quake_Console.text.slice(-512);
@@ -2899,23 +2896,19 @@ quake_ED.ParseEpair = function(base,key,s) {
 	var _g = key.type & 32767;
 	switch(_g) {
 	case 1:
-		var tmp = key.ofs;
-		d_int[tmp] = quake_ED.NewString(s);
+		d_int[key.ofs] = quake_ED.NewString(s);
 		return true;
 	case 2:
-		var tmp1 = key.ofs;
-		d_float[tmp1] = quake_Q.atof(s);
+		d_float[key.ofs] = quake_Q.atof(s);
 		return true;
 	case 3:
 		var v = s.split(" ");
-		var tmp2 = key.ofs;
-		d_float[tmp2] = quake_Q.atof(v[0]);
+		d_float[key.ofs] = quake_Q.atof(v[0]);
 		d_float[key.ofs + 1] = quake_Q.atof(v[1]);
 		d_float[key.ofs + 2] = quake_Q.atof(v[2]);
 		return true;
 	case 4:
-		var tmp3 = key.ofs;
-		d_int[tmp3] = quake_Q.atoi(s);
+		d_int[key.ofs] = quake_Q.atoi(s);
 		return true;
 	case 5:
 		var d = quake_ED.FindField(s);
@@ -7551,8 +7544,7 @@ quake_PR.StackTrace = function() {
 		quake_Console.Print("<NO STACK>\n");
 		return;
 	}
-	var tmp = quake_PR.depth;
-	quake_PR.stack[tmp] = new quake__$PR_PRStackItem(quake_PR.xstatement,quake_PR.xfunction);
+	quake_PR.stack[quake_PR.depth] = new quake__$PR_PRStackItem(quake_PR.xstatement,quake_PR.xfunction);
 	while(quake_PR.depth >= 0) {
 		var f = quake_PR.stack[quake_PR.depth--].func;
 		if(f == null) {
@@ -7598,8 +7590,7 @@ quake_PR.RunError = function(error) {
 	quake_Host.Error("Program error");
 };
 quake_PR.EnterFunction = function(f) {
-	var tmp = quake_PR.depth++;
-	quake_PR.stack[tmp] = new quake__$PR_PRStackItem(quake_PR.xstatement,quake_PR.xfunction);
+	quake_PR.stack[quake_PR.depth++] = new quake__$PR_PRStackItem(quake_PR.xstatement,quake_PR.xfunction);
 	var c = f.locals;
 	if(quake_PR.localstack_used + c > quake_PR.localstack_size) quake_PR.RunError("PR.EnterFunction: locals stack overflow\n");
 	var _g = 0;
@@ -10621,8 +10612,7 @@ quake_SV.ClientThink = function() {
 };
 quake_SV.ReadClientMove = function() {
 	var client = quake_Host.client;
-	var tmp = client.num_pings++ & 15;
-	client.ping_times[tmp] = quake_SV.server.time - quake_MSG.ReadFloat();
+	client.ping_times[client.num_pings++ & 15] = quake_SV.server.time - quake_MSG.ReadFloat();
 	client.edict._v_float[70] = quake_MSG.ReadChar() * 1.40625;
 	client.edict._v_float[71] = quake_MSG.ReadChar() * 1.40625;
 	client.edict._v_float[72] = quake_MSG.ReadChar() * 1.40625;
@@ -10764,8 +10754,7 @@ quake_SV.CreateAreaNode = function(depth,mins,maxs) {
 	anode.dist = 0.5 * (maxs[anode.axis] + mins[anode.axis]);
 	var maxs1 = new Float32Array(maxs);
 	var mins2 = new Float32Array(mins);
-	var i = anode.axis;
-	maxs1[i] = mins2[anode.axis] = anode.dist;
+	maxs1[anode.axis] = mins2[anode.axis] = anode.dist;
 	anode.children = [quake_SV.CreateAreaNode(depth + 1,mins2,maxs),quake_SV.CreateAreaNode(depth + 1,mins,maxs1)];
 	return anode;
 };

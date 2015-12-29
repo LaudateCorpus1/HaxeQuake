@@ -4228,10 +4228,14 @@ quake_Host.Spawn_f = function() {
 			var i1 = _g2++;
 			quake_PR._globals_float[43 + i1] = client.spawn_parms[i1];
 		}
+		var this7 = quake_PR.globals;
 		quake_PR._globals_float[31] = quake_SV.server.time;
+		var this8 = quake_PR.globals;
 		quake_PR._globals_int[28] = ent.num;
+		var this5 = quake_PR.globals;
 		quake_PR.ExecuteProgram(quake_PR._globals_int[87]);
 		if(new Date().getTime() * 0.001 - quake_Sys.oldtime - client.netconnection.connecttime <= quake_SV.server.time) console.log(quake_PR.GetString(quake_PR.netnames + (client.num << 5)) + " entered the game\n");
+		var this6 = quake_PR.globals;
 		quake_PR.ExecuteProgram(quake_PR._globals_int[88]);
 	}
 	var message = client.message;
@@ -4262,15 +4266,19 @@ quake_Host.Spawn_f = function() {
 	}
 	message.WriteByte(3);
 	message.WriteByte(11);
+	var this1 = quake_PR.globals;
 	message.WriteLong(quake_PR._globals_float[39] | 0);
 	message.WriteByte(3);
 	message.WriteByte(12);
+	var this2 = quake_PR.globals;
 	message.WriteLong(quake_PR._globals_float[40] | 0);
 	message.WriteByte(3);
 	message.WriteByte(13);
+	var this3 = quake_PR.globals;
 	message.WriteLong(quake_PR._globals_float[41] | 0);
 	message.WriteByte(3);
 	message.WriteByte(14);
+	var this4 = quake_PR.globals;
 	message.WriteLong(quake_PR._globals_float[42] | 0);
 	message.WriteByte(10);
 	message.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
@@ -7788,9 +7796,10 @@ quake_PR.ExecuteProgram = function(fnum) {
 			if(quake_PR._globals_int[st.a] == 0) quake_PR.RunError("NULL function");
 			var newf = quake_PR.functions[quake_PR._globals_int[st.a]];
 			if(newf.first_statement < 0) {
+				var argc = st.op - 51;
 				var idx = -newf.first_statement;
 				if(idx >= quake_PF.builtin.length) quake_PR.RunError("Bad builtin call number");
-				quake_PF.argc = st.op - 51;
+				quake_PF.argc = argc;
 				quake_PF.builtin[idx]();
 				continue;
 			}
@@ -11327,12 +11336,12 @@ quake_Render.DrawAliasModel = function(e) {
 		var dl = _g1[_g];
 		++_g;
 		if(dl.die < quake_CL.state.time) continue;
-		var tmp2 = dl.radius;
+		var tmp3 = dl.radius;
 		var v5 = new Float32Array(3);
 		v5[0] = e.origin[0] - dl.origin[0];
 		v5[1] = e.origin[1] - dl.origin[1];
 		v5[2] = e.origin[1] - dl.origin[1];
-		var add = tmp2 - Math.sqrt(v5[0] * v5[0] + v5[1] * v5[1] + v5[2] * v5[2]);
+		var add = tmp3 - Math.sqrt(v5[0] * v5[0] + v5[1] * v5[1] + v5[2] * v5[2]);
 		if(add > 0) {
 			ambientlight += add;
 			shadelight += add;
@@ -11350,21 +11359,22 @@ quake_Render.DrawAliasModel = function(e) {
 	var right = new Float32Array(3);
 	var up = new Float32Array(3);
 	quake__$Vec_Vec_$Impl_$.AngleVectors(e.angles,forward,right,up);
+	var tmp = program.uLightVec;
 	var v2 = new Float32Array(3);
 	v2[0] = -1.0;
 	v2[1] = 0.0;
 	v2[2] = 0.0;
-	var tmp = v2[0] * forward[0] + v2[1] * forward[1] + v2[2] * forward[2];
+	var tmp1 = v2[0] * forward[0] + v2[1] * forward[1] + v2[2] * forward[2];
 	var v3 = new Float32Array(3);
 	v3[0] = -1.0;
 	v3[1] = 0.0;
 	v3[2] = 0.0;
-	var tmp1 = -(v3[0] * right[0] + v3[1] * right[1] + v3[2] * right[2]);
+	var tmp2 = -(v3[0] * right[0] + v3[1] * right[1] + v3[2] * right[2]);
 	var v4 = new Float32Array(3);
 	v4[0] = -1.0;
 	v4[1] = 0.0;
 	v4[2] = 0.0;
-	quake_GL.gl.uniform3fv(program.uLightVec,[tmp,tmp1,v4[0] * up[0] + v4[1] * up[1] + v4[2] * up[2]]);
+	quake_GL.gl.uniform3fv(tmp,[tmp1,tmp2,v4[0] * up[0] + v4[1] * up[1] + v4[2] * up[2]]);
 	quake_Render.c_alias_polys += clmodel.numtris;
 	var time = quake_CL.state.time + e.syncbase;
 	var num = e.frame;
@@ -13431,10 +13441,13 @@ quake_PF.aim = function() {
 	v[0] = ent._v_float[10];
 	v[1] = ent._v_float[11];
 	v[2] = ent._v_float[12] + 20.0;
+	var x = quake_PR._globals_float[59];
+	var y = quake_PR._globals_float[60];
+	var z = quake_PR._globals_float[61];
 	var v1 = new Float32Array(3);
-	v1[0] = quake_PR._globals_float[59];
-	v1[1] = quake_PR._globals_float[60];
-	v1[2] = quake_PR._globals_float[61];
+	v1[0] = x;
+	v1[1] = y;
+	v1[2] = z;
 	var v2 = new Float32Array(3);
 	v2[0] = v[0] + 2048.0 * v1[0];
 	v2[1] = v[1] + 2048.0 * v1[1];
@@ -14357,7 +14370,7 @@ quake_W.LoadWadFile = function(filename) {
 	var infotableofs = view.getUint32(8,true);
 	var _g = 0;
 	while(_g < numlumps) {
-		var i = _g++;
+		++_g;
 		var size = view.getUint32(infotableofs + 4,true);
 		var lump = new ArrayBuffer(size);
 		new Uint8Array(lump).set(new Uint8Array(base,view.getUint32(infotableofs,true),size));

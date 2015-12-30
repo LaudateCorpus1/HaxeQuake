@@ -210,11 +210,12 @@ quake_CDAudio.Init = function() {
 		var i = _g++;
 		var track = "/music/track" + (i <= 9?"0":"") + i + ".ogg";
 		var j = quake_COM.searchpaths.length - 1;
+		var tmp = i - 2;
 		while(j >= 0) {
 			xhr.open("HEAD",quake_COM.searchpaths[j].filename + track,false);
 			xhr.send();
 			if(xhr.status >= 200 && xhr.status <= 299) {
-				quake_CDAudio.known[i - 2] = quake_COM.searchpaths[j].filename + track;
+				quake_CDAudio.known[tmp] = quake_COM.searchpaths[j].filename + track;
 				break;
 			}
 			--j;
@@ -1750,6 +1751,9 @@ quake_CL.UpdateTEnts = function() {
 			dist_1 /= d;
 			dist_2 /= d;
 		}
+		var tmp = dist_0 * 30.0;
+		var tmp1 = dist_1 * 30.0;
+		var tmp2 = dist_2 * 30.0;
 		while(d > 0.0) {
 			var ent = quake_CL.NewTempEntity();
 			var this1 = ent.origin;
@@ -1762,9 +1766,9 @@ quake_CL.UpdateTEnts = function() {
 			this2[0] = pitch;
 			this2[1] = yaw;
 			this2[2] = z;
-			org_0 += dist_0 * 30.0;
-			org_1 += dist_1 * 30.0;
-			org_2 += dist_2 * 30.0;
+			org_0 += tmp;
+			org_1 += tmp1;
+			org_2 += tmp2;
 			d -= 30.0;
 		}
 	}
@@ -6145,6 +6149,8 @@ quake_Mod_$Alias.FloodFillSkin = function(loadmodel,skin) {
 	var height = loadmodel.skinheight;
 	var lifo = [[0,0]];
 	var sp = 1;
+	var tmp = width - 1;
+	var tmp1 = height - 1;
 	while(sp > 0) {
 		--sp;
 		var cur = lifo[sp];
@@ -6154,13 +6160,13 @@ quake_Mod_$Alias.FloodFillSkin = function(loadmodel,skin) {
 		if(x > 0) {
 			if(skin[y * width + x - 1] == fillcolor) lifo[sp++] = [x - 1,y];
 		}
-		if(x < width - 1) {
+		if(x < tmp) {
 			if(skin[y * width + x + 1] == fillcolor) lifo[sp++] = [x + 1,y];
 		}
 		if(y > 0) {
 			if(skin[(y - 1) * width + x] == fillcolor) lifo[sp++] = [x,y - 1];
 		}
-		if(y < height - 1) {
+		if(y < tmp1) {
 			if(skin[(y + 1) * width + x] == fillcolor) lifo[sp++] = [x,y + 1];
 		}
 	}
@@ -7190,9 +7196,10 @@ quake__$NET_$Loop_LoopNETSocket.prototype = $extend(quake_NETSocketBase.prototyp
 		if(this.receiveMessageLength >= 4) {
 			var _g1 = 0;
 			var _g = this.receiveMessageLength;
+			var tmp = length + 3;
 			while(_g1 < _g) {
 				var i = _g1++;
-				this.receiveMessage[i] = this.receiveMessage[length + 3 + i];
+				this.receiveMessage[i] = this.receiveMessage[tmp + i];
 			}
 		}
 		this.receiveMessageLength -= 3;
@@ -7614,9 +7621,10 @@ quake_PR.EnterFunction = function(f) {
 		var i1 = _g1++;
 		var _g3 = 0;
 		var _g21 = f.parm_size[i1];
+		var tmp = 4 + i1 * 3;
 		while(_g3 < _g21) {
 			var j = _g3++;
-			quake_PR._globals_int[o++] = quake_PR._globals_int[4 + i1 * 3 + j];
+			quake_PR._globals_int[o++] = quake_PR._globals_int[tmp + j];
 		}
 	}
 	quake_PR.xfunction = f;
@@ -9682,26 +9690,27 @@ quake_SV.CheckBottom = function(ent) {
 	var mins_2 = ent._v_float[12] + ent._v_float[35];
 	var maxs_0 = ent._v_float[10] + ent._v_float[36];
 	var maxs_1 = ent._v_float[11] + ent._v_float[37];
+	var tmp = mins_2 - 1.0;
 	while(true) {
 		var v2 = new Float32Array(3);
 		v2[0] = mins_0;
 		v2[1] = mins_1;
-		v2[2] = mins_2 - 1.0;
+		v2[2] = tmp;
 		if(quake_SV.PointContents(v2) != -2) break;
 		var v3 = new Float32Array(3);
 		v3[0] = mins_0;
 		v3[1] = maxs_1;
-		v3[2] = mins_2 - 1.0;
+		v3[2] = tmp;
 		if(quake_SV.PointContents(v3) != -2) break;
 		var v4 = new Float32Array(3);
 		v4[0] = maxs_0;
 		v4[1] = mins_1;
-		v4[2] = mins_2 - 1.0;
+		v4[2] = tmp;
 		if(quake_SV.PointContents(v4) != -2) break;
 		var v5 = new Float32Array(3);
 		v5[0] = maxs_0;
 		v5[1] = maxs_1;
-		v5[2] = mins_2 - 1.0;
+		v5[2] = tmp;
 		if(quake_SV.PointContents(v5) != -2) break;
 		return true;
 	}
@@ -9741,12 +9750,13 @@ quake_SV.movestep = function(ent,move,relink) {
 	if(((ent._v_float[76] | 0) & 2 + 1) != 0) {
 		var enemy = ent._v_int[75];
 		var _g = 0;
+		var tmp = enemy != 0;
 		while(_g < 2) {
 			var i = _g++;
 			neworg[0] = ent._v_float[10] + move[0];
 			neworg[1] = ent._v_float[11] + move[1];
 			neworg[2] = ent._v_float[12];
-			if(i == 0 && enemy != 0) {
+			if(i == 0 && tmp) {
 				var dz = ent._v_float[12] - quake_SV.server.edicts[enemy]._v_float[12];
 				if(dz > 40.0) neworg[2] = neworg[2] - 8.0; else if(dz < 30.0) neworg[2] = neworg[2] + 8.0;
 			}
@@ -12266,14 +12276,16 @@ quake_Render.TeleportSplash = function(org) {
 		j = -16;
 		while(j < 16) {
 			k = -24;
+			var tmp = j * 8.0;
+			var tmp1 = i * 8.0;
 			while(k < 32) {
 				if(l >= allocated.length) return;
 				var p = quake_Render.particles[allocated[l++]];
 				p.die = quake_CL.state.time + 0.2 + Math.random() * 0.16;
 				p.color = 7 + Math.floor(Math.random() * 8.0);
 				p.type = 2;
-				dir[0] = j * 8.0;
-				dir[1] = i * 8.0;
+				dir[0] = tmp;
+				dir[1] = tmp1;
 				dir[2] = k * 8.0;
 				var this1 = p.org;
 				var x = org[0] + i + Math.random() * 4.0;
@@ -12459,13 +12471,14 @@ quake_Render.AddDynamicLights = function(surf) {
 			if(td < 0.0) td = -td;
 			var td1 = Math.floor(td);
 			var _g2 = 0;
+			var tmp = t * smax;
 			while(_g2 < smax) {
 				var s = _g2++;
 				var sd = local0 - (s << 4);
 				if(sd < 0) sd = -sd;
 				var sd1 = Math.floor(sd);
 				if(sd1 > td1) dist = sd1 + (td1 >> 1); else dist = td1 + (sd1 >> 1);
-				if(dist < minlight) blocklights[t * smax + s] += Math.floor((rad - dist) * 256.0);
+				if(dist < minlight) blocklights[tmp + s] += Math.floor((rad - dist) * 256.0);
 			}
 		}
 	}
@@ -12860,9 +12873,12 @@ quake_Render.MakeSky = function() {
 	while(i < 7) {
 		vecs = vecs.concat([0.0,0.0,1.0,sin[i + 2] * 0.19509,sin[6 - i] * 0.19509,0.980785,sin[i] * 0.19509,sin[8 - i] * 0.19509,0.980785]);
 		var _g = 0;
+		var tmp = 8 - i;
+		var tmp1 = i + 2;
+		var tmp2 = 6 - i;
 		while(_g < 7) {
 			var j = _g++;
-			vecs = vecs.concat([sin[i] * sin[8 - j],sin[8 - i] * sin[8 - j],sin[j],sin[i] * sin[7 - j],sin[8 - i] * sin[7 - j],sin[j + 1],sin[i + 2] * sin[7 - j],sin[6 - i] * sin[7 - j],sin[j + 1],sin[i] * sin[8 - j],sin[8 - i] * sin[8 - j],sin[j],sin[i + 2] * sin[7 - j],sin[6 - i] * sin[7 - j],sin[j + 1],sin[i + 2] * sin[8 - j],sin[6 - i] * sin[8 - j],sin[j]]);
+			vecs = vecs.concat([sin[i] * sin[8 - j],sin[tmp] * sin[8 - j],sin[j],sin[i] * sin[7 - j],sin[tmp] * sin[7 - j],sin[j + 1],sin[tmp1] * sin[7 - j],sin[tmp2] * sin[7 - j],sin[j + 1],sin[i] * sin[8 - j],sin[tmp] * sin[8 - j],sin[j],sin[tmp1] * sin[7 - j],sin[tmp2] * sin[7 - j],sin[j + 1],sin[tmp1] * sin[8 - j],sin[tmp2] * sin[8 - j],sin[j]]);
 		}
 		i += 2;
 	}
@@ -13873,13 +13889,14 @@ quake_Sbar.DrawFrags = function() {
 	var xofs = quake_CL.state.gametype == 1?10:(quake_VID.width >> 1) - 150;
 	var y = quake_VID.height - 47;
 	var _g = 0;
+	var tmp = y + 4;
 	while(_g < l) {
 		var i = _g++;
 		var k = quake_Sbar.fragsort[i];
 		var s = quake_CL.state.scores[k];
 		if(s.name.length == 0) continue;
 		quake_Draw.Fill(xofs + (x << 3),y,28,4,(s.colors & 240) + 8);
-		quake_Draw.Fill(xofs + (x << 3),y + 4,28,3,((s.colors & 15) << 4) + 8);
+		quake_Draw.Fill(xofs + (x << 3),tmp,28,3,((s.colors & 15) << 4) + 8);
 		var num = s.frags == null?"null":"" + s.frags;
 		quake_Sbar.DrawString((x - num.length << 3) + 36,-24,num);
 		if(k == quake_CL.state.viewentity - 1) {
@@ -13983,6 +14000,9 @@ quake_Sbar.DeathmatchOverlay = function() {
 	var y = 40;
 	var _g1 = 0;
 	var _g = quake_Sbar.scoreboardlines;
+	var tmp = x + 32;
+	var tmp1 = x + 64;
+	var tmp2 = x - 8;
 	while(_g1 < _g) {
 		var i = _g1++;
 		var s = quake_CL.state.scores[quake_Sbar.fragsort[i]];
@@ -13990,9 +14010,9 @@ quake_Sbar.DeathmatchOverlay = function() {
 		quake_Draw.Fill(x,y,40,4,(s.colors & 240) + 8);
 		quake_Draw.Fill(x,y + 4,40,4,((s.colors & 15) << 4) + 8);
 		var f = s.frags == null?"null":"" + s.frags;
-		quake_Draw.String(x + 32 - (f.length << 3),y,f);
-		if(quake_Sbar.fragsort[i] == quake_CL.state.viewentity - 1) quake_Draw.Character(x - 8,y,12);
-		quake_Draw.String(x + 64,y,s.name);
+		quake_Draw.String(tmp - (f.length << 3),y,f);
+		if(quake_Sbar.fragsort[i] == quake_CL.state.viewentity - 1) quake_Draw.Character(tmp2,y,12);
+		quake_Draw.String(tmp1,y,s.name);
 		y += 10;
 	}
 };

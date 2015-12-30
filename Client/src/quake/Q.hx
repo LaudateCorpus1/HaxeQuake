@@ -65,7 +65,6 @@ class Q {
                 return val * sign;
             val = val * 10 + c - 48;
         }
-        return 0;
     }
 
     static function atof(str:String):Float {

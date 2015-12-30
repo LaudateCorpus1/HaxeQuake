@@ -7938,7 +7938,6 @@ quake_Q.atoi = function(str) {
 		if(c == null || c <= 47 || c >= 58) return val * sign;
 		val = val * 10 + c - 48;
 	}
-	return 0;
 };
 quake_Q.atof = function(str) {
 	if(str == null) return 0.0;

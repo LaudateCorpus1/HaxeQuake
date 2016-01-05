@@ -135,8 +135,8 @@ js_Boot.__string_rec = function(o,s) {
 				var _g1 = 2;
 				var _g = o.length;
 				while(_g1 < _g) {
-					var i1 = _g1++;
-					if(i1 != 2) str2 += "," + js_Boot.__string_rec(o[i1],s); else str2 += js_Boot.__string_rec(o[i1],s);
+					var i2 = _g1++;
+					if(i2 != 2) str2 += "," + js_Boot.__string_rec(o[i2],s); else str2 += js_Boot.__string_rec(o[i2],s);
 				}
 				return str2 + ")";
 			}
@@ -146,8 +146,8 @@ js_Boot.__string_rec = function(o,s) {
 			s += "\t";
 			var _g2 = 0;
 			while(_g2 < l) {
-				var i2 = _g2++;
-				str1 += (i2 > 0?",":"") + js_Boot.__string_rec(o[i2],s);
+				var i3 = _g2++;
+				str1 += (i3 > 0?",":"") + js_Boot.__string_rec(o[i3],s);
 			}
 			str1 += "]";
 			return str1;
@@ -934,12 +934,12 @@ quake_CL.AllocDlight = function(key) {
 	}
 	if(dl == null) {
 		var _g2 = 0;
-		var _g11 = quake_CL.dlights;
-		while(_g2 < _g11.length) {
-			var light1 = _g11[_g2];
+		var _g12 = quake_CL.dlights;
+		while(_g2 < _g12.length) {
+			var light2 = _g12[_g2];
 			++_g2;
-			if(light1.die < quake_CL.state.time) {
-				dl = light1;
+			if(light2.die < quake_CL.state.time) {
+				dl = light2;
 				break;
 			}
 		}
@@ -1008,8 +1008,8 @@ quake_CL.RelinkEntities = function() {
 	var _g1 = 1;
 	var _g2 = quake_CL.entities.length;
 	while(_g1 < _g2) {
-		var i1 = _g1++;
-		var ent = quake_CL.entities[i1];
+		var i2 = _g1++;
+		var ent = quake_CL.entities[i2];
 		if(ent.model == null) continue;
 		if(ent.msgtime != quake_CL.state.mtime0) {
 			ent.model = null;
@@ -1023,62 +1023,62 @@ quake_CL.RelinkEntities = function() {
 			ent.angles.set(ent.msg_angles0);
 		} else {
 			var f = frac;
-			var _g21 = 0;
-			while(_g21 < 3) {
-				var j = _g21++;
+			var _g22 = 0;
+			while(_g22 < 3) {
+				var j = _g22++;
 				delta[j] = ent.msg_origins0[j] - ent.msg_origins1[j];
 				if(delta[j] > 100.0 || delta[j] < -100.0) f = 1.0;
 			}
-			var _g22 = 0;
-			while(_g22 < 3) {
-				var j1 = _g22++;
-				ent.origin[j1] = ent.msg_origins1[j1] + f * delta[j1];
-				var d1 = ent.msg_angles0[j1] - ent.msg_angles1[j1];
-				if(d1 > 180.0) d1 -= 360.0; else if(d1 < -180.0) d1 += 360.0;
-				ent.angles[j1] = ent.msg_angles1[j1] + f * d1;
+			var _g23 = 0;
+			while(_g23 < 3) {
+				var j3 = _g23++;
+				ent.origin[j3] = ent.msg_origins1[j3] + f * delta[j3];
+				var d3 = ent.msg_angles0[j3] - ent.msg_angles1[j3];
+				if(d3 > 180.0) d3 -= 360.0; else if(d3 < -180.0) d3 += 360.0;
+				ent.angles[j3] = ent.msg_angles1[j3] + f * d3;
 			}
 		}
 		if((ent.model.flags & 8) != 0) ent.angles[1] = bobjrotate;
 		if((ent.effects & 1) != 0) quake_Render.EntityParticles(ent);
 		if((ent.effects & 2) != 0) {
-			dl = quake_CL.AllocDlight(i1);
+			dl = quake_CL.AllocDlight(i2);
 			var fv = new Float32Array(3);
 			quake__$Vec_Vec_$Impl_$.AngleVectors(ent.angles,fv);
-			var this1 = dl.origin;
-			this1[0] = ent.origin[0] + 18.0 * fv[0];
-			this1[1] = ent.origin[1] + 18.0 * fv[1];
-			this1[2] = ent.origin[2] + 16.0 + 18.0 * fv[2];
+			var this3 = dl.origin;
+			this3[0] = ent.origin[0] + 18.0 * fv[0];
+			this3[1] = ent.origin[1] + 18.0 * fv[1];
+			this3[2] = ent.origin[2] + 16.0 + 18.0 * fv[2];
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.minlight = 32.0;
 			dl.die = quake_CL.state.time + 0.1;
 		}
 		if((ent.effects & 4) != 0) {
-			dl = quake_CL.AllocDlight(i1);
-			var this2 = dl.origin;
-			this2[0] = ent.origin[0];
-			this2[1] = ent.origin[1];
-			this2[2] = ent.origin[2] + 16.0;
+			dl = quake_CL.AllocDlight(i2);
+			var this4 = dl.origin;
+			this4[0] = ent.origin[0];
+			this4[1] = ent.origin[1];
+			this4[2] = ent.origin[2] + 16.0;
 			dl.radius = 400.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
 		if((ent.effects & 8) != 0) {
-			dl = quake_CL.AllocDlight(i1);
-			var this3 = dl.origin;
-			this3[0] = ent.origin[0];
-			this3[1] = ent.origin[1];
-			this3[2] = ent.origin[2] + 16.0;
+			dl = quake_CL.AllocDlight(i2);
+			var this5 = dl.origin;
+			this5[0] = ent.origin[0];
+			this5[1] = ent.origin[1];
+			this5[2] = ent.origin[2] + 16.0;
 			dl.radius = 200.0 + Math.random() * 32.0;
 			dl.die = quake_CL.state.time + 0.001;
 		}
 		if((ent.model.flags & 4) != 0) quake_Render.RocketTrail(oldorg,ent.origin,2); else if((ent.model.flags & 32) != 0) quake_Render.RocketTrail(oldorg,ent.origin,4); else if((ent.model.flags & 16) != 0) quake_Render.RocketTrail(oldorg,ent.origin,3); else if((ent.model.flags & 64) != 0) quake_Render.RocketTrail(oldorg,ent.origin,5); else if((ent.model.flags & 1) != 0) {
 			quake_Render.RocketTrail(oldorg,ent.origin,0);
-			dl = quake_CL.AllocDlight(i1);
+			dl = quake_CL.AllocDlight(i2);
 			dl.origin.set(ent.origin);
 			dl.radius = 200.0;
 			dl.die = quake_CL.state.time + 0.01;
 		} else if((ent.model.flags & 2) != 0) quake_Render.RocketTrail(oldorg,ent.origin,1); else if((ent.model.flags & 128) != 0) quake_Render.RocketTrail(oldorg,ent.origin,6);
 		ent.forcelink = false;
-		if(i1 != quake_CL.state.viewentity || quake_Chase.active.value != 0) quake_CL.visedicts[quake_CL.numvisedicts++] = ent;
+		if(i2 != quake_CL.state.viewentity || quake_Chase.active.value != 0) quake_CL.visedicts[quake_CL.numvisedicts++] = ent;
 	}
 };
 quake_CL.ReadFromServer = function() {
@@ -1224,9 +1224,9 @@ quake_CL.ParseServerInfo = function() {
 	quake_CL.state.gametype = quake_MSG.ReadByte();
 	quake_CL.state.levelname = quake_MSG.ReadString();
 	var _g2 = 0;
-	var _g11 = [35,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,37];
-	while(_g2 < _g11.length) {
-		var c = _g11[_g2];
+	var _g12 = [35,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,36,37];
+	while(_g2 < _g12.length) {
+		var c = _g12[_g2];
 		++_g2;
 		String.fromCharCode(c);
 	}
@@ -1249,10 +1249,10 @@ quake_CL.ParseServerInfo = function() {
 	quake_CL.state.model_precache = [];
 	var _g3 = 1;
 	while(_g3 < nummodels) {
-		var i2 = _g3++;
-		quake_CL.state.model_precache[i2] = quake_Mod.LoadModel(quake_Mod.FindName(model_precache[i2]),false);
-		if(quake_CL.state.model_precache[i2] == null) {
-			quake_Console.Print("Model " + model_precache[i2] + " not found\n");
+		var i3 = _g3++;
+		quake_CL.state.model_precache[i3] = quake_Mod.LoadModel(quake_Mod.FindName(model_precache[i3]),false);
+		if(quake_CL.state.model_precache[i3] == null) {
+			quake_Console.Print("Model " + model_precache[i3] + " not found\n");
 			return;
 		}
 		quake_CL.KeepaliveMessage();
@@ -1260,8 +1260,8 @@ quake_CL.ParseServerInfo = function() {
 	quake_CL.state.sound_precache = [];
 	var _g4 = 1;
 	while(_g4 < numsounds) {
-		var i3 = _g4++;
-		quake_CL.state.sound_precache[i3] = quake_S.PrecacheSound(sound_precache[i3]);
+		var i4 = _g4++;
+		quake_CL.state.sound_precache[i4] = quake_S.PrecacheSound(sound_precache[i4]);
 		quake_CL.KeepaliveMessage();
 	}
 	quake_CL.state.worldmodel = quake_CL.state.model_precache[1];
@@ -1610,19 +1610,19 @@ quake_CL.ParseBeam = function(m) {
 		}
 	}
 	var _g2 = 0;
-	var _g11 = quake_CL.beams;
-	while(_g2 < _g11.length) {
-		var b1 = _g11[_g2];
+	var _g12 = quake_CL.beams;
+	while(_g2 < _g12.length) {
+		var b2 = _g12[_g2];
 		++_g2;
-		if(b1.model == null || b1.endtime >= quake_CL.state.time) {
-			b1.entity = ent;
-			b1.model = m;
-			b1.endtime = quake_CL.state.time + 0.2;
-			var this3 = b1.start;
+		if(b2.model == null || b2.endtime >= quake_CL.state.time) {
+			b2.entity = ent;
+			b2.model = m;
+			b2.endtime = quake_CL.state.time + 0.2;
+			var this3 = b2.start;
 			this3[0] = start_0;
 			this3[1] = start_1;
 			this3[2] = start_2;
-			var this4 = b1.end;
+			var this4 = b2.end;
 			this4[0] = end_0;
 			this4[1] = end_1;
 			this4[2] = end_2;
@@ -1756,16 +1756,16 @@ quake_CL.UpdateTEnts = function() {
 		var tmp2 = dist_2 * 30.0;
 		while(d > 0.0) {
 			var ent = quake_CL.NewTempEntity();
-			var this1 = ent.origin;
-			this1[0] = org_0;
-			this1[1] = org_1;
-			this1[2] = org_2;
+			var this2 = ent.origin;
+			this2[0] = org_0;
+			this2[1] = org_1;
+			this2[2] = org_2;
 			ent.model = b.model;
-			var this2 = ent.angles;
+			var this3 = ent.angles;
 			var z = Math.random() * 360.0;
-			this2[0] = pitch;
-			this2[1] = yaw;
-			this2[2] = z;
+			this3[0] = pitch;
+			this3[1] = yaw;
+			this3[2] = z;
 			org_0 += tmp;
 			org_1 += tmp1;
 			org_2 += tmp2;
@@ -2075,8 +2075,9 @@ quake_COM.LoadPackFile = function(packfile) {
 quake_COM.AddGameDirectory = function(dir) {
 	var search = new quake__$COM_SearchPath(dir);
 	var i = 0;
+	var tmp = dir + "/" + "pak";
 	while(true) {
-		var pak = quake_COM.LoadPackFile(dir + "/" + "pak" + i + ".pak");
+		var pak = quake_COM.LoadPackFile(tmp + i + ".pak");
 		if(pak == null) break;
 		search.pack.push(pak);
 		++i;
@@ -2310,8 +2311,8 @@ quake_Cmd.Alias_f = function() {
 		if(j != quake_Cmd.argv.length - 1) value += " ";
 	}
 	var v = value + "\n";
-	var _this1 = quake_Cmd.alias;
-	if(__map_reserved[name] != null) _this1.setReserved(name,v); else _this1.h[name] = v;
+	var _this2 = quake_Cmd.alias;
+	if(__map_reserved[name] != null) _this2.setReserved(name,v); else _this2.h[name] = v;
 };
 quake_Cmd.Wait_f = function() {
 	quake_Cmd.wait = true;
@@ -2606,8 +2607,8 @@ quake_Draw.Init = function() {
 	var _g1 = 0;
 	var _g2 = ver.length;
 	while(_g1 < _g2) {
-		var i1 = _g1++;
-		quake_Draw.CharToConback(HxOverrides.cca(ver,i1),59829 - (ver.length - i1 << 3));
+		var i2 = _g1++;
+		quake_Draw.CharToConback(HxOverrides.cca(ver,i2),59829 - (ver.length - i2 << 3));
 	}
 	quake_Draw.conback.texnum = quake_GL.LoadPicTexture(quake_Draw.conback);
 	quake_Draw.loading = quake_Draw.CachePic("loading");
@@ -3171,10 +3172,10 @@ quake_GL.TextureMode_f = function() {
 		while(tmp1.hasNext()) {
 			var name1 = tmp1.next();
 			var tmp2;
-			var _this1 = quake_GL.modes;
-			if(__map_reserved[name1] != null) tmp2 = _this1.getReserved(name1); else tmp2 = _this1.h[name1];
-			var mode1 = tmp2;
-			if(quake_GL.filter_min == mode1.min) {
+			var _this2 = quake_GL.modes;
+			if(__map_reserved[name1] != null) tmp2 = _this2.getReserved(name1); else tmp2 = _this2.h[name1];
+			var mode2 = tmp2;
+			if(quake_GL.filter_min == mode2.min) {
 				quake_Console.Print(name1 + "\n");
 				return;
 			}
@@ -3242,14 +3243,14 @@ quake_GL.Upload = function(data,width,height) {
 	var scaled_width = width;
 	var scaled_height = height;
 	if((width & width - 1) != 0 || (height & height - 1) != 0) {
-		--scaled_width;
+		scaled_width = width - 1;
 		scaled_width |= scaled_width >> 1;
 		scaled_width |= scaled_width >> 2;
 		scaled_width |= scaled_width >> 4;
 		scaled_width |= scaled_width >> 8;
 		scaled_width |= scaled_width >> 16;
 		++scaled_width;
-		--scaled_height;
+		scaled_height = height - 1;
 		scaled_height |= scaled_height >> 1;
 		scaled_height |= scaled_height >> 2;
 		scaled_height |= scaled_height >> 4;
@@ -3289,14 +3290,14 @@ quake_GL.LoadTexture = function(identifier,width,height,data) {
 	var scaled_width = width;
 	var scaled_height = height;
 	if((width & width - 1) != 0 || (height & height - 1) != 0) {
-		--scaled_width;
+		scaled_width = width - 1;
 		scaled_width |= scaled_width >> 1;
 		scaled_width |= scaled_width >> 2;
 		scaled_width |= scaled_width >> 4;
 		scaled_width |= scaled_width >> 8;
 		scaled_width |= scaled_width >> 16;
 		++scaled_width;
-		--scaled_height;
+		scaled_height = height - 1;
 		scaled_height |= scaled_height >> 1;
 		scaled_height |= scaled_height >> 2;
 		scaled_height |= scaled_height >> 4;
@@ -3570,8 +3571,8 @@ quake_Host.ShutdownServer = function(crash) {
 	var _g11 = 0;
 	var _g2 = quake_SV.svs.maxclients;
 	while(_g11 < _g2) {
-		var i1 = _g11++;
-		quake_Host.client = quake_SV.svs.clients[i1];
+		var i2 = _g11++;
+		quake_Host.client = quake_SV.svs.clients[i2];
 		if(quake_Host.client.active) quake_Host.DropClient(crash);
 	}
 };
@@ -3930,36 +3931,36 @@ quake_Host.Savegame_f = function() {
 		++_g2;
 		var type = def.type;
 		if((type & 32768) == 0) continue;
-		var type1 = type & 32767;
-		if(type1 != 1 && type1 != 2 && type1 != 4) continue;
-		f.push("\"" + quake_PR.GetString(def.name) + "\" \"" + quake_PR.UglyValueString(type1,quake_PR._globals,def.ofs) + "\"\n");
+		var type2 = type & 32767;
+		if(type2 != 1 && type2 != 2 && type2 != 4) continue;
+		f.push("\"" + quake_PR.GetString(def.name) + "\" \"" + quake_PR.UglyValueString(type2,quake_PR._globals,def.ofs) + "\"\n");
 	}
 	f.push("}\n");
 	var _g13 = 0;
 	var _g3 = quake_SV.server.num_edicts;
 	while(_g13 < _g3) {
-		var i1 = _g13++;
-		var ed = quake_SV.server.edicts[i1];
+		var i3 = _g13++;
+		var ed = quake_SV.server.edicts[i3];
 		if(ed.free) {
 			f.push("{\n}\n");
 			continue;
 		}
 		f.push("{\n");
-		var _g21 = 0;
-		var _g31 = quake_PR.fielddefs;
-		while(_g21 < _g31.length) {
-			var def1 = _g31[_g21];
-			++_g21;
-			var name1 = quake_PR.GetString(def1.name);
-			if(HxOverrides.cca(name1,name1.length - 2) == 95) continue;
-			var type2 = def1.type & 32767;
-			var v = def1.ofs;
+		var _g23 = 0;
+		var _g33 = quake_PR.fielddefs;
+		while(_g23 < _g33.length) {
+			var def3 = _g33[_g23];
+			++_g23;
+			var name3 = quake_PR.GetString(def3.name);
+			if(HxOverrides.cca(name3,name3.length - 2) == 95) continue;
+			var type3 = def3.type & 32767;
+			var v = def3.ofs;
 			if(ed._v_int[v] == 0) {
-				if(type2 == 3) {
+				if(type3 == 3) {
 					if(ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0) continue;
 				} else continue;
 			}
-			f.push("\"" + name1 + "\" \"" + quake_PR.UglyValueString(type2,ed._v,def1.ofs) + "\"\n");
+			f.push("\"" + name3 + "\" \"" + quake_PR.UglyValueString(type3,ed._v,def3.ofs) + "\"\n");
 		}
 		f.push("}\n");
 	}
@@ -4034,10 +4035,10 @@ quake_Host.Loadgame_f = function() {
 		if(data == null) break;
 		if(HxOverrides.cca(quake_COM.token,0) != 123) quake_Sys.Error("Host.Loadgame_f: found " + quake_COM.token + " when expecting {");
 		var ent = quake_SV.server.edicts[entnum++];
-		var _g11 = 0;
+		var _g12 = 0;
 		var _g2 = quake_PR.entityfields;
-		while(_g11 < _g2) {
-			var j = _g11++;
+		while(_g12 < _g2) {
+			var j = _g12++;
 			ent._v_int[j] = 0;
 		}
 		ent.free = false;
@@ -4227,10 +4228,10 @@ quake_Host.Spawn_f = function() {
 		ent._v_float[77] = ent.num;
 		ent._v_float[78] = (client.colors & 15) + 1;
 		ent._v_int[74] = quake_PR.netnames + (client.num << 5);
-		var _g2 = 0;
-		while(_g2 < 16) {
-			var i1 = _g2++;
-			quake_PR._globals_float[43 + i1] = client.spawn_parms[i1];
+		var _g6 = 0;
+		while(_g6 < 16) {
+			var i6 = _g6++;
+			quake_PR._globals_float[43 + i6] = client.spawn_parms[i6];
 		}
 		var this7 = quake_PR.globals;
 		quake_PR._globals_float[31] = quake_SV.server.time;
@@ -4246,27 +4247,27 @@ quake_Host.Spawn_f = function() {
 	message.cursize = 0;
 	message.WriteByte(7);
 	message.WriteFloat(quake_SV.server.time);
-	var _g11 = 0;
-	var _g3 = quake_SV.svs.maxclients;
-	while(_g11 < _g3) {
-		var i2 = _g11++;
-		client = quake_SV.svs.clients[i2];
+	var _g18 = 0;
+	var _g8 = quake_SV.svs.maxclients;
+	while(_g18 < _g8) {
+		var i8 = _g18++;
+		client = quake_SV.svs.clients[i8];
 		message.WriteByte(13);
-		message.WriteByte(i2);
+		message.WriteByte(i8);
 		message.WriteString(quake_PR.GetString(quake_PR.netnames + (client.num << 5)));
 		message.WriteByte(14);
-		message.WriteByte(i2);
+		message.WriteByte(i8);
 		message.WriteShort(client.old_frags);
 		message.WriteByte(17);
-		message.WriteByte(i2);
+		message.WriteByte(i8);
 		message.WriteByte(client.colors);
 	}
-	var _g4 = 0;
-	while(_g4 < 64) {
-		var i3 = _g4++;
+	var _g9 = 0;
+	while(_g9 < 64) {
+		var i9 = _g9++;
 		message.WriteByte(12);
-		message.WriteByte(i3);
-		message.WriteString(quake_SV.server.lightstyles[i3]);
+		message.WriteByte(i9);
+		message.WriteString(quake_SV.server.lightstyles[i9]);
 	}
 	message.WriteByte(3);
 	message.WriteByte(11);
@@ -4980,7 +4981,7 @@ quake_Menu.DrawPicTranslate = function(x,y,pic,top,bottom) {
 quake_Menu.DrawTextBox = function(x,y,width,lines) {
 	var cx;
 	var cy = y;
-	quake_Menu.DrawPic(x,cy,quake_Menu.box_tl);
+	quake_Menu.DrawPic(x,y,quake_Menu.box_tl);
 	var _g = 0;
 	while(_g < lines) {
 		++_g;
@@ -5006,7 +5007,7 @@ quake_Menu.DrawTextBox = function(x,y,width,lines) {
 		cx += 16;
 	}
 	cy = y;
-	quake_Menu.DrawPic(cx,cy,quake_Menu.box_tr);
+	quake_Menu.DrawPic(cx,y,quake_Menu.box_tr);
 	var _g2 = 0;
 	while(_g2 < lines) {
 		++_g2;
@@ -5945,19 +5946,19 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 		inmodel += 12;
 	}
 	var triangles = [];
-	var _g11 = 0;
-	var _g2 = loadmodel.numtris;
-	while(_g11 < _g2) {
-		++_g11;
+	var _g13 = 0;
+	var _g3 = loadmodel.numtris;
+	while(_g13 < _g3) {
+		++_g13;
 		triangles.push(new quake__$Mod_$Alias_Triangle(model.getUint32(inmodel,true) != 0,[model.getUint32(inmodel + 4,true),model.getUint32(inmodel + 8,true),model.getUint32(inmodel + 12,true)]));
 		inmodel += 16;
 	}
 	quake_Mod_$Alias.LoadAllFrames(loadmodel,model,inmodel);
 	var cmds = [];
-	var _g12 = 0;
-	var _g3 = loadmodel.numtris;
-	while(_g12 < _g3) {
-		var i = _g12++;
+	var _g14 = 0;
+	var _g4 = loadmodel.numtris;
+	while(_g14 < _g4) {
+		var i = _g14++;
 		var triangle = triangles[i];
 		if(triangle.facesfront) {
 			var vert = stverts[triangle.vertindex[0]];
@@ -5971,44 +5972,44 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 			cmds.push((vert.t + 0.5) / loadmodel.skinheight);
 			continue;
 		}
-		var _g21 = 0;
-		while(_g21 < 3) {
-			var j = _g21++;
-			var vert1 = stverts[triangle.vertindex[j]];
-			if(vert1.onseam) cmds.push((vert1.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth); else cmds.push((vert1.s + 0.5) / loadmodel.skinwidth);
-			cmds.push((vert1.t + 0.5) / loadmodel.skinheight);
+		var _g2 = 0;
+		while(_g2 < 3) {
+			var j = _g2++;
+			var vert4 = stverts[triangle.vertindex[j]];
+			if(vert4.onseam) cmds.push((vert4.s + loadmodel.skinwidth / 2 + 0.5) / loadmodel.skinwidth); else cmds.push((vert4.s + 0.5) / loadmodel.skinwidth);
+			cmds.push((vert4.t + 0.5) / loadmodel.skinheight);
 		}
 	}
 	var group;
 	var frame;
-	var _g13 = 0;
-	var _g4 = loadmodel.numframes;
-	while(_g13 < _g4) {
-		var i1 = _g13++;
-		group = loadmodel.frames[i1];
+	var _g15 = 0;
+	var _g5 = loadmodel.numframes;
+	while(_g15 < _g5) {
+		var i5 = _g15++;
+		group = loadmodel.frames[i5];
 		if(group.group) {
-			var _g31 = 0;
-			var _g22 = group.frames.length;
-			while(_g31 < _g22) {
-				var j1 = _g31++;
-				frame = group.frames[j1];
+			var _g35 = 0;
+			var _g25 = group.frames.length;
+			while(_g35 < _g25) {
+				var j5 = _g35++;
+				frame = group.frames[j5];
 				frame.cmdofs = cmds.length << 2;
-				var _g5 = 0;
-				var _g41 = loadmodel.numtris;
-				while(_g5 < _g41) {
-					var k = _g5++;
-					var triangle1 = triangles[k];
+				var _g55 = 0;
+				var _g45 = loadmodel.numtris;
+				while(_g55 < _g45) {
+					var k = _g55++;
+					var triangle5 = triangles[k];
 					var _g6 = 0;
 					while(_g6 < 3) {
 						var l = _g6++;
-						var vert2 = frame.v[triangle1.vertindex[l]];
-						if(vert2.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
-						cmds.push(vert2.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
-						cmds.push(vert2.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
-						cmds.push(vert2.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
-						cmds.push(quake_Render.avertexnormals[vert2.lightnormalindex * 3]);
-						cmds.push(quake_Render.avertexnormals[vert2.lightnormalindex * 3 + 1]);
-						cmds.push(quake_Render.avertexnormals[vert2.lightnormalindex * 3 + 2]);
+						var vert5 = frame.v[triangle5.vertindex[l]];
+						if(vert5.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
+						cmds.push(vert5.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
+						cmds.push(vert5.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
+						cmds.push(vert5.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
+						cmds.push(quake_Render.avertexnormals[vert5.lightnormalindex * 3]);
+						cmds.push(quake_Render.avertexnormals[vert5.lightnormalindex * 3 + 1]);
+						cmds.push(quake_Render.avertexnormals[vert5.lightnormalindex * 3 + 2]);
 					}
 				}
 			}
@@ -6016,22 +6017,22 @@ quake_Mod_$Alias.LoadAliasModel = function(loadmodel,model) {
 		}
 		frame = group;
 		group.cmdofs = cmds.length << 2;
-		var _g32 = 0;
-		var _g23 = loadmodel.numtris;
-		while(_g32 < _g23) {
-			var j2 = _g32++;
-			var triangle2 = triangles[j2];
-			var _g42 = 0;
-			while(_g42 < 3) {
-				var k1 = _g42++;
-				var vert3 = group.v[triangle2.vertindex[k1]];
-				if(vert3.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
-				cmds.push(vert3.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
-				cmds.push(vert3.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
-				cmds.push(vert3.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
-				cmds.push(quake_Render.avertexnormals[vert3.lightnormalindex * 3]);
-				cmds.push(quake_Render.avertexnormals[vert3.lightnormalindex * 3 + 1]);
-				cmds.push(quake_Render.avertexnormals[vert3.lightnormalindex * 3 + 2]);
+		var _g36 = 0;
+		var _g26 = loadmodel.numtris;
+		while(_g36 < _g26) {
+			var j6 = _g36++;
+			var triangle6 = triangles[j6];
+			var _g46 = 0;
+			while(_g46 < 3) {
+				var k6 = _g46++;
+				var vert6 = group.v[triangle6.vertindex[k6]];
+				if(vert6.lightnormalindex >= 162) quake_Sys.Error("lightnormalindex >= NUMVERTEXNORMALS");
+				cmds.push(vert6.v[0] * loadmodel.scale[0] + loadmodel.scale_origin[0]);
+				cmds.push(vert6.v[1] * loadmodel.scale[1] + loadmodel.scale_origin[1]);
+				cmds.push(vert6.v[2] * loadmodel.scale[2] + loadmodel.scale_origin[2]);
+				cmds.push(quake_Render.avertexnormals[vert6.lightnormalindex * 3]);
+				cmds.push(quake_Render.avertexnormals[vert6.lightnormalindex * 3 + 1]);
+				cmds.push(quake_Render.avertexnormals[vert6.lightnormalindex * 3 + 2]);
 			}
 		}
 	}
@@ -6124,17 +6125,17 @@ quake_Mod_$Alias.LoadAllFrames = function(loadmodel,model,inmodel) {
 			var _g22 = 0;
 			while(_g22 < numframes) {
 				var j2 = _g22++;
-				var frame1 = group.frames[j2];
-				frame1.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
-				frame1.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
-				frame1.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
-				frame1.v = [];
+				var frame2 = group.frames[j2];
+				frame2.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
+				frame2.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
+				frame2.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
+				frame2.v = [];
 				inmodel += 24;
 				var _g4 = 0;
-				var _g31 = loadmodel.numverts;
-				while(_g4 < _g31) {
+				var _g32 = loadmodel.numverts;
+				while(_g4 < _g32) {
 					var k = _g4++;
-					frame1.v[k] = new quake_Trivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
+					frame2.v[k] = new quake_Trivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
 					inmodel += 4;
 				}
 			}
@@ -6426,14 +6427,14 @@ quake_Mod_$Brush.LoadTextures = function(loadmodel,view) {
 		var _g2 = 0;
 		var _g12 = tx1.anims.length;
 		while(_g2 < _g12) {
-			var j1 = _g2++;
-			if(tx1.anims[j1] == null) quake_Sys.Error("Missing frame " + j1 + " of " + tx1.name);
+			var j2 = _g2++;
+			if(tx1.anims[j2] == null) quake_Sys.Error("Missing frame " + j2 + " of " + tx1.name);
 		}
-		var _g21 = 0;
+		var _g22 = 0;
 		var _g13 = tx1.alternate_anims.length;
-		while(_g21 < _g13) {
-			var j2 = _g21++;
-			if(tx1.alternate_anims[j2] == null) quake_Sys.Error("Missing frame " + j2 + " of " + tx1.name);
+		while(_g22 < _g13) {
+			var j3 = _g22++;
+			if(tx1.alternate_anims[j3] == null) quake_Sys.Error("Missing frame " + j3 + " of " + tx1.name);
 		}
 		loadmodel.textures[i1] = tx1;
 	}
@@ -6803,37 +6804,37 @@ quake_Mod_$Brush.LoadSubmodels = function(loadmodel,view) {
 		h.planes = loadmodel.planes;
 		h.clip_mins = new Float32Array(3);
 		h.clip_maxs = new Float32Array(3);
-		var h1 = new quake_Hull();
-		h1.clipnodes = loadmodel.clipnodes;
-		h1.firstclipnode = view.getUint32(fileofs + 40,true);
-		h1.lastclipnode = loadmodel.clipnodes.length - 1;
-		h1.planes = loadmodel.planes;
+		var h4 = new quake_Hull();
+		h4.clipnodes = loadmodel.clipnodes;
+		h4.firstclipnode = view.getUint32(fileofs + 40,true);
+		h4.lastclipnode = loadmodel.clipnodes.length - 1;
+		h4.planes = loadmodel.planes;
 		var v5 = new Float32Array(3);
 		v5[0] = -16.0;
 		v5[1] = -16.0;
 		v5[2] = -24.0;
-		h1.clip_mins = v5;
+		h4.clip_mins = v5;
 		var v6 = new Float32Array(3);
 		v6[0] = 16.0;
 		v6[1] = 16.0;
 		v6[2] = 32.0;
-		h1.clip_maxs = v6;
-		var h2 = new quake_Hull();
-		h2.clipnodes = loadmodel.clipnodes;
-		h2.firstclipnode = view.getUint32(fileofs + 44,true);
-		h2.lastclipnode = loadmodel.clipnodes.length - 1;
-		h2.planes = loadmodel.planes;
+		h4.clip_maxs = v6;
+		var h6 = new quake_Hull();
+		h6.clipnodes = loadmodel.clipnodes;
+		h6.firstclipnode = view.getUint32(fileofs + 44,true);
+		h6.lastclipnode = loadmodel.clipnodes.length - 1;
+		h6.planes = loadmodel.planes;
 		var v7 = new Float32Array(3);
 		v7[0] = -32.0;
 		v7[1] = -32.0;
 		v7[2] = -24.0;
-		h2.clip_mins = v7;
+		h6.clip_mins = v7;
 		var v8 = new Float32Array(3);
 		v8[0] = 32.0;
 		v8[1] = 32.0;
 		v8[2] = 64.0;
-		h2.clip_maxs = v8;
-		out.hulls = [h,h1,h2];
+		h6.clip_maxs = v8;
+		out.hulls = [h,h4,h6];
 		out.textures = loadmodel.textures;
 		out.lightdata = loadmodel.lightdata;
 		out.faces = loadmodel.faces;
@@ -6916,13 +6917,14 @@ quake_Mod_$Sprite.LoadSpriteFrame = function(identifier,model,inframe,frame) {
 	var size = frame.width * frame.height;
 	var _g = 0;
 	var _g1 = quake_GL.textures;
+	var tmp = inframe + 16;
 	while(_g < _g1.length) {
 		var glt1 = _g1[_g];
 		++_g;
 		if(glt1.identifier == identifier) {
 			if(frame.width != glt1.width || frame.height != glt1.height) quake_Sys.Error("Mod.LoadSpriteFrame: cache mismatch");
 			frame.texturenum = glt1.texnum;
-			return inframe + 16 + frame.width * frame.height;
+			return tmp + frame.width * frame.height;
 		}
 	}
 	var data = new Uint8Array(model.buffer,inframe + 16,size);
@@ -7130,18 +7132,18 @@ quake_NET.SendToAll = function(data) {
 		var _g11 = 0;
 		var _g2 = quake_SV.svs.maxclients;
 		while(_g11 < _g2) {
-			var i1 = _g11++;
-			quake_Host.client = quake_SV.svs.clients[i1];
-			if(!state1[i1]) {
+			var i2 = _g11++;
+			quake_Host.client = quake_SV.svs.clients[i2];
+			if(!state1[i2]) {
 				if(quake_NET.CanSendMessage(quake_Host.client.netconnection)) {
-					state1[i1] = true;
+					state1[i2] = true;
 					quake_NET.SendMessage(quake_Host.client.netconnection,data);
 				} else quake_NET.GetMessage(quake_Host.client.netconnection);
 				++count;
 				continue;
 			}
-			if(!state2[i1]) {
-				if(quake_NET.CanSendMessage(quake_Host.client.netconnection)) state2[i1] = true; else quake_NET.GetMessage(quake_Host.client.netconnection);
+			if(!state2[i2]) {
+				if(quake_NET.CanSendMessage(quake_Host.client.netconnection)) state2[i2] = true; else quake_NET.GetMessage(quake_Host.client.netconnection);
 				++count;
 			}
 		}
@@ -7500,29 +7502,29 @@ quake_PR.LoadProgs = function() {
 	quake_PR._globals_int = new Int32Array(quake_PR._globals);
 	var _g6 = 0;
 	while(_g6 < num) {
-		var i1 = _g6++;
-		quake_PR._globals_int[i1] = view.getInt32(ofs + (i1 << 2),true);
+		var i6 = _g6++;
+		quake_PR._globals_int[i6] = view.getInt32(ofs + (i6 << 2),true);
 	}
 	quake_PR.entityfields = view.getUint32(56,true);
 	quake_PR.edict_size = 96 + (quake_PR.entityfields << 2);
 	var def = quake_ED.FindField("ammo_shells1");
 	if(def != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_shells1 = def.ofs;
-	var def1 = quake_ED.FindField("ammo_nails1");
-	if(def1 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1 = def1.ofs;
-	var def2 = quake_ED.FindField("ammo_lava_nails");
-	if(def2 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails = def2.ofs;
-	var def3 = quake_ED.FindField("ammo_rockets1");
-	if(def3 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1 = def3.ofs;
-	var def4 = quake_ED.FindField("ammo_multi_rockets");
-	if(def4 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets = def4.ofs;
-	var def5 = quake_ED.FindField("ammo_cells1");
-	if(def5 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1 = def5.ofs;
-	var def6 = quake_ED.FindField("ammo_plasma");
-	if(def6 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma = def6.ofs;
-	var def7 = quake_ED.FindField("gravity");
-	if(def7 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.gravity = def7.ofs;
-	var def8 = quake_ED.FindField("items2");
-	if(def8 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.items2 = def8.ofs;
+	var def6 = quake_ED.FindField("ammo_nails1");
+	if(def6 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_nails1 = def6.ofs;
+	var def7 = quake_ED.FindField("ammo_lava_nails");
+	if(def7 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_lava_nails = def7.ofs;
+	var def8 = quake_ED.FindField("ammo_rockets1");
+	if(def8 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_rockets1 = def8.ofs;
+	var def9 = quake_ED.FindField("ammo_multi_rockets");
+	if(def9 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_multi_rockets = def9.ofs;
+	var def10 = quake_ED.FindField("ammo_cells1");
+	if(def10 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_cells1 = def10.ofs;
+	var def11 = quake_ED.FindField("ammo_plasma");
+	if(def11 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.ammo_plasma = def11.ofs;
+	var def12 = quake_ED.FindField("gravity");
+	if(def12 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.gravity = def12.ofs;
+	var def13 = quake_ED.FindField("items2");
+	if(def13 != null) quake__$EdictVarOfs_EdictVarOfs_$Impl_$.items2 = def13.ofs;
 };
 quake_PR.Init = function() {
 	quake_Cmd.AddCommand("edict",quake_ED.PrintEdict_f);
@@ -7618,11 +7620,11 @@ quake_PR.EnterFunction = function(f) {
 	var _g1 = 0;
 	var _g2 = f.numparms;
 	while(_g1 < _g2) {
-		var i1 = _g1++;
+		var i2 = _g1++;
 		var _g3 = 0;
-		var _g21 = f.parm_size[i1];
-		var tmp = 4 + i1 * 3;
-		while(_g3 < _g21) {
+		var _g22 = f.parm_size[i2];
+		var tmp = 4 + i2 * 3;
+		while(_g3 < _g22) {
 			var j = _g3++;
 			quake_PR._globals_int[o++] = quake_PR._globals_int[tmp + j];
 		}
@@ -8045,10 +8047,11 @@ quake_S.PickChannel = function(entnum,entchannel) {
 	var channel = null;
 	if(entchannel != 0) {
 		i = 0;
+		var tmp = entchannel == -1;
 		while(i < quake_S.channels.length) {
 			channel = quake_S.channels[i++];
 			if(channel == null) continue;
-			if(channel.entnum == entnum && (channel.entchannel == entchannel || entchannel == -1)) {
+			if(channel.entnum == entnum && (channel.entchannel == entchannel || tmp)) {
 				channel.sfx = null;
 				if(channel.audio != null) {
 					channel.audio.pause();
@@ -8147,20 +8150,20 @@ quake_S.StopAllSounds = function() {
 		if(ch.audio != null) ch.audio.pause();
 	}
 	var _g2 = 0;
-	var _g11 = quake_S.channels;
-	while(_g2 < _g11.length) {
-		var ch1 = _g11[_g2];
+	var _g12 = quake_S.channels;
+	while(_g2 < _g12.length) {
+		var ch2 = _g12[_g2];
 		++_g2;
-		if(ch1 == null) continue;
-		if(ch1.audio != null) ch1.audio.pause();
+		if(ch2 == null) continue;
+		if(ch2.audio != null) ch2.audio.pause();
 	}
 	quake_S.channels = [];
 	var _g3 = 0;
-	var _g12 = quake_S.static_channels;
-	while(_g3 < _g12.length) {
-		var ch2 = _g12[_g3];
+	var _g13 = quake_S.static_channels;
+	while(_g3 < _g13.length) {
+		var ch3 = _g13[_g3];
 		++_g3;
-		ch2.audio.pause();
+		ch3.audio.pause();
 	}
 	quake_S.static_channels = [];
 };
@@ -8217,38 +8220,38 @@ quake_S.UpdateAmbientSounds = function() {
 	var _g2 = quake_S.ambient_channels.length;
 	while(_g11 < _g2) {
 		var i = _g11++;
-		var ch1 = quake_S.ambient_channels[i];
-		if(ch1.audio == null) continue;
+		var ch2 = quake_S.ambient_channels[i];
+		if(ch2.audio == null) continue;
 		var vol = quake_S.ambient_level.value * l.ambient_level[i];
 		if(vol < 8.0) vol = 0.0;
 		vol /= 255.0;
-		if(ch1.master_vol < vol) {
-			ch1.master_vol += quake_Host.frametime * quake_S.ambient_fade.value / 255.0;
-			if(ch1.master_vol > vol) ch1.master_vol = vol;
-		} else if(ch1.master_vol > vol) {
-			ch1.master_vol -= quake_Host.frametime * quake_S.ambient_fade.value / 255.0;
-			if(ch1.master_vol < vol) ch1.master_vol = vol;
+		if(ch2.master_vol < vol) {
+			ch2.master_vol += quake_Host.frametime * quake_S.ambient_fade.value / 255.0;
+			if(ch2.master_vol > vol) ch2.master_vol = vol;
+		} else if(ch2.master_vol > vol) {
+			ch2.master_vol -= quake_Host.frametime * quake_S.ambient_fade.value / 255.0;
+			if(ch2.master_vol < vol) ch2.master_vol = vol;
 		}
-		if(ch1.master_vol == 0.0) {
-			if(!ch1.audio.paused) ch1.audio.pause();
+		if(ch2.master_vol == 0.0) {
+			if(!ch2.audio.paused) ch2.audio.pause();
 			continue;
 		}
-		if(ch1.master_vol > 1.0) ch1.master_vol = 1.0;
-		ch1.audio.volume = ch1.master_vol * quake_S.volume.value;
-		var sc = ch1.sfx.cache;
-		if(ch1.audio.paused) {
-			ch1.audio.play();
-			ch1.end = quake_Host.realtime + sc.length;
+		if(ch2.master_vol > 1.0) ch2.master_vol = 1.0;
+		ch2.audio.volume = ch2.master_vol * quake_S.volume.value;
+		var sc = ch2.sfx.cache;
+		if(ch2.audio.paused) {
+			ch2.audio.play();
+			ch2.end = quake_Host.realtime + sc.length;
 			continue;
 		}
-		if(quake_Host.realtime >= ch1.end) {
+		if(quake_Host.realtime >= ch2.end) {
 			try {
-				ch1.audio.currentTime = sc.loopstart;
+				ch2.audio.currentTime = sc.loopstart;
 			} catch( e ) {
-				ch1.end = quake_Host.realtime;
+				ch2.end = quake_Host.realtime;
 				continue;
 			}
-			ch1.end = quake_Host.realtime + sc.length - sc.loopstart;
+			ch2.end = quake_Host.realtime + sc.length - sc.loopstart;
 		}
 	}
 };
@@ -8294,48 +8297,48 @@ quake_S.UpdateStaticSounds = function() {
 	var _g2 = quake_S.static_channels.length;
 	while(_g11 < _g2) {
 		var i = _g11++;
-		var ch1 = quake_S.static_channels[i];
-		if(ch1.leftvol == 0.0 && ch1.rightvol == 0.0) continue;
-		var sfx = ch1.sfx;
+		var ch2 = quake_S.static_channels[i];
+		if(ch2.leftvol == 0.0 && ch2.rightvol == 0.0) continue;
+		var sfx = ch2.sfx;
 		var _g3 = i + 1;
-		var _g21 = quake_S.static_channels.length;
-		while(_g3 < _g21) {
+		var _g22 = quake_S.static_channels.length;
+		while(_g3 < _g22) {
 			var j = _g3++;
-			var ch2 = quake_S.static_channels[j];
-			if(sfx == ch2.sfx) {
-				ch1.leftvol += ch2.leftvol;
-				ch1.rightvol += ch2.rightvol;
-				ch2.leftvol = 0.0;
-				ch2.rightvol = 0.0;
+			var ch22 = quake_S.static_channels[j];
+			if(sfx == ch22.sfx) {
+				ch2.leftvol += ch22.leftvol;
+				ch2.rightvol += ch22.rightvol;
+				ch22.leftvol = 0.0;
+				ch22.rightvol = 0.0;
 			}
 		}
 	}
 	var _g4 = 0;
-	var _g12 = quake_S.static_channels;
-	while(_g4 < _g12.length) {
-		var ch3 = _g12[_g4];
+	var _g14 = quake_S.static_channels;
+	while(_g4 < _g14.length) {
+		var ch4 = _g14[_g4];
 		++_g4;
-		var volume = (ch3.leftvol + ch3.rightvol) * 0.5;
+		var volume = (ch4.leftvol + ch4.rightvol) * 0.5;
 		if(volume > 1.0) volume = 1.0;
 		if(volume == 0.0) {
-			if(!ch3.audio.paused) ch3.audio.pause();
+			if(!ch4.audio.paused) ch4.audio.pause();
 			continue;
 		}
-		ch3.audio.volume = volume * quake_S.volume.value;
-		var sc = ch3.sfx.cache;
-		if(ch3.audio.paused) {
-			ch3.audio.play();
-			ch3.end = quake_Host.realtime + sc.length;
+		ch4.audio.volume = volume * quake_S.volume.value;
+		var sc = ch4.sfx.cache;
+		if(ch4.audio.paused) {
+			ch4.audio.play();
+			ch4.end = quake_Host.realtime + sc.length;
 			continue;
 		}
-		if(quake_Host.realtime >= ch3.end) {
+		if(quake_Host.realtime >= ch4.end) {
 			try {
-				ch3.audio.currentTime = sc.loopstart;
+				ch4.audio.currentTime = sc.loopstart;
 			} catch( e ) {
-				ch3.end = quake_Host.realtime;
+				ch4.end = quake_Host.realtime;
 				continue;
 			}
-			ch3.end = quake_Host.realtime + sc.length - sc.loopstart;
+			ch4.end = quake_Host.realtime + sc.length - sc.loopstart;
 		}
 	}
 };
@@ -8741,10 +8744,10 @@ quake_Sys.main = function() {
 		quake_Sys.scantokey.h[110] = v27;
 		var v28 = v27;
 		quake_Sys.scantokey.h[46] = v28;
-		var _g2 = 48;
-		while(_g2 < 58) {
-			var i1 = _g2++;
-			quake_Sys.scantokey.h[i1] = i1;
+		var _g28 = 48;
+		while(_g28 < 58) {
+			var i28 = _g28++;
+			quake_Sys.scantokey.h[i28] = i28;
 		}
 		quake_Sys.scantokey.h[186] = 59;
 		var v29 = 59;
@@ -8752,11 +8755,11 @@ quake_Sys.main = function() {
 		quake_Sys.scantokey.h[187] = 61;
 		var v30 = 61;
 		quake_Sys.scantokey.h[61] = v30;
-		var _g3 = 65;
-		while(_g3 < 91) {
-			var i2 = _g3++;
-			var v31 = i2 + 32;
-			quake_Sys.scantokey.h[i2] = v31;
+		var _g30 = 65;
+		while(_g30 < 91) {
+			var i30 = _g30++;
+			var v31 = i30 + 32;
+			quake_Sys.scantokey.h[i30] = v31;
 		}
 		quake_Sys.scantokey.h[106] = 42;
 		quake_Sys.scantokey.h[107] = 43;
@@ -8768,11 +8771,11 @@ quake_Sys.main = function() {
 		quake_Sys.scantokey.h[191] = 47;
 		var v34 = 47;
 		quake_Sys.scantokey.h[111] = v34;
-		var _g4 = 112;
-		while(_g4 < 124) {
-			var i3 = _g4++;
-			var v35 = i3 - 112 + 135;
-			quake_Sys.scantokey.h[i3] = v35;
+		var _g34 = 112;
+		while(_g34 < 124) {
+			var i34 = _g34++;
+			var v35 = i34 - 112 + 135;
+			quake_Sys.scantokey.h[i34] = v35;
 		}
 		quake_Sys.scantokey.h[188] = 44;
 		quake_Sys.scantokey.h[190] = 46;
@@ -8995,9 +8998,9 @@ quake_SCR.DrawCenterString = function() {
 		return;
 	}
 	var _g4 = 0;
-	var _g11 = quake_SCR.centerstring;
-	while(_g4 < _g11.length) {
-		var s = _g11[_g4];
+	var _g14 = quake_SCR.centerstring;
+	while(_g4 < _g14.length) {
+		var s = _g14[_g4];
 		++_g4;
 		quake_Draw.String(quake_VID.width - (s.length << 3) >> 1,y,s);
 		y += 8;
@@ -9199,8 +9202,8 @@ quake_SV.SendServerinfo = function(client) {
 	var _g11 = 1;
 	var _g2 = quake_SV.server.sound_precache.length;
 	while(_g11 < _g2) {
-		var i1 = _g11++;
-		message.WriteString(quake_SV.server.sound_precache[i1]);
+		var i2 = _g11++;
+		message.WriteString(quake_SV.server.sound_precache[i2]);
 	}
 	message.WriteByte(0);
 	message.WriteByte(32);
@@ -9468,9 +9471,9 @@ quake_SV.UpdateToReliableMessages = function() {
 	var _g11 = 0;
 	var _g4 = quake_SV.svs.maxclients;
 	while(_g11 < _g4) {
-		var i1 = _g11++;
-		var client1 = quake_SV.svs.clients[i1];
-		if(client1.active) client1.message.Write(new Uint8Array(quake_SV.server.reliable_datagram.data),quake_SV.server.reliable_datagram.cursize);
+		var i4 = _g11++;
+		var client4 = quake_SV.svs.clients[i4];
+		if(client4.active) client4.message.Write(new Uint8Array(quake_SV.server.reliable_datagram.data),quake_SV.server.reliable_datagram.cursize);
 	}
 	quake_SV.server.reliable_datagram.cursize = 0;
 };
@@ -9509,8 +9512,8 @@ quake_SV.SendClientMessages = function() {
 	var _g11 = 1;
 	var _g2 = quake_SV.server.num_edicts;
 	while(_g11 < _g2) {
-		var i1 = _g11++;
-		quake_SV.server.edicts[i1]._v_float[32] = (quake_SV.server.edicts[i1]._v_float[32] | 0) & ~2;
+		var i2 = _g11++;
+		quake_SV.server.edicts[i2]._v_float[32] = (quake_SV.server.edicts[i2]._v_float[32] | 0) & ~2;
 	}
 };
 quake_SV.ModelIndex = function(name) {
@@ -9613,8 +9616,8 @@ quake_SV.SpawnServer = function(map) {
 	var _g1 = 0;
 	var _g2 = quake_SV.svs.maxclients;
 	while(_g1 < _g2) {
-		var i1 = _g1++;
-		quake_SV.svs.clients[i1].edict = quake_SV.server.edicts[i1 + 1];
+		var i2 = _g1++;
+		quake_SV.svs.clients[i2].edict = quake_SV.server.edicts[i2 + 1];
 	}
 	quake_SV.server.loading = true;
 	quake_SV.server.paused = false;
@@ -9635,12 +9638,12 @@ quake_SV.SpawnServer = function(map) {
 	quake_SV.CreateAreaNode(0,quake_SV.server.worldmodel.mins,quake_SV.server.worldmodel.maxs);
 	quake_SV.server.sound_precache = [""];
 	quake_SV.server.model_precache = ["",quake_SV.server.modelname];
-	var _g11 = 1;
+	var _g12 = 1;
 	var _g3 = quake_SV.server.worldmodel.submodels.length + 1;
-	while(_g11 < _g3) {
-		var i2 = _g11++;
-		quake_SV.server.model_precache[i2 + 1] = "*" + i2;
-		quake_SV.server.models[i2 + 1] = quake_Mod.LoadModel(quake_Mod.FindName("*" + i2),false);
+	while(_g12 < _g3) {
+		var i3 = _g12++;
+		quake_SV.server.model_precache[i3 + 1] = "*" + i3;
+		quake_SV.server.models[i3 + 1] = quake_Mod.LoadModel(quake_Mod.FindName("*" + i3),false);
 	}
 	quake_SV.server.lightstyles = [];
 	var _g4 = 0;
@@ -9663,13 +9666,13 @@ quake_SV.SpawnServer = function(map) {
 	quake_SV.Physics();
 	quake_SV.Physics();
 	quake_SV.CreateBaseline();
-	var _g12 = 0;
+	var _g14 = 0;
 	var _g5 = quake_SV.svs.maxclients;
-	while(_g12 < _g5) {
-		var i3 = _g12++;
-		quake_Host.client = quake_SV.svs.clients[i3];
+	while(_g14 < _g5) {
+		var i5 = _g14++;
+		quake_Host.client = quake_SV.svs.clients[i5];
 		if(!quake_Host.client.active) continue;
-		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i3 << 5);
+		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i5 << 5);
 		quake_SV.SendServerinfo(quake_Host.client);
 	}
 	quake_Console.DPrint("Server spawned.\n");
@@ -9791,9 +9794,8 @@ quake_SV.movestep = function(ent,move,relink) {
 		ent._v_float[10] += move[0];
 		ent._v_float[11] += move[1];
 		if(relink) quake_SV.LinkEdict(ent,true);
-		var _g1 = ent;
-		var v1 = (_g1._v_float[76] | 0) & ~512;
-		_g1._v_float[76] = v1;
+		var v1 = (ent._v_float[76] | 0) & ~512;
+		ent._v_float[76] = v1;
 		return true;
 	}
 	ent._v_float[10] = trace.endpos[0];
@@ -9809,9 +9811,8 @@ quake_SV.movestep = function(ent,move,relink) {
 		ent._v_float[12] = oldorg[2];
 		return false;
 	}
-	var _g2 = ent;
-	var v2 = (_g2._v_float[76] | 0) & ~1024;
-	_g2._v_float[76] = v2;
+	var v2 = (ent._v_float[76] | 0) & ~1024;
+	ent._v_float[76] = v2;
 	ent._v_int[47] = trace.ent.num;
 	if(relink) quake_SV.LinkEdict(ent,true);
 	return true;
@@ -9876,9 +9877,8 @@ quake_SV.NewChaseDir = function(actor,enemy,dist) {
 	if(turnaround != -1 && quake_SV.StepDirection(actor,turnaround,dist)) return;
 	actor._v_float[85] = olddir;
 	if(!quake_SV.CheckBottom(actor)) {
-		var _g = actor;
-		var v = _g._v_float[76] | 0 | 1024;
-		_g._v_float[76] = v;
+		var v = actor._v_float[76] | 0 | 1024;
+		actor._v_float[76] = v;
 	}
 };
 quake_SV.CloseEnough = function(ent,goal,dist) {
@@ -9975,9 +9975,8 @@ quake_SV.FlyMove = function(ent,time) {
 		if(trace.plane.normal[2] > 0.7) {
 			blocked |= 1;
 			if(trace.ent._v_float[9] == 4) {
-				var _g1 = ent;
-				var v1 = _g1._v_float[76] | 0 | 512;
-				_g1._v_float[76] = v1;
+				var v1 = ent._v_float[76] | 0 | 512;
+				ent._v_float[76] = v1;
 				ent._v_int[47] = trace.ent.num;
 			}
 		} else if(trace.plane.normal[2] == 0.0) {
@@ -10268,9 +10267,8 @@ quake_SV.TryUnstick = function(ent,oldvel) {
 };
 quake_SV.WalkMove = function(ent) {
 	var oldonground = (ent._v_float[76] | 0) & 512;
-	var _g = ent;
-	var v2 = (_g._v_float[76] | 0) ^ oldonground;
-	_g._v_float[76] = v2;
+	var v2 = (ent._v_float[76] | 0) ^ oldonground;
+	ent._v_float[76] = v2;
 	var oldorg = new Float32Array(ent._v_float.buffer.slice(40,52));
 	var oldvel = new Float32Array(ent._v_float.buffer.slice(64,76));
 	var clip = quake_SV.FlyMove(ent,quake_Host.frametime);
@@ -10303,9 +10301,8 @@ quake_SV.WalkMove = function(ent) {
 	var downtrace = quake_SV.PushEntity(ent,v1);
 	if(downtrace.plane.normal[2] > 0.7) {
 		if(ent._v_float[9] == 4) {
-			var _g1 = ent;
-			var v3 = _g1._v_float[76] | 0 | 512;
-			_g1._v_float[76] = v3;
+			var v3 = ent._v_float[76] | 0 | 512;
+			ent._v_float[76] = v3;
 			ent._v_int[47] = downtrace.ent.num;
 		}
 		return;
@@ -10397,9 +10394,8 @@ quake_SV.Physics_Toss = function(ent) {
 	ent._v_float.set(velocity,16);
 	if(trace.plane.normal[2] > 0.7) {
 		if(ent._v_float[18] < 60.0 || movetype != 10) {
-			var _g = ent;
-			var v1 = _g._v_float[76] | 0 | 512;
-			_g._v_float[76] = v1;
+			var v1 = ent._v_float[76] | 0 | 512;
+			ent._v_float[76] = v1;
 			ent._v_int[47] = trace.ent.num;
 			ent._v_float[17] = ent._v_float[18] = 0.0;
 			ent._v_float[16] = 0.0;
@@ -11177,9 +11173,9 @@ quake_Render.PushDlights = function() {
 		bit += bit;
 	}
 	var _g4 = 0;
-	var _g12 = quake_CL.state.worldmodel.faces;
-	while(_g4 < _g12.length) {
-		var surf = _g12[_g4];
+	var _g14 = quake_CL.state.worldmodel.faces;
+	while(_g4 < _g14.length) {
+		var surf = _g14[_g4];
 		++_g4;
 		if(surf.dlightframe == quake_Render.dlightframecount) quake_Render.RemoveDynamicLights(surf); else if(surf.dlightframe == quake_Render.dlightframecount + 1) quake_Render.AddDynamicLights(surf);
 	}
@@ -11187,9 +11183,9 @@ quake_Render.PushDlights = function() {
 	var start = null;
 	var _g5 = 0;
 	while(_g5 < 1024) {
-		var i1 = _g5++;
-		if(start == null && quake_Render.lightmap_modified[i1] != 0) start = i1; else if(start != null && quake_Render.lightmap_modified[i1] == 0) {
-			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i1 - start,6406,5121,quake_Render.dlightmaps.subarray(start << 10,i1 << 10));
+		var i5 = _g5++;
+		if(start == null && quake_Render.lightmap_modified[i5] != 0) start = i5; else if(start != null && quake_Render.lightmap_modified[i5] == 0) {
+			quake_GL.gl.texSubImage2D(3553,0,0,start,1024,i5 - start,6406,5121,quake_Render.dlightmaps.subarray(start << 10,i5 << 10));
 			start = null;
 		}
 	}
@@ -11345,12 +11341,12 @@ quake_Render.DrawAliasModel = function(e) {
 		var dl = _g1[_g];
 		++_g;
 		if(dl.die < quake_CL.state.time) continue;
-		var tmp3 = dl.radius;
+		var tmp4 = dl.radius;
 		var v5 = new Float32Array(3);
 		v5[0] = e.origin[0] - dl.origin[0];
 		v5[1] = e.origin[1] - dl.origin[1];
 		v5[2] = e.origin[1] - dl.origin[1];
-		var add = tmp3 - Math.sqrt(v5[0] * v5[0] + v5[1] * v5[1] + v5[2] * v5[2]);
+		var add = tmp4 - Math.sqrt(v5[0] * v5[0] + v5[1] * v5[1] + v5[2] * v5[2]);
 		if(add > 0) {
 			ambientlight += add;
 			shadelight += add;
@@ -11373,17 +11369,17 @@ quake_Render.DrawAliasModel = function(e) {
 	v2[0] = -1.0;
 	v2[1] = 0.0;
 	v2[2] = 0.0;
-	var tmp1 = v2[0] * forward[0] + v2[1] * forward[1] + v2[2] * forward[2];
+	var tmp2 = v2[0] * forward[0] + v2[1] * forward[1] + v2[2] * forward[2];
 	var v3 = new Float32Array(3);
 	v3[0] = -1.0;
 	v3[1] = 0.0;
 	v3[2] = 0.0;
-	var tmp2 = -(v3[0] * right[0] + v3[1] * right[1] + v3[2] * right[2]);
+	var tmp3 = -(v3[0] * right[0] + v3[1] * right[1] + v3[2] * right[2]);
 	var v4 = new Float32Array(3);
 	v4[0] = -1.0;
 	v4[1] = 0.0;
 	v4[2] = 0.0;
-	quake_GL.gl.uniform3fv(tmp,[tmp1,tmp2,v4[0] * up[0] + v4[1] * up[1] + v4[2] * up[2]]);
+	quake_GL.gl.uniform3fv(tmp,[tmp2,tmp3,v4[0] * up[0] + v4[1] * up[1] + v4[2] * up[2]]);
 	quake_Render.c_alias_polys += clmodel.numtris;
 	var time = quake_CL.state.time + e.syncbase;
 	var num = e.frame;
@@ -11393,11 +11389,11 @@ quake_Render.DrawAliasModel = function(e) {
 	}
 	var frame = clmodel.frames[num];
 	if(frame.group) {
-		var num1 = frame.frames.length - 1;
-		var fullinterval = frame.frames[num1].interval;
+		var num5 = frame.frames.length - 1;
+		var fullinterval = frame.frames[num5].interval;
 		var targettime = time - Math.floor(time / fullinterval) * fullinterval;
 		var i = 0;
-		while(i < num1) {
+		while(i < num5) {
 			if(frame.frames[i].interval > targettime) break;
 			++i;
 		}
@@ -11415,14 +11411,14 @@ quake_Render.DrawAliasModel = function(e) {
 	var skin = clmodel.skins[num];
 	if(skin.group) {
 		num = skin.skins.length - 1;
-		var fullinterval1 = skin.skins[num].interval;
-		var targettime1 = time - Math.floor(time / fullinterval1) * fullinterval1;
-		var i1 = 0;
-		while(i1 < num) {
-			if(skin.skins[i1].interval > targettime1) break;
-			++i1;
+		var fullinterval5 = skin.skins[num].interval;
+		var targettime5 = time - Math.floor(time / fullinterval5) * fullinterval5;
+		var i5 = 0;
+		while(i5 < num) {
+			if(skin.skins[i5].interval > targettime5) break;
+			++i5;
 		}
-		skin = skin.skins[i1];
+		skin = skin.skins[i5];
 	}
 	quake_GL.Bind(program.tTexture,skin.texturenum.texnum);
 	if(clmodel.player) quake_GL.Bind(program.tPlayer,skin.playertexture);
@@ -11462,8 +11458,8 @@ quake_Render.DrawEntitiesOnList = function() {
 		var i = _g11++;
 		quake_Render.currententity = quake_CL.visedicts[i];
 		if(quake_Render.currententity.model == null) continue;
-		var _g21 = quake_Render.currententity.model.type;
-		switch(_g21) {
+		var _g23 = quake_Render.currententity.model.type;
+		switch(_g23) {
 		case 2:
 			quake_Render.DrawAliasModel(quake_Render.currententity);
 			break;
@@ -11476,19 +11472,19 @@ quake_Render.DrawEntitiesOnList = function() {
 	quake_GL.gl.depthMask(false);
 	quake_GL.gl.enable(3042);
 	var _g4 = 0;
-	var _g12 = quake_CL.static_entities;
-	while(_g4 < _g12.length) {
-		var e1 = _g12[_g4];
+	var _g14 = quake_CL.static_entities;
+	while(_g4 < _g14.length) {
+		var e4 = _g14[_g4];
 		++_g4;
-		quake_Render.currententity = e1;
+		quake_Render.currententity = e4;
 		if(quake_Render.currententity.model == null) continue;
 		if(quake_Render.currententity.model.type == 1) quake_Render.DrawSpriteModel(quake_Render.currententity);
 	}
-	var _g13 = 0;
+	var _g15 = 0;
 	var _g5 = quake_CL.numvisedicts;
-	while(_g13 < _g5) {
-		var i1 = _g13++;
-		quake_Render.currententity = quake_CL.visedicts[i1];
+	while(_g15 < _g5) {
+		var i5 = _g15++;
+		quake_Render.currententity = quake_CL.visedicts[i5];
 		if(quake_Render.currententity.model == null) continue;
 		if(quake_Render.currententity.model.type == 1) quake_Render.DrawSpriteModel(quake_Render.currententity);
 	}
@@ -11693,32 +11689,32 @@ quake_Render.MakeBrushModelDisplayLists = function(m) {
 	var _g11 = 0;
 	var _g6 = m.textures.length;
 	while(_g11 < _g6) {
-		var i1 = _g11++;
-		var texture1 = m.textures[i1];
-		if(!texture1.turbulent) continue;
-		var chain1 = [i1,verts,0];
-		var _g31 = 0;
-		var _g21 = m.numfaces;
-		while(_g31 < _g21) {
-			var j1 = _g31++;
-			var surf1 = m.faces[m.firstface + j1];
-			if(surf1.texture != i1) continue;
-			chain1[2] += surf1.verts.length;
-			var _g51 = 0;
-			var _g42 = surf1.verts.length;
-			while(_g51 < _g42) {
-				var k1 = _g51++;
-				var vert1 = surf1.verts[k1];
-				cmds.push(vert1[0]);
-				cmds.push(vert1[1]);
-				cmds.push(vert1[2]);
-				cmds.push(vert1[3]);
-				cmds.push(vert1[4]);
+		var i6 = _g11++;
+		var texture6 = m.textures[i6];
+		if(!texture6.turbulent) continue;
+		var chain6 = [i6,verts,0];
+		var _g36 = 0;
+		var _g26 = m.numfaces;
+		while(_g36 < _g26) {
+			var j6 = _g36++;
+			var surf6 = m.faces[m.firstface + j6];
+			if(surf6.texture != i6) continue;
+			chain6[2] += surf6.verts.length;
+			var _g56 = 0;
+			var _g46 = surf6.verts.length;
+			while(_g56 < _g46) {
+				var k6 = _g56++;
+				var vert6 = surf6.verts[k6];
+				cmds.push(vert6[0]);
+				cmds.push(vert6[1]);
+				cmds.push(vert6[2]);
+				cmds.push(vert6[3]);
+				cmds.push(vert6[4]);
 			}
 		}
-		if(chain1[2] != 0) {
-			m.chains.push(chain1);
-			verts += chain1[2];
+		if(chain6[2] != 0) {
+			m.chains.push(chain6);
+			verts += chain6[2];
 		}
 	}
 	m.cmds = quake_GL.gl.createBuffer();
@@ -11808,75 +11804,75 @@ quake_Render.MakeWorldModelDisplayLists = function(m) {
 	var _g11 = 0;
 	var _g8 = m.textures.length;
 	while(_g11 < _g8) {
-		var i1 = _g11++;
-		var texture1 = m.textures[i1];
-		if(!texture1.sky) continue;
-		var _g31 = 0;
-		var _g21 = m.leafs.length;
-		while(_g31 < _g21) {
-			var j1 = _g31++;
-			var leaf1 = m.leafs[j1];
-			var chain1 = [verts,0];
-			var _g51 = 0;
-			var _g41 = leaf1.nummarksurfaces;
-			while(_g51 < _g41) {
-				var k1 = _g51++;
-				var surf1 = m.faces[m.marksurfaces[leaf1.firstmarksurface + k1]];
-				if(surf1.texture != i1) continue;
-				chain1[1] += surf1.verts.length;
-				var _g71 = 0;
-				var _g62 = surf1.verts.length;
-				while(_g71 < _g62) {
-					var l = _g71++;
-					var vert1 = surf1.verts[l];
-					cmds.push(vert1[0]);
-					cmds.push(vert1[1]);
-					cmds.push(vert1[2]);
+		var i8 = _g11++;
+		var texture8 = m.textures[i8];
+		if(!texture8.sky) continue;
+		var _g38 = 0;
+		var _g28 = m.leafs.length;
+		while(_g38 < _g28) {
+			var j8 = _g38++;
+			var leaf8 = m.leafs[j8];
+			var chain8 = [verts,0];
+			var _g58 = 0;
+			var _g48 = leaf8.nummarksurfaces;
+			while(_g58 < _g48) {
+				var k8 = _g58++;
+				var surf8 = m.faces[m.marksurfaces[leaf8.firstmarksurface + k8]];
+				if(surf8.texture != i8) continue;
+				chain8[1] += surf8.verts.length;
+				var _g78 = 0;
+				var _g68 = surf8.verts.length;
+				while(_g78 < _g68) {
+					var l = _g78++;
+					var vert8 = surf8.verts[l];
+					cmds.push(vert8[0]);
+					cmds.push(vert8[1]);
+					cmds.push(vert8[2]);
 				}
 			}
-			if(chain1[1] != 0) {
-				leaf1.cmds.push(chain1);
-				++leaf1.waterchain;
-				verts += chain1[1];
+			if(chain8[1] != 0) {
+				leaf8.cmds.push(chain8);
+				++leaf8.waterchain;
+				verts += chain8[1];
 			}
 		}
 	}
 	m.waterchain = m.skychain + verts * 12;
 	verts = 0;
-	var _g12 = 0;
+	var _g18 = 0;
 	var _g9 = m.textures.length;
-	while(_g12 < _g9) {
-		var i2 = _g12++;
-		var texture2 = m.textures[i2];
-		if(!texture2.turbulent) continue;
-		var _g32 = 0;
-		var _g22 = m.leafs.length;
-		while(_g32 < _g22) {
-			var j2 = _g32++;
-			var leaf2 = m.leafs[j2];
-			var chain2 = [i2,verts,0];
-			var _g52 = 0;
-			var _g42 = leaf2.nummarksurfaces;
-			while(_g52 < _g42) {
-				var k2 = _g52++;
-				var surf2 = m.faces[m.marksurfaces[leaf2.firstmarksurface + k2]];
-				if(surf2.texture != i2) continue;
-				chain2[2] += surf2.verts.length;
-				var _g72 = 0;
-				var _g63 = surf2.verts.length;
-				while(_g72 < _g63) {
-					var l1 = _g72++;
-					var vert2 = surf2.verts[l1];
-					cmds.push(vert2[0]);
-					cmds.push(vert2[1]);
-					cmds.push(vert2[2]);
-					cmds.push(vert2[3]);
-					cmds.push(vert2[4]);
+	while(_g18 < _g9) {
+		var i9 = _g18++;
+		var texture9 = m.textures[i9];
+		if(!texture9.turbulent) continue;
+		var _g39 = 0;
+		var _g29 = m.leafs.length;
+		while(_g39 < _g29) {
+			var j9 = _g39++;
+			var leaf9 = m.leafs[j9];
+			var chain9 = [i9,verts,0];
+			var _g59 = 0;
+			var _g49 = leaf9.nummarksurfaces;
+			while(_g59 < _g49) {
+				var k9 = _g59++;
+				var surf9 = m.faces[m.marksurfaces[leaf9.firstmarksurface + k9]];
+				if(surf9.texture != i9) continue;
+				chain9[2] += surf9.verts.length;
+				var _g79 = 0;
+				var _g69 = surf9.verts.length;
+				while(_g79 < _g69) {
+					var l9 = _g79++;
+					var vert9 = surf9.verts[l9];
+					cmds.push(vert9[0]);
+					cmds.push(vert9[1]);
+					cmds.push(vert9[2]);
+					cmds.push(vert9[3]);
+					cmds.push(vert9[4]);
 				}
 			}
-			if(chain2[2] != 0) {
-				leaf2.cmds.push(chain2);
-				verts += chain2[2];
+			if(chain9[2] != 0) {
+				leaf9.cmds.push(chain9);
+				verts += chain9[2];
 			}
 		}
 	}
@@ -12142,12 +12138,12 @@ quake_Render.ParticleExplosion = function(org) {
 		this1[1] = y;
 		this1[2] = z;
 		var this2 = p.org;
-		var x1 = org[0] + Math.random() * 32.0 - 16.0;
-		var y1 = org[1] + Math.random() * 32.0 - 16.0;
-		var z1 = org[2] + Math.random() * 32.0 - 16.0;
-		this2[0] = x1;
-		this2[1] = y1;
-		this2[2] = z1;
+		var x2 = org[0] + Math.random() * 32.0 - 16.0;
+		var y2 = org[1] + Math.random() * 32.0 - 16.0;
+		var z2 = org[2] + Math.random() * 32.0 - 16.0;
+		this2[0] = x2;
+		this2[1] = y2;
+		this2[2] = z2;
 	}
 };
 quake_Render.ParticleExplosion2 = function(org,colorStart,colorLength) {
@@ -12169,12 +12165,12 @@ quake_Render.ParticleExplosion2 = function(org,colorStart,colorLength) {
 		this1[1] = y;
 		this1[2] = z;
 		var this2 = p.vel;
-		var x1 = Math.random() * 512.0 - 256.0;
-		var y1 = Math.random() * 512.0 - 256.0;
-		var z1 = Math.random() * 512.0 - 256.0;
-		this2[0] = x1;
-		this2[1] = y1;
-		this2[2] = z1;
+		var x2 = Math.random() * 512.0 - 256.0;
+		var y2 = Math.random() * 512.0 - 256.0;
+		var z2 = Math.random() * 512.0 - 256.0;
+		this2[0] = x2;
+		this2[1] = y2;
+		this2[2] = z2;
 	}
 };
 quake_Render.BlobExplosion = function(org) {
@@ -12200,12 +12196,12 @@ quake_Render.BlobExplosion = function(org) {
 		this1[1] = y;
 		this1[2] = z;
 		var this2 = p.vel;
-		var x1 = Math.random() * 512.0 - 256.0;
-		var y1 = Math.random() * 512.0 - 256.0;
-		var z1 = Math.random() * 512.0 - 256.0;
-		this2[0] = x1;
-		this2[1] = y1;
-		this2[2] = z1;
+		var x2 = Math.random() * 512.0 - 256.0;
+		var y2 = Math.random() * 512.0 - 256.0;
+		var z2 = Math.random() * 512.0 - 256.0;
+		this2[0] = x2;
+		this2[1] = y2;
+		this2[2] = z2;
 	}
 };
 quake_Render.RunParticleEffect = function(org,dir,color,count) {
@@ -12338,12 +12334,12 @@ quake_Render.RocketTrail = function(start,end,type) {
 			p.type = 1;
 			p.color = 67 + Math.floor(Math.random() * 4.0);
 			var this2 = p.org;
-			var x1 = start[0] + Math.random() * 6.0 - 3.0;
-			var y1 = start[1] + Math.random() * 6.0 - 3.0;
-			var z1 = start[2] + Math.random() * 6.0 - 3.0;
-			this2[0] = x1;
-			this2[1] = y1;
-			this2[2] = z1;
+			var x2 = start[0] + Math.random() * 6.0 - 3.0;
+			var y2 = start[1] + Math.random() * 6.0 - 3.0;
+			var z2 = start[2] + Math.random() * 6.0 - 3.0;
+			this2[0] = x2;
+			this2[1] = y2;
+			this2[2] = z2;
 			break;
 		case 3:case 5:
 			p.die = quake_CL.state.time + 0.5;
@@ -12362,24 +12358,24 @@ quake_Render.RocketTrail = function(start,end,type) {
 			p.type = 1;
 			p.color = 67 + Math.floor(Math.random() * 4.0);
 			var this3 = p.org;
-			var x2 = start[0] + Math.random() * 6.0 - 3.0;
-			var y2 = start[1] + Math.random() * 6.0 - 3.0;
-			var z2 = start[2] + Math.random() * 6.0 - 3.0;
-			this3[0] = x2;
-			this3[1] = y2;
-			this3[2] = z2;
+			var x3 = start[0] + Math.random() * 6.0 - 3.0;
+			var y3 = start[1] + Math.random() * 6.0 - 3.0;
+			var z3 = start[2] + Math.random() * 6.0 - 3.0;
+			this3[0] = x3;
+			this3[1] = y3;
+			this3[2] = z3;
 			break;
 		case 6:
 			p.color = 152 + Math.floor(Math.random() * 4.0);
 			p.type = 0;
 			p.die = quake_CL.state.time + 0.3;
 			var this4 = p.org;
-			var x3 = start[0] + Math.random() * 16.0 - 8.0;
-			var y3 = start[1] + Math.random() * 16.0 - 8.0;
-			var z3 = start[2] + Math.random() * 16.0 - 8.0;
-			this4[0] = x3;
-			this4[1] = y3;
-			this4[2] = z3;
+			var x4 = start[0] + Math.random() * 16.0 - 8.0;
+			var y4 = start[1] + Math.random() * 16.0 - 8.0;
+			var z4 = start[2] + Math.random() * 16.0 - 8.0;
+			this4[0] = x4;
+			this4[1] = y4;
+			this4[2] = z4;
 			break;
 		}
 		start[0] = start[0] + v[0];
@@ -12457,26 +12453,26 @@ quake_Render.AddDynamicLights = function(surf) {
 		v[1] = a[1];
 		v[2] = a[2];
 		var local0 = impact[0] * v[0] + impact[1] * v[1] + impact[2] * v[2] + tex.vecs[0][3] - surf.texturemins[0];
-		var a1 = tex.vecs[1];
+		var a2 = tex.vecs[1];
 		var v3 = new Float32Array(3);
-		v3[0] = a1[0];
-		v3[1] = a1[1];
-		v3[2] = a1[2];
+		v3[0] = a2[0];
+		v3[1] = a2[1];
+		v3[2] = a2[2];
 		var local1 = impact[0] * v3[0] + impact[1] * v3[1] + impact[2] * v3[2] + tex.vecs[1][3] - surf.texturemins[1];
-		var _g11 = 0;
-		while(_g11 < tmax) {
-			var t = _g11++;
+		var _g13 = 0;
+		while(_g13 < tmax) {
+			var t = _g13++;
 			var td = local1 - (t << 4);
 			if(td < 0.0) td = -td;
-			var td1 = Math.floor(td);
+			var td3 = Math.floor(td);
 			var _g2 = 0;
 			var tmp = t * smax;
 			while(_g2 < smax) {
 				var s = _g2++;
 				var sd = local0 - (s << 4);
 				if(sd < 0) sd = -sd;
-				var sd1 = Math.floor(sd);
-				if(sd1 > td1) dist = sd1 + (td1 >> 1); else dist = td1 + (sd1 >> 1);
+				var sd3 = Math.floor(sd);
+				if(sd3 > td3) dist = sd3 + (td3 >> 1); else dist = td3 + (sd3 >> 1);
 				if(dist < minlight) blocklights[tmp + s] += Math.floor((rad - dist) * 256.0);
 			}
 		}
@@ -12484,17 +12480,17 @@ quake_Render.AddDynamicLights = function(surf) {
 	var i = 0;
 	var _g3 = 0;
 	while(_g3 < tmax) {
-		var t1 = _g3++;
-		var idx = surf.light_t + t1;
+		var t3 = _g3++;
+		var idx = surf.light_t + t3;
 		if(idx >= 1024) quake_Sys.Error("Funny lightmap_modified index: " + idx + " < 1024");
 		quake_Render.lightmap_modified[idx] = 1;
 		var dest = (idx << 10) + surf.light_s;
-		var _g12 = 0;
-		while(_g12 < smax) {
-			var s1 = _g12++;
+		var _g14 = 0;
+		while(_g14 < smax) {
+			var s4 = _g14++;
 			var bl = blocklights[i++] >> 7;
 			if(bl > 255) bl = 255;
-			quake_Render.dlightmaps[dest + s1] = bl;
+			quake_Render.dlightmaps[dest + s4] = bl;
 		}
 	}
 };
@@ -12540,10 +12536,10 @@ quake_Render.BuildLightMap = function(surf) {
 		var _g2 = 0;
 		while(_g2 < tmax) {
 			++_g2;
-			var _g11 = 0;
-			while(_g11 < smax) {
-				var j1 = _g11++;
-				quake_Render.lightmaps[dest1 + (j1 << 2)] = 0;
+			var _g12 = 0;
+			while(_g12 < smax) {
+				var j2 = _g12++;
+				quake_Render.lightmaps[dest1 + (j2 << 2)] = 0;
 			}
 			dest1 += 4096;
 		}
@@ -12581,13 +12577,13 @@ quake_Render.DrawBrushModel = function(e) {
 		v2[0] = x;
 		v2[1] = y;
 		v2[2] = z;
-		var x1 = e.origin[0] + clmodel.radius;
-		var y1 = e.origin[1] + clmodel.radius;
-		var z1 = e.origin[2] + clmodel.radius;
+		var x2 = e.origin[0] + clmodel.radius;
+		var y2 = e.origin[1] + clmodel.radius;
+		var z2 = e.origin[2] + clmodel.radius;
 		var v3 = new Float32Array(3);
-		v3[0] = x1;
-		v3[1] = y1;
-		v3[2] = z1;
+		v3[0] = x2;
+		v3[1] = y2;
+		v3[2] = z2;
 		if(quake_Render.CullBox(v2,v3)) return;
 	}
 	quake_GL.gl.bindBuffer(34962,clmodel.cmds);
@@ -12618,16 +12614,16 @@ quake_Render.DrawBrushModel = function(e) {
 	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,20,e.model.waterchain);
 	quake_GL.gl.vertexAttribPointer(program.aTexCoord,2,5126,false,20,e.model.waterchain + 12);
-	var _g11 = 0;
-	var _g2 = clmodel.chains.length;
-	while(_g11 < _g2) {
-		var i1 = _g11++;
-		var chain1 = clmodel.chains[i1];
-		var texture1 = clmodel.textures[chain1[0]];
-		if(!texture1.turbulent) continue;
-		quake_Render.c_brush_verts += chain1[2];
-		quake_GL.Bind(program.tTexture,texture1.texturenum);
-		quake_GL.gl.drawArrays(4,chain1[1],chain1[2]);
+	var _g13 = 0;
+	var _g3 = clmodel.chains.length;
+	while(_g13 < _g3) {
+		var i3 = _g13++;
+		var chain3 = clmodel.chains[i3];
+		var texture3 = clmodel.textures[chain3[0]];
+		if(!texture3.turbulent) continue;
+		quake_Render.c_brush_verts += chain3[2];
+		quake_GL.Bind(program.tTexture,texture3.texturenum);
+		quake_GL.gl.drawArrays(4,chain3[1],chain3[2]);
 	}
 };
 quake_Render.RecursiveWorldNode = function(node) {
@@ -12678,20 +12674,20 @@ quake_Render.DrawWorld = function() {
 	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,20,clmodel.waterchain);
 	quake_GL.gl.vertexAttribPointer(program.aTexCoord,2,5126,false,20,clmodel.waterchain + 12);
 	var _g4 = 0;
-	var _g11 = clmodel.leafs;
-	while(_g4 < _g11.length) {
-		var leaf1 = _g11[_g4];
+	var _g14 = clmodel.leafs;
+	while(_g4 < _g14.length) {
+		var leaf4 = _g14[_g4];
 		++_g4;
-		if(leaf1.visframe != quake_Render.visframecount || leaf1.waterchain == leaf1.cmds.length) continue;
-		if(quake_Render.CullBox(leaf1.mins,leaf1.maxs)) continue;
-		var _g31 = leaf1.waterchain;
-		var _g21 = leaf1.cmds.length;
-		while(_g31 < _g21) {
-			var j1 = _g31++;
-			var cmds1 = leaf1.cmds[j1];
-			quake_Render.c_brush_verts += cmds1[2];
-			quake_GL.Bind(program.tTexture,clmodel.textures[cmds1[0]].texturenum);
-			quake_GL.gl.drawArrays(4,cmds1[1],cmds1[2]);
+		if(leaf4.visframe != quake_Render.visframecount || leaf4.waterchain == leaf4.cmds.length) continue;
+		if(quake_Render.CullBox(leaf4.mins,leaf4.maxs)) continue;
+		var _g34 = leaf4.waterchain;
+		var _g24 = leaf4.cmds.length;
+		while(_g34 < _g24) {
+			var j4 = _g34++;
+			var cmds4 = leaf4.cmds[j4];
+			quake_Render.c_brush_verts += cmds4[2];
+			quake_GL.Bind(program.tTexture,clmodel.textures[cmds4[0]].texturenum);
+			quake_GL.gl.drawArrays(4,cmds4[1],cmds4[2]);
 		}
 	}
 };
@@ -12734,13 +12730,13 @@ quake_Render.MarkLeaves = function() {
 		var _g11 = 0;
 		var _g2 = quake_CL.state.worldmodel.leafs.length;
 		while(_g11 < _g2) {
-			var i1 = _g11++;
-			if((vis[i1 >> 3] & 1 << (i1 & 7)) == 0) continue;
-			var node1 = quake_CL.state.worldmodel.leafs[i1 + 1];
-			while(node1 != null) {
-				if(node1.markvisframe == quake_Render.visframecount) break;
-				node1.markvisframe = quake_Render.visframecount;
-				node1 = node1.parent;
+			var i2 = _g11++;
+			if((vis[i2 >> 3] & 1 << (i2 & 7)) == 0) continue;
+			var node2 = quake_CL.state.worldmodel.leafs[i2 + 1];
+			while(node2 != null) {
+				if(node2.markvisframe == quake_Render.visframecount) break;
+				node2.markvisframe = quake_Render.visframecount;
+				node2 = node2.parent;
 			}
 		}
 		break;
@@ -12775,8 +12771,8 @@ quake_Render.AllocBlock = function(surf) {
 	if(best > 1024) quake_Sys.Error("AllocBlock: full");
 	var _g2 = 0;
 	while(_g2 < w) {
-		var i1 = _g2++;
-		quake_Render.allocated[x + i1] = best;
+		var i2 = _g2++;
+		quake_Render.allocated[x + i2] = best;
 	}
 	surf.light_s = x;
 	surf.light_t = y;
@@ -12830,13 +12826,13 @@ quake_Render.BuildLightmaps = function() {
 	var _g1 = 1;
 	var _g2 = quake_CL.state.model_precache.length;
 	while(_g1 < _g2) {
-		var i1 = _g1++;
-		quake_Render.currentmodel = quake_CL.state.model_precache[i1];
+		var i2 = _g1++;
+		quake_Render.currentmodel = quake_CL.state.model_precache[i2];
 		if(quake_Render.currentmodel.type != 0) continue;
 		if(HxOverrides.cca(quake_Render.currentmodel.name,0) != 42) {
 			var _g3 = 0;
-			var _g21 = quake_Render.currentmodel.faces.length;
-			while(_g3 < _g21) {
+			var _g22 = quake_Render.currentmodel.faces.length;
+			while(_g3 < _g22) {
 				var j = _g3++;
 				var surf = quake_Render.currentmodel.faces[j];
 				if(!surf.sky && !surf.turbulent) {
@@ -12846,7 +12842,7 @@ quake_Render.BuildLightmaps = function() {
 				quake_Render.BuildSurfaceDisplayList(surf);
 			}
 		}
-		if(i1 == 1) quake_Render.MakeWorldModelDisplayLists(quake_Render.currentmodel); else quake_Render.MakeBrushModelDisplayLists(quake_Render.currentmodel);
+		if(i2 == 1) quake_Render.MakeWorldModelDisplayLists(quake_Render.currentmodel); else quake_Render.MakeBrushModelDisplayLists(quake_Render.currentmodel);
 	}
 	quake_GL.Bind(0,quake_Render.lightmap_texture);
 	quake_GL.gl.texImage2D(3553,0,6408,1024,1024,0,6408,5121,quake_Render.lightmaps);
@@ -12956,12 +12952,12 @@ quake_Render.InitSky = function(src) {
 	quake_GL.gl.generateMipmap(3553);
 	var _g2 = 0;
 	while(_g2 < 128) {
-		var i1 = _g2++;
-		var _g11 = 0;
-		while(_g11 < 128) {
-			var j1 = _g11++;
-			var p = (i1 << 8) + j1;
-			if(src[p] != 0) trans32[(i1 << 7) + j1] = quake_COM.LittleLong(quake_VID.d_8to24table[src[p]] + -16777216); else trans32[(i1 << 7) + j1] = 0;
+		var i2 = _g2++;
+		var _g12 = 0;
+		while(_g12 < 128) {
+			var j2 = _g12++;
+			var p = (i2 << 8) + j2;
+			if(src[p] != 0) trans32[(i2 << 7) + j2] = quake_COM.LittleLong(quake_VID.d_8to24table[src[p]] + -16777216); else trans32[(i2 << 7) + j2] = 0;
 		}
 	}
 	quake_GL.Bind(0,quake_Render.alphaskytexture);
@@ -13397,8 +13393,8 @@ quake_PF.droptofloor = function() {
 	}
 	ent._v_float.set(trace.endpos,10);
 	quake_SV.LinkEdict(ent,false);
-	var v1 = ent._v_float[76] | 0 | 512;
-	ent._v_float[76] = v1;
+	var v2 = ent._v_float[76] | 0 | 512;
+	ent._v_float[76] = v2;
 	ent._v_int[47] = trace.ent.num;
 	quake_PR._globals_float[1] = 1.0;
 };
@@ -13507,9 +13503,9 @@ quake_PF.aim = function() {
 		v1[0] = bestent._v_float[10] - ent._v_float[10];
 		v1[1] = bestent._v_float[11] - ent._v_float[11];
 		v1[2] = bestent._v_float[12] - ent._v_float[12];
-		var dist1 = v1[0] * bestdir[0] + v1[1] * bestdir[1] + v1[2] * bestdir[2];
-		end[0] = bestdir[0] * dist1;
-		end[1] = bestdir[1] * dist1;
+		var dist2 = v1[0] * bestdir[0] + v1[1] * bestdir[1] + v1[2] * bestdir[2];
+		end[0] = bestdir[0] * dist2;
+		end[1] = bestdir[1] * dist2;
 		end[2] = v1[2];
 		quake__$Vec_Vec_$Impl_$.Normalize(end);
 		quake_PR._globals_float[1] = end[0];
@@ -13755,10 +13751,10 @@ quake_Sbar.SortFrags = function() {
 	var _g11 = 0;
 	var _g2 = quake_Sbar.scoreboardlines;
 	while(_g11 < _g2) {
-		var i1 = _g11++;
+		var i2 = _g11++;
 		var _g3 = 0;
-		var _g21 = quake_Sbar.scoreboardlines - 1 - i1;
-		while(_g3 < _g21) {
+		var _g22 = quake_Sbar.scoreboardlines - 1 - i2;
+		while(_g3 < _g22) {
 			var j = _g3++;
 			if(quake_CL.state.scores[quake_Sbar.fragsort[j]].frags < quake_CL.state.scores[quake_Sbar.fragsort[j + 1]].frags) {
 				var k = quake_Sbar.fragsort[j];
@@ -13837,8 +13833,8 @@ quake_Sbar.DrawInventory = function() {
 	while(_g3 < 4) {
 		var i3 = _g3++;
 		var num = Std.string(quake_CL.state.stats[6 + i3]);
-		var _g11 = num.length;
-		switch(_g11) {
+		var _g13 = num.length;
+		switch(_g13) {
 		case 1:
 			quake_Sbar.DrawCharacter((6 * i3 + 3 << 3) - 2,-24,HxOverrides.cca(num,0) - 30);
 			continue;

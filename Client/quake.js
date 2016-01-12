@@ -443,8 +443,7 @@ quake_MSG.prototype = {
 		return oldsize;
 	}
 	,Write: function(a,length) {
-		var tmp = this.GetSpace(length);
-		new Uint8Array(this.data,tmp,length).set(a.subarray(0,length));
+		new Uint8Array(this.data,this.GetSpace(length),length).set(a.subarray(0,length));
 	}
 	,WriteChar: function(c) {
 		new DataView(this.data).setInt8(this.GetSpace(1),c);
@@ -487,8 +486,7 @@ quake_CL.WriteDemoMessage = function() {
 	f.setFloat32(4,quake_CL.state.viewangles[0],true);
 	f.setFloat32(8,quake_CL.state.viewangles[1],true);
 	f.setFloat32(12,quake_CL.state.viewangles[2],true);
-	var tmp = quake_CL.cls.demoofs + 16;
-	new Uint8Array(quake_CL.cls.demofile).set(new Uint8Array(quake_NET.message.data,0,quake_NET.message.cursize),tmp);
+	new Uint8Array(quake_CL.cls.demofile).set(new Uint8Array(quake_NET.message.data,0,quake_NET.message.cursize),quake_CL.cls.demoofs + 16);
 	quake_CL.cls.demoofs = len;
 };
 quake_CL.GetMessage = function() {

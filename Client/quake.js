@@ -144,9 +144,10 @@ js_Boot.__string_rec = function(o,s) {
 			var i;
 			var str1 = "[";
 			s += "\t";
-			var _g2 = 0;
-			while(_g2 < l) {
-				var i3 = _g2++;
+			var _g12 = 0;
+			var _g2 = l;
+			while(_g12 < _g2) {
+				var i3 = _g12++;
 				str1 += (i3 > 0?",":"") + js_Boot.__string_rec(o[i3],s);
 			}
 			str1 += "]";
@@ -1277,9 +1278,10 @@ quake_CL.ParseServerInfo = function() {
 		sound_precache[numsounds++] = str;
 	}
 	quake_CL.state.model_precache = [];
-	var _g3 = 1;
-	while(_g3 < nummodels) {
-		var i3 = _g3++;
+	var _g13 = 1;
+	var _g3 = nummodels;
+	while(_g13 < _g3) {
+		var i3 = _g13++;
 		quake_CL.state.model_precache[i3] = quake_Mod.LoadModel(quake_Mod.FindName(model_precache[i3]),false);
 		if(quake_CL.state.model_precache[i3] == null) {
 			quake_Console.Print("Model " + model_precache[i3] + " not found\n");
@@ -1288,9 +1290,10 @@ quake_CL.ParseServerInfo = function() {
 		quake_CL.KeepaliveMessage();
 	}
 	quake_CL.state.sound_precache = [];
-	var _g4 = 1;
-	while(_g4 < numsounds) {
-		var i4 = _g4++;
+	var _g14 = 1;
+	var _g4 = numsounds;
+	while(_g14 < _g4) {
+		var i4 = _g14++;
 		quake_CL.state.sound_precache[i4] = quake_S.PrecacheSound(sound_precache[i4]);
 		quake_CL.KeepaliveMessage();
 	}
@@ -1976,8 +1979,8 @@ quake_COM.Path_f = function() {
 quake_COM.WriteFile = function(filename,data,len) {
 	filename = filename.toLowerCase();
 	var dest = [];
-	var _g = 0;
-	while(_g < len) dest.push(String.fromCharCode(data[_g++]));
+	var _g1 = 0;
+	while(_g1 < len) dest.push(String.fromCharCode(data[_g1++]));
 	try {
 		quake_COM.localStorage.setItem("Quake." + quake_COM.searchpaths[quake_COM.searchpaths.length - 1].filename + "/" + filename,dest.join(""));
 	} catch( e ) {
@@ -2083,8 +2086,8 @@ quake_COM.LoadPackFile = function(packfile) {
 		if(xhr.status <= 199 || xhr.status >= 300 || xhr.responseText.length != dirlen) return null;
 		var info = quake_Q.strmem(xhr.responseText);
 		if(quake_CRC.Block(new Uint8Array(info)) != 32981) quake_COM.modified = true;
-		var _g = 0;
-		while(_g < numpackfiles) pack.push(new quake__$COM_File(info,_g++));
+		var _g1 = 0;
+		while(_g1 < numpackfiles) pack.push(new quake__$COM_File(info,_g1++));
 	}
 	quake_Console.Print("Added packfile " + packfile + " (" + numpackfiles + " files)\n");
 	return pack;
@@ -2463,9 +2466,9 @@ quake_Console.DrawConsole = function(lines) {
 			y += 8;
 			continue;
 		}
-		var _g2 = 0;
-		while(_g2 < rows) {
-			quake_Draw.String(8,y,HxOverrides.substr(txt,_g2++ * width,width));
+		var _g3 = 0;
+		while(_g3 < rows) {
+			quake_Draw.String(8,y,HxOverrides.substr(txt,_g3++ * width,width));
 			y += 8;
 		}
 	}
@@ -3264,12 +3267,12 @@ quake_GL.ResampleTexture = function(data,inwidth,inheight,outwidth,outheight) {
 	var ystep = inheight / outheight;
 	var src;
 	var dest = 0;
-	var _g = 0;
-	while(_g < outheight) {
-		src = Math.floor(_g++ * ystep) * inwidth;
-		var _g1 = 0;
-		while(_g1 < outwidth) {
-			var j = _g1++;
+	var _g1 = 0;
+	while(_g1 < outheight) {
+		src = Math.floor(_g1++ * ystep) * inwidth;
+		var _g3 = 0;
+		while(_g3 < outwidth) {
+			var j = _g3++;
 			out[dest + j] = data[src + Math.floor(j * xstep)];
 		}
 		dest += outwidth;
@@ -4837,8 +4840,8 @@ quake_Key.Bind_f = function() {
 		return;
 	}
 	var cmd = quake_Cmd.argv[2];
-	var _g = 3;
-	while(_g < c) cmd += " " + quake_Cmd.argv[_g++];
+	var _g1 = 3;
+	while(_g1 < c) cmd += " " + quake_Cmd.argv[_g1++];
 	quake_Key.bindings[b] = cmd;
 };
 quake_Key.WriteBindings = function() {
@@ -4966,9 +4969,9 @@ quake_Menu.DrawTextBox = function(x,y,width,lines) {
 	var cx;
 	var cy = y;
 	quake_Menu.DrawPic(x,y,quake_Menu.box_tl);
-	var _g = 0;
-	while(_g < lines) {
-		++_g;
+	var _g1 = 0;
+	while(_g1 < lines) {
+		++_g1;
 		cy += 8;
 		quake_Menu.DrawPic(x,cy,quake_Menu.box_ml);
 	}
@@ -4979,9 +4982,9 @@ quake_Menu.DrawTextBox = function(x,y,width,lines) {
 		cy = y;
 		quake_Menu.DrawPic(cx,y,quake_Menu.box_tm);
 		p = quake_Menu.box_mm;
-		var _g1 = 0;
-		while(_g1 < lines) {
-			var n = _g1++;
+		var _g11 = 0;
+		while(_g11 < lines) {
+			var n = _g11++;
 			cy += 8;
 			quake_Menu.DrawPic(cx,cy,p);
 			if(n == 0) p = quake_Menu.box_mm2;
@@ -4992,9 +4995,9 @@ quake_Menu.DrawTextBox = function(x,y,width,lines) {
 	}
 	cy = y;
 	quake_Menu.DrawPic(cx,y,quake_Menu.box_tr);
-	var _g2 = 0;
-	while(_g2 < lines) {
-		++_g2;
+	var _g12 = 0;
+	while(_g12 < lines) {
+		++_g12;
 		cy += 8;
 		quake_Menu.DrawPic(cx,cy,quake_Menu.box_mr);
 	}
@@ -6025,18 +6028,18 @@ quake_Mod_$Alias.LoadAllSkins = function(loadmodel,model,inmodel) {
 			var group = new quake_Skin(true);
 			var numskins = model.getUint32(inmodel,true);
 			inmodel += 4;
-			var _g2 = 0;
-			while(_g2 < numskins) {
-				var j = _g2++;
+			var _g3 = 0;
+			while(_g3 < numskins) {
+				var j = _g3++;
 				var s = new quake_Skin(false);
 				s.interval = model.getFloat32(inmodel,true);
 				if(s.interval <= 0.0) quake_Sys.Error("Mod.LoadAllSkins: interval<=0");
 				group.skins[j] = s;
 				inmodel += 4;
 			}
-			var _g21 = 0;
-			while(_g21 < numskins) {
-				var j1 = _g21++;
+			var _g31 = 0;
+			while(_g31 < numskins) {
+				var j1 = _g31++;
 				var skin1 = new Uint8Array(model.buffer,inmodel,skinsize);
 				quake_Mod_$Alias.FloodFillSkin(loadmodel,skin1);
 				group.skins[j1].texturenum = quake_GL.LoadTexture(loadmodel.name + "_" + i + "_" + j1,loadmodel.skinwidth,loadmodel.skinheight,skin1);
@@ -6077,27 +6080,27 @@ quake_Mod_$Alias.LoadAllFrames = function(loadmodel,model,inmodel) {
 			group.frames = [];
 			var numframes = model.getUint32(inmodel,true);
 			inmodel += 12;
-			var _g21 = 0;
-			while(_g21 < numframes) {
-				var j = _g21++;
+			var _g31 = 0;
+			while(_g31 < numframes) {
+				var j = _g31++;
 				var f = new quake_MFrame(false);
 				f.interval = model.getFloat32(inmodel,true);
 				group.frames[j] = f;
 				if(group.frames[j].interval <= 0.0) quake_Sys.Error("Mod.LoadAllFrames: interval<=0");
 				inmodel += 4;
 			}
-			var _g22 = 0;
-			while(_g22 < numframes) {
-				var frame2 = group.frames[_g22++];
+			var _g32 = 0;
+			while(_g32 < numframes) {
+				var frame2 = group.frames[_g32++];
 				frame2.bboxmin = [model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)];
 				frame2.bboxmax = [model.getUint8(inmodel + 4),model.getUint8(inmodel + 5),model.getUint8(inmodel + 6)];
 				frame2.name = quake_Q.memstr(new Uint8Array(model.buffer,inmodel + 8,16));
 				frame2.v = [];
 				inmodel += 24;
-				var _g4 = 0;
-				var _g32 = loadmodel.numverts;
-				while(_g4 < _g32) {
-					frame2.v[_g4++] = new quake_Trivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
+				var _g5 = 0;
+				var _g4 = loadmodel.numverts;
+				while(_g5 < _g4) {
+					frame2.v[_g5++] = new quake_Trivert([model.getUint8(inmodel),model.getUint8(inmodel + 1),model.getUint8(inmodel + 2)],model.getUint8(inmodel + 3));
 					inmodel += 4;
 				}
 			}
@@ -6284,9 +6287,9 @@ quake_Mod_$Brush.LoadVertexes = function(loadmodel,view) {
 	if(filelen % 12 != 0) quake_Sys.Error("Mod.LoadVisibility: funny lump size in " + loadmodel.name);
 	var count = filelen / 12 | 0;
 	loadmodel.vertexes = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		var x = view.getFloat32(fileofs,true);
 		var y = view.getFloat32(fileofs + 4,true);
 		var z = view.getFloat32(fileofs + 8,true);
@@ -6304,9 +6307,9 @@ quake_Mod_$Brush.LoadEdges = function(loadmodel,view) {
 	if((filelen & 3) != 0) quake_Sys.Error("Mod.LoadEdges: funny lump size in " + loadmodel.name);
 	var count = filelen >> 2;
 	loadmodel.edges = [];
-	var _g = 0;
-	while(_g < count) {
-		loadmodel.edges[_g++] = [view.getUint16(fileofs,true),view.getUint16(fileofs + 2,true)];
+	var _g1 = 0;
+	while(_g1 < count) {
+		loadmodel.edges[_g1++] = [view.getUint16(fileofs,true),view.getUint16(fileofs + 2,true)];
 		fileofs += 4;
 	}
 };
@@ -6314,9 +6317,9 @@ quake_Mod_$Brush.LoadSurfedges = function(loadmodel,view) {
 	var fileofs = view.getUint32(108,true);
 	var count = view.getUint32(112,true) >> 2;
 	loadmodel.surfedges = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		loadmodel.surfedges[i] = view.getInt32(fileofs + (i << 2),true);
 	}
 };
@@ -6326,9 +6329,9 @@ quake_Mod_$Brush.LoadTextures = function(loadmodel,view) {
 	loadmodel.textures = [];
 	var nummiptex = view.getUint32(fileofs,true);
 	var dataofs = fileofs + 4;
-	var _g = 0;
-	while(_g < nummiptex) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < nummiptex) {
+		var i = _g1++;
 		var miptexofs = view.getInt32(dataofs,true);
 		dataofs += 4;
 		if(miptexofs == -1) {
@@ -6351,18 +6354,18 @@ quake_Mod_$Brush.LoadTextures = function(loadmodel,view) {
 		}
 		loadmodel.textures[i] = tx;
 	}
-	var _g1 = 0;
-	while(_g1 < nummiptex) {
-		var i1 = _g1++;
+	var _g11 = 0;
+	while(_g11 < nummiptex) {
+		var i1 = _g11++;
 		var tx1 = loadmodel.textures[i1];
 		if(HxOverrides.cca(tx1.name,0) != 43) continue;
 		if(HxOverrides.cca(tx1.name,1) != 48) continue;
 		var name = tx1.name.substring(2);
 		tx1.anims = [i1];
 		tx1.alternate_anims = [];
-		var _g11 = 0;
-		while(_g11 < nummiptex) {
-			var j = _g11++;
+		var _g3 = 0;
+		while(_g3 < nummiptex) {
+			var j = _g3++;
 			var tx2 = loadmodel.textures[j];
 			if(HxOverrides.cca(tx2.name,0) != 43) continue;
 			if(tx2.name.substring(2) != name) continue;
@@ -6383,17 +6386,17 @@ quake_Mod_$Brush.LoadTextures = function(loadmodel,view) {
 			}
 			quake_Sys.Error("Bad animating texture " + tx1.name);
 		}
-		var _g2 = 0;
-		var _g12 = tx1.anims.length;
-		while(_g2 < _g12) {
-			var j2 = _g2++;
-			if(tx1.anims[j2] == null) quake_Sys.Error("Missing frame " + j2 + " of " + tx1.name);
+		var _g31 = 0;
+		var _g2 = tx1.anims.length;
+		while(_g31 < _g2) {
+			var j1 = _g31++;
+			if(tx1.anims[j1] == null) quake_Sys.Error("Missing frame " + j1 + " of " + tx1.name);
 		}
-		var _g22 = 0;
-		var _g13 = tx1.alternate_anims.length;
-		while(_g22 < _g13) {
-			var j3 = _g22++;
-			if(tx1.alternate_anims[j3] == null) quake_Sys.Error("Missing frame " + j3 + " of " + tx1.name);
+		var _g32 = 0;
+		var _g22 = tx1.alternate_anims.length;
+		while(_g32 < _g22) {
+			var j2 = _g32++;
+			if(tx1.alternate_anims[j2] == null) quake_Sys.Error("Missing frame " + j2 + " of " + tx1.name);
 		}
 		loadmodel.textures[i1] = tx1;
 	}
@@ -6411,9 +6414,9 @@ quake_Mod_$Brush.LoadPlanes = function(loadmodel,view) {
 	if(filelen % 20 != 0) quake_Sys.Error("Mod.LoadPlanes: funny lump size in " + loadmodel.name);
 	var count = filelen / 20 | 0;
 	loadmodel.planes = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		var out = new quake_Plane();
 		var this1 = out.normal;
 		var x = view.getFloat32(fileofs,true);
@@ -6438,9 +6441,9 @@ quake_Mod_$Brush.LoadTexinfo = function(loadmodel,view) {
 	if(filelen % 40 != 0) quake_Sys.Error("Mod.LoadTexinfo: funny lump size in " + loadmodel.name);
 	var count = filelen / 40 | 0;
 	loadmodel.texinfo = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		var out = new quake_Texinfo([[view.getFloat32(fileofs,true),view.getFloat32(fileofs + 4,true),view.getFloat32(fileofs + 8,true),view.getFloat32(fileofs + 12,true)],[view.getFloat32(fileofs + 16,true),view.getFloat32(fileofs + 20,true),view.getFloat32(fileofs + 24,true),view.getFloat32(fileofs + 28,true)]],view.getUint32(fileofs + 32,true),view.getUint32(fileofs + 36,true));
 		if(out.texture >= loadmodel.textures.length) {
 			out.texture = loadmodel.textures.length - 1;
@@ -6458,9 +6461,9 @@ quake_Mod_$Brush.LoadFaces = function(loadmodel,view) {
 	loadmodel.firstface = 0;
 	loadmodel.numfaces = count;
 	loadmodel.faces = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		var styles = new Uint8Array(view.buffer,fileofs + 12,4);
 		var out = new quake_Surface();
 		out.plane = loadmodel.planes[view.getUint16(fileofs,true)];
@@ -6479,10 +6482,10 @@ quake_Mod_$Brush.LoadFaces = function(loadmodel,view) {
 		var maxs_1 = -99999.0;
 		var tex = loadmodel.texinfo[out.texinfo];
 		out.texture = tex.texture;
-		var _g2 = 0;
-		var _g1 = out.numedges;
-		while(_g2 < _g1) {
-			var e = loadmodel.surfedges[out.firstedge + _g2++];
+		var _g3 = 0;
+		var _g2 = out.numedges;
+		while(_g3 < _g2) {
+			var e = loadmodel.surfedges[out.firstedge + _g3++];
 			var v = e >= 0?loadmodel.vertexes[loadmodel.edges[e][0]]:loadmodel.vertexes[loadmodel.edges[-e][1]];
 			var a = tex.vecs[0];
 			var v1 = new Float32Array(3);
@@ -6512,9 +6515,9 @@ quake_Mod_$Brush.LoadMarksurfaces = function(loadmodel,view) {
 	var fileofs = view.getUint32(92,true);
 	var count = view.getUint32(96,true) >> 1;
 	loadmodel.marksurfaces = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		var j = view.getUint16(fileofs + (i << 1),true);
 		if(j > loadmodel.faces.length) quake_Sys.Error("Mod.LoadMarksurfaces: bad surface number");
 		loadmodel.marksurfaces[i] = j;
@@ -6532,9 +6535,9 @@ quake_Mod_$Brush.LoadLeafs = function(loadmodel,view) {
 	if(filelen % 28 != 0) quake_Sys.Error("Mod.LoadLeafs: funny lump size in " + loadmodel.name);
 	var count = filelen / 28 | 0;
 	loadmodel.leafs = [];
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < count) {
+		var i = _g1++;
 		var out = new quake_Leaf();
 		out.num = i;
 		out.contents = view.getInt32(fileofs,true);
@@ -6572,9 +6575,10 @@ quake_Mod_$Brush.LoadNodes = function(loadmodel,view) {
 	var count = filelen / 24 | 0;
 	loadmodel.nodes = [];
 	var children = new Array(count);
-	var _g = 0;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 0;
+	var _g = count;
+	while(_g1 < _g) {
+		var i = _g1++;
 		var n = loadmodel.nodes[i] = new quake_Node();
 		n.num = i;
 		n.contents = 0;
@@ -6601,14 +6605,15 @@ quake_Mod_$Brush.LoadNodes = function(loadmodel,view) {
 		n.cmds = [];
 		fileofs += 24;
 	}
-	var _g1 = 0;
-	while(_g1 < count) {
-		var i1 = _g1++;
-		var out = loadmodel.nodes[i1];
+	var _g11 = 0;
+	var _g2 = count;
+	while(_g11 < _g2) {
+		var i2 = _g11++;
+		var out = loadmodel.nodes[i2];
 		out.plane = loadmodel.planes[out.planenum];
-		var children1 = children[i1];
-		if(children1[0] >= 0) out.child0 = loadmodel.nodes[children1[0]]; else out.child0 = loadmodel.leafs[-1 - children1[0]];
-		if(children1[1] >= 0) out.child1 = loadmodel.nodes[children1[1]]; else out.child1 = loadmodel.leafs[-1 - children1[1]];
+		var children2 = children[i2];
+		if(children2[0] >= 0) out.child0 = loadmodel.nodes[children2[0]]; else out.child0 = loadmodel.leafs[-1 - children2[0]];
+		if(children2[1] >= 0) out.child1 = loadmodel.nodes[children2[1]]; else out.child1 = loadmodel.leafs[-1 - children2[1]];
 	}
 	quake_Mod_$Brush.SetParent(loadmodel.nodes[0],null);
 };
@@ -6655,9 +6660,9 @@ quake_Mod_$Brush.LoadClipnodes = function(loadmodel,view) {
 	v3[2] = 64.0;
 	h1.clip_maxs = v3;
 	loadmodel.hulls[2] = h1;
-	var _g = 0;
-	while(_g < count) {
-		++_g;
+	var _g1 = 0;
+	while(_g1 < count) {
+		++_g1;
 		var n = new quake_ClipNode();
 		n.planenum = view.getUint32(fileofs,true);
 		n.child0 = view.getInt16(fileofs + 4,true);
@@ -6718,9 +6723,9 @@ quake_Mod_$Brush.LoadSubmodels = function(loadmodel,view) {
 	loadmodel.hulls[2].firstclipnode = view.getUint32(fileofs + 44,true);
 	fileofs += 64;
 	var clipnodes = loadmodel.hulls[0].clipnodes;
-	var _g = 1;
-	while(_g < count) {
-		var i = _g++;
+	var _g1 = 1;
+	while(_g1 < count) {
+		var i = _g1++;
 		var out = quake_Mod.FindName("*" + i);
 		out.needload = false;
 		out.type = 0;
@@ -6845,18 +6850,18 @@ quake_Mod_$Sprite.LoadSpriteModel = function(loadmodel,model) {
 			loadmodel.frames[i] = group;
 			numframes = model.getUint32(inframe,true);
 			inframe += 4;
-			var _g2 = 0;
-			while(_g2 < numframes) {
-				var j = _g2++;
+			var _g3 = 0;
+			while(_g3 < numframes) {
+				var j = _g3++;
 				var f = new quake_MFrame(false);
 				f.interval = model.getFloat32(inframe,true);
 				group.frames[j] = f;
 				if(group.frames[j].interval <= 0.0) quake_Sys.Error("Mod.LoadSpriteModel: interval<=0");
 				inframe += 4;
 			}
-			var _g21 = 0;
-			while(_g21 < numframes) {
-				var j1 = _g21++;
+			var _g31 = 0;
+			while(_g31 < numframes) {
+				var j1 = _g31++;
 				inframe = quake_Mod_$Sprite.LoadSpriteFrame(loadmodel.name + "_" + i + "_" + j1,model,inframe,group.frames[j1]);
 			}
 		}
@@ -6906,9 +6911,10 @@ quake_Mod_$Sprite.LoadSpriteFrame = function(identifier,model,inframe,frame) {
 	}
 	var trans = new ArrayBuffer(size << 2);
 	var trans32 = new Uint32Array(trans);
-	var _g2 = 0;
-	while(_g2 < size) {
-		var i = _g2++;
+	var _g11 = 0;
+	var _g2 = size;
+	while(_g11 < _g2) {
+		var i = _g11++;
 		if(data[i] != 255) trans32[i] = quake_COM.LittleLong(quake_VID.d_8to24table[data[i]] + -16777216);
 	}
 	var glt = new quake_GLTexture(identifier,frame.width,frame.height);
@@ -7402,36 +7408,40 @@ quake_PR.LoadProgs = function() {
 	ofs = view.getUint32(8,true);
 	num = view.getUint32(12,true);
 	quake_PR.statements = [];
-	var _g2 = 0;
-	while(_g2 < num) {
-		++_g2;
+	var _g11 = 0;
+	var _g2 = num;
+	while(_g11 < _g2) {
+		++_g11;
 		quake_PR.statements.push(new quake__$PR_PRStatement(view,ofs));
 		ofs += 8;
 	}
 	ofs = view.getUint32(16,true);
 	num = view.getUint32(20,true);
 	quake_PR.globaldefs = [];
-	var _g3 = 0;
-	while(_g3 < num) {
-		++_g3;
+	var _g12 = 0;
+	var _g3 = num;
+	while(_g12 < _g3) {
+		++_g12;
 		quake_PR.globaldefs.push(new quake_PRDef(view,ofs));
 		ofs += 8;
 	}
 	ofs = view.getUint32(24,true);
 	num = view.getUint32(28,true);
 	quake_PR.fielddefs = [];
-	var _g4 = 0;
-	while(_g4 < num) {
-		++_g4;
+	var _g13 = 0;
+	var _g4 = num;
+	while(_g13 < _g4) {
+		++_g13;
 		quake_PR.fielddefs.push(new quake_PRDef(view,ofs));
 		ofs += 8;
 	}
 	ofs = view.getUint32(32,true);
 	num = view.getUint32(36,true);
 	quake_PR.functions = [];
-	var _g5 = 0;
-	while(_g5 < num) {
-		++_g5;
+	var _g14 = 0;
+	var _g5 = num;
+	while(_g14 < _g5) {
+		++_g14;
 		quake_PR.functions.push(new quake__$PR_PRFunction(view,ofs));
 		ofs += 36;
 	}
@@ -7446,9 +7456,10 @@ quake_PR.LoadProgs = function() {
 	quake_PR._globals = new ArrayBuffer(num << 2);
 	quake_PR._globals_float = new Float32Array(quake_PR._globals);
 	quake_PR._globals_int = new Int32Array(quake_PR._globals);
-	var _g6 = 0;
-	while(_g6 < num) {
-		var i6 = _g6++;
+	var _g15 = 0;
+	var _g6 = num;
+	while(_g15 < _g6) {
+		var i6 = _g15++;
 		quake_PR._globals_int[i6] = view.getInt32(ofs + (i6 << 2),true);
 	}
 	quake_PR.entityfields = view.getUint32(56,true);
@@ -7556,21 +7567,21 @@ quake_PR.EnterFunction = function(f) {
 	quake_PR.stack[quake_PR.depth++] = new quake__$PR_PRStackItem(quake_PR.xstatement,quake_PR.xfunction);
 	var c = f.locals;
 	if(quake_PR.localstack_used + c > quake_PR.localstack_size) quake_PR.RunError("PR.EnterFunction: locals stack overflow\n");
-	var _g = 0;
-	while(_g < c) {
-		var i = _g++;
+	var _g1 = 0;
+	while(_g1 < c) {
+		var i = _g1++;
 		quake_PR.localstack[quake_PR.localstack_used + i] = quake_PR._globals_int[f.parm_start + i];
 	}
 	quake_PR.localstack_used += c;
 	var o = f.parm_start;
-	var _g1 = 0;
-	var _g2 = f.numparms;
-	while(_g1 < _g2) {
-		var i2 = _g1++;
+	var _g11 = 0;
+	var _g = f.numparms;
+	while(_g11 < _g) {
+		var i1 = _g11++;
 		var _g3 = 0;
-		var _g22 = f.parm_size[i2];
-		var tmp = 4 + i2 * 3;
-		while(_g3 < _g22) quake_PR._globals_int[o++] = quake_PR._globals_int[tmp + _g3++];
+		var _g2 = f.parm_size[i1];
+		var tmp = 4 + i1 * 3;
+		while(_g3 < _g2) quake_PR._globals_int[o++] = quake_PR._globals_int[tmp + _g3++];
 	}
 	quake_PR.xfunction = f;
 	return f.first_statement - 1;
@@ -7791,10 +7802,10 @@ quake_PR.NewString = function(s,length) {
 	var old_strings = quake_PR.strings;
 	quake_PR.strings = new Uint8Array(ofs + length);
 	quake_PR.strings.set(old_strings);
-	var end = s.length >= length?length - 1:s.length;
-	var _g = 0;
-	while(_g < end) {
-		var i = _g++;
+	var _g1 = 0;
+	var _g = s.length >= length?length - 1:s.length;
+	while(_g1 < _g) {
+		var i = _g1++;
 		quake_PR.strings[ofs + i] = HxOverrides.cca(s,i);
 	}
 	return ofs;
@@ -11942,9 +11953,10 @@ quake_Render.InitParticles = function() {
 		if(numparticles < 512) numparticles = 512;
 	} else numparticles = 2048;
 	var _g = [];
-	var _g1 = 0;
-	while(_g1 < numparticles) {
-		++_g1;
+	var _g2 = 0;
+	var _g1 = numparticles;
+	while(_g2 < _g1) {
+		++_g2;
 		_g.push(new quake__$Render_Particle());
 	}
 	quake_Render.particles = _g;
@@ -12355,11 +12367,11 @@ quake_Render.AddDynamicLights = function(surf) {
 	var tex = quake_CL.state.worldmodel.texinfo[surf.texinfo];
 	var impact = new Float32Array(3);
 	var blocklights = [];
-	var _g = 0;
-	while(_g < size) blocklights[_g++] = 0;
 	var _g1 = 0;
-	while(_g1 < 32) {
-		var i1 = _g1++;
+	while(_g1 < size) blocklights[_g1++] = 0;
+	var _g = 0;
+	while(_g < 32) {
+		var i1 = _g++;
 		if((surf.dlightbits >>> i1 & 1) == 0) continue;
 		var light = quake_CL.dlights[i1];
 		var v1 = light.origin;
@@ -12384,16 +12396,16 @@ quake_Render.AddDynamicLights = function(surf) {
 		v3[1] = a1[1];
 		v3[2] = a1[2];
 		var local1 = impact[0] * v3[0] + impact[1] * v3[1] + impact[2] * v3[2] + tex.vecs[1][3] - surf.texturemins[1];
-		var _g13 = 0;
-		while(_g13 < tmax) {
-			var t = _g13++;
+		var _g2 = 0;
+		while(_g2 < tmax) {
+			var t = _g2++;
 			var td = local1 - (t << 4);
 			if(td < 0.0) td = -td;
 			var td3 = Math.floor(td);
-			var _g2 = 0;
+			var _g4 = 0;
 			var tmp = t * smax;
-			while(_g2 < smax) {
-				var s = _g2++;
+			while(_g4 < smax) {
+				var s = _g4++;
 				var sd = local0 - (s << 4);
 				if(sd < 0) sd = -sd;
 				var sd3 = Math.floor(sd);
@@ -12403,32 +12415,32 @@ quake_Render.AddDynamicLights = function(surf) {
 		}
 	}
 	var i = 0;
-	var _g3 = 0;
-	while(_g3 < tmax) {
-		var idx = surf.light_t + _g3++;
+	var _g13 = 0;
+	while(_g13 < tmax) {
+		var idx = surf.light_t + _g13++;
 		if(idx >= 1024) quake_Sys.Error("Funny lightmap_modified index: " + idx + " < 1024");
 		quake_Render.lightmap_modified[idx] = 1;
 		var dest = (idx << 10) + surf.light_s;
-		var _g14 = 0;
-		while(_g14 < smax) {
-			var s4 = _g14++;
+		var _g3 = 0;
+		while(_g3 < smax) {
+			var s3 = _g3++;
 			var bl = blocklights[i++] >> 7;
 			if(bl > 255) bl = 255;
-			quake_Render.dlightmaps[dest + s4] = bl;
+			quake_Render.dlightmaps[dest + s3] = bl;
 		}
 	}
 };
 quake_Render.RemoveDynamicLights = function(surf) {
 	var smax = (surf.extents[0] >> 4) + 1;
 	var tmax = (surf.extents[1] >> 4) + 1;
-	var _g = 0;
-	while(_g < tmax) {
-		var idx = surf.light_t + _g++;
+	var _g1 = 0;
+	while(_g1 < tmax) {
+		var idx = surf.light_t + _g1++;
 		if(idx >= 1024) quake_Sys.Error("Funny lightmap_modified index: " + idx + " < 1024");
 		quake_Render.lightmap_modified[idx] = 1;
 		var dest = (idx << 10) + surf.light_s;
-		var _g1 = 0;
-		while(_g1 < smax) quake_Render.dlightmaps[dest + _g1++] = 0;
+		var _g3 = 0;
+		while(_g3 < smax) quake_Render.dlightmaps[dest + _g3++] = 0;
 	}
 };
 quake_Render.BuildLightMap = function(surf) {
@@ -12438,12 +12450,12 @@ quake_Render.BuildLightMap = function(surf) {
 	var maps = 0;
 	while(maps < surf.styles.length) {
 		var dest = (surf.light_t << 12) + (surf.light_s << 2) + maps;
-		var _g = 0;
-		while(_g < tmax) {
-			++_g;
-			var _g1 = 0;
-			while(_g1 < smax) {
-				var j = _g1++;
+		var _g1 = 0;
+		while(_g1 < tmax) {
+			++_g1;
+			var _g3 = 0;
+			while(_g3 < smax) {
+				var j = _g3++;
 				quake_Render.lightmaps[dest + (j << 2)] = quake_Render.currentmodel.lightdata[lightmap + j];
 			}
 			lightmap += smax;
@@ -12453,11 +12465,11 @@ quake_Render.BuildLightMap = function(surf) {
 	}
 	while(maps <= 3) {
 		var dest1 = (surf.light_t << 12) + (surf.light_s << 2) + maps;
-		var _g2 = 0;
-		while(_g2 < tmax) {
-			++_g2;
-			var _g12 = 0;
-			while(_g12 < smax) quake_Render.lightmaps[dest1 + (_g12++ << 2)] = 0;
+		var _g11 = 0;
+		while(_g11 < tmax) {
+			++_g11;
+			var _g31 = 0;
+			while(_g31 < smax) quake_Render.lightmaps[dest1 + (_g31++ << 2)] = 0;
 			dest1 += 4096;
 		}
 		++maps;
@@ -12682,8 +12694,8 @@ quake_Render.AllocBlock = function(surf) {
 	}
 	best += h;
 	if(best > 1024) quake_Sys.Error("AllocBlock: full");
-	var _g2 = 0;
-	while(_g2 < w) quake_Render.allocated[x + _g2++] = best;
+	var _g11 = 0;
+	while(_g11 < w) quake_Render.allocated[x + _g11++] = best;
 	surf.light_s = x;
 	surf.light_t = y;
 };
@@ -13800,10 +13812,11 @@ quake_Sbar.DrawFrags = function() {
 	var x = 23;
 	var xofs = quake_CL.state.gametype == 1?10:(quake_VID.width >> 1) - 150;
 	var y = quake_VID.height - 47;
-	var _g = 0;
+	var _g1 = 0;
+	var _g = l;
 	var tmp = y + 4;
-	while(_g < l) {
-		var k = quake_Sbar.fragsort[_g++];
+	while(_g1 < _g) {
+		var k = quake_Sbar.fragsort[_g1++];
 		var s = quake_CL.state.scores[k];
 		if(s.name.length == 0) continue;
 		quake_Draw.Fill(xofs + (x << 3),y,28,4,(s.colors & 240) + 8);
@@ -14294,9 +14307,9 @@ quake_W.LoadWadFile = function(filename) {
 	if(view.getUint32(0,true) != 843333975) quake_Sys.Error("Wad file " + filename + " doesn't have WAD2 id");
 	var numlumps = view.getUint32(4,true);
 	var infotableofs = view.getUint32(8,true);
-	var _g = 0;
-	while(_g < numlumps) {
-		++_g;
+	var _g1 = 0;
+	while(_g1 < numlumps) {
+		++_g1;
 		var size = view.getUint32(infotableofs + 4,true);
 		var lump = new ArrayBuffer(size);
 		new Uint8Array(lump).set(new Uint8Array(base,view.getUint32(infotableofs,true),size));

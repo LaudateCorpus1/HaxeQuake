@@ -1,5 +1,7 @@
 # HaxeQuake
 
+[![Build Status](https://travis-ci.org/nadako/HaxeQuake.svg?branch=gh-pages)](https://travis-ci.org/nadako/HaxeQuake)
+
 ## What is it?
 
 **HaxeQuake** is [Haxe](http://haxe.org/) port of a [HTML5 WebGL port](https://github.com/SiPlus/WebQuake) of the game Quake by id Software.

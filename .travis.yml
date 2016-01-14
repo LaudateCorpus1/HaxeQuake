@@ -1,0 +1,11 @@
+language: haxe
+
+sudo: false
+
+haxe:
+  - "3.2.1"
+  - development
+
+script:
+  - cd Client
+  - haxe build.hxml

@@ -33,7 +33,7 @@ private class WEBSNETSocket extends quake.NET.NETSocketBase implements INETSocke
 
 	function OnMessage(message:MSG):Void {
 		var data = message.data;
-		if ((data is String))
+		if (Std.is(data, String))
 			return;
 		if (data.byteLength > 8000)
 			return;
@@ -54,7 +54,7 @@ private class WEBSNETSocket extends quake.NET.NETSocketBase implements INETSocke
 			return 0;
 		var message = receiveMessage.shift();
 		NET.message.cursize = message.length - 1;
-		new Uint8Array(NET.message.data).set(message.subarray(1));
+		new Uint8Array(NET.message.data).set(message.subarray(1, message.length));
 		return message[0];
 	}
 

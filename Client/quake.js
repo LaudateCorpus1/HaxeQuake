@@ -342,7 +342,13 @@ var quake__$CL_ClientState = function() {
 	this.driftmove = 0.0;
 	this.pitchvel = 0.0;
 	this.idealpitch = 0.0;
-	this.punchangle = new Float32Array(3);
+	this.punchangle = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.cshifts = [[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0]];
 	this.faceanimtime = 0.0;
 	this.item_gettime = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
@@ -350,12 +356,48 @@ var quake__$CL_ClientState = function() {
 	this.stats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.movemessages = 0;
 	this.cmd = new quake_ClientCmd();
-	this.velocity = new Float32Array(3);
-	this.mvelocity1 = new Float32Array(3);
-	this.mvelocity0 = new Float32Array(3);
-	this.mviewangles1 = new Float32Array(3);
-	this.mviewangles0 = new Float32Array(3);
-	this.viewangles = new Float32Array(3);
+	this.velocity = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.mvelocity1 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.mvelocity0 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.mviewangles1 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.mviewangles0 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.viewangles = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.time = 0.0;
 	this.mtime1 = 0.0;
 	this.mtime0 = 0.0;
@@ -3006,12 +3048,48 @@ var quake_Entity = function(n) {
 	this.skinnum = 0;
 	this.syncbase = 0.0;
 	this.frame = 0;
-	this.msg_origins1 = new Float32Array(3);
-	this.msg_origins0 = new Float32Array(3);
-	this.origin = new Float32Array(3);
-	this.msg_angles1 = new Float32Array(3);
-	this.msg_angles0 = new Float32Array(3);
-	this.angles = new Float32Array(3);
+	this.msg_origins1 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.msg_origins0 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.origin = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.msg_angles1 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.msg_angles0 = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.angles = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.leafs = [];
 	this.num = n;
 };
@@ -3022,8 +3100,20 @@ var quake_EntityState = function() {
 	this.colormap = 0;
 	this.frame = 0;
 	this.modelindex = 0;
-	this.angles = new Float32Array(3);
-	this.origin = new Float32Array(3);
+	this.angles = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.origin = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 };
 quake_EntityState.__name__ = true;
 var quake__$GL_GLModeSetting = function(min,max) {
@@ -9117,10 +9207,13 @@ quake_SV.FatPVS = function(org) {
 	quake_SV.AddToFatPVS(org,quake_SV.server.worldmodel.nodes[0]);
 };
 quake_SV.WriteEntitiesToClient = function(clent,msg) {
+	var x = clent._v_float[10] + clent._v_float[62];
+	var y = clent._v_float[11] + clent._v_float[63];
+	var z = clent._v_float[12] + clent._v_float[64];
 	var v = new Float32Array(3);
-	v[0] = clent._v_float[10] + clent._v_float[62];
-	v[1] = clent._v_float[11] + clent._v_float[63];
-	v[2] = clent._v_float[12] + clent._v_float[64];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	quake_SV.FatPVS(v);
 	var pvs = quake_SV.fatpvs;
 	var _g1 = 1;
@@ -9347,13 +9440,19 @@ quake_SV.CreateBaseline = function() {
 		if(i > quake_SV.svs.maxclients && svent._v_float[0] == 0) continue;
 		var baseline = svent.baseline;
 		var this1 = baseline.origin;
-		this1[0] = svent._v_float[10];
-		this1[1] = svent._v_float[11];
-		this1[2] = svent._v_float[12];
+		var x = svent._v_float[10];
+		var y = svent._v_float[11];
+		var z = svent._v_float[12];
+		this1[0] = x;
+		this1[1] = y;
+		this1[2] = z;
 		var this2 = baseline.angles;
-		this2[0] = svent._v_float[19];
-		this2[1] = svent._v_float[20];
-		this2[2] = svent._v_float[21];
+		var x2 = svent._v_float[19];
+		var y2 = svent._v_float[20];
+		var z2 = svent._v_float[21];
+		this2[0] = x2;
+		this2[1] = y2;
+		this2[2] = z2;
 		baseline.frame = svent._v_float[30] | 0;
 		baseline.skin = svent._v_float[31] | 0;
 		if(i > 0 && i <= quake_SV.svs.maxclients) {
@@ -9830,10 +9929,13 @@ quake_SV.AddGravity = function(ent) {
 	ent._v_float[18] -= (val != null?ent._v_float[val] != 0.0?ent._v_float[val]:1.0:1.0) * quake_SV.gravity.value * quake_Host.frametime;
 };
 quake_SV.PushEntity = function(ent,push) {
+	var x = ent._v_float[10] + push[0];
+	var y = ent._v_float[11] + push[1];
+	var z = ent._v_float[12] + push[2];
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[10] + push[0];
-	v[1] = ent._v_float[11] + push[1];
-	v[2] = ent._v_float[12] + push[2];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	var nomonsters;
 	var solid = ent._v_float[9];
 	if(ent._v_float[8] == 9) nomonsters = 2; else if(solid == 1 || solid == 0) nomonsters = 1; else nomonsters = 0;
@@ -9848,10 +9950,13 @@ quake_SV.PushMove = function(pusher,movetime) {
 		pusher._v_float[7] += movetime;
 		return;
 	}
+	var x = pusher._v_float[16] * movetime;
+	var y = pusher._v_float[17] * movetime;
+	var z = pusher._v_float[18] * movetime;
 	var v = new Float32Array(3);
-	v[0] = pusher._v_float[16] * movetime;
-	v[1] = pusher._v_float[17] * movetime;
-	v[2] = pusher._v_float[18] * movetime;
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	var mins_0 = pusher._v_float[1] + v[0];
 	var mins_1 = pusher._v_float[2] + v[1];
 	var mins_2 = pusher._v_float[3] + v[2];
@@ -9885,10 +9990,12 @@ quake_SV.PushMove = function(pusher,movetime) {
 		if(quake_SV.TestEntityPosition(check)) {
 			if(check._v_float[33] == check._v_float[36]) continue;
 			if(check._v_float[9] == 0 || check._v_float[9] == 1) {
+				var tmp = check._v_float;
 				check._v_float[36] = 0.0;
-				check._v_float[33] = 0.0;
+				tmp[33] = 0.0;
+				var tmp1 = check._v_float;
 				check._v_float[37] = 0.0;
-				check._v_float[34] = 0.0;
+				tmp1[34] = 0.0;
 				check._v_float[38] = check._v_float[35];
 				continue;
 			}
@@ -9976,10 +10083,13 @@ quake_SV.CheckStuck = function(ent) {
 	quake_Console.DPrint("player is stuck.\n");
 };
 quake_SV.CheckWater = function(ent) {
+	var x = ent._v_float[10];
+	var y = ent._v_float[11];
+	var z = ent._v_float[12] + ent._v_float[35] + 1.0;
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[10];
-	v[1] = ent._v_float[11];
-	v[2] = ent._v_float[12] + ent._v_float[35] + 1.0;
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	ent._v_float[83] = 0.0;
 	ent._v_float[84] = -1;
 	var cont = quake_SV.PointContents(v);
@@ -10185,10 +10295,12 @@ quake_SV.Physics_Toss = function(ent) {
 		if(ent._v_float[18] < 60.0 || movetype != 10) {
 			ent._v_float[76] = ent._v_float[76] | 0 | 512;
 			ent._v_int[47] = trace.ent.num;
+			var tmp = ent._v_float;
 			ent._v_float[17] = ent._v_float[18] = 0.0;
-			ent._v_float[16] = 0.0;
+			tmp[16] = 0.0;
+			var tmp1 = ent._v_float;
 			ent._v_float[23] = ent._v_float[24] = 0.0;
-			ent._v_float[22] = 0.0;
+			tmp1[22] = 0.0;
 		}
 	}
 	quake_SV.CheckWaterTransition(ent);
@@ -10250,15 +10362,16 @@ quake_SV.SetIdealPitch = function() {
 	var angleval = ent._v_float[20] * (Math.PI / 180.0);
 	var sinval = Math.sin(angleval);
 	var cosval = Math.cos(angleval);
+	var z = ent._v_float[12] + ent._v_float[64];
 	var v = new Float32Array(3);
 	v[0] = 0.0;
 	v[1] = 0.0;
-	v[2] = ent._v_float[12] + ent._v_float[64];
+	v[2] = z;
 	var v1 = new Float32Array(3);
 	v1[0] = 0.0;
 	v1[1] = 0.0;
 	v1[2] = v[2] - 160.0;
-	var z = [];
+	var z1 = [];
 	var _g = 0;
 	while(_g < 6) {
 		var i = _g++;
@@ -10266,14 +10379,14 @@ quake_SV.SetIdealPitch = function() {
 		v[1] = v1[1] = ent._v_float[11] + sinval * (i + 3) * 12.0;
 		var tr = quake_SV.Move(v,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,v1,1,ent);
 		if(tr.allsolid || tr.fraction == 1.0) return;
-		z[i] = v[2] - tr.fraction * 160.0;
+		z1[i] = v[2] - tr.fraction * 160.0;
 	}
 	var dir = 0.0;
 	var steps = 0;
 	var _g1 = 1;
 	while(_g1 < 6) {
 		var i1 = _g1++;
-		var step = z[i1] - z[i1 - 1];
+		var step = z1[i1] - z1[i1 - 1];
 		if(step > -0.1 && step < 0.1) continue;
 		if(dir != 0.0 && (step - dir > 0.1 || step - dir < -0.1)) return;
 		++steps;
@@ -10291,10 +10404,13 @@ quake_SV.UserFriction = function() {
 	var vel1 = ent._v_float[17];
 	var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
 	if(speed == 0.0) return;
+	var x = ent._v_float[10] + vel0 / speed * 16.0;
+	var y = ent._v_float[11] + vel1 / speed * 16.0;
+	var z = ent._v_float[12] + ent._v_float[35];
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[10] + vel0 / speed * 16.0;
-	v[1] = ent._v_float[11] + vel1 / speed * 16.0;
-	v[2] = ent._v_float[12] + ent._v_float[35];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	var friction = quake_SV.friction.value;
 	var v1 = new Float32Array(3);
 	v1[0] = v[0];
@@ -10590,14 +10706,20 @@ quake_SV.FindTouchedLeafs = function(ent,node) {
 		ent.leafnums.push(node.num - 1);
 		return;
 	}
+	var x = ent._v_float[1];
+	var y = ent._v_float[2];
+	var z = ent._v_float[3];
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[1];
-	v[1] = ent._v_float[2];
-	v[2] = ent._v_float[3];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+	var x1 = ent._v_float[4];
+	var y1 = ent._v_float[5];
+	var z1 = ent._v_float[6];
 	var v1 = new Float32Array(3);
-	v1[0] = ent._v_float[4];
-	v1[1] = ent._v_float[5];
-	v1[2] = ent._v_float[6];
+	v1[0] = x1;
+	v1[1] = y1;
+	v1[2] = z1;
 	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide(v,v1,node.plane);
 	if((sides & 1) != 0) quake_SV.FindTouchedLeafs(ent,node.child0);
 	if((sides & 2) != 0) quake_SV.FindTouchedLeafs(ent,node.child1);
@@ -10809,7 +10931,13 @@ var quake__$SV_MoveClip = function() {
 };
 quake__$SV_MoveClip.__name__ = true;
 var quake_Trace = function() {
-	this.endpos = new Float32Array(3);
+	this.endpos = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.fraction = 0.0;
 	this.plane = new quake_Plane();
 	this.inwater = false;
@@ -10821,13 +10949,31 @@ quake_Trace.__name__ = true;
 var quake_Plane = function() {
 	this.signbits = 0;
 	this.dist = 0;
-	this.normal = new Float32Array(3);
+	this.normal = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.type = 0;
 };
 quake_Plane.__name__ = true;
 var quake__$Render_RefDef = function() {
-	this.viewangles = new Float32Array(3);
-	this.vieworg = new Float32Array(3);
+	this.viewangles = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.vieworg = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.vrect = new quake__$Render_Rect();
 };
 quake__$Render_RefDef.__name__ = true;
@@ -12913,10 +13059,13 @@ quake_PF.newcheckclient = function(check) {
 		}
 		break;
 	}
+	var x = ent._v_float[10] + ent._v_float[62];
+	var y = ent._v_float[11] + ent._v_float[63];
+	var z = ent._v_float[12] + ent._v_float[64];
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[10] + ent._v_float[62];
-	v[1] = ent._v_float[11] + ent._v_float[63];
-	v[2] = ent._v_float[12] + ent._v_float[64];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	quake_PF.checkpvs = quake_Mod_$Brush.LeafPVS(quake_Mod_$Brush.PointInLeaf(v,quake_SV.server.worldmodel),quake_SV.server.worldmodel);
 	return i;
 };
@@ -12931,10 +13080,13 @@ quake_PF.checkclient = function() {
 		return;
 	}
 	var self = quake_SV.server.edicts[quake_PR._globals_int[28]];
+	var x = self._v_float[10] + self._v_float[62];
+	var y = self._v_float[11] + self._v_float[63];
+	var z = self._v_float[12] + self._v_float[64];
 	var v = new Float32Array(3);
-	v[0] = self._v_float[10] + self._v_float[62];
-	v[1] = self._v_float[11] + self._v_float[63];
-	v[2] = self._v_float[12] + self._v_float[64];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	var l = quake_Mod_$Brush.PointInLeaf(v,quake_SV.server.worldmodel).num - 1;
 	if(l < 0 || (quake_PF.checkpvs[l >> 3] & 1 << (l & 7)) == 0) {
 		quake_PR._globals_int[1] = 0;
@@ -13099,10 +13251,13 @@ quake_PF.droptofloor = function() {
 	var tmp = new Float32Array(ent._v_float.buffer.slice(40,52));
 	var tmp1 = new Float32Array(ent._v_float.buffer.slice(132,144));
 	var tmp2 = new Float32Array(ent._v_float.buffer.slice(144,156));
+	var x = ent._v_float[10];
+	var y = ent._v_float[11];
+	var z = ent._v_float[12] - 256.0;
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[10];
-	v[1] = ent._v_float[11];
-	v[2] = ent._v_float[12] - 256.0;
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
 	var trace = quake_SV.Move(tmp,tmp1,tmp2,v,0,ent);
 	if(trace.fraction == 1.0 || trace.allsolid) {
 		quake_PR._globals_float[1] = 0.0;
@@ -13163,17 +13318,20 @@ quake_PF.nextent = function() {
 };
 quake_PF.aim = function() {
 	var ent = quake_SV.server.edicts[quake_PR._globals_int[4]];
+	var x = ent._v_float[10];
+	var y = ent._v_float[11];
+	var z = ent._v_float[12] + 20.0;
 	var v = new Float32Array(3);
-	v[0] = ent._v_float[10];
-	v[1] = ent._v_float[11];
-	v[2] = ent._v_float[12] + 20.0;
-	var x = quake_PR._globals_float[59];
-	var y = quake_PR._globals_float[60];
-	var z = quake_PR._globals_float[61];
+	v[0] = x;
+	v[1] = y;
+	v[2] = z;
+	var x1 = quake_PR._globals_float[59];
+	var y1 = quake_PR._globals_float[60];
+	var z1 = quake_PR._globals_float[61];
 	var v1 = new Float32Array(3);
-	v1[0] = x;
-	v1[1] = y;
-	v1[2] = z;
+	v1[0] = x1;
+	v1[1] = y1;
+	v1[2] = z1;
 	var v2 = new Float32Array(3);
 	v2[0] = v[0] + 2048.0 * v1[0];
 	v2[1] = v[1] + 2048.0 * v1[1];
@@ -13350,8 +13508,20 @@ var quake__$Render_Rect = function() {
 quake__$Render_Rect.__name__ = true;
 var quake__$Render_Particle = function() {
 	this.color = 0;
-	this.vel = new Float32Array(3);
-	this.org = new Float32Array(3);
+	this.vel = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
+	this.org = (function($this) {
+		var $r;
+		var this1;
+		this1 = new Float32Array(3);
+		$r = this1;
+		return $r;
+	}(this));
 	this.die = -1;
 	this.ramp = 0;
 	this.type = 0;
@@ -14211,12 +14381,42 @@ quake_S.started = false;
 quake_S.channels = [];
 quake_S.static_channels = [];
 quake_S.ambient_channels = [];
-quake_S.listener_origin = new Float32Array(3);
-quake_S.listener_forward = new Float32Array(3);
-quake_S.listener_right = new Float32Array(3);
-quake_S.listener_up = new Float32Array(3);
+quake_S.listener_origin = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
+quake_S.listener_forward = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
+quake_S.listener_right = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
+quake_S.listener_up = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
 quake_S.known_sfx = [];
-quake__$Vec_Vec_$Impl_$.origin = new Float32Array(3);
+quake__$Vec_Vec_$Impl_$.origin = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
 quake_SCR.con_current = 0;
 quake_SCR.centertime_off = 0.0;
 quake_SCR.recalc_refdef = false;
@@ -14233,9 +14433,27 @@ quake_Render.dlightframecount = 0;
 quake_Render.lightstylevalue = new Uint8Array(64);
 quake_Render.visframecount = 0;
 quake_Render.frustum = [new quake_Plane(),new quake_Plane(),new quake_Plane(),new quake_Plane()];
-quake_Render.vup = new Float32Array(3);
-quake_Render.vpn = new Float32Array(3);
-quake_Render.vright = new Float32Array(3);
+quake_Render.vup = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
+quake_Render.vpn = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
+quake_Render.vright = (function($this) {
+	var $r;
+	var this1;
+	this1 = new Float32Array(3);
+	$r = this1;
+	return $r;
+}(this));
 quake_Render.refdef = new quake__$Render_RefDef();
 quake_Render.avertexnormals = new Float32Array([-0.525731,0.000000,0.850651,-0.442863,0.238856,0.864188,-0.295242,0.000000,0.955423,-0.309017,0.500000,0.809017,-0.162460,0.262866,0.951056,0.000000,0.000000,1.000000,0.000000,0.850651,0.525731,-0.147621,0.716567,0.681718,0.147621,0.716567,0.681718,0.000000,0.525731,0.850651,0.309017,0.500000,0.809017,0.525731,0.000000,0.850651,0.295242,0.000000,0.955423,0.442863,0.238856,0.864188,0.162460,0.262866,0.951056,-0.681718,0.147621,0.716567,-0.809017,0.309017,0.500000,-0.587785,0.425325,0.688191,-0.850651,0.525731,0.000000,-0.864188,0.442863,0.238856,-0.716567,0.681718,0.147621,-0.688191,0.587785,0.425325,-0.500000,0.809017,0.309017,-0.238856,0.864188,0.442863,-0.425325,0.688191,0.587785,-0.716567,0.681718,-0.147621,-0.500000,0.809017,-0.309017,-0.525731,0.850651,0.000000,0.000000,0.850651,-0.525731,-0.238856,0.864188,-0.442863,0.000000,0.955423,-0.295242,-0.262866,0.951056,-0.162460,0.000000,1.000000,0.000000,0.000000,0.955423,0.295242,-0.262866,0.951056,0.162460,0.238856,0.864188,0.442863,0.262866,0.951056,0.162460,0.500000,0.809017,0.309017,0.238856,0.864188,-0.442863,0.262866,0.951056,-0.162460,0.500000,0.809017,-0.309017,0.850651,0.525731,0.000000,0.716567,0.681718,0.147621,0.716567,0.681718,-0.147621,0.525731,0.850651,0.000000,0.425325,0.688191,0.587785,0.864188,0.442863,0.238856,0.688191,0.587785,0.425325,0.809017,0.309017,0.500000,0.681718,0.147621,0.716567,0.587785,0.425325,0.688191,0.955423,0.295242,0.000000,1.000000,0.000000,0.000000,0.951056,0.162460,0.262866,0.850651,-0.525731,0.000000,0.955423,-0.295242,0.000000,0.864188,-0.442863,0.238856,0.951056,-0.162460,0.262866,0.809017,-0.309017,0.500000,0.681718,-0.147621,0.716567,0.850651,0.000000,0.525731,0.864188,0.442863,-0.238856,0.809017,0.309017,-0.500000,0.951056,0.162460,-0.262866,0.525731,0.000000,-0.850651,0.681718,0.147621,-0.716567,0.681718,-0.147621,-0.716567,0.850651,0.000000,-0.525731,0.809017,-0.309017,-0.500000,0.864188,-0.442863,-0.238856,0.951056,-0.162460,-0.262866,0.147621,0.716567,-0.681718,0.309017,0.500000,-0.809017,0.425325,0.688191,-0.587785,0.442863,0.238856,-0.864188,0.587785,0.425325,-0.688191,0.688191,0.587785,-0.425325,-0.147621,0.716567,-0.681718,-0.309017,0.500000,-0.809017,0.000000,0.525731,-0.850651,-0.525731,0.000000,-0.850651,-0.442863,0.238856,-0.864188,-0.295242,0.000000,-0.955423,-0.162460,0.262866,-0.951056,0.000000,0.000000,-1.000000,0.295242,0.000000,-0.955423,0.162460,0.262866,-0.951056,-0.442863,-0.238856,-0.864188,-0.309017,-0.500000,-0.809017,-0.162460,-0.262866,-0.951056,0.000000,-0.850651,-0.525731,-0.147621,-0.716567,-0.681718,0.147621,-0.716567,-0.681718,0.000000,-0.525731,-0.850651,0.309017,-0.500000,-0.809017,0.442863,-0.238856,-0.864188,0.162460,-0.262866,-0.951056,0.238856,-0.864188,-0.442863,0.500000,-0.809017,-0.309017,0.425325,-0.688191,-0.587785,0.716567,-0.681718,-0.147621,0.688191,-0.587785,-0.425325,0.587785,-0.425325,-0.688191,0.000000,-0.955423,-0.295242,0.000000,-1.000000,0.000000,0.262866,-0.951056,-0.162460,0.000000,-0.850651,0.525731,0.000000,-0.955423,0.295242,0.238856,-0.864188,0.442863,0.262866,-0.951056,0.162460,0.500000,-0.809017,0.309017,0.716567,-0.681718,0.147621,0.525731,-0.850651,0.000000,-0.238856,-0.864188,-0.442863,-0.500000,-0.809017,-0.309017,-0.262866,-0.951056,-0.162460,-0.850651,-0.525731,0.000000,-0.716567,-0.681718,-0.147621,-0.716567,-0.681718,0.147621,-0.525731,-0.850651,0.000000,-0.500000,-0.809017,0.309017,-0.238856,-0.864188,0.442863,-0.262866,-0.951056,0.162460,-0.864188,-0.442863,0.238856,-0.809017,-0.309017,0.500000,-0.688191,-0.587785,0.425325,-0.681718,-0.147621,0.716567,-0.442863,-0.238856,0.864188,-0.587785,-0.425325,0.688191,-0.309017,-0.500000,0.809017,-0.147621,-0.716567,0.681718,-0.425325,-0.688191,0.587785,-0.162460,-0.262866,0.951056,0.442863,-0.238856,0.864188,0.162460,-0.262866,0.951056,0.309017,-0.500000,0.809017,0.147621,-0.716567,0.681718,0.000000,-0.525731,0.850651,0.425325,-0.688191,0.587785,0.587785,-0.425325,0.688191,0.688191,-0.587785,0.425325,-0.955423,0.295242,0.000000,-0.951056,0.162460,0.262866,-1.000000,0.000000,0.000000,-0.850651,0.000000,0.525731,-0.955423,-0.295242,0.000000,-0.951056,-0.162460,0.262866,-0.864188,0.442863,-0.238856,-0.951056,0.162460,-0.262866,-0.809017,0.309017,-0.500000,-0.864188,-0.442863,-0.238856,-0.951056,-0.162460,-0.262866,-0.809017,-0.309017,-0.500000,-0.681718,0.147621,-0.716567,-0.681718,-0.147621,-0.716567,-0.850651,0.000000,-0.525731,-0.688191,0.587785,-0.425325,-0.587785,0.425325,-0.688191,-0.425325,0.688191,-0.587785,-0.425325,-0.688191,-0.587785,-0.587785,-0.425325,-0.688191,-0.688191,-0.587785,-0.425325]);
 quake_Render.perspective = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0001220777635353,-1.0,0.0,0.0,-8.0004883110541414,0.0];

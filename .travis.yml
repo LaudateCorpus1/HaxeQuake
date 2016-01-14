@@ -2,6 +2,10 @@ language: haxe
 
 sudo: false
 
+branches:
+  only:
+    - gh-pages
+
 haxe:
   - "3.2.1"
   - development

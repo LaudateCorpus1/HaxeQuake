@@ -459,7 +459,8 @@ class PF {
         var yaw = PR._globals_float[4] * Math.PI / 180.0;
         var dist = PR._globals_float[7];
         var oldf = PR.xfunction;
-        PR._globals_float[OFS_RETURN] = SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), true).toInt();
+        var moved = SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), true);
+        PR._globals_float[OFS_RETURN] = if (moved) 1 else 0;
         PR.xfunction = oldf;
         PR.globals.self = ent.num;
     }
@@ -510,7 +511,8 @@ class PF {
     }
 
     static function checkbottom() {
-        PR._globals_float[OFS_RETURN] = SV.CheckBottom(SV.server.edicts[PR._globals_int[4]]).toInt();
+        var res = SV.CheckBottom(SV.server.edicts[PR._globals_int[4]]);
+        PR._globals_float[OFS_RETURN] = if (res) 1 else 0;
     }
 
     static function pointcontents() {

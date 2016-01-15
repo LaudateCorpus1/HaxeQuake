@@ -16,7 +16,6 @@ import quake.Mod_Brush.MTexture;
 import quake.Mod_Brush.Leaf;
 import quake.Mod_Brush.Surface;
 import quake.Def.ClientStat;
-using Tools;
 
 @:publicFields
 private class Rect {
@@ -1261,7 +1260,7 @@ class Render {
         }
         gl.finish();
         var time = Sys.FloatTime() - start;
-        Console.Print(time.toFixed(6) + ' seconds (' + (128.0 / time).toFixed(6) + ' fps)\n');
+        Console.Print(Tools.toFixed(time, 6) + ' seconds (' + Tools.toFixed(128.0 / time, 6) + ' fps)\n');
     }
 
     // part

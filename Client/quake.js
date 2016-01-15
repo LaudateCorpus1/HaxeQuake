@@ -847,7 +847,7 @@ quake_CL.ClearState = function() {
 		quake_CL.cls.signon = 0;
 	}
 	quake_CL.state = new quake__$CL_ClientState();
-	quake_CL.static_entities.length = 0;
+	quake_CL.static_entities = [];
 	quake_CL.cls.message.cursize = 0;
 	quake_CL.entities = [];
 	quake_CL.dlights = [];
@@ -13283,15 +13283,13 @@ quake_PF.walkmove = function() {
 	var yaw = quake_PR._globals_float[4] * Math.PI / 180.0;
 	var dist = quake_PR._globals_float[7];
 	var oldf = quake_PR.xfunction;
-	var tmp;
 	var x = Math.cos(yaw) * dist;
 	var y = Math.sin(yaw) * dist;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
 	v[2] = 0;
-	if(quake_SV.movestep(ent,v,true)) tmp = 1; else tmp = 0;
-	quake_PR._globals_float[1] = tmp;
+	quake_PR._globals_float[1] = quake_SV.movestep(ent,v,true)?1:0;
 	quake_PR.xfunction = oldf;
 	quake_PR._globals_int[28] = ent.num;
 };

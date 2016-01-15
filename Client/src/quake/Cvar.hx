@@ -1,7 +1,5 @@
 package quake;
 
-using Tools;
-
 class Cvar {
     public var name(default,null):String;
     public var string(default,null):String;
@@ -26,7 +24,7 @@ class Cvar {
     }
 
     public function setValue(value:Float):Void {
-        set(value.toFixed(6));
+        set(Tools.toFixed(value, 6));
     }
 
     @:allow(quake.Cmd)

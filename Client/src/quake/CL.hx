@@ -597,7 +597,7 @@ class CL {
 
     public static var cls(default,never) = new ClientStatic();
     public static var state(default,null):ClientState;
-    public static var static_entities(default,never):Array<Entity> = [];
+    public static var static_entities(default,null):Array<Entity> = [];
     public static var visedicts(default,never):Array<Entity> = [];
 
     static function Rcon_f() {
@@ -659,7 +659,7 @@ class CL {
         }
 
         state = new ClientState();
-        static_entities.clear();
+        static_entities = [];
         cls.message.cursize = 0;
 
         entities = [];

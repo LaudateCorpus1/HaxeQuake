@@ -6118,8 +6118,7 @@ quake_Mod_$Alias.FloodFillSkin = function(loadmodel,skin) {
 	var tmp = width - 1;
 	var tmp1 = height - 1;
 	while(sp > 0) {
-		--sp;
-		var cur = lifo[sp];
+		var cur = lifo[--sp];
 		var x = cur[0];
 		var y = cur[1];
 		skin[y * width + x] = quake_Mod_$Alias.filledcolor;
@@ -7611,8 +7610,7 @@ quake_PR.ExecuteProgram = function(fnum) {
 	while(true) {
 		++s;
 		var st = quake_PR.statements[s];
-		--runaway;
-		if(runaway == 0) quake_PR.RunError("runaway loop error");
+		if(--runaway == 0) quake_PR.RunError("runaway loop error");
 		++quake_PR.xfunction.profile;
 		quake_PR.xstatement = s;
 		if(quake_PR.trace) quake_PR.PrintStatement(st);

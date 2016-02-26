@@ -39,18 +39,16 @@ class GLTexture {
     }
 }
 
-@:publicFields
-private class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
-    var identifier:String;
-    var program:Program;
+@:allow(quake.GL)
+class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
+    public var program(default,null):Program;
     var attribs:Array<String>;
 
-    function new(identifier:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>) {
-        var shaderSrc = Shaders.shaders[identifier];
+    function new(shaderName:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>) {
+        var shaderSrc = Shaders.shaders[shaderName];
         if (shaderSrc == null)
-            Sys.Error("Shader not found: " + identifier);
+            Sys.Error("Shader not found: " + shaderName);
 
-        this.identifier = identifier;
         this.attribs = [];
         this.program = GL.gl.createProgram();
 
@@ -96,43 +94,6 @@ private class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
     function unbind() {
         for (name in attribs)
             GL.gl.disableVertexAttribArray(Reflect.field(this, name));
-    }
-}
-
-class GLPrograms {
-    public static var character(default,null):GLProgram;
-    public static var fill(default,null):GLProgram;
-    public static var pic(default,null):GLProgram;
-    public static var picTranslate(default,null):GLProgram;
-    public static var particle(default,null):GLProgram;
-    public static var alias(default,null):GLProgram;
-    public static var brush(default,null):GLProgram;
-    public static var dlight(default,null):GLProgram;
-    public static var player(default,null):GLProgram;
-    public static var sprite(default,null):GLProgram;
-    public static var spriteOriented(default,null):GLProgram;
-    public static var turbulent(default,null):GLProgram;
-    public static var warp(default,null):GLProgram;
-    public static var sky(default,null):GLProgram;
-    public static var skyChain(default,null):GLProgram;
-
-    @:access(quake.GL.CreateProgram)
-    public static function init() {
-        character = GL.CreateProgram('character', ['uCharacter', 'uDest', 'uOrtho'], ['aPoint'], ['tTexture']);
-        fill = GL.CreateProgram('fill', ['uRect', 'uOrtho', 'uColor'], ['aPoint'], []);
-        pic = GL.CreateProgram('pic', ['uRect', 'uOrtho'], ['aPoint'], ['tTexture']);
-        picTranslate = GL.CreateProgram('picTranslate', ['uRect', 'uOrtho', 'uTop', 'uBottom'], ['aPoint'], ['tTexture', 'tTrans']);
-        particle = GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
-        alias = GL.CreateProgram('alias', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight'], ['aPoint', 'aLightNormal', 'aTexCoord'], ['tTexture']);
-        brush = GL.CreateProgram('brush', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint', 'aTexCoord', 'aLightStyle'], ['tTexture', 'tLightmap', 'tDlight', 'tLightStyle']);
-        dlight = GL.CreateProgram('dlight', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uRadius', 'uGamma'], ['aPoint'], []);
-        player = GL.CreateProgram('player', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight', 'uTop', 'uBottom'], ['aPoint', 'aLightNormal', 'aTexCoord'], ['tTexture', 'tPlayer']);
-        sprite = GL.CreateProgram('sprite', ['uRect', 'uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        spriteOriented = GL.CreateProgram('spriteOriented', ['uRect', 'uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        turbulent = GL.CreateProgram('turbulent', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma', 'uTime'], ['aPoint', 'aTexCoord'], ['tTexture']);
-        warp = GL.CreateProgram('warp', ['uRect', 'uOrtho', 'uTime'], ['aPoint'], ['tTexture']);
-        sky = GL.CreateProgram('sky', ['uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uTime'], ['aPoint'], ['tSolid', 'tAlpha']);
-        skyChain = GL.CreateProgram('skyChain', ['uViewOrigin', 'uViewAngles', 'uPerspective'], ['aPoint'], []);
     }
 }
 
@@ -357,21 +318,14 @@ class GL {
         return program;
     }
 
-    public static function UseProgram(identifier:String):GLProgram {
-        var program = currentprogram;
-        if (program != null) {
-            if (program.identifier == identifier)
-                return program;
-            program.unbind();
-        }
-        for (program in programs) {
-            if (program.identifier == identifier) {
-                currentprogram = program;
-                currentprogram.use();
-                return program;
-            }
-        }
-        return null;
+    public static function UseProgram(program:GLProgram):GLProgram {
+        if (currentprogram == program)
+            return program;
+        if (currentprogram != null)
+            currentprogram.unbind();
+        currentprogram = program;
+        program.use();
+        return program;
     }
 
     public static function UnbindProgram():Void {

@@ -85,7 +85,7 @@ class Draw {
 	}
 
 	public static function Character(x:Int, y:Int, num:Int):Void {
-		var program = GL.UseProgram('character');
+		var program = GL.UseProgram(GLPrograms.character);
 		GL.Bind(program.tTexture, char_texture);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -95,7 +95,7 @@ class Draw {
 	}
 
 	public static function String(x:Int, y:Int, str:String):Void {
-		var program = GL.UseProgram('character');
+		var program = GL.UseProgram(GLPrograms.character);
 		GL.Bind(program.tTexture, char_texture);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -109,7 +109,7 @@ class Draw {
 	}
 
 	public static function StringWhite(x:Int, y:Int, str:String):Void {
-		var program = GL.UseProgram('character');
+		var program = GL.UseProgram(GLPrograms.character);
 		GL.Bind(program.tTexture, char_texture);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -135,7 +135,7 @@ class Draw {
 	}
 
 	public static function Pic(x:Int, y:Int, pic:DrawPic):Void {
-		var program = GL.UseProgram('pic');
+		var program = GL.UseProgram(GLPrograms.pic);
 		GL.Bind(program.tTexture, pic.texnum);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -144,7 +144,7 @@ class Draw {
 	}
 
 	public static function PicTranslate(x:Int, y:Int, pic:DrawPic, top:Int, bottom:Int):Void {
-		var program = GL.UseProgram('picTranslate');
+		var program = GL.UseProgram(GLPrograms.picTranslate);
 		GL.Bind(program.tTexture, pic.texnum);
 		GL.Bind(program.tTrans, pic.translate);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
@@ -158,7 +158,7 @@ class Draw {
 	}
 
 	public static function ConsoleBackground(lines:Int):Void {
-		var program = GL.UseProgram('pic');
+		var program = GL.UseProgram(GLPrograms.pic);
 		GL.Bind(program.tTexture, conback.texnum);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
@@ -167,7 +167,7 @@ class Draw {
 	}
 
 	public static function Fill(x:Int, y:Int, w:Int, h:Int, c:Int):Void {
-		var program = GL.UseProgram('fill');
+		var program = GL.UseProgram(GLPrograms.fill);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
 		gl.uniform4f(program.uRect, x, y, w, h);
@@ -177,7 +177,7 @@ class Draw {
 	}
 
 	public static function FadeScreen():Void {
-		var program = GL.UseProgram('fill');
+		var program = GL.UseProgram(GLPrograms.fill);
 		gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
 		gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
 		gl.uniform4f(program.uRect, 0, 0, VID.width, VID.height);

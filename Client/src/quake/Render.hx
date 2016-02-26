@@ -142,7 +142,7 @@ class Render {
             return;
         dlightframecount++;
         gl.enable(RenderingContext.BLEND);
-        var program = GL.UseProgram('dlight');
+        var program = GL.UseProgram(GLPrograms.dlight);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, dlightvecs);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 0, 0);
         for (l in CL.dlights) {
@@ -353,10 +353,10 @@ class Render {
     static function DrawSpriteModel(e:Entity):Void {
         var program;
         if (e.model.oriented) {
-            program = GL.UseProgram('spriteOriented');
+            program = GL.UseProgram(GLPrograms.spriteOriented);
             gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1] - 90.0, e.angles[2]));
         } else
-            program = GL.UseProgram('sprite');
+            program = GL.UseProgram(GLPrograms.sprite);
         var num = e.frame;
         if (num >= e.model.numframes || num < 0) {
             Console.DPrint('Render.DrawSpriteModel: no such frame ' + num + '\n');
@@ -567,7 +567,7 @@ class Render {
 
         var program;
         if ((e.colormap != 0) && (clmodel.player) && (Render.nocolors.value == 0)) {
-            program = GL.UseProgram('player');
+            program = GL.UseProgram(GLPrograms.player);
             var top = (CL.state.scores[e.colormap - 1].colors & 0xf0) + 4;
             var bottom = ((CL.state.scores[e.colormap - 1].colors & 0xf) << 4) + 4;
             if (top <= 127)
@@ -579,7 +579,7 @@ class Render {
             gl.uniform3f(program.uTop, top & 0xff, (top >> 8) & 0xff, top >> 16);
             gl.uniform3f(program.uBottom, bottom & 0xff, (bottom >> 8) & 0xff, bottom >> 16);
         } else
-            program = GL.UseProgram('alias');
+            program = GL.UseProgram(GLPrograms.alias);
         gl.uniform3fv(program.uOrigin, e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]));
 
@@ -741,7 +741,7 @@ class Render {
         var ymax = 4.0 * Math.tan(SCR.fov.value * 0.82 * Math.PI / 360.0);
         Render.perspective[0] = 4.0 / (ymax * Render.refdef.vrect.width / Render.refdef.vrect.height);
         Render.perspective[5] = 4.0 / ymax;
-        var program = GL.UseProgram('alias');
+        var program = GL.UseProgram(GLPrograms.alias);
         gl.uniformMatrix4fv(program.uPerspective, false, Render.perspective);
 
         Render.DrawAliasModel(CL.state.viewent);
@@ -749,7 +749,7 @@ class Render {
         ymax = 4.0 * Math.tan(Render.refdef.fov_y * Math.PI / 360.0);
         Render.perspective[0] = 4.0 / (ymax * Render.refdef.vrect.width / Render.refdef.vrect.height);
         Render.perspective[5] = 4.0 / ymax;
-        program = GL.UseProgram('alias');
+        program = GL.UseProgram(GLPrograms.alias);
         gl.uniformMatrix4fv(program.uPerspective, false, Render.perspective);
 
         gl.depthRange(0.0, 1.0);
@@ -760,7 +760,7 @@ class Render {
             return;
         if (V.blend[3] == 0.0)
             return;
-        var program = GL.UseProgram('fill');
+        var program = GL.UseProgram(GLPrograms.fill);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
         var vrect = Render.refdef.vrect;
@@ -1576,7 +1576,7 @@ class Render {
     }
 
     static function DrawParticles() {
-        var program = GL.UseProgram('particle');
+        var program = GL.UseProgram(GLPrograms.particle);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, GL.rect);
         gl.vertexAttribPointer(program.aPoint, 2, RenderingContext.FLOAT, false, 0, 0);
         gl.depthMask(false);
@@ -1777,7 +1777,7 @@ class Render {
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
         var viewMatrix = GL.RotationMatrix(e.angles[0], e.angles[1], e.angles[2]);
 
-        var program = GL.UseProgram('brush');
+        var program = GL.UseProgram(GLPrograms.brush);
         gl.uniform3fv(program.uOrigin, e.origin);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
@@ -1799,7 +1799,7 @@ class Render {
             gl.drawArrays(RenderingContext.TRIANGLES, chain[1], chain[2]);
         }
 
-        program = GL.UseProgram('turbulent');
+        program = GL.UseProgram(GLPrograms.turbulent);
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -1836,7 +1836,7 @@ class Render {
         Render.currententity = CL.entities[0];
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
 
-        var program = GL.UseProgram('brush');
+        var program = GL.UseProgram(GLPrograms.brush);
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, GL.identity);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 44, 0);
@@ -1864,7 +1864,7 @@ class Render {
             }
         }
 
-        program = GL.UseProgram('turbulent');
+        program = GL.UseProgram(GLPrograms.turbulent);
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, GL.identity);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -2038,7 +2038,7 @@ class Render {
         gl.finish();
         gl.bindFramebuffer(RenderingContext.FRAMEBUFFER, null);
         gl.bindRenderbuffer(RenderingContext.RENDERBUFFER, null);
-        var program = GL.UseProgram('warp');
+        var program = GL.UseProgram(GLPrograms.warp);
         var vrect = Render.refdef.vrect;
         gl.uniform4f(program.uRect, vrect.x, vrect.y, vrect.width, vrect.height);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -2089,7 +2089,7 @@ class Render {
 
         gl.colorMask(false, false, false, false);
         var clmodel:MModel = CL.state.worldmodel;
-        var program = GL.UseProgram('skyChain');
+        var program = GL.UseProgram(GLPrograms.skyChain);
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, clmodel.cmds);
         gl.vertexAttribPointer(program.aPoint, 3, RenderingContext.FLOAT, false, 12, clmodel.skychain);
         for (i in 0...clmodel.leafs.length) {
@@ -2109,7 +2109,7 @@ class Render {
         gl.depthMask(false);
         gl.disable(RenderingContext.CULL_FACE);
 
-        program = GL.UseProgram('sky');
+        program = GL.UseProgram(GLPrograms.sky);
         gl.uniform2f(program.uTime, (Host.realtime * 0.125) % 1.0, (Host.realtime * 0.03125) % 1.0);
         GL.Bind(program.tSolid, Render.solidskytexture);
         GL.Bind(program.tAlpha, Render.alphaskytexture);

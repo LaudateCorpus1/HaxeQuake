@@ -10,33 +10,35 @@ typedef GLAtt = Int;
 
 @:autoBuild(quake.GLProgramMacro.build())
 class GLProgram {
+    var gl:RenderingContext;
     var program:Program;
 
-    function prepareShader(srcVert:String, srcFrag:String):Void {
-        program = GL.gl.createProgram();
-        var vsh = GL.gl.createShader(RenderingContext.VERTEX_SHADER);
-        GL.gl.shaderSource(vsh, srcVert);
-        GL.gl.compileShader(vsh);
-        if (!GL.gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS))
-            Sys.Error('Error compiling shader: ' + GL.gl.getShaderInfoLog(vsh));
+    function new(gl, srcVert, srcFrag) {
+        this.gl = gl;
+        program = gl.createProgram();
+        var vsh = gl.createShader(RenderingContext.VERTEX_SHADER);
+        gl.shaderSource(vsh, srcVert);
+        gl.compileShader(vsh);
+        if (!gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS))
+            Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(vsh));
 
-        var fsh = GL.gl.createShader(RenderingContext.FRAGMENT_SHADER);
-        GL.gl.shaderSource(fsh, srcFrag);
-        GL.gl.compileShader(fsh);
-        if (!GL.gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS))
-            Sys.Error('Error compiling shader: ' + GL.gl.getShaderInfoLog(fsh));
+        var fsh = gl.createShader(RenderingContext.FRAGMENT_SHADER);
+        gl.shaderSource(fsh, srcFrag);
+        gl.compileShader(fsh);
+        if (!gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS))
+            Sys.Error('Error compiling shader: ' + gl.getShaderInfoLog(fsh));
 
-        GL.gl.attachShader(program, vsh);
-        GL.gl.attachShader(program, fsh);
+        gl.attachShader(program, vsh);
+        gl.attachShader(program, fsh);
 
-        GL.gl.linkProgram(program);
-        if (!GL.gl.getProgramParameter(program, RenderingContext.LINK_STATUS))
-            Sys.Error('Error linking program: ' + GL.gl.getProgramInfoLog(program));
-        GL.gl.useProgram(program);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, RenderingContext.LINK_STATUS))
+            Sys.Error('Error linking program: ' + gl.getProgramInfoLog(program));
+        gl.useProgram(program);
     }
 
     public inline function use():Void {
-        GL.gl.useProgram(program);
+        gl.useProgram(program);
     }
 
     @:allow(quake.GL)

@@ -22,7 +22,7 @@ class GLProgramMacro {
         var vert = sys.io.File.getContent(path + ".vert");
         var frag = sys.io.File.getContent(path + ".frag");
 
-        var ctorExprs = [macro prepareShader($v{vert}, $v{frag})];
+        var ctorExprs = [macro super(gl, $v{vert}, $v{frag})];
         var bindExprs = [];
         var unbindExprs = [];
         var texNum = 0;
@@ -37,7 +37,7 @@ class GLProgramMacro {
                             var name = field.name;
                             switch (dt.name) {
                                 case "GLUni":
-                                    ctorExprs.push(macro this.$name = quake.GL.gl.getUniformLocation(this.program, $v{name}));
+                                    ctorExprs.push(macro this.$name = this.gl.getUniformLocation(this.program, $v{name}));
 
                                     switch (name) {
                                         case "uOrtho":
@@ -48,7 +48,7 @@ class GLProgramMacro {
                                                 kind: FFun({
                                                     ret: null,
                                                     args: [{name: "ortho", type: macro : Array<Float>}],
-                                                    expr: macro quake.GL.gl.uniformMatrix4fv(this.uOrtho, false, ortho)
+                                                    expr: macro this.gl.uniformMatrix4fv(this.uOrtho, false, ortho)
                                                 })
                                             });
                                         case "uGamma":
@@ -59,7 +59,7 @@ class GLProgramMacro {
                                                 kind: FFun({
                                                     ret: null,
                                                     args: [{name: "gamma", type: macro : Float}],
-                                                    expr: macro quake.GL.gl.uniform1f(this.uGamma, gamma)
+                                                    expr: macro this.gl.uniform1f(this.uGamma, gamma)
                                                 })
                                             });
                                         case "uViewOrigin":
@@ -70,7 +70,7 @@ class GLProgramMacro {
                                                 kind: FFun({
                                                     ret: null,
                                                     args: [{name: "v", type: macro : quake.Vec}],
-                                                    expr: macro quake.GL.gl.uniform3fv(this.uViewOrigin, v)
+                                                    expr: macro this.gl.uniform3fv(this.uViewOrigin, v)
                                                 })
                                             });
                                         case "uViewAngles":
@@ -81,7 +81,7 @@ class GLProgramMacro {
                                                 kind: FFun({
                                                     ret: null,
                                                     args: [{name: "v", type: macro : Array<Float>}],
-                                                    expr: macro quake.GL.gl.uniformMatrix3fv(this.uViewAngles, false, v)
+                                                    expr: macro this.gl.uniformMatrix3fv(this.uViewAngles, false, v)
                                                 })
                                             });
                                         case "uPerspective":
@@ -92,19 +92,19 @@ class GLProgramMacro {
                                                 kind: FFun({
                                                     ret: null,
                                                     args: [{name: "v", type: macro : Array<Float>}],
-                                                    expr: macro quake.GL.gl.uniformMatrix4fv(this.uPerspective, false, v)
+                                                    expr: macro this.gl.uniformMatrix4fv(this.uPerspective, false, v)
                                                 })
                                             });
                                     }
 
                                 case "GLAtt":
-                                    ctorExprs.push(macro this.$name = quake.GL.gl.getAttribLocation(this.program, $v{name}));
-                                    bindExprs.push(macro quake.GL.gl.enableVertexAttribArray(this.$name));
-                                    unbindExprs.push(macro quake.GL.gl.disableVertexAttribArray(this.$name));
+                                    ctorExprs.push(macro this.$name = this.gl.getAttribLocation(this.program, $v{name}));
+                                    bindExprs.push(macro this.gl.enableVertexAttribArray(this.$name));
+                                    unbindExprs.push(macro this.gl.disableVertexAttribArray(this.$name));
                                 case "GLTex":
                                     var id = texNum++;
                                     ctorExprs.push(macro this.$name = $v{id});
-                                    ctorExprs.push(macro quake.GL.gl.uniform1i(GL.gl.getUniformLocation(this.program, $v{name}), $v{id}));
+                                    ctorExprs.push(macro this.gl.uniform1i(this.gl.getUniformLocation(this.program, $v{name}), $v{id}));
                                 default:
                                     continue;
                             }
@@ -122,7 +122,7 @@ class GLProgramMacro {
             access: [APublic],
             kind: FFun({
                 ret: null,
-                args: [],
+                args: [{name: "gl", type: null}],
                 expr: macro $b{ctorExprs}
             })
         });

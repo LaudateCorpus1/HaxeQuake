@@ -330,6 +330,6 @@ class GL {
 
         VID.mainwindow.style.display = 'inline-block';
 
-        GLPrograms.init();
+        GLPrograms.init(gl);
     }
 }

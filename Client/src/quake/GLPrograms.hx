@@ -231,22 +231,21 @@ class GLPrograms {
     @:access(quake.GL.AddProgram)
     inline static function add<T:GLProgram>(p:T):T return GL.AddProgram(p);
 
-    public static function init() {
-        character = add(new PCharacter());
-        fill = add(new PFill());
-        pic = add(new PPic());
-        picTranslate = add(new PPicTranslate());
-        particle = add(new PParticle());
-        alias = add(new PAlias());
-        brush = add(new PBrush());
-        dlight = add(new PDlight());
-        player = add(new PPlayer());
-        sprite = add(new PSprite());
-        spriteOriented = add(new PSpriteOriented());
-        turbulent = add(new PTurbulent());
-        warp = add(new PWarp());
-        sky = add(new PSky());
-        skyChain = add(new PSkyChain());
-
+    public static function init(gl) {
+        character = add(new PCharacter(gl));
+        fill = add(new PFill(gl));
+        pic = add(new PPic(gl));
+        picTranslate = add(new PPicTranslate(gl));
+        particle = add(new PParticle(gl));
+        alias = add(new PAlias(gl));
+        brush = add(new PBrush(gl));
+        dlight = add(new PDlight(gl));
+        player = add(new PPlayer(gl));
+        sprite = add(new PSprite(gl));
+        spriteOriented = add(new PSpriteOriented(gl));
+        turbulent = add(new PTurbulent(gl));
+        warp = add(new PWarp(gl));
+        sky = add(new PSky(gl));
+        skyChain = add(new PSkyChain(gl));
     }
 }

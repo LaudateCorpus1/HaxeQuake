@@ -4269,11 +4269,8 @@ quake_GL.Set2D = function() {
 	while(_g < _g1.length) {
 		var program = _g1[_g];
 		++_g;
-		if(program.uOrtho == null) {
-			continue;
-		}
 		quake_GL.gl.useProgram(program.program);
-		quake_GL.gl.uniformMatrix4fv(program.uOrtho,false,quake_GL.ortho);
+		program.setOrtho(quake_GL.ortho);
 	}
 	quake_GL.gl.disable(2929);
 	quake_GL.gl.enable(3042);
@@ -4448,7 +4445,8 @@ quake_GL.UseProgram = function(program) {
 		quake_GL.currentprogram.unbind();
 	}
 	quake_GL.currentprogram = program;
-	program["use"]();
+	quake_GL.gl.useProgram(program.program);
+	program.bind();
 	return program;
 };
 quake_GL.UnbindProgram = function() {
@@ -4567,11 +4565,19 @@ quake_GLProgram.prototype = {
 		}
 		quake_GL.gl.useProgram(this.program);
 	}
-	,'use': function() {
-		throw new js__$Boot_HaxeError("abstract");
+	,bind: function() {
 	}
 	,unbind: function() {
-		throw new js__$Boot_HaxeError("abstract");
+	}
+	,setOrtho: function(ortho) {
+	}
+	,setGamma: function(gamma) {
+	}
+	,setViewOrigin: function(v) {
+	}
+	,setViewAngles: function(v) {
+	}
+	,setPerspective: function(v) {
 	}
 	,__class__: quake_GLProgram
 };
@@ -4587,8 +4593,10 @@ var quake_PCharacter = function() {
 quake_PCharacter.__name__ = true;
 quake_PCharacter.__super__ = quake_GLProgram;
 quake_PCharacter.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setOrtho: function(ortho) {
+		quake_GL.gl.uniformMatrix4fv(this.uOrtho,false,ortho);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4606,8 +4614,10 @@ var quake_PFill = function() {
 quake_PFill.__name__ = true;
 quake_PFill.__super__ = quake_GLProgram;
 quake_PFill.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setOrtho: function(ortho) {
+		quake_GL.gl.uniformMatrix4fv(this.uOrtho,false,ortho);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4626,8 +4636,10 @@ var quake_PPic = function() {
 quake_PPic.__name__ = true;
 quake_PPic.__super__ = quake_GLProgram;
 quake_PPic.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setOrtho: function(ortho) {
+		quake_GL.gl.uniformMatrix4fv(this.uOrtho,false,ortho);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4650,8 +4662,10 @@ var quake_PPicTranslate = function() {
 quake_PPicTranslate.__name__ = true;
 quake_PPicTranslate.__super__ = quake_GLProgram;
 quake_PPicTranslate.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setOrtho: function(ortho) {
+		quake_GL.gl.uniformMatrix4fv(this.uOrtho,false,ortho);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4673,8 +4687,19 @@ var quake_PParticle = function() {
 quake_PParticle.__name__ = true;
 quake_PParticle.__super__ = quake_GLProgram;
 quake_PParticle.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4708,8 +4733,19 @@ quake_PAlias.__name__ = true;
 quake_PAlias.__interfaces__ = [quake_IPAlias];
 quake_PAlias.__super__ = quake_GLProgram;
 quake_PAlias.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 		quake_GL.gl.enableVertexAttribArray(this.aLightNormal);
 		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
@@ -4744,8 +4780,19 @@ var quake_PBrush = function() {
 quake_PBrush.__name__ = true;
 quake_PBrush.__super__ = quake_GLProgram;
 quake_PBrush.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
 		quake_GL.gl.enableVertexAttribArray(this.aLightStyle);
@@ -4770,8 +4817,19 @@ var quake_PDlight = function() {
 quake_PDlight.__name__ = true;
 quake_PDlight.__super__ = quake_GLProgram;
 quake_PDlight.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4804,8 +4862,19 @@ quake_PPlayer.__name__ = true;
 quake_PPlayer.__interfaces__ = [quake_IPAlias];
 quake_PPlayer.__super__ = quake_GLProgram;
 quake_PPlayer.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 		quake_GL.gl.enableVertexAttribArray(this.aLightNormal);
 		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
@@ -4838,8 +4907,19 @@ quake_PSprite.__name__ = true;
 quake_PSprite.__interfaces__ = [quake_IPSprite];
 quake_PSprite.__super__ = quake_GLProgram;
 quake_PSprite.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4864,8 +4944,19 @@ quake_PSpriteOriented.__name__ = true;
 quake_PSpriteOriented.__interfaces__ = [quake_IPSprite];
 quake_PSpriteOriented.__super__ = quake_GLProgram;
 quake_PSpriteOriented.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4890,8 +4981,19 @@ var quake_PTurbulent = function() {
 quake_PTurbulent.__name__ = true;
 quake_PTurbulent.__super__ = quake_GLProgram;
 quake_PTurbulent.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
 	}
@@ -4913,8 +5015,10 @@ var quake_PWarp = function() {
 quake_PWarp.__name__ = true;
 quake_PWarp.__super__ = quake_GLProgram;
 quake_PWarp.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setOrtho: function(ortho) {
+		quake_GL.gl.uniformMatrix4fv(this.uOrtho,false,ortho);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4938,8 +5042,16 @@ var quake_PSky = function() {
 quake_PSky.__name__ = true;
 quake_PSky.__super__ = quake_GLProgram;
 quake_PSky.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,setGamma: function(gamma) {
+		quake_GL.gl.uniform1f(this.uGamma,gamma);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -4957,8 +5069,16 @@ var quake_PSkyChain = function() {
 quake_PSkyChain.__name__ = true;
 quake_PSkyChain.__super__ = quake_GLProgram;
 quake_PSkyChain.prototype = $extend(quake_GLProgram.prototype,{
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
+	setViewOrigin: function(v) {
+		quake_GL.gl.uniform3fv(this.uViewOrigin,v);
+	}
+	,setViewAngles: function(v) {
+		quake_GL.gl.uniformMatrix3fv(this.uViewAngles,false,v);
+	}
+	,setPerspective: function(v) {
+		quake_GL.gl.uniformMatrix4fv(this.uPerspective,false,v);
+	}
+	,bind: function() {
 		quake_GL.gl.enableVertexAttribArray(this.aPoint);
 	}
 	,unbind: function() {
@@ -14915,18 +15035,10 @@ quake_Render.Perspective = function() {
 		var program = _g1[_g];
 		++_g;
 		quake_GL.gl.useProgram(program.program);
-		if(program.uViewOrigin != null) {
-			quake_GL.gl.uniform3fv(program.uViewOrigin,quake_Render.refdef.vieworg);
-		}
-		if(program.uViewAngles != null) {
-			quake_GL.gl.uniformMatrix3fv(program.uViewAngles,false,viewMatrix);
-		}
-		if(program.uPerspective != null) {
-			quake_GL.gl.uniformMatrix4fv(program.uPerspective,false,quake_Render.perspective);
-		}
-		if(program.uGamma != null) {
-			quake_GL.gl.uniform1f(program.uGamma,quake_V.gamma.value);
-		}
+		program.setViewOrigin(quake_Render.refdef.vieworg);
+		program.setViewAngles(viewMatrix);
+		program.setPerspective(quake_Render.perspective);
+		program.setGamma(quake_V.gamma.value);
 	}
 };
 quake_Render.SetupGL = function() {

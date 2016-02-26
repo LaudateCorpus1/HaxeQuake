@@ -23,9 +23,11 @@ class GLProgramMacro {
         var frag = sys.io.File.getContent(path + ".frag");
 
         var ctorExprs = [macro prepareShader($v{vert}, $v{frag})];
-        var bindExprs = [macro quake.GL.gl.useProgram(this.program)];
+        var bindExprs = [];
         var unbindExprs = [];
         var texNum = 0;
+
+        var pos = Context.currentPos();
 
         for (field in fields) {
             switch (field.kind) {
@@ -36,6 +38,65 @@ class GLProgramMacro {
                             switch (dt.name) {
                                 case "GLUni":
                                     ctorExprs.push(macro this.$name = quake.GL.gl.getUniformLocation(this.program, $v{name}));
+
+                                    switch (name) {
+                                        case "uOrtho":
+                                            fields.push({
+                                                pos: pos,
+                                                name: "setOrtho",
+                                                access: [AOverride],
+                                                kind: FFun({
+                                                    ret: null,
+                                                    args: [{name: "ortho", type: macro : Array<Float>}],
+                                                    expr: macro quake.GL.gl.uniformMatrix4fv(this.uOrtho, false, ortho)
+                                                })
+                                            });
+                                        case "uGamma":
+                                            fields.push({
+                                                pos: pos,
+                                                name: "setGamma",
+                                                access: [AOverride],
+                                                kind: FFun({
+                                                    ret: null,
+                                                    args: [{name: "gamma", type: macro : Float}],
+                                                    expr: macro quake.GL.gl.uniform1f(this.uGamma, gamma)
+                                                })
+                                            });
+                                        case "uViewOrigin":
+                                            fields.push({
+                                                pos: pos,
+                                                name: "setViewOrigin",
+                                                access: [AOverride],
+                                                kind: FFun({
+                                                    ret: null,
+                                                    args: [{name: "v", type: macro : quake.Vec}],
+                                                    expr: macro quake.GL.gl.uniform3fv(this.uViewOrigin, v)
+                                                })
+                                            });
+                                        case "uViewAngles":
+                                            fields.push({
+                                                pos: pos,
+                                                name: "setViewAngles",
+                                                access: [AOverride],
+                                                kind: FFun({
+                                                    ret: null,
+                                                    args: [{name: "v", type: macro : Array<Float>}],
+                                                    expr: macro quake.GL.gl.uniformMatrix3fv(this.uViewAngles, false, v)
+                                                })
+                                            });
+                                        case "uPerspective":
+                                            fields.push({
+                                                pos: pos,
+                                                name: "setPerspective",
+                                                access: [AOverride],
+                                                kind: FFun({
+                                                    ret: null,
+                                                    args: [{name: "v", type: macro : Array<Float>}],
+                                                    expr: macro quake.GL.gl.uniformMatrix4fv(this.uPerspective, false, v)
+                                                })
+                                            });
+                                    }
+
                                 case "GLAtt":
                                     ctorExprs.push(macro this.$name = quake.GL.gl.getAttribLocation(this.program, $v{name}));
                                     bindExprs.push(macro quake.GL.gl.enableVertexAttribArray(this.$name));
@@ -55,29 +116,28 @@ class GLProgramMacro {
             }
         }
 
-        var pos = Context.currentPos();
-        fields = fields.concat([
-            {
+        fields.push({
+            pos: pos,
+            name: "new",
+            access: [APublic],
+            kind: FFun({
+                ret: null,
+                args: [],
+                expr: macro $b{ctorExprs}
+            })
+        });
+        if (bindExprs.length > 0) {
+            fields.push({
                 pos: pos,
-                name: "new",
-                access: [APublic],
-                kind: FFun({
-                    ret: null,
-                    args: [],
-                    expr: macro $b{ctorExprs}
-                })
-            },
-            {
-                pos: pos,
-                name: "use",
+                name: "bind",
                 access: [AOverride],
                 kind: FFun({
                     ret: null,
                     args: [],
                     expr: macro $b{bindExprs}
                 })
-            },
-            {
+            });
+            fields.push({
                 pos: pos,
                 name: "unbind",
                 access: [AOverride],
@@ -86,8 +146,8 @@ class GLProgramMacro {
                     args: [],
                     expr: macro $b{unbindExprs}
                 })
-            }
-        ]);
+            });
+        }
 
         return fields;
     }

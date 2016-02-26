@@ -822,15 +822,11 @@ class Render {
 
         GL.UnbindProgram();
         for (program in GL.programs) {
-            gl.useProgram(program.program);
-            if (program.uViewOrigin != null)
-                gl.uniform3fv(program.uViewOrigin, Render.refdef.vieworg);
-            if (program.uViewAngles != null)
-                gl.uniformMatrix3fv(program.uViewAngles, false, viewMatrix);
-            if (program.uPerspective != null)
-                gl.uniformMatrix4fv(program.uPerspective, false, Render.perspective);
-            if (program.uGamma != null)
-                gl.uniform1f(program.uGamma, V.gamma.value);
+            program.use();
+            program.setViewOrigin(Render.refdef.vieworg);
+            program.setViewAngles(viewMatrix);
+            program.setPerspective(Render.perspective);
+            program.setGamma(V.gamma.value);
         }
     }
 

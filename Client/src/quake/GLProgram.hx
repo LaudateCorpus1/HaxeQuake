@@ -8,10 +8,9 @@ typedef GLTex = Int;
 typedef GLUni = UniformLocation;
 typedef GLAtt = Int;
 
-@:allow(quake.GL)
 @:autoBuild(quake.GLProgramMacro.build())
-class GLProgram implements Dynamic<haxe.extern.EitherType<UniformLocation,Int>> {
-    public var program(default,null):Program;
+class GLProgram {
+    var program:Program;
 
     function prepareShader(srcVert:String, srcFrag:String):Void {
         program = GL.gl.createProgram();
@@ -36,6 +35,19 @@ class GLProgram implements Dynamic<haxe.extern.EitherType<UniformLocation,Int>> 
         GL.gl.useProgram(program);
     }
 
-    function use():Void throw "abstract";
-    function unbind():Void throw "abstract";
+    public inline function use():Void {
+        GL.gl.useProgram(program);
+    }
+
+    @:allow(quake.GL)
+    function bind():Void {}
+
+    @:allow(quake.GL)
+    function unbind():Void {}
+
+    public function setOrtho(ortho:Array<Float>):Void {}
+    public function setGamma(gamma:Float):Void {}
+    public function setViewOrigin(v:Vec):Void {}
+    public function setViewAngles(v:Array<Float>):Void {}
+    public function setPerspective(v:Array<Float>):Void {}
 }

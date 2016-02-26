@@ -103,10 +103,8 @@ class GL {
         gl.viewport(0, 0, Std.int(VID.width * SCR.devicePixelRatio), Std.int(VID.height * SCR.devicePixelRatio));
         UnbindProgram();
         for (program in programs) {
-            if (program.uOrtho == null)
-                continue;
-            gl.useProgram(program.program);
-            gl.uniformMatrix4fv(program.uOrtho, false, ortho);
+            program.use();
+            program.setOrtho(ortho);
         }
         gl.disable(RenderingContext.DEPTH_TEST);
         gl.enable(RenderingContext.BLEND);
@@ -266,6 +264,7 @@ class GL {
             currentprogram.unbind();
         currentprogram = program;
         program.use();
+        program.bind();
         return program;
     }
 

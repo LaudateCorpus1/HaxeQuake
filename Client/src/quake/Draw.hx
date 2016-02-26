@@ -52,7 +52,7 @@ class Draw {
 
 	public static function Init():Void {
 		chars = new Uint8Array(W.GetLumpName('CONCHARS'));
-		
+
 		var trans = new ArrayBuffer(65536);
 		var trans32 = new Uint32Array(trans);
 		for (i in 0...16384) {
@@ -82,11 +82,6 @@ class Draw {
 		loadingElem.src = PicToDataURL(loading);
 
 		document.body.style.backgroundImage = 'url("' + PicToDataURL(PicFromWad('BACKTILE')) + '")';
-
-		GL.CreateProgram('character', ['uCharacter', 'uDest', 'uOrtho'], ['aPoint'], ['tTexture']);
-		GL.CreateProgram('fill', ['uRect', 'uOrtho', 'uColor'], ['aPoint'], []);
-		GL.CreateProgram('pic', ['uRect', 'uOrtho'], ['aPoint'], ['tTexture']);
-		GL.CreateProgram('picTranslate', ['uRect', 'uOrtho', 'uTop', 'uBottom'], ['aPoint'], ['tTexture', 'tTrans']);
 	}
 
 	public static function Character(x:Int, y:Int, num:Int):Void {

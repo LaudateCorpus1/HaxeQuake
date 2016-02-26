@@ -3653,10 +3653,6 @@ quake_Draw.Init = function() {
 	quake_Draw.loadingElem = window.document.getElementById("loading");
 	quake_Draw.loadingElem.src = quake_Draw.PicToDataURL(quake_Draw.loading);
 	window.document.body.style.backgroundImage = "url(\"" + quake_Draw.PicToDataURL(new quake_DrawPic(quake_W.GetLumpName("BACKTILE"))) + "\")";
-	quake_GL.CreateProgram("character",["uCharacter","uDest","uOrtho"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("fill",["uRect","uOrtho","uColor"],["aPoint"],[]);
-	quake_GL.CreateProgram("pic",["uRect","uOrtho"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("picTranslate",["uRect","uOrtho","uTop","uBottom"],["aPoint"],["tTexture","tTrans"]);
 };
 quake_Draw.Character = function(x,y,num) {
 	var program = quake_GL.UseProgram("character");
@@ -4287,6 +4283,25 @@ quake__$GL_GLProgram.prototype = {
 	}
 	,__class__: quake__$GL_GLProgram
 };
+var quake_GLPrograms = function() { };
+quake_GLPrograms.__name__ = true;
+quake_GLPrograms.init = function() {
+	quake_GLPrograms.character = quake_GL.CreateProgram("character",["uCharacter","uDest","uOrtho"],["aPoint"],["tTexture"]);
+	quake_GLPrograms.fill = quake_GL.CreateProgram("fill",["uRect","uOrtho","uColor"],["aPoint"],[]);
+	quake_GLPrograms.pic = quake_GL.CreateProgram("pic",["uRect","uOrtho"],["aPoint"],["tTexture"]);
+	quake_GLPrograms.picTranslate = quake_GL.CreateProgram("picTranslate",["uRect","uOrtho","uTop","uBottom"],["aPoint"],["tTexture","tTrans"]);
+	quake_GLPrograms.particle = quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
+	quake_GLPrograms.alias = quake_GL.CreateProgram("alias",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight"],["aPoint","aLightNormal","aTexCoord"],["tTexture"]);
+	quake_GLPrograms.brush = quake_GL.CreateProgram("brush",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint","aTexCoord","aLightStyle"],["tTexture","tLightmap","tDlight","tLightStyle"]);
+	quake_GLPrograms.dlight = quake_GL.CreateProgram("dlight",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uRadius","uGamma"],["aPoint"],[]);
+	quake_GLPrograms.player = quake_GL.CreateProgram("player",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight","uTop","uBottom"],["aPoint","aLightNormal","aTexCoord"],["tTexture","tPlayer"]);
+	quake_GLPrograms.sprite = quake_GL.CreateProgram("sprite",["uRect","uOrigin","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
+	quake_GLPrograms.spriteOriented = quake_GL.CreateProgram("spriteOriented",["uRect","uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
+	quake_GLPrograms.turbulent = quake_GL.CreateProgram("turbulent",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma","uTime"],["aPoint","aTexCoord"],["tTexture"]);
+	quake_GLPrograms.warp = quake_GL.CreateProgram("warp",["uRect","uOrtho","uTime"],["aPoint"],["tTexture"]);
+	quake_GLPrograms.sky = quake_GL.CreateProgram("sky",["uViewAngles","uPerspective","uScale","uGamma","uTime"],["aPoint"],["tSolid","tAlpha"]);
+	quake_GLPrograms.skyChain = quake_GL.CreateProgram("skyChain",["uViewOrigin","uViewAngles","uPerspective"],["aPoint"],[]);
+};
 var quake_GL = function() { };
 quake_GL.__name__ = true;
 quake_GL.Bind = function(target,texnum) {
@@ -4638,6 +4653,7 @@ quake_GL.Init = function() {
 	quake_GL.gl.bindBuffer(34962,quake_GL.rect);
 	quake_GL.gl.bufferData(34962,new Float32Array([0,0,0,1,1,0,1,1]),35044);
 	quake_VID.mainwindow.style.display = "inline-block";
+	quake_GLPrograms.init();
 };
 var quake_HClient = function() {
 	this.num = 0;
@@ -14946,14 +14962,6 @@ quake_Render.Init = function() {
 	quake_Render.flashblend = quake_Cvar.RegisterVariable("gl_flashblend","0");
 	quake_Render.nocolors = quake_Cvar.RegisterVariable("gl_nocolors","0");
 	quake_Render.InitParticles();
-	quake_GL.CreateProgram("alias",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight"],["aPoint","aLightNormal","aTexCoord"],["tTexture"]);
-	quake_GL.CreateProgram("brush",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint","aTexCoord","aLightStyle"],["tTexture","tLightmap","tDlight","tLightStyle"]);
-	quake_GL.CreateProgram("dlight",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uRadius","uGamma"],["aPoint"],[]);
-	quake_GL.CreateProgram("player",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight","uTop","uBottom"],["aPoint","aLightNormal","aTexCoord"],["tTexture","tPlayer"]);
-	quake_GL.CreateProgram("sprite",["uRect","uOrigin","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("spriteOriented",["uRect","uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
-	quake_GL.CreateProgram("turbulent",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma","uTime"],["aPoint","aTexCoord"],["tTexture"]);
-	quake_GL.CreateProgram("warp",["uRect","uOrtho","uTime"],["aPoint"],["tTexture"]);
 	quake_Render.warpbuffer = quake_GL.gl.createFramebuffer();
 	quake_Render.warptexture = quake_GL.gl.createTexture();
 	quake_GL.Bind(0,quake_Render.warptexture);
@@ -15028,7 +15036,6 @@ quake_Render.InitParticles = function() {
 		v[2] = z;
 		quake_Render.avelocities.push(v);
 	}
-	quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
 };
 quake_Render.EntityParticles = function(ent) {
 	var allocated = quake_Render.AllocParticles(162);
@@ -15966,8 +15973,6 @@ quake_Render.MakeSky = function() {
 		}
 		i += 2;
 	}
-	quake_GL.CreateProgram("sky",["uViewAngles","uPerspective","uScale","uGamma","uTime"],["aPoint"],["tSolid","tAlpha"]);
-	quake_GL.CreateProgram("skyChain",["uViewOrigin","uViewAngles","uPerspective"],["aPoint"],[]);
 	quake_Render.skyvecs = quake_GL.gl.createBuffer();
 	quake_GL.gl.bindBuffer(34962,quake_Render.skyvecs);
 	quake_GL.gl.bufferData(34962,new Float32Array(vecs),35044);

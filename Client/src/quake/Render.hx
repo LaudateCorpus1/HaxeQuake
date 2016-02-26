@@ -1175,27 +1175,6 @@ class Render {
 
         Render.InitParticles();
 
-        GL.CreateProgram('alias',
-            ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight'],
-            ['aPoint', 'aLightNormal', 'aTexCoord'],
-            ['tTexture']);
-        GL.CreateProgram('brush',
-            ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'],
-            ['aPoint', 'aTexCoord', 'aLightStyle'],
-            ['tTexture', 'tLightmap', 'tDlight', 'tLightStyle']);
-        GL.CreateProgram('dlight', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uRadius', 'uGamma'], ['aPoint'], []);
-        GL.CreateProgram('player',
-            ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight', 'uTop', 'uBottom'],
-            ['aPoint', 'aLightNormal', 'aTexCoord'],
-            ['tTexture', 'tPlayer']);
-        GL.CreateProgram('sprite', ['uRect', 'uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        GL.CreateProgram('spriteOriented', ['uRect', 'uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        GL.CreateProgram('turbulent',
-            ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma', 'uTime'],
-            ['aPoint', 'aTexCoord'],
-            ['tTexture']);
-        GL.CreateProgram('warp', ['uRect', 'uOrtho', 'uTime'], ['aPoint'], ['tTexture']);
-
         Render.warpbuffer = gl.createFramebuffer();
         Render.warptexture = gl.createTexture();
         GL.Bind(0, Render.warptexture);
@@ -1290,8 +1269,6 @@ class Render {
         avelocities = [];
         for (_ in 0...NUMVERTEXNORMALS)
             avelocities.push(Vec.of(Math.random() * 2.56, Math.random() * 2.56, Math.random() * 2.56));
-
-        GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
     }
 
     static function EntityParticles(ent:Entity):Void {
@@ -2100,9 +2077,6 @@ class Render {
             }
             i += 2;
         }
-
-        GL.CreateProgram('sky', ['uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uTime'], ['aPoint'], ['tSolid', 'tAlpha']);
-        GL.CreateProgram('skyChain', ['uViewOrigin', 'uViewAngles', 'uPerspective'], ['aPoint'], []);
 
         Render.skyvecs = gl.createBuffer();
         gl.bindBuffer(RenderingContext.ARRAY_BUFFER, Render.skyvecs);

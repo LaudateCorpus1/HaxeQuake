@@ -4204,84 +4204,6 @@ quake_GLTexture.__name__ = true;
 quake_GLTexture.prototype = {
 	__class__: quake_GLTexture
 };
-var quake_GLProgram = function(shaderName,uniforms,attribs,textures) {
-	var tmp;
-	var _this = quake_Shaders.shaders;
-	if(__map_reserved[shaderName] != null) {
-		tmp = _this.getReserved(shaderName);
-	} else {
-		tmp = _this.h[shaderName];
-	}
-	var shaderSrc = tmp;
-	if(shaderSrc == null) {
-		quake_Sys.Error("Shader not found: " + shaderName);
-	}
-	this.attribs = [];
-	this.program = quake_GL.gl.createProgram();
-	var vsh = quake_GL.gl.createShader(35633);
-	quake_GL.gl.shaderSource(vsh,shaderSrc.vert);
-	quake_GL.gl.compileShader(vsh);
-	if(!quake_GL.gl.getShaderParameter(vsh,35713)) {
-		quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
-	}
-	var fsh = quake_GL.gl.createShader(35632);
-	quake_GL.gl.shaderSource(fsh,shaderSrc.frag);
-	quake_GL.gl.compileShader(fsh);
-	if(!quake_GL.gl.getShaderParameter(fsh,35713)) {
-		quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
-	}
-	quake_GL.gl.attachShader(this.program,vsh);
-	quake_GL.gl.attachShader(this.program,fsh);
-	quake_GL.gl.linkProgram(this.program);
-	if(!quake_GL.gl.getProgramParameter(this.program,35714)) {
-		quake_Sys.Error("Error linking program: " + quake_GL.gl.getProgramInfoLog(this.program));
-	}
-	quake_GL.gl.useProgram(this.program);
-	var _g = 0;
-	while(_g < uniforms.length) {
-		var name = uniforms[_g];
-		++_g;
-		this[name] = quake_GL.gl.getUniformLocation(this.program,name);
-	}
-	var _g1 = 0;
-	while(_g1 < attribs.length) {
-		var name1 = attribs[_g1];
-		++_g1;
-		this.attribs.push(name1);
-		this[name1] = quake_GL.gl.getAttribLocation(this.program,name1);
-	}
-	var _g11 = 0;
-	var _g2 = textures.length;
-	while(_g11 < _g2) {
-		var i = _g11++;
-		var name2 = textures[i];
-		this[name2] = i;
-		quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,name2),i);
-	}
-};
-quake_GLProgram.__name__ = true;
-quake_GLProgram.prototype = {
-	'use': function() {
-		quake_GL.gl.useProgram(this.program);
-		var _g = 0;
-		var _g1 = this.attribs;
-		while(_g < _g1.length) {
-			var name = _g1[_g];
-			++_g;
-			quake_GL.gl.enableVertexAttribArray(Reflect.field(this,name));
-		}
-	}
-	,unbind: function() {
-		var _g = 0;
-		var _g1 = this.attribs;
-		while(_g < _g1.length) {
-			var name = _g1[_g];
-			++_g;
-			quake_GL.gl.disableVertexAttribArray(Reflect.field(this,name));
-		}
-	}
-	,__class__: quake_GLProgram
-};
 var quake_GL = function() { };
 quake_GL.__name__ = true;
 quake_GL.Bind = function(target,texnum) {
@@ -4518,11 +4440,6 @@ quake_GL.LoadPicTexture = function(pic) {
 	quake_GL.gl.texParameterf(3553,10240,9729);
 	return texnum;
 };
-quake_GL.CreateProgram = function(identifier,uniforms,attribs,textures) {
-	var program = new quake_GLProgram(identifier,uniforms,attribs,textures);
-	quake_GL.programs.push(program);
-	return program;
-};
 quake_GL.UseProgram = function(program) {
 	if(quake_GL.currentprogram == program) {
 		return program;
@@ -4625,24 +4542,478 @@ quake_GL.Init = function() {
 	quake_VID.mainwindow.style.display = "inline-block";
 	quake_GLPrograms.init();
 };
+var quake_GLProgram = function() { };
+quake_GLProgram.__name__ = true;
+quake_GLProgram.prototype = {
+	prepareShader: function(srcVert,srcFrag) {
+		this.program = quake_GL.gl.createProgram();
+		var vsh = quake_GL.gl.createShader(35633);
+		quake_GL.gl.shaderSource(vsh,srcVert);
+		quake_GL.gl.compileShader(vsh);
+		if(!quake_GL.gl.getShaderParameter(vsh,35713)) {
+			quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(vsh));
+		}
+		var fsh = quake_GL.gl.createShader(35632);
+		quake_GL.gl.shaderSource(fsh,srcFrag);
+		quake_GL.gl.compileShader(fsh);
+		if(!quake_GL.gl.getShaderParameter(fsh,35713)) {
+			quake_Sys.Error("Error compiling shader: " + quake_GL.gl.getShaderInfoLog(fsh));
+		}
+		quake_GL.gl.attachShader(this.program,vsh);
+		quake_GL.gl.attachShader(this.program,fsh);
+		quake_GL.gl.linkProgram(this.program);
+		if(!quake_GL.gl.getProgramParameter(this.program,35714)) {
+			quake_Sys.Error("Error linking program: " + quake_GL.gl.getProgramInfoLog(this.program));
+		}
+		quake_GL.gl.useProgram(this.program);
+	}
+	,'use': function() {
+		throw new js__$Boot_HaxeError("abstract");
+	}
+	,unbind: function() {
+		throw new js__$Boot_HaxeError("abstract");
+	}
+	,__class__: quake_GLProgram
+};
+var quake_PCharacter = function() {
+	this.prepareShader("uniform vec2 uCharacter;\nuniform vec2 uDest;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(aPoint * 8.0 + uDest, 0.0, 1.0);\n    vTexCoord = (aPoint + uCharacter) * 0.0625;\n}\n","precision mediump float;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n}\n");
+	this.uCharacter = quake_GL.gl.getUniformLocation(this.program,"uCharacter");
+	this.uDest = quake_GL.gl.getUniformLocation(this.program,"uDest");
+	this.uOrtho = quake_GL.gl.getUniformLocation(this.program,"uOrtho");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PCharacter.__name__ = true;
+quake_PCharacter.__super__ = quake_GLProgram;
+quake_PCharacter.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PCharacter
+});
+var quake_PFill = function() {
+	this.prepareShader("uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint, 0.0, 1.0);\n}\n","precision mediump float;\nuniform vec4 uColor;\nvoid main(void)\n{\n    gl_FragColor = vec4(uColor.rgb * (1.0 / 255.0), uColor.a);\n}\n");
+	this.uRect = quake_GL.gl.getUniformLocation(this.program,"uRect");
+	this.uOrtho = quake_GL.gl.getUniformLocation(this.program,"uOrtho");
+	this.uColor = quake_GL.gl.getUniformLocation(this.program,"uColor");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+};
+quake_PFill.__name__ = true;
+quake_PFill.__super__ = quake_GLProgram;
+quake_PFill.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PFill
+});
+var quake_PPic = function() {
+	this.prepareShader("uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint.xy, 0.0, 1.0);\n    vTexCoord = aPoint;\n}\n","precision mediump float;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n}\n");
+	this.uRect = quake_GL.gl.getUniformLocation(this.program,"uRect");
+	this.uOrtho = quake_GL.gl.getUniformLocation(this.program,"uOrtho");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PPic.__name__ = true;
+quake_PPic.__super__ = quake_GLProgram;
+quake_PPic.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PPic
+});
+var quake_PPicTranslate = function() {
+	this.prepareShader("uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint.xy, 0.0, 1.0);\n    vTexCoord = aPoint;\n}\n","precision mediump float;\nuniform vec3 uTop;\nuniform vec3 uBottom;\nuniform sampler2D tTexture;\nuniform sampler2D tTrans;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    vec4 trans = texture2D(tTrans, vTexCoord);\n    gl_FragColor = vec4(mix(mix(texture.rgb, uTop * (1.0 / 191.25) * trans.x, trans.y), uBottom * (1.0 / 191.25) * trans.z, trans.w), texture.a);\n}\n");
+	this.uRect = quake_GL.gl.getUniformLocation(this.program,"uRect");
+	this.uOrtho = quake_GL.gl.getUniformLocation(this.program,"uOrtho");
+	this.uTop = quake_GL.gl.getUniformLocation(this.program,"uTop");
+	this.uBottom = quake_GL.gl.getUniformLocation(this.program,"uBottom");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+	this.tTrans = 1;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTrans"),1);
+};
+quake_PPicTranslate.__name__ = true;
+quake_PPicTranslate.__super__ = quake_GLProgram;
+quake_PPicTranslate.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PPicTranslate
+});
+var quake_PParticle = function() {
+	this.prepareShader("uniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform float uScale;\nattribute vec2 aPoint;\nvarying vec2 vCoord;\nvoid main(void)\n{\n    vec2 point = (aPoint - 0.5) * uScale;\n    vec3 position = vec3(point.x, 0.0, point.y) + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vCoord = vec2(aPoint.x - 0.5, 0.5 - aPoint.y) * 2.0;\n}\n","precision mediump float;\nuniform float uGamma;\nuniform vec3 uColor;\nvarying vec2 vCoord;\nvoid main(void)\n{\n    gl_FragColor = vec4(uColor * (1.0 / 255.0), 1.0 - smoothstep(0.75, 1.0, length(vCoord)));\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uScale = quake_GL.gl.getUniformLocation(this.program,"uScale");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.uColor = quake_GL.gl.getUniformLocation(this.program,"uColor");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+};
+quake_PParticle.__name__ = true;
+quake_PParticle.__super__ = quake_GLProgram;
+quake_PParticle.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PParticle
+});
+var quake_IPAlias = function() { };
+quake_IPAlias.__name__ = true;
+quake_IPAlias.prototype = {
+	__class__: quake_IPAlias
+};
+var quake_PAlias = function() {
+	this.prepareShader("uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uLightVec;\nattribute vec3 aPoint;\nattribute vec3 aLightNormal;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint.xyz + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightDot = dot(aLightNormal, uLightVec);\n}\n","precision mediump float;\nuniform float uGamma;\nuniform float uAmbientLight;\nuniform float uShadeLight;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    gl_FragColor = vec4(texture.rgb * mix(1.0, vLightDot * uShadeLight + uAmbientLight, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uAngles = quake_GL.gl.getUniformLocation(this.program,"uAngles");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uLightVec = quake_GL.gl.getUniformLocation(this.program,"uLightVec");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.uAmbientLight = quake_GL.gl.getUniformLocation(this.program,"uAmbientLight");
+	this.uShadeLight = quake_GL.gl.getUniformLocation(this.program,"uShadeLight");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.aLightNormal = quake_GL.gl.getAttribLocation(this.program,"aLightNormal");
+	this.aTexCoord = quake_GL.gl.getAttribLocation(this.program,"aTexCoord");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PAlias.__name__ = true;
+quake_PAlias.__interfaces__ = [quake_IPAlias];
+quake_PAlias.__super__ = quake_GLProgram;
+quake_PAlias.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+		quake_GL.gl.enableVertexAttribArray(this.aLightNormal);
+		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+		quake_GL.gl.disableVertexAttribArray(this.aLightNormal);
+		quake_GL.gl.disableVertexAttribArray(this.aTexCoord);
+	}
+	,__class__: quake_PAlias
+});
+var quake_PBrush = function() {
+	this.prepareShader("uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nattribute vec4 aTexCoord;\nattribute vec4 aLightStyle;\nvarying vec4 vTexCoord;\nvarying vec4 vLightStyle;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightStyle = aLightStyle;\n}\n","precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nuniform sampler2D tLightmap;\nuniform sampler2D tDlight;\nuniform sampler2D tLightStyle;\nvarying vec4 vTexCoord;\nvarying vec4 vLightStyle;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord.xy);\n    gl_FragColor = vec4(texture.rgb *\n        mix(1.0, dot(texture2D(tLightmap, vTexCoord.zw), vec4(\n            texture2D(tLightStyle, vec2(vLightStyle.x, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.y, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.z, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.w, 0.0)).a)\n        * 43.828125) + texture2D(tDlight, vTexCoord.zw).a, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uAngles = quake_GL.gl.getUniformLocation(this.program,"uAngles");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.aTexCoord = quake_GL.gl.getAttribLocation(this.program,"aTexCoord");
+	this.aLightStyle = quake_GL.gl.getAttribLocation(this.program,"aLightStyle");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+	this.tLightmap = 1;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tLightmap"),1);
+	this.tDlight = 2;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tDlight"),2);
+	this.tLightStyle = 3;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tLightStyle"),3);
+};
+quake_PBrush.__name__ = true;
+quake_PBrush.__super__ = quake_GLProgram;
+quake_PBrush.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
+		quake_GL.gl.enableVertexAttribArray(this.aLightStyle);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+		quake_GL.gl.disableVertexAttribArray(this.aTexCoord);
+		quake_GL.gl.disableVertexAttribArray(this.aLightStyle);
+	}
+	,__class__: quake_PBrush
+});
+var quake_PDlight = function() {
+	this.prepareShader("uniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform float uRadius;\nattribute vec3 aPoint;\nvarying float vAlpha;\nvoid main(void)\n{\n    vec3 position = aPoint * 0.35 * uRadius + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vAlpha = aPoint.y * -0.2;\n}\n","precision mediump float;\nuniform float uGamma;\nvarying float vAlpha;\nvoid main(void)\n{\n    gl_FragColor = vec4(pow(1.0, uGamma), pow(0.5, uGamma), 0.0, vAlpha);\n}\n");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uRadius = quake_GL.gl.getUniformLocation(this.program,"uRadius");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+};
+quake_PDlight.__name__ = true;
+quake_PDlight.__super__ = quake_GLProgram;
+quake_PDlight.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PDlight
+});
+var quake_PPlayer = function() {
+	this.prepareShader("uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uLightVec;\nattribute vec3 aPoint;\nattribute vec3 aLightNormal;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint.xyz + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightDot = dot(aLightNormal, uLightVec);\n}\n","precision mediump float;\nuniform float uGamma;\nuniform float uAmbientLight;\nuniform float uShadeLight;\nuniform vec3 uTop;\nuniform vec3 uBottom;\nuniform sampler2D tTexture;\nuniform sampler2D tPlayer;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    vec4 player = texture2D(tPlayer, vTexCoord);\n    gl_FragColor = vec4(\n        mix(mix(texture.rgb, uTop * (1.0 / 191.25) * player.x, player.y), uBottom * (1.0 / 191.25) * player.z, player.w)\n        * mix(1.0, vLightDot * uShadeLight + uAmbientLight, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uAngles = quake_GL.gl.getUniformLocation(this.program,"uAngles");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uLightVec = quake_GL.gl.getUniformLocation(this.program,"uLightVec");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.uAmbientLight = quake_GL.gl.getUniformLocation(this.program,"uAmbientLight");
+	this.uShadeLight = quake_GL.gl.getUniformLocation(this.program,"uShadeLight");
+	this.uTop = quake_GL.gl.getUniformLocation(this.program,"uTop");
+	this.uBottom = quake_GL.gl.getUniformLocation(this.program,"uBottom");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.aLightNormal = quake_GL.gl.getAttribLocation(this.program,"aLightNormal");
+	this.aTexCoord = quake_GL.gl.getAttribLocation(this.program,"aTexCoord");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+	this.tPlayer = 1;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tPlayer"),1);
+};
+quake_PPlayer.__name__ = true;
+quake_PPlayer.__interfaces__ = [quake_IPAlias];
+quake_PPlayer.__super__ = quake_GLProgram;
+quake_PPlayer.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+		quake_GL.gl.enableVertexAttribArray(this.aLightNormal);
+		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+		quake_GL.gl.disableVertexAttribArray(this.aLightNormal);
+		quake_GL.gl.disableVertexAttribArray(this.aTexCoord);
+	}
+	,__class__: quake_PPlayer
+});
+var quake_IPSprite = function() { };
+quake_IPSprite.__name__ = true;
+quake_IPSprite.prototype = {
+	__class__: quake_IPSprite
+};
+var quake_PSprite = function() {
+	this.prepareShader("uniform vec4 uRect;\nuniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec2 point = uRect.xy + uRect.zw * aPoint;\n    vec3 position = vec3(point.x, 0.0, point.y) + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = vec2(aPoint.x, -aPoint.y);\n}\n","precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uRect = quake_GL.gl.getUniformLocation(this.program,"uRect");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PSprite.__name__ = true;
+quake_PSprite.__interfaces__ = [quake_IPSprite];
+quake_PSprite.__super__ = quake_GLProgram;
+quake_PSprite.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PSprite
+});
+var quake_PSpriteOriented = function() {
+	this.prepareShader("uniform vec4 uRect;\nuniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec2 point = uRect.xy + uRect.zw * aPoint;\n    vec3 position = uViewAngles * (uAngles * vec3(point.x, 0.0, point.y) + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = vec2(aPoint.x, -aPoint.y);\n}\n","precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uRect = quake_GL.gl.getUniformLocation(this.program,"uRect");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uAngles = quake_GL.gl.getUniformLocation(this.program,"uAngles");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PSpriteOriented.__name__ = true;
+quake_PSpriteOriented.__interfaces__ = [quake_IPSprite];
+quake_PSpriteOriented.__super__ = quake_GLProgram;
+quake_PSpriteOriented.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PSpriteOriented
+});
+var quake_PTurbulent = function() {
+	this.prepareShader("uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n}\n","precision mediump float;\nuniform float uGamma;\nuniform float uTime;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = vec4(texture2D(tTexture, vTexCoord + vec2(sin(vTexCoord.t * 3.141593 + uTime), sin(vTexCoord.s * 3.141593 + uTime)) * 0.125).rgb, 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uOrigin = quake_GL.gl.getUniformLocation(this.program,"uOrigin");
+	this.uAngles = quake_GL.gl.getUniformLocation(this.program,"uAngles");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.uTime = quake_GL.gl.getUniformLocation(this.program,"uTime");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.aTexCoord = quake_GL.gl.getAttribLocation(this.program,"aTexCoord");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PTurbulent.__name__ = true;
+quake_PTurbulent.__super__ = quake_GLProgram;
+quake_PTurbulent.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+		quake_GL.gl.enableVertexAttribArray(this.aTexCoord);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+		quake_GL.gl.disableVertexAttribArray(this.aTexCoord);
+	}
+	,__class__: quake_PTurbulent
+});
+var quake_PWarp = function() {
+	this.prepareShader("uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.x + uRect.z * aPoint.x, uRect.y + uRect.w * aPoint.y, 0.0, 1.0);\n    vTexCoord = vec2(aPoint.x, 1.0 - aPoint.y);\n}\n","precision mediump float;\nuniform float uTime;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord + vec2(sin(vTexCoord.t * 15.70796 + uTime) * 0.003125, sin(vTexCoord.s * 9.817477 + uTime) * 0.005));\n}\n");
+	this.uRect = quake_GL.gl.getUniformLocation(this.program,"uRect");
+	this.uOrtho = quake_GL.gl.getUniformLocation(this.program,"uOrtho");
+	this.uTime = quake_GL.gl.getUniformLocation(this.program,"uTime");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tTexture = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tTexture"),0);
+};
+quake_PWarp.__name__ = true;
+quake_PWarp.__super__ = quake_GLProgram;
+quake_PWarp.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PWarp
+});
+var quake_PSky = function() {
+	this.prepareShader("uniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uScale;\nattribute vec3 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (aPoint * uScale * 18918.0);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aPoint.xy * uScale.xy * 1.5;\n}\n","precision mediump float;\nuniform float uGamma;\nuniform vec2 uTime;\nuniform sampler2D tSolid;\nuniform sampler2D tAlpha;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec4 alpha = texture2D(tAlpha, vTexCoord + uTime.x);\n    gl_FragColor = vec4(mix(texture2D(tSolid, vTexCoord + uTime.y).rgb, alpha.rgb, alpha.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.uScale = quake_GL.gl.getUniformLocation(this.program,"uScale");
+	this.uGamma = quake_GL.gl.getUniformLocation(this.program,"uGamma");
+	this.uTime = quake_GL.gl.getUniformLocation(this.program,"uTime");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+	this.tSolid = 0;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tSolid"),0);
+	this.tAlpha = 1;
+	quake_GL.gl.uniform1i(quake_GL.gl.getUniformLocation(this.program,"tAlpha"),1);
+};
+quake_PSky.__name__ = true;
+quake_PSky.__super__ = quake_GLProgram;
+quake_PSky.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PSky
+});
+var quake_PSkyChain = function() {
+	this.prepareShader("uniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (aPoint - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n}\n","precision mediump float;\nvoid main(void)\n{\n}\n");
+	this.uViewOrigin = quake_GL.gl.getUniformLocation(this.program,"uViewOrigin");
+	this.uViewAngles = quake_GL.gl.getUniformLocation(this.program,"uViewAngles");
+	this.uPerspective = quake_GL.gl.getUniformLocation(this.program,"uPerspective");
+	this.aPoint = quake_GL.gl.getAttribLocation(this.program,"aPoint");
+};
+quake_PSkyChain.__name__ = true;
+quake_PSkyChain.__super__ = quake_GLProgram;
+quake_PSkyChain.prototype = $extend(quake_GLProgram.prototype,{
+	'use': function() {
+		quake_GL.gl.useProgram(this.program);
+		quake_GL.gl.enableVertexAttribArray(this.aPoint);
+	}
+	,unbind: function() {
+		quake_GL.gl.disableVertexAttribArray(this.aPoint);
+	}
+	,__class__: quake_PSkyChain
+});
 var quake_GLPrograms = function() { };
 quake_GLPrograms.__name__ = true;
 quake_GLPrograms.init = function() {
-	quake_GLPrograms.character = quake_GL.CreateProgram("character",["uCharacter","uDest","uOrtho"],["aPoint"],["tTexture"]);
-	quake_GLPrograms.fill = quake_GL.CreateProgram("fill",["uRect","uOrtho","uColor"],["aPoint"],[]);
-	quake_GLPrograms.pic = quake_GL.CreateProgram("pic",["uRect","uOrtho"],["aPoint"],["tTexture"]);
-	quake_GLPrograms.picTranslate = quake_GL.CreateProgram("picTranslate",["uRect","uOrtho","uTop","uBottom"],["aPoint"],["tTexture","tTrans"]);
-	quake_GLPrograms.particle = quake_GL.CreateProgram("particle",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uScale","uGamma","uColor"],["aPoint"],[]);
-	quake_GLPrograms.alias = quake_GL.CreateProgram("alias",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight"],["aPoint","aLightNormal","aTexCoord"],["tTexture"]);
-	quake_GLPrograms.brush = quake_GL.CreateProgram("brush",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint","aTexCoord","aLightStyle"],["tTexture","tLightmap","tDlight","tLightStyle"]);
-	quake_GLPrograms.dlight = quake_GL.CreateProgram("dlight",["uOrigin","uViewOrigin","uViewAngles","uPerspective","uRadius","uGamma"],["aPoint"],[]);
-	quake_GLPrograms.player = quake_GL.CreateProgram("player",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uLightVec","uGamma","uAmbientLight","uShadeLight","uTop","uBottom"],["aPoint","aLightNormal","aTexCoord"],["tTexture","tPlayer"]);
-	quake_GLPrograms.sprite = quake_GL.CreateProgram("sprite",["uRect","uOrigin","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
-	quake_GLPrograms.spriteOriented = quake_GL.CreateProgram("spriteOriented",["uRect","uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma"],["aPoint"],["tTexture"]);
-	quake_GLPrograms.turbulent = quake_GL.CreateProgram("turbulent",["uOrigin","uAngles","uViewOrigin","uViewAngles","uPerspective","uGamma","uTime"],["aPoint","aTexCoord"],["tTexture"]);
-	quake_GLPrograms.warp = quake_GL.CreateProgram("warp",["uRect","uOrtho","uTime"],["aPoint"],["tTexture"]);
-	quake_GLPrograms.sky = quake_GL.CreateProgram("sky",["uViewAngles","uPerspective","uScale","uGamma","uTime"],["aPoint"],["tSolid","tAlpha"]);
-	quake_GLPrograms.skyChain = quake_GL.CreateProgram("skyChain",["uViewOrigin","uViewAngles","uPerspective"],["aPoint"],[]);
+	var p = new quake_PCharacter();
+	quake_GL.programs.push(p);
+	quake_GLPrograms.character = p;
+	var p1 = new quake_PFill();
+	quake_GL.programs.push(p1);
+	quake_GLPrograms.fill = p1;
+	var p2 = new quake_PPic();
+	quake_GL.programs.push(p2);
+	quake_GLPrograms.pic = p2;
+	var p3 = new quake_PPicTranslate();
+	quake_GL.programs.push(p3);
+	quake_GLPrograms.picTranslate = p3;
+	var p4 = new quake_PParticle();
+	quake_GL.programs.push(p4);
+	quake_GLPrograms.particle = p4;
+	var p5 = new quake_PAlias();
+	quake_GL.programs.push(p5);
+	quake_GLPrograms.alias = p5;
+	var p6 = new quake_PBrush();
+	quake_GL.programs.push(p6);
+	quake_GLPrograms.brush = p6;
+	var p7 = new quake_PDlight();
+	quake_GL.programs.push(p7);
+	quake_GLPrograms.dlight = p7;
+	var p8 = new quake_PPlayer();
+	quake_GL.programs.push(p8);
+	quake_GLPrograms.player = p8;
+	var p9 = new quake_PSprite();
+	quake_GL.programs.push(p9);
+	quake_GLPrograms.sprite = p9;
+	var p10 = new quake_PSpriteOriented();
+	quake_GL.programs.push(p10);
+	quake_GLPrograms.spriteOriented = p10;
+	var p11 = new quake_PTurbulent();
+	quake_GL.programs.push(p11);
+	quake_GLPrograms.turbulent = p11;
+	var p12 = new quake_PWarp();
+	quake_GL.programs.push(p12);
+	quake_GLPrograms.warp = p12;
+	var p13 = new quake_PSky();
+	quake_GL.programs.push(p13);
+	quake_GLPrograms.sky = p13;
+	var p14 = new quake_PSkyChain();
+	quake_GL.programs.push(p14);
+	quake_GLPrograms.skyChain = p14;
 };
 var quake_HClient = function() {
 	this.num = 0;
@@ -14189,7 +14560,7 @@ quake_Render.DrawSpriteModel = function(e) {
 	var program;
 	if(e.model.oriented) {
 		program = quake_GL.UseProgram(quake_GLPrograms.spriteOriented);
-		quake_GL.gl.uniformMatrix3fv(program.uAngles,false,quake_GL.RotationMatrix(e.angles[0],e.angles[1] - 90.0,e.angles[2]));
+		quake_GL.gl.uniformMatrix3fv(quake_GLPrograms.spriteOriented.uAngles,false,quake_GL.RotationMatrix(e.angles[0],e.angles[1] - 90.0,e.angles[2]));
 	} else {
 		program = quake_GL.UseProgram(quake_GLPrograms.sprite);
 	}
@@ -14252,8 +14623,8 @@ quake_Render.DrawAliasModel = function(e) {
 		}
 		top = quake_VID.d_8to24table[top];
 		bottom = quake_VID.d_8to24table[bottom];
-		quake_GL.gl.uniform3f(program.uTop,top & 255,top >> 8 & 255,top >> 16);
-		quake_GL.gl.uniform3f(program.uBottom,bottom & 255,bottom >> 8 & 255,bottom >> 16);
+		quake_GL.gl.uniform3f(quake_GLPrograms.player.uTop,top & 255,top >> 8 & 255,top >> 16);
+		quake_GL.gl.uniform3f(quake_GLPrograms.player.uBottom,bottom & 255,bottom >> 8 & 255,bottom >> 16);
 	} else {
 		program = quake_GL.UseProgram(quake_GLPrograms.alias);
 	}
@@ -14300,22 +14671,21 @@ quake_Render.DrawAliasModel = function(e) {
 	var right = new Float32Array(3);
 	var up = new Float32Array(3);
 	quake__$Vec_Vec_$Impl_$.AngleVectors(e.angles,forward,right,up);
-	var tmp1 = program.uLightVec;
 	var v3 = new Float32Array(3);
 	v3[0] = -1.0;
 	v3[1] = 0.0;
 	v3[2] = 0.0;
-	var tmp2 = v3[0] * forward[0] + v3[1] * forward[1] + v3[2] * forward[2];
+	var tmp1 = v3[0] * forward[0] + v3[1] * forward[1] + v3[2] * forward[2];
 	var v4 = new Float32Array(3);
 	v4[0] = -1.0;
 	v4[1] = 0.0;
 	v4[2] = 0.0;
-	var tmp3 = -(v4[0] * right[0] + v4[1] * right[1] + v4[2] * right[2]);
+	var tmp2 = -(v4[0] * right[0] + v4[1] * right[1] + v4[2] * right[2]);
 	var v5 = new Float32Array(3);
 	v5[0] = -1.0;
 	v5[1] = 0.0;
 	v5[2] = 0.0;
-	quake_GL.gl.uniform3fv(tmp1,[tmp2,tmp3,v5[0] * up[0] + v5[1] * up[1] + v5[2] * up[2]]);
+	quake_GL.gl.uniform3fv(program.uLightVec,[tmp1,tmp2,v5[0] * up[0] + v5[1] * up[1] + v5[2] * up[2]]);
 	quake_Render.c_alias_polys += clmodel.numtris;
 	var time = quake_CL.state.time + e.syncbase;
 	var num = e.frame;
@@ -14362,7 +14732,7 @@ quake_Render.DrawAliasModel = function(e) {
 	}
 	quake_GL.Bind(program.tTexture,skin.texturenum.texnum);
 	if(clmodel.player) {
-		quake_GL.Bind(program.tPlayer,skin.playertexture);
+		quake_GL.Bind(quake_GLPrograms.player.tPlayer,skin.playertexture);
 	}
 	quake_GL.gl.drawArrays(4,0,clmodel.numtris * 3);
 };
@@ -15647,12 +16017,12 @@ quake_Render.DrawBrushModel = function(e) {
 		quake_GL.Bind(program.tTexture,texture.texturenum);
 		quake_GL.gl.drawArrays(4,chain[1],chain[2]);
 	}
-	program = quake_GL.UseProgram(quake_GLPrograms.turbulent);
-	quake_GL.gl.uniform3f(program.uOrigin,0.0,0.0,0.0);
-	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,viewMatrix);
-	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
-	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,20,e.model.waterchain);
-	quake_GL.gl.vertexAttribPointer(program.aTexCoord,2,5126,false,20,e.model.waterchain + 12);
+	var program1 = quake_GL.UseProgram(quake_GLPrograms.turbulent);
+	quake_GL.gl.uniform3f(program1.uOrigin,0.0,0.0,0.0);
+	quake_GL.gl.uniformMatrix3fv(program1.uAngles,false,viewMatrix);
+	quake_GL.gl.uniform1f(program1.uTime,quake_Host.realtime % (Math.PI * 2.0));
+	quake_GL.gl.vertexAttribPointer(program1.aPoint,3,5126,false,20,e.model.waterchain);
+	quake_GL.gl.vertexAttribPointer(program1.aTexCoord,2,5126,false,20,e.model.waterchain + 12);
 	var _g11 = 0;
 	var _g2 = clmodel.chains.length;
 	while(_g11 < _g2) {
@@ -15662,7 +16032,7 @@ quake_Render.DrawBrushModel = function(e) {
 			continue;
 		}
 		quake_Render.c_brush_verts += chain1[2];
-		quake_GL.Bind(program.tTexture,texture1.texturenum);
+		quake_GL.Bind(program1.tTexture,texture1.texturenum);
 		quake_GL.gl.drawArrays(4,chain1[1],chain1[2]);
 	}
 };
@@ -15724,12 +16094,12 @@ quake_Render.DrawWorld = function() {
 			quake_GL.gl.drawArrays(4,cmds[1],cmds[2]);
 		}
 	}
-	program = quake_GL.UseProgram(quake_GLPrograms.turbulent);
-	quake_GL.gl.uniform3f(program.uOrigin,0.0,0.0,0.0);
-	quake_GL.gl.uniformMatrix3fv(program.uAngles,false,quake_GL.identity);
-	quake_GL.gl.uniform1f(program.uTime,quake_Host.realtime % (Math.PI * 2.0));
-	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,20,clmodel.waterchain);
-	quake_GL.gl.vertexAttribPointer(program.aTexCoord,2,5126,false,20,clmodel.waterchain + 12);
+	var program1 = quake_GL.UseProgram(quake_GLPrograms.turbulent);
+	quake_GL.gl.uniform3f(program1.uOrigin,0.0,0.0,0.0);
+	quake_GL.gl.uniformMatrix3fv(program1.uAngles,false,quake_GL.identity);
+	quake_GL.gl.uniform1f(program1.uTime,quake_Host.realtime % (Math.PI * 2.0));
+	quake_GL.gl.vertexAttribPointer(program1.aPoint,3,5126,false,20,clmodel.waterchain);
+	quake_GL.gl.vertexAttribPointer(program1.aTexCoord,2,5126,false,20,clmodel.waterchain + 12);
 	var _g4 = 0;
 	var _g11 = clmodel.leafs;
 	while(_g4 < _g11.length) {
@@ -15746,7 +16116,7 @@ quake_Render.DrawWorld = function() {
 		while(_g31 < _g21) {
 			var cmds1 = leaf1.cmds[_g31++];
 			quake_Render.c_brush_verts += cmds1[2];
-			quake_GL.Bind(program.tTexture,clmodel.textures[cmds1[0]].texturenum);
+			quake_GL.Bind(program1.tTexture,clmodel.textures[cmds1[0]].texturenum);
 			quake_GL.gl.drawArrays(4,cmds1[1],cmds1[2]);
 		}
 	}
@@ -15996,27 +16366,27 @@ quake_Render.DrawSkyBox = function() {
 	quake_GL.gl.depthFunc(516);
 	quake_GL.gl.depthMask(false);
 	quake_GL.gl.disable(2884);
-	program = quake_GL.UseProgram(quake_GLPrograms.sky);
-	quake_GL.gl.uniform2f(program.uTime,quake_Host.realtime * 0.125 % 1.0,quake_Host.realtime * 0.03125 % 1.0);
-	quake_GL.Bind(program.tSolid,quake_Render.solidskytexture);
-	quake_GL.Bind(program.tAlpha,quake_Render.alphaskytexture);
+	var program1 = quake_GL.UseProgram(quake_GLPrograms.sky);
+	quake_GL.gl.uniform2f(program1.uTime,quake_Host.realtime * 0.125 % 1.0,quake_Host.realtime * 0.03125 % 1.0);
+	quake_GL.Bind(program1.tSolid,quake_Render.solidskytexture);
+	quake_GL.Bind(program1.tAlpha,quake_Render.alphaskytexture);
 	quake_GL.gl.bindBuffer(34962,quake_Render.skyvecs);
-	quake_GL.gl.vertexAttribPointer(program.aPoint,3,5126,false,12,0);
-	quake_GL.gl.uniform3f(program.uScale,2.0,-2.0,1.0);
+	quake_GL.gl.vertexAttribPointer(program1.aPoint,3,5126,false,12,0);
+	quake_GL.gl.uniform3f(program1.uScale,2.0,-2.0,1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,2.0,-2.0,-1.0);
+	quake_GL.gl.uniform3f(program1.uScale,2.0,-2.0,-1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,2.0,2.0,1.0);
+	quake_GL.gl.uniform3f(program1.uScale,2.0,2.0,1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,2.0,2.0,-1.0);
+	quake_GL.gl.uniform3f(program1.uScale,2.0,2.0,-1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,-2.0,-2.0,1.0);
+	quake_GL.gl.uniform3f(program1.uScale,-2.0,-2.0,1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,-2.0,-2.0,-1.0);
+	quake_GL.gl.uniform3f(program1.uScale,-2.0,-2.0,-1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,-2.0,2.0,1.0);
+	quake_GL.gl.uniform3f(program1.uScale,-2.0,2.0,1.0);
 	quake_GL.gl.drawArrays(4,0,180);
-	quake_GL.gl.uniform3f(program.uScale,-2.0,2.0,-1.0);
+	quake_GL.gl.uniform3f(program1.uScale,-2.0,2.0,-1.0);
 	quake_GL.gl.drawArrays(4,0,180);
 	quake_GL.gl.enable(2884);
 	quake_GL.gl.depthMask(true);
@@ -17378,8 +17748,6 @@ quake_Sbar.IntermissionOverlay = function() {
 	quake_Draw.Pic(232,144,quake_Sbar.slash);
 	quake_Sbar.IntermissionNumber(240,144,quake_CL.state.stats[12]);
 };
-var quake_Shaders = function() { };
-quake_Shaders.__name__ = true;
 var quake_V = function() { };
 quake_V.__name__ = true;
 quake_V.CalcRoll = function(angles,velocity) {
@@ -18014,132 +18382,6 @@ quake_Render.dlightmaps = new Uint8Array(new ArrayBuffer(1048576));
 quake_PF.builtin = [quake_PF.Fixme,quake_PF.makevectors,quake_PF.setorigin,quake_PF.setmodel,quake_PF.setsize,quake_PF.Fixme,quake_PF.breakstatement,quake_PF.random,quake_PF.sound,quake_PF.normalize,quake_PF.error,quake_PF.objerror,quake_PF.vlen,quake_PF.vectoyaw,quake_PF.Spawn,quake_PF.Remove,quake_PF.traceline,quake_PF.checkclient,quake_PF.Find,quake_PF.precache_sound,quake_PF.precache_model,quake_PF.stuffcmd,quake_PF.findradius,quake_PF.bprint,quake_PF.sprint,quake_PF.dprint,quake_PF.ftos,quake_PF.vtos,quake_PF.coredump,quake_PF.traceon,quake_PF.traceoff,quake_PF.eprint,quake_PF.walkmove,quake_PF.Fixme,quake_PF.droptofloor,quake_PF.lightstyle,quake_PF.rint,quake_PF.floor,quake_PF.ceil,quake_PF.Fixme,quake_PF.checkbottom,quake_PF.pointcontents,quake_PF.Fixme,quake_PF.fabs,quake_PF.aim,quake_PF.cvar,quake_PF.localcmd,quake_PF.nextent,quake_PF.particle,quake_PF.changeyaw,quake_PF.Fixme,quake_PF.vectoangles,quake_PF.WriteByte,quake_PF.WriteChar,quake_PF.WriteShort,quake_PF.WriteLong,quake_PF.WriteCoord,quake_PF.WriteAngle,quake_PF.WriteString,quake_PF.WriteEntity,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.Fixme,quake_PF.MoveToGoal,quake_PF.precache_file,quake_PF.makestatic,quake_PF.changelevel,quake_PF.Fixme,quake_PF.cvar_set,quake_PF.centerprint,quake_PF.ambientsound,quake_PF.precache_model,quake_PF.precache_sound,quake_PF.precache_file,quake_PF.setspawnparms];
 quake_Sbar.fragsort = [];
 quake_Sbar.showscores = false;
-quake_Shaders.shaders = (function($this) {
-	var $r;
-	var _g = new haxe_ds_StringMap();
-	{
-		var value = { vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uLightVec;\nattribute vec3 aPoint;\nattribute vec3 aLightNormal;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint.xyz + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightDot = dot(aLightNormal, uLightVec);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform float uAmbientLight;\nuniform float uShadeLight;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    gl_FragColor = vec4(texture.rgb * mix(1.0, vLightDot * uShadeLight + uAmbientLight, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.alias != null) {
-			_g.setReserved("alias",value);
-		} else {
-			_g.h["alias"] = value;
-		}
-	}
-	{
-		var value1 = { vert : "uniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uScale;\nattribute vec3 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (aPoint * uScale * 18918.0);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aPoint.xy * uScale.xy * 1.5;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform vec2 uTime;\nuniform sampler2D tSolid;\nuniform sampler2D tAlpha;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec4 alpha = texture2D(tAlpha, vTexCoord + uTime.x);\n    gl_FragColor = vec4(mix(texture2D(tSolid, vTexCoord + uTime.y).rgb, alpha.rgb, alpha.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.sky != null) {
-			_g.setReserved("sky",value1);
-		} else {
-			_g.h["sky"] = value1;
-		}
-	}
-	{
-		var value2 = { vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint.xy, 0.0, 1.0);\n    vTexCoord = aPoint;\n}\n", frag : "precision mediump float;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n}\n"};
-		if(__map_reserved.pic != null) {
-			_g.setReserved("pic",value2);
-		} else {
-			_g.h["pic"] = value2;
-		}
-	}
-	{
-		var value3 = { vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint.xy, 0.0, 1.0);\n    vTexCoord = aPoint;\n}\n", frag : "precision mediump float;\nuniform vec3 uTop;\nuniform vec3 uBottom;\nuniform sampler2D tTexture;\nuniform sampler2D tTrans;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    vec4 trans = texture2D(tTrans, vTexCoord);\n    gl_FragColor = vec4(mix(mix(texture.rgb, uTop * (1.0 / 191.25) * trans.x, trans.y), uBottom * (1.0 / 191.25) * trans.z, trans.w), texture.a);\n}\n"};
-		if(__map_reserved.picTranslate != null) {
-			_g.setReserved("picTranslate",value3);
-		} else {
-			_g.h["picTranslate"] = value3;
-		}
-	}
-	{
-		var value4 = { vert : "uniform vec4 uRect;\nuniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec2 point = uRect.xy + uRect.zw * aPoint;\n    vec3 position = vec3(point.x, 0.0, point.y) + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = vec2(aPoint.x, -aPoint.y);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.sprite != null) {
-			_g.setReserved("sprite",value4);
-		} else {
-			_g.h["sprite"] = value4;
-		}
-	}
-	{
-		var value5 = { vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform float uTime;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = vec4(texture2D(tTexture, vTexCoord + vec2(sin(vTexCoord.t * 3.141593 + uTime), sin(vTexCoord.s * 3.141593 + uTime)) * 0.125).rgb, 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.turbulent != null) {
-			_g.setReserved("turbulent",value5);
-		} else {
-			_g.h["turbulent"] = value5;
-		}
-	}
-	{
-		var value6 = { vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.xy + uRect.zw * aPoint, 0.0, 1.0);\n}\n", frag : "precision mediump float;\nuniform vec4 uColor;\nvoid main(void)\n{\n    gl_FragColor = vec4(uColor.rgb * (1.0 / 255.0), uColor.a);\n}\n"};
-		if(__map_reserved.fill != null) {
-			_g.setReserved("fill",value6);
-		} else {
-			_g.h["fill"] = value6;
-		}
-	}
-	{
-		var value7 = { vert : "uniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (aPoint - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n}\n", frag : "precision mediump float;\nvoid main(void)\n{\n}\n"};
-		if(__map_reserved.skyChain != null) {
-			_g.setReserved("skyChain",value7);
-		} else {
-			_g.h["skyChain"] = value7;
-		}
-	}
-	{
-		var value8 = { vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform vec3 uLightVec;\nattribute vec3 aPoint;\nattribute vec3 aLightNormal;\nattribute vec2 aTexCoord;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint.xyz + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightDot = dot(aLightNormal, uLightVec);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform float uAmbientLight;\nuniform float uShadeLight;\nuniform vec3 uTop;\nuniform vec3 uBottom;\nuniform sampler2D tTexture;\nuniform sampler2D tPlayer;\nvarying vec2 vTexCoord;\nvarying float vLightDot;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord);\n    vec4 player = texture2D(tPlayer, vTexCoord);\n    gl_FragColor = vec4(\n        mix(mix(texture.rgb, uTop * (1.0 / 191.25) * player.x, player.y), uBottom * (1.0 / 191.25) * player.z, player.w)\n        * mix(1.0, vLightDot * uShadeLight + uAmbientLight, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.player != null) {
-			_g.setReserved("player",value8);
-		} else {
-			_g.h["player"] = value8;
-		}
-	}
-	{
-		var value9 = { vert : "uniform vec4 uRect;\nuniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    vec2 point = uRect.xy + uRect.zw * aPoint;\n    vec3 position = uViewAngles * (uAngles * vec3(point.x, 0.0, point.y) + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = vec2(aPoint.x, -aPoint.y);\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.spriteOriented != null) {
-			_g.setReserved("spriteOriented",value9);
-		} else {
-			_g.h["spriteOriented"] = value9;
-		}
-	}
-	{
-		var value10 = { vert : "uniform vec2 uCharacter;\nuniform vec2 uDest;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(aPoint * 8.0 + uDest, 0.0, 1.0);\n    vTexCoord = (aPoint + uCharacter) * 0.0625;\n}\n", frag : "precision mediump float;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord);\n}\n"};
-		if(__map_reserved.character != null) {
-			_g.setReserved("character",value10);
-		} else {
-			_g.h["character"] = value10;
-		}
-	}
-	{
-		var value11 = { vert : "uniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform float uScale;\nattribute vec2 aPoint;\nvarying vec2 vCoord;\nvoid main(void)\n{\n    vec2 point = (aPoint - 0.5) * uScale;\n    vec3 position = vec3(point.x, 0.0, point.y) + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vCoord = vec2(aPoint.x - 0.5, 0.5 - aPoint.y) * 2.0;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform vec3 uColor;\nvarying vec2 vCoord;\nvoid main(void)\n{\n    gl_FragColor = vec4(uColor * (1.0 / 255.0), 1.0 - smoothstep(0.75, 1.0, length(vCoord)));\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}\n"};
-		if(__map_reserved.particle != null) {
-			_g.setReserved("particle",value11);
-		} else {
-			_g.h["particle"] = value11;
-		}
-	}
-	{
-		var value12 = { vert : "uniform vec3 uOrigin;\nuniform mat3 uAngles;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nattribute vec3 aPoint;\nattribute vec4 aTexCoord;\nattribute vec4 aLightStyle;\nvarying vec4 vTexCoord;\nvarying vec4 vLightStyle;\nvoid main(void)\n{\n    vec3 position = uViewAngles * (uAngles * aPoint + uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vTexCoord = aTexCoord;\n    vLightStyle = aLightStyle;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nuniform sampler2D tTexture;\nuniform sampler2D tLightmap;\nuniform sampler2D tDlight;\nuniform sampler2D tLightStyle;\nvarying vec4 vTexCoord;\nvarying vec4 vLightStyle;\nvoid main(void)\n{\n    vec4 texture = texture2D(tTexture, vTexCoord.xy);\n    gl_FragColor = vec4(texture.rgb *\n        mix(1.0, dot(texture2D(tLightmap, vTexCoord.zw), vec4(\n            texture2D(tLightStyle, vec2(vLightStyle.x, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.y, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.z, 0.0)).a,\n            texture2D(tLightStyle, vec2(vLightStyle.w, 0.0)).a)\n        * 43.828125) + texture2D(tDlight, vTexCoord.zw).a, texture.a), 1.0);\n    gl_FragColor.r = pow(gl_FragColor.r, uGamma);\n    gl_FragColor.g = pow(gl_FragColor.g, uGamma);\n    gl_FragColor.b = pow(gl_FragColor.b, uGamma);\n}"};
-		if(__map_reserved.brush != null) {
-			_g.setReserved("brush",value12);
-		} else {
-			_g.h["brush"] = value12;
-		}
-	}
-	{
-		var value13 = { vert : "uniform vec3 uOrigin;\nuniform vec3 uViewOrigin;\nuniform mat3 uViewAngles;\nuniform mat4 uPerspective;\nuniform float uRadius;\nattribute vec3 aPoint;\nvarying float vAlpha;\nvoid main(void)\n{\n    vec3 position = aPoint * 0.35 * uRadius + uViewAngles * (uOrigin - uViewOrigin);\n    gl_Position = uPerspective * vec4(position.xz, -position.y, 1.0);\n    vAlpha = aPoint.y * -0.2;\n}\n", frag : "precision mediump float;\nuniform float uGamma;\nvarying float vAlpha;\nvoid main(void)\n{\n    gl_FragColor = vec4(pow(1.0, uGamma), pow(0.5, uGamma), 0.0, vAlpha);\n}\n"};
-		if(__map_reserved.dlight != null) {
-			_g.setReserved("dlight",value13);
-		} else {
-			_g.h["dlight"] = value13;
-		}
-	}
-	{
-		var value14 = { vert : "uniform vec4 uRect;\nuniform mat4 uOrtho;\nattribute vec2 aPoint;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_Position = uOrtho * vec4(uRect.x + uRect.z * aPoint.x, uRect.y + uRect.w * aPoint.y, 0.0, 1.0);\n    vTexCoord = vec2(aPoint.x, 1.0 - aPoint.y);\n}\n", frag : "precision mediump float;\nuniform float uTime;\nuniform sampler2D tTexture;\nvarying vec2 vTexCoord;\nvoid main(void)\n{\n    gl_FragColor = texture2D(tTexture, vTexCoord + vec2(sin(vTexCoord.t * 15.70796 + uTime) * 0.003125, sin(vTexCoord.s * 9.817477 + uTime) * 0.005));\n}\n"};
-		if(__map_reserved.warp != null) {
-			_g.setReserved("warp",value14);
-		} else {
-			_g.h["warp"] = value14;
-		}
-	}
-	$r = _g;
-	return $r;
-}(this));
 quake_V.cshift_empty = [130.0,80.0,50.0,0.0];
 quake_V.cshift_water = [130.0,80.0,50.0,128.0];
 quake_V.cshift_slime = [0.0,25.0,5.0,150.0];

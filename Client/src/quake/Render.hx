@@ -351,10 +351,10 @@ class Render {
     }
 
     static function DrawSpriteModel(e:Entity):Void {
-        var program;
+        var program:quake.GLPrograms.IPSprite;
         if (e.model.oriented) {
             program = GL.UseProgram(GLPrograms.spriteOriented);
-            gl.uniformMatrix3fv(program.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1] - 90.0, e.angles[2]));
+            gl.uniformMatrix3fv(GLPrograms.spriteOriented.uAngles, false, GL.RotationMatrix(e.angles[0], e.angles[1] - 90.0, e.angles[2]));
         } else
             program = GL.UseProgram(GLPrograms.sprite);
         var num = e.frame;
@@ -565,7 +565,7 @@ class Render {
             )))
             return;
 
-        var program;
+        var program:quake.GLPrograms.IPAlias;
         if ((e.colormap != 0) && (clmodel.player) && (Render.nocolors.value == 0)) {
             program = GL.UseProgram(GLPrograms.player);
             var top = (CL.state.scores[e.colormap - 1].colors & 0xf0) + 4;
@@ -576,8 +576,8 @@ class Render {
                 bottom += 7;
             top = VID.d_8to24table[top];
             bottom = VID.d_8to24table[bottom];
-            gl.uniform3f(program.uTop, top & 0xff, (top >> 8) & 0xff, top >> 16);
-            gl.uniform3f(program.uBottom, bottom & 0xff, (bottom >> 8) & 0xff, bottom >> 16);
+            gl.uniform3f(GLPrograms.player.uTop, top & 0xff, (top >> 8) & 0xff, top >> 16);
+            gl.uniform3f(GLPrograms.player.uBottom, bottom & 0xff, (bottom >> 8) & 0xff, bottom >> 16);
         } else
             program = GL.UseProgram(GLPrograms.alias);
         gl.uniform3fv(program.uOrigin, e.origin);
@@ -659,7 +659,7 @@ class Render {
         }
         GL.Bind(program.tTexture, skin.texturenum.texnum);
         if (clmodel.player)
-            GL.Bind(program.tPlayer, skin.playertexture);
+            GL.Bind(GLPrograms.player.tPlayer, skin.playertexture);
 
         gl.drawArrays(RenderingContext.TRIANGLES, 0, clmodel.numtris * 3);
     }
@@ -1799,7 +1799,7 @@ class Render {
             gl.drawArrays(RenderingContext.TRIANGLES, chain[1], chain[2]);
         }
 
-        program = GL.UseProgram(GLPrograms.turbulent);
+        var program = GL.UseProgram(GLPrograms.turbulent);
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, viewMatrix);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -1864,7 +1864,7 @@ class Render {
             }
         }
 
-        program = GL.UseProgram(GLPrograms.turbulent);
+        var program = GL.UseProgram(GLPrograms.turbulent);
         gl.uniform3f(program.uOrigin, 0.0, 0.0, 0.0);
         gl.uniformMatrix3fv(program.uAngles, false, GL.identity);
         gl.uniform1f(program.uTime, Host.realtime % (Math.PI * 2.0));
@@ -2109,7 +2109,7 @@ class Render {
         gl.depthMask(false);
         gl.disable(RenderingContext.CULL_FACE);
 
-        program = GL.UseProgram(GLPrograms.sky);
+        var program = GL.UseProgram(GLPrograms.sky);
         gl.uniform2f(program.uTime, (Host.realtime * 0.125) % 1.0, (Host.realtime * 0.03125) % 1.0);
         GL.Bind(program.tSolid, Render.solidskytexture);
         GL.Bind(program.tAlpha, Render.alphaskytexture);

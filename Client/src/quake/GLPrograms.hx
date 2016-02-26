@@ -1,40 +1,252 @@
 package quake;
 
-import quake.GL.GLProgram;
+import quake.GLProgram;
+
+@:shader("character")
+class PCharacter extends GLProgram {
+    var uCharacter:GLUni;
+    var uDest:GLUni;
+    var uOrtho:GLUni;
+    var aPoint:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("fill")
+class PFill extends GLProgram {
+    var uRect:GLUni;
+    var uOrtho:GLUni;
+    var uColor:GLUni;
+    var aPoint:GLAtt;
+}
+
+@:shader("pic")
+class PPic extends GLProgram {
+    var uRect:GLUni;
+    var uOrtho:GLUni;
+    var aPoint:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("picTranslate")
+class PPicTranslate extends GLProgram {
+    var uRect:GLUni;
+    var uOrtho:GLUni;
+    var uTop:GLUni;
+    var uBottom:GLUni;
+    var aPoint:GLAtt;
+    var tTexture:GLTex;
+    var tTrans:GLTex;
+}
+
+@:shader("particle")
+class PParticle extends GLProgram {
+    var uOrigin:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uScale:GLUni;
+    var uGamma:GLUni;
+    var uColor:GLUni;
+    var aPoint:GLAtt;
+}
+
+interface IPAlias {
+    var uOrigin(default,null):GLUni;
+    var uAngles(default,null):GLUni;
+    var uViewOrigin(default,null):GLUni;
+    var uViewAngles(default,null):GLUni;
+    var uPerspective(default,null):GLUni;
+    var uLightVec(default,null):GLUni;
+    var uGamma(default,null):GLUni;
+    var uAmbientLight(default,null):GLUni;
+    var uShadeLight(default,null):GLUni;
+    var aPoint(default,null):GLAtt;
+    var aLightNormal(default,null):GLAtt;
+    var aTexCoord(default,null):GLAtt;
+    var tTexture(default,null):GLTex;
+}
+
+@:shader("alias")
+class PAlias extends GLProgram implements IPAlias {
+    var uOrigin:GLUni;
+    var uAngles:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uLightVec:GLUni;
+    var uGamma:GLUni;
+    var uAmbientLight:GLUni;
+    var uShadeLight:GLUni;
+    var aPoint:GLAtt;
+    var aLightNormal:GLAtt;
+    var aTexCoord:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("brush")
+class PBrush extends GLProgram {
+    var uOrigin:GLUni;
+    var uAngles:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uGamma:GLUni;
+    var aPoint:GLAtt;
+    var aTexCoord:GLAtt;
+    var aLightStyle:GLAtt;
+    var tTexture:GLTex;
+    var tLightmap:GLTex;
+    var tDlight:GLTex;
+    var tLightStyle:GLTex;
+}
+
+@:shader("dlight")
+class PDlight extends GLProgram {
+    var uOrigin:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uRadius:GLUni;
+    var uGamma:GLUni;
+    var aPoint:GLAtt;
+}
+
+@:shader("player")
+class PPlayer extends GLProgram implements IPAlias {
+    var uOrigin:GLUni;
+    var uAngles:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uLightVec:GLUni;
+    var uGamma:GLUni;
+    var uAmbientLight:GLUni;
+    var uShadeLight:GLUni;
+    var uTop:GLUni;
+    var uBottom:GLUni;
+    var aPoint:GLAtt;
+    var aLightNormal:GLAtt;
+    var aTexCoord:GLAtt;
+    var tTexture:GLTex;
+    var tPlayer:GLTex;
+}
+
+interface IPSprite {
+    var uRect(default,null):GLUni;
+    var uOrigin(default,null):GLUni;
+    var uViewOrigin(default,null):GLUni;
+    var uViewAngles(default,null):GLUni;
+    var uPerspective(default,null):GLUni;
+    var uGamma(default,null):GLUni;
+    var aPoint(default,null):GLAtt;
+    var tTexture(default,null):GLTex;
+}
+
+@:shader("sprite")
+class PSprite extends GLProgram implements IPSprite {
+    var uRect:GLUni;
+    var uOrigin:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uGamma:GLUni;
+    var aPoint:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("spriteOriented")
+class PSpriteOriented extends GLProgram  implements IPSprite {
+    var uRect:GLUni;
+    var uOrigin:GLUni;
+    var uAngles:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uGamma:GLUni;
+    var aPoint:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("turbulent")
+class PTurbulent extends GLProgram {
+    var uOrigin:GLUni;
+    var uAngles:GLUni;
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uGamma:GLUni;
+    var uTime:GLUni;
+    var aPoint:GLAtt;
+    var aTexCoord:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("warp")
+class PWarp extends GLProgram {
+    var uRect:GLUni;
+    var uOrtho:GLUni;
+    var uTime:GLUni;
+    var aPoint:GLAtt;
+    var tTexture:GLTex;
+}
+
+@:shader("sky")
+class PSky extends GLProgram {
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var uScale:GLUni;
+    var uGamma:GLUni;
+    var uTime:GLUni;
+    var aPoint:GLAtt;
+    var tSolid:GLTex;
+    var tAlpha:GLTex;
+}
+
+@:shader("skyChain")
+class PSkyChain extends GLProgram {
+    var uViewOrigin:GLUni;
+    var uViewAngles:GLUni;
+    var uPerspective:GLUni;
+    var aPoint:GLAtt;
+}
+
 
 class GLPrograms {
-    public static var character(default,null):GLProgram;
-    public static var fill(default,null):GLProgram;
-    public static var pic(default,null):GLProgram;
-    public static var picTranslate(default,null):GLProgram;
-    public static var particle(default,null):GLProgram;
-    public static var alias(default,null):GLProgram;
-    public static var brush(default,null):GLProgram;
-    public static var dlight(default,null):GLProgram;
-    public static var player(default,null):GLProgram;
-    public static var sprite(default,null):GLProgram;
-    public static var spriteOriented(default,null):GLProgram;
-    public static var turbulent(default,null):GLProgram;
-    public static var warp(default,null):GLProgram;
-    public static var sky(default,null):GLProgram;
-    public static var skyChain(default,null):GLProgram;
+    public static var character(default,null):PCharacter;
+    public static var fill(default,null):PFill;
+    public static var pic(default,null):PPic;
+    public static var picTranslate(default,null):PPicTranslate;
+    public static var particle(default,null):PParticle;
+    public static var alias(default,null):PAlias;
+    public static var brush(default,null):PBrush;
+    public static var dlight(default,null):PDlight;
+    public static var player(default,null):PPlayer;
+    public static var sprite(default,null):PSprite;
+    public static var spriteOriented(default,null):PSpriteOriented;
+    public static var turbulent(default,null):PTurbulent;
+    public static var warp(default,null):PWarp;
+    public static var sky(default,null):PSky;
+    public static var skyChain(default,null):PSkyChain;
 
-    @:access(quake.GL.CreateProgram)
+    @:access(quake.GL.AddProgram)
+    inline static function add<T:GLProgram>(p:T):T return GL.AddProgram(p);
+
     public static function init() {
-        character = GL.CreateProgram('character', ['uCharacter', 'uDest', 'uOrtho'], ['aPoint'], ['tTexture']);
-        fill = GL.CreateProgram('fill', ['uRect', 'uOrtho', 'uColor'], ['aPoint'], []);
-        pic = GL.CreateProgram('pic', ['uRect', 'uOrtho'], ['aPoint'], ['tTexture']);
-        picTranslate = GL.CreateProgram('picTranslate', ['uRect', 'uOrtho', 'uTop', 'uBottom'], ['aPoint'], ['tTexture', 'tTrans']);
-        particle = GL.CreateProgram('particle', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uColor'], ['aPoint'], []);
-        alias = GL.CreateProgram('alias', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight'], ['aPoint', 'aLightNormal', 'aTexCoord'], ['tTexture']);
-        brush = GL.CreateProgram('brush', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint', 'aTexCoord', 'aLightStyle'], ['tTexture', 'tLightmap', 'tDlight', 'tLightStyle']);
-        dlight = GL.CreateProgram('dlight', ['uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uRadius', 'uGamma'], ['aPoint'], []);
-        player = GL.CreateProgram('player', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uLightVec', 'uGamma', 'uAmbientLight', 'uShadeLight', 'uTop', 'uBottom'], ['aPoint', 'aLightNormal', 'aTexCoord'], ['tTexture', 'tPlayer']);
-        sprite = GL.CreateProgram('sprite', ['uRect', 'uOrigin', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        spriteOriented = GL.CreateProgram('spriteOriented', ['uRect', 'uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma'], ['aPoint'], ['tTexture']);
-        turbulent = GL.CreateProgram('turbulent', ['uOrigin', 'uAngles', 'uViewOrigin', 'uViewAngles', 'uPerspective', 'uGamma', 'uTime'], ['aPoint', 'aTexCoord'], ['tTexture']);
-        warp = GL.CreateProgram('warp', ['uRect', 'uOrtho', 'uTime'], ['aPoint'], ['tTexture']);
-        sky = GL.CreateProgram('sky', ['uViewAngles', 'uPerspective', 'uScale', 'uGamma', 'uTime'], ['aPoint'], ['tSolid', 'tAlpha']);
-        skyChain = GL.CreateProgram('skyChain', ['uViewOrigin', 'uViewAngles', 'uPerspective'], ['aPoint'], []);
+        character = add(new PCharacter());
+        fill = add(new PFill());
+        pic = add(new PPic());
+        picTranslate = add(new PPicTranslate());
+        particle = add(new PParticle());
+        alias = add(new PAlias());
+        brush = add(new PBrush());
+        dlight = add(new PDlight());
+        player = add(new PPlayer());
+        sprite = add(new PSprite());
+        spriteOriented = add(new PSpriteOriented());
+        turbulent = add(new PTurbulent());
+        warp = add(new PWarp());
+        sky = add(new PSky());
+        skyChain = add(new PSkyChain());
+
     }
 }

@@ -39,64 +39,6 @@ class GLTexture {
     }
 }
 
-@:allow(quake.GL)
-class GLProgram implements Dynamic<EitherType<UniformLocation,Int>> {
-    public var program(default,null):Program;
-    var attribs:Array<String>;
-
-    function new(shaderName:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>) {
-        var shaderSrc = Shaders.shaders[shaderName];
-        if (shaderSrc == null)
-            Sys.Error("Shader not found: " + shaderName);
-
-        this.attribs = [];
-        this.program = GL.gl.createProgram();
-
-        var vsh = GL.gl.createShader(RenderingContext.VERTEX_SHADER);
-        GL.gl.shaderSource(vsh, shaderSrc.vert);
-        GL.gl.compileShader(vsh);
-        if (!GL.gl.getShaderParameter(vsh, RenderingContext.COMPILE_STATUS))
-            Sys.Error('Error compiling shader: ' + GL.gl.getShaderInfoLog(vsh));
-
-        var fsh = GL.gl.createShader(RenderingContext.FRAGMENT_SHADER);
-        GL.gl.shaderSource(fsh, shaderSrc.frag);
-        GL.gl.compileShader(fsh);
-        if (!GL.gl.getShaderParameter(fsh, RenderingContext.COMPILE_STATUS))
-            Sys.Error('Error compiling shader: ' + GL.gl.getShaderInfoLog(fsh));
-
-        GL.gl.attachShader(program, vsh);
-        GL.gl.attachShader(program, fsh);
-
-        GL.gl.linkProgram(program);
-        if (!GL.gl.getProgramParameter(program, RenderingContext.LINK_STATUS))
-            Sys.Error('Error linking program: ' + GL.gl.getProgramInfoLog(program));
-
-        GL.gl.useProgram(program);
-        for (name in uniforms)
-            Reflect.setField(this, name, GL.gl.getUniformLocation(program, name));
-        for (name in attribs) {
-            this.attribs.push(name);
-            Reflect.setField(this, name, GL.gl.getAttribLocation(program, name));
-        }
-        for (i in 0...textures.length) {
-            var name = textures[i];
-            Reflect.setField(this, name, i);
-            GL.gl.uniform1i(GL.gl.getUniformLocation(program, name), i);
-        }
-    }
-
-    function use() {
-        GL.gl.useProgram(program);
-        for (name in attribs)
-            GL.gl.enableVertexAttribArray(Reflect.field(this, name));
-    }
-
-    function unbind() {
-        for (name in attribs)
-            GL.gl.disableVertexAttribArray(Reflect.field(this, name));
-    }
-}
-
 class GL {
     public static var gl(default,null):RenderingContext;
     public static var rect(default,null):Buffer;
@@ -312,13 +254,12 @@ class GL {
         return texnum;
     }
 
-    static function CreateProgram(identifier:String, uniforms:Array<String>, attribs:Array<String>, textures:Array<String>):GLProgram {
-        var program = new GLProgram(identifier, uniforms, attribs, textures);
+    static inline function AddProgram<T:GLProgram>(program:T):T {
         programs.push(program);
         return program;
     }
 
-    public static function UseProgram(program:GLProgram):GLProgram {
+    public static function UseProgram<T:GLProgram>(program:T):T {
         if (currentprogram == program)
             return program;
         if (currentprogram != null)

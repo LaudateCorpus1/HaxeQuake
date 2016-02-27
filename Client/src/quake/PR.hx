@@ -171,10 +171,6 @@ private class PRStackItem {
 	var OFS_PARM6    = 22;
 	var OFS_PARM7    = 25;
 	var RESERVED_OFS = 28;
-
-	#if (haxe_ver < 3.3)
-	@:op(a+b) @:commutative static function _(a:PROffset, b:Int):Int;
-	#end
 }
 
 abstract Eval(Int) to Int from Int {

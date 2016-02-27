@@ -42,10 +42,6 @@ package quake;
 	@:op(a<b) static function _(a:KeyCode, b:KeyCode):Bool;
 	@:op(a>=b) static function _(a:KeyCode, b:KeyCode):Bool;
 	@:op(a<=b) static function _(a:KeyCode, b:KeyCode):Bool;
-
-	#if (haxe_ver < 3.3)
-	@:op(a+b) @:commutative static function _(a:KeyCode, b:Int):Int;
-	#end
 }
 
 @:enum abstract KeyDest(Int) {

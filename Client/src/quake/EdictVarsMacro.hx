@@ -26,40 +26,33 @@ class EdictVarsMacro {
                             throw new Error("Invalid field meta", field.pos);
                     }
 
-                    inline function mod(m) return #if (haxe_ver < 3.3) [m, AStatic] #else [m] #end;
-                    var meta = #if (haxe_ver < 3.3) [{name: ":impl", pos: field.pos}] #else [] #end;
-                    var firstArgs = #if (haxe_ver < 3.3) [{name: "this", type: null}] #else [] #end;
-
                     fields.push({
                         name: fieldName,
                         pos: field.pos,
-                        access: mod(APublic),
+                        access: [APublic],
                         kind: FProp("get", "set", fieldType),
-                        meta: meta
                     });
 
                     fields.push({
                         name: "get_" + fieldName,
                         pos: field.pos,
-                        access: mod(AInline),
+                        access: [AInline],
                         kind: FFun({
-                            args: firstArgs,
+                            args: [],
                             ret: fieldType,
                             expr: macro return this.$viewField[quake.EdictVarOfs.$fieldName]
                         }),
-                        meta: meta
                     });
 
                     fields.push({
                         name: "set_" + fieldName,
                         pos: field.pos,
-                        access: mod(AInline),
+                        access: [AInline],
                         kind: FFun({
-                            args: firstArgs.concat([{name: "value", type: fieldType}]),
+                            args: [{name: "value", type: fieldType}],
                             ret: fieldType,
                             expr: macro return this.$viewField[quake.EdictVarOfs.$fieldName] = value
-                        }),
-                        meta: meta
+                        })
                     });
                 }
             default:

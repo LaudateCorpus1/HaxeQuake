@@ -16,10 +16,6 @@ package quake;
 	var totalmonsters = 12;
 	var secrets = 13;
 	var monsters = 14;
-
-	#if (haxe_ver < 3.3)
-	@:op(a+b) @:commutative static function _(a:ClientStat, b:Int):Int;
-	#end
 }
 
 @:publicFields

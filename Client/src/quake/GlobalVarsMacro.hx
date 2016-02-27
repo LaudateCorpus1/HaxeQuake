@@ -25,40 +25,33 @@ class GlobalVarsMacro {
                             throw new Error("Invalid field meta", field.pos);
                     }
 
-                    inline function mod(m) return #if (haxe_ver < 3.3) [m, AStatic] #else [m] #end;
-                    var meta = #if (haxe_ver < 3.3) [{name: ":impl", pos: field.pos}] #else [] #end;
-                    var firstArgs = #if (haxe_ver < 3.3) [{name: "this", type: null}] #else [] #end;
-
                     fields.push({
                         name: fieldName,
                         pos: field.pos,
-                        access: mod(APublic),
-                        kind: FProp("get", "set", fieldType),
-                        meta: meta,
+                        access: [APublic],
+                        kind: FProp("get", "set", fieldType)
                     });
 
                     fields.push({
                         name: "get_" + fieldName,
                         pos: field.pos,
-                        access: mod(AInline),
+                        access: [AInline],
                         kind: FFun({
-                            args: firstArgs,
+                            args: [],
                             ret: fieldType,
                             expr: macro return PR.$viewField[quake.GlobalVarOfs.$fieldName]
-                        }),
-                        meta: meta,
+                        })
                     });
 
                     fields.push({
                         name: "set_" + fieldName,
                         pos: field.pos,
-                        access: mod(AInline),
+                        access: [AInline],
                         kind: FFun({
-                            args: firstArgs.concat([{name: "value", type: fieldType}]),
+                            args: [{name: "value", type: fieldType}],
                             ret: fieldType,
                             expr: macro return PR.$viewField[quake.GlobalVarOfs.$fieldName] = value
-                        }),
-                        meta: meta,
+                        })
                     });
                 }
             default:

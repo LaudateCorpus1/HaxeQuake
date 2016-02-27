@@ -77,10 +77,6 @@ package quake;
 	var skin       = 1 << 12;
 	var effects    = 1 << 13;
 	var longentity = 1 << 14;
-
-	#if (haxe_ver < 3.3)
-	@:op(a+b) @:commutative static function _(a:U, b:Int):Int;
-	#end
 }
 
 

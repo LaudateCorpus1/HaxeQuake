@@ -10570,25 +10570,39 @@ quake_S.Init = function() {
 	quake_S.ambient_level = quake_Cvar.RegisterVariable("ambient_level","0.3");
 	quake_S.ambient_fade = quake_Cvar.RegisterVariable("ambient_fade","100");
 	quake_S.started = true;
+	quake_S.context = new AudioContext();
 	var ambient_sfx = ["water1","wind2"];
 	var _g1 = 0;
 	var _g = ambient_sfx.length;
 	while(_g1 < _g) {
-		var i = _g1++;
-		var ch = new quake__$S_Channel(quake_S.PrecacheSound("ambience/" + ambient_sfx[i] + ".wav"));
-		quake_S.ambient_channels[i] = ch;
-		if(!quake_S.LoadSound(ch.sfx)) {
-			continue;
-		}
-		if(ch.sfx.cache.loopstart == null) {
-			quake_Console.Print("Sound ambience/" + ch.sfx.name + ".wav not looped\n");
-			continue;
-		}
-		ch.audio = ch.sfx.cache.data.cloneNode();
+		var ch = [new quake__$S_Channel(quake_S.PrecacheSound("ambience/" + ambient_sfx[_g1++] + ".wav",false))];
+		quake_S.ambient_channels.push(ch[0]);
+		quake_S.LoadSound(ch[0].sfx,(function(ch1) {
+			return function(success) {
+				if(!success) {
+					return;
+				}
+				if(ch1[0].sfx.cache.loopstart == null) {
+					quake_Console.Print("Sound ambience/" + ch1[0].sfx.name + ".wav not looped\n");
+					return;
+				}
+				var nodes = { source : quake_S.context.createBufferSource(), gain0 : quake_S.context.createGain()};
+				ch1[0].nodes = nodes;
+				nodes.source.buffer = ch1[0].sfx.cache.data;
+				nodes.source.loop = true;
+				nodes.source.loopStart = ch1[0].sfx.cache.loopstart;
+				nodes.source.loopEnd = nodes.source.buffer.length;
+				nodes.source.connect(nodes.gain0);
+				nodes.gain0.connect(quake_S.context.destination);
+			};
+		})(ch));
 	}
 	quake_Console.sfx_talk = quake_S.PrecacheSound("misc/talk.wav");
 };
-quake_S.PrecacheSound = function(name) {
+quake_S.PrecacheSound = function(name,load) {
+	if(load == null) {
+		load = true;
+	}
 	if(quake_S.nosound.value != 0) {
 		return null;
 	}
@@ -10607,8 +10621,9 @@ quake_S.PrecacheSound = function(name) {
 		sfx = new quake_Sfx(name);
 		quake_S.known_sfx.push(sfx);
 	}
-	if(quake_S.precache.value != 0) {
-		quake_S.LoadSound(sfx);
+	if(load && quake_S.precache.value != 0) {
+		quake_S.LoadSound(sfx,function(_) {
+		});
 	}
 	return sfx;
 };
@@ -10625,9 +10640,9 @@ quake_S.PickChannel = function(entnum,entchannel) {
 			}
 			if(channel.entnum == entnum && (channel.entchannel == entchannel || tmp)) {
 				channel.sfx = null;
-				if(channel.audio != null) {
-					channel.audio.pause();
-					channel.audio = null;
+				if(channel.nodes != null) {
+					quake_S.NoteOff(channel.nodes.source);
+					channel.nodes = null;
 				}
 				break;
 			}
@@ -10691,20 +10706,63 @@ quake_S.StartSound = function(entnum,entchannel,sfx,origin,vol,attenuation) {
 	if(target_chan.leftvol == 0.0 && target_chan.rightvol == 0.0) {
 		return;
 	}
-	if(!quake_S.LoadSound(sfx)) {
-		target_chan.sfx = null;
-		return;
-	}
-	target_chan.sfx = sfx;
-	target_chan.pos = 0.0;
-	target_chan.end = quake_Host.realtime + sfx.cache.length;
-	target_chan.audio = sfx.cache.data.cloneNode();
-	var volume = (target_chan.leftvol + target_chan.rightvol) * 0.5;
-	if(volume > 1.0) {
-		volume = 1.0;
-	}
-	target_chan.audio.volume = volume * quake_S.volume.value;
-	target_chan.audio.play();
+	quake_S.LoadSound(sfx,function(success) {
+		if(!success) {
+			target_chan.sfx = null;
+			return;
+		}
+		target_chan.sfx = sfx;
+		target_chan.pos = 0.0;
+		target_chan.end = quake_Host.realtime + sfx.cache.length;
+		var nodes = { source : quake_S.context.createBufferSource(), merger1 : quake_S.context.createChannelMerger(2), splitter : quake_S.context.createChannelSplitter(2), gain0 : quake_S.context.createGain(), gain1 : quake_S.context.createGain(), merger2 : quake_S.context.createChannelMerger(2)};
+		target_chan.nodes = nodes;
+		nodes.source.buffer = sfx.cache.data;
+		if(sfx.cache.loopstart != null) {
+			nodes.source.loop = true;
+			nodes.source.loopStart = sfx.cache.loopstart;
+			nodes.source.loopEnd = nodes.source.buffer.length;
+		}
+		nodes.source.connect(nodes.merger1);
+		nodes.source.connect(nodes.merger1,0,1);
+		nodes.merger1.connect(nodes.splitter);
+		nodes.splitter.connect(nodes.gain0,0);
+		nodes.splitter.connect(nodes.gain1,1);
+		var volume = target_chan.leftvol;
+		if(volume > 1.0) {
+			volume = 1.0;
+		}
+		nodes.gain0.gain.value = volume * quake_S.volume.value;
+		nodes.gain0.connect(nodes.merger2,0,0);
+		volume = target_chan.rightvol;
+		if(volume > 1.0) {
+			volume = 1.0;
+		}
+		nodes.gain1.gain.value = volume * quake_S.volume.value;
+		nodes.gain1.connect(nodes.merger2,0,1);
+		nodes.merger2.connect(quake_S.context.destination);
+		var _g = 0;
+		var _g1 = quake_S.channels;
+		while(_g < _g1.length) {
+			var check = _g1[_g];
+			++_g;
+			if(check == target_chan) {
+				continue;
+			}
+			if(check.sfx != sfx || check.pos != 0.0) {
+				continue;
+			}
+			var skip = Math.random() * 0.1;
+			if(skip >= sfx.cache.length) {
+				quake_S.NoteOn(nodes.source);
+				break;
+			}
+			target_chan.pos += skip;
+			target_chan.end -= skip;
+			nodes.source.start(0.0,skip,nodes.source.buffer.length - skip);
+			break;
+		}
+		quake_S.NoteOn(nodes.source);
+	});
 };
 quake_S.StopSound = function(entnum,entchannel) {
 	if(quake_S.nosound.value != 0) {
@@ -10721,12 +10779,24 @@ quake_S.StopSound = function(entnum,entchannel) {
 		if(ch.entnum == entnum && ch.entchannel == entchannel) {
 			ch.end = 0.0;
 			ch.sfx = null;
-			if(ch.audio != null) {
-				ch.audio.pause();
-				ch.audio = null;
+			if(ch.nodes != null) {
+				quake_S.NoteOff(ch.nodes.source);
+				ch.nodes = null;
 			}
 			return;
 		}
+	}
+};
+quake_S.NoteOff = function(node) {
+	try {
+		node.stop();
+	} catch( _ ) {
+	}
+};
+quake_S.NoteOn = function(node) {
+	try {
+		node.start();
+	} catch( _ ) {
 	}
 };
 quake_S.StopAllSounds = function() {
@@ -10739,8 +10809,8 @@ quake_S.StopAllSounds = function() {
 		var ch = _g1[_g];
 		++_g;
 		ch.master_vol = 0.0;
-		if(ch.audio != null) {
-			ch.audio.pause();
+		if(ch.nodes != null) {
+			quake_S.NoteOff(ch.nodes.source);
 		}
 	}
 	var _g2 = 0;
@@ -10751,8 +10821,8 @@ quake_S.StopAllSounds = function() {
 		if(ch1 == null) {
 			continue;
 		}
-		if(ch1.audio != null) {
-			ch1.audio.pause();
+		if(ch1.nodes != null) {
+			quake_S.NoteOff(ch1.nodes.source);
 		}
 	}
 	quake_S.channels = [];
@@ -10761,7 +10831,7 @@ quake_S.StopAllSounds = function() {
 	while(_g3 < _g12.length) {
 		var ch2 = _g12[_g3];
 		++_g3;
-		ch2.audio.pause();
+		quake_S.NoteOff(ch2.nodes.source);
 	}
 	quake_S.static_channels = [];
 };
@@ -10769,21 +10839,35 @@ quake_S.StaticSound = function(sfx,origin,vol,attenuation) {
 	if(quake_S.nosound.value != 0 || sfx == null) {
 		return;
 	}
-	if(!quake_S.LoadSound(sfx)) {
-		return;
-	}
-	if(sfx.cache.loopstart == null) {
-		quake_Console.Print("Sound " + sfx.name + " not looped\n");
-		return;
-	}
-	var ss = new quake__$S_Channel(sfx);
-	ss.origin = new Float32Array(origin);
-	ss.master_vol = vol;
-	ss.dist_mult = attenuation * 0.000015625;
-	ss.end = quake_Host.realtime + sfx.cache.length;
-	quake_S.static_channels.push(ss);
-	ss.audio = sfx.cache.data.cloneNode();
-	ss.audio.pause();
+	quake_S.LoadSound(sfx,function(success) {
+		if(!success) {
+			return;
+		}
+		if(sfx.cache.loopstart == null) {
+			quake_Console.Print("Sound " + sfx.name + " not looped\n");
+			return;
+		}
+		var ss = new quake__$S_Channel(sfx);
+		ss.origin = new Float32Array(origin);
+		ss.master_vol = vol;
+		ss.dist_mult = attenuation * 0.000015625;
+		ss.end = quake_Host.realtime + sfx.cache.length;
+		quake_S.static_channels.push(ss);
+		var nodes = { source : quake_S.context.createBufferSource(), merger1 : quake_S.context.createChannelMerger(2), splitter : quake_S.context.createChannelSplitter(2), gain0 : quake_S.context.createGain(), gain1 : quake_S.context.createGain(), merger2 : quake_S.context.createChannelMerger(2)};
+		ss.nodes = nodes;
+		nodes.source.buffer = sfx.cache.data;
+		nodes.source.loop = true;
+		nodes.source.loopStart = sfx.cache.loopstart;
+		nodes.source.loopEnd = nodes.source.buffer.length;
+		nodes.source.connect(nodes.merger1);
+		nodes.source.connect(nodes.merger1,0,1);
+		nodes.merger1.connect(nodes.splitter);
+		nodes.splitter.connect(nodes.gain0,0);
+		nodes.splitter.connect(nodes.gain1,1);
+		nodes.gain0.connect(nodes.merger2,0,0);
+		nodes.gain1.connect(nodes.merger2,0,1);
+		nodes.merger2.connect(quake_S.context.destination);
+	});
 };
 quake_S.SoundList = function() {
 	var total = 0;
@@ -10820,10 +10904,8 @@ quake_S.UpdateAmbientSounds = function() {
 			var ch = _g1[_g];
 			++_g;
 			ch.master_vol = 0.0;
-			if(ch.audio != null) {
-				if(!ch.audio.paused) {
-					ch.audio.pause();
-				}
+			if(ch.nodes != null) {
+				quake_S.NoteOff(ch.nodes.source);
 			}
 		}
 		return;
@@ -10833,7 +10915,7 @@ quake_S.UpdateAmbientSounds = function() {
 	while(_g11 < _g2) {
 		var i = _g11++;
 		var ch1 = quake_S.ambient_channels[i];
-		if(ch1.audio == null) {
+		if(ch1.nodes == null) {
 			continue;
 		}
 		var vol = quake_S.ambient_level.value * l.ambient_level[i];
@@ -10853,30 +10935,14 @@ quake_S.UpdateAmbientSounds = function() {
 			}
 		}
 		if(ch1.master_vol == 0.0) {
-			if(!ch1.audio.paused) {
-				ch1.audio.pause();
-			}
+			quake_S.NoteOff(ch1.nodes.source);
 			continue;
 		}
 		if(ch1.master_vol > 1.0) {
 			ch1.master_vol = 1.0;
 		}
-		ch1.audio.volume = ch1.master_vol * quake_S.volume.value;
-		var sc = ch1.sfx.cache;
-		if(ch1.audio.paused) {
-			ch1.audio.play();
-			ch1.end = quake_Host.realtime + sc.length;
-			continue;
-		}
-		if(quake_Host.realtime >= ch1.end) {
-			try {
-				ch1.audio.currentTime = sc.loopstart;
-			} catch( e ) {
-				ch1.end = quake_Host.realtime;
-				continue;
-			}
-			ch1.end = quake_Host.realtime + sc.length - sc.loopstart;
-		}
+		ch1.nodes.gain0.gain.value = ch1.master_vol * quake_S.volume.value;
+		quake_S.NoteOn(ch1.nodes.source);
 	}
 };
 quake_S.UpdateDynamicSounds = function() {
@@ -10894,25 +10960,22 @@ quake_S.UpdateDynamicSounds = function() {
 		if(quake_Host.realtime >= ch.end) {
 			var sc = ch.sfx.cache;
 			if(sc.loopstart != null) {
-				try {
-					ch.audio.currentTime = sc.loopstart;
-				} catch( e ) {
-					ch.end = quake_Host.realtime;
-					continue;
-				}
 				ch.end = quake_Host.realtime + sc.length - sc.loopstart;
 			} else {
 				ch.sfx = null;
-				ch.audio = null;
+				ch.nodes = null;
 				continue;
 			}
 		}
 		quake_S.Spatialize(ch);
-		var volume = (ch.leftvol + ch.rightvol) * 0.5;
-		if(volume > 1.0) {
-			volume = 1.0;
+		if(ch.leftvol > 1.0) {
+			ch.leftvol = 1.0;
 		}
-		ch.audio.volume = volume * quake_S.volume.value;
+		if(ch.rightvol > 1.0) {
+			ch.rightvol = 1.0;
+		}
+		ch.nodes.gain0.gain.value = ch.leftvol * quake_S.volume.value;
+		ch.nodes.gain1.gain.value = ch.rightvol * quake_S.volume.value;
 	}
 };
 quake_S.UpdateStaticSounds = function() {
@@ -10949,32 +11012,19 @@ quake_S.UpdateStaticSounds = function() {
 	while(_g4 < _g12.length) {
 		var ch3 = _g12[_g4];
 		++_g4;
-		var volume = (ch3.leftvol + ch3.rightvol) * 0.5;
-		if(volume > 1.0) {
-			volume = 1.0;
-		}
-		if(volume == 0.0) {
-			if(!ch3.audio.paused) {
-				ch3.audio.pause();
-			}
+		if(ch3.leftvol == 0.0 && ch3.rightvol == 0.0) {
+			quake_S.NoteOff(ch3.nodes.source);
 			continue;
 		}
-		ch3.audio.volume = volume * quake_S.volume.value;
-		var sc = ch3.sfx.cache;
-		if(ch3.audio.paused) {
-			ch3.audio.play();
-			ch3.end = quake_Host.realtime + sc.length;
-			continue;
+		if(ch3.leftvol > 1.0) {
+			ch3.leftvol = 1.0;
 		}
-		if(quake_Host.realtime >= ch3.end) {
-			try {
-				ch3.audio.currentTime = sc.loopstart;
-			} catch( e ) {
-				ch3.end = quake_Host.realtime;
-				continue;
-			}
-			ch3.end = quake_Host.realtime + sc.length - sc.loopstart;
+		if(ch3.rightvol > 1.0) {
+			ch3.rightvol = 1.0;
 		}
+		ch3.nodes.gain0.gain.value = ch3.leftvol * quake_S.volume.value;
+		ch3.nodes.gain1.gain.value = ch3.rightvol * quake_S.volume.value;
+		quake_S.NoteOn(ch3.nodes.source);
 	}
 };
 quake_S.Update = function(origin,forward,right,up) {
@@ -11028,23 +11078,27 @@ quake_S.PlayVol = function() {
 		i += 2;
 	}
 };
-quake_S.LoadSound = function(s) {
+quake_S.LoadSound = function(s,cb) {
 	if(quake_S.nosound.value != 0) {
-		return false;
+		cb(false);
+		return;
 	}
 	if(s.cache != null) {
-		return true;
+		cb(true);
+		return;
 	}
 	var sc = new quake__$S_SfxCache();
 	var data = quake_COM.LoadFile("sound/" + s.name);
 	if(data == null) {
 		quake_Console.Print("Couldn't load sound/" + s.name + "\n");
-		return false;
+		cb(false);
+		return;
 	}
 	var view = new DataView(data);
 	if(view.getUint32(0,true) != 1179011410 || view.getUint32(8,true) != 1163280727) {
 		quake_Console.Print("Missing RIFF/WAVE chunks\n");
-		return false;
+		cb(false);
+		return;
 	}
 	var p = 12;
 	var fmt = null;
@@ -11058,7 +11112,8 @@ quake_S.LoadSound = function(s) {
 		case 544501094:
 			if(view.getInt16(p + 8,true) != 1) {
 				quake_Console.Print("Microsoft PCM format only\n");
-				return false;
+				cb(false);
+				return;
 			}
 			fmt = { channels : view.getUint16(p + 10,true), samplesPerSec : view.getUint32(p + 12,true), avgBytesPerSec : view.getUint32(p + 16,true), blockAlign : view.getUint16(p + 20,true), bitsPerSample : view.getUint16(p + 22,true)};
 			break;
@@ -11086,11 +11141,13 @@ quake_S.LoadSound = function(s) {
 	}
 	if(fmt == null) {
 		quake_Console.Print("Missing fmt chunk\n");
-		return false;
+		cb(false);
+		return;
 	}
 	if(dataofs == null) {
 		quake_Console.Print("Missing data chunk\n");
-		return false;
+		cb(false);
+		return;
 	}
 	if(loopstart != null) {
 		sc.loopstart = loopstart * fmt.blockAlign / fmt.samplesPerSec;
@@ -11120,9 +11177,12 @@ quake_S.LoadSound = function(s) {
 	view.setUint32(36,1635017060,true);
 	view.setUint32(40,datalen,true);
 	new Uint8Array(out,44,datalen).set(new Uint8Array(data,dataofs,datalen));
-	sc.data = new Audio("data:audio/wav;base64," + quake_Q.btoa(new Uint8Array(out)));
-	s.cache = sc;
-	return true;
+	quake_S.context.decodeAudioData(out,function(data1) {
+		sc.data = data1;
+		s.cache = sc;
+		cb(true);
+		return;
+	});
 };
 var quake__$S_Channel = function(s) {
 	this.sfx = s;

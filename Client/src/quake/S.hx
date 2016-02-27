@@ -1,7 +1,10 @@
 package quake;
 
 import js.html.ArrayBuffer;
-import js.html.Audio;
+import js.html.audio.AudioBufferSourceNode;
+import js.html.audio.AudioContext;
+import js.html.audio.AudioBuffer;
+import js.html.audio.GainNode;
 import js.html.DataView;
 import js.html.Uint8Array;
 
@@ -20,7 +23,7 @@ private class SfxCache {
 	var loopstart:Float;
 	var length:Float;
 	var size:Int;
-	var data:Audio;
+	var data:AudioBuffer;
 
 	function new() {}
 }
@@ -37,7 +40,12 @@ private class Channel {
 	var rightvol:Float;
 	var dist_mult:Float;
 	var pos:Float;
-	var audio:Audio;
+
+	var nodes:{
+		source:AudioBufferSourceNode,
+		gain0:GainNode,
+		?gain1:GainNode,
+	};
 
 	function new(?s) {
 		sfx = s;
@@ -66,6 +74,8 @@ class S {
 	static var ambient_level:Cvar;
 	static var ambient_fade:Cvar;
 
+	static var context:AudioContext;
+
 	static function Init():Void {
 		Console.Print('\nSound Initialization\n');
 		Cmd.AddCommand('play', S.Play);
@@ -81,23 +91,40 @@ class S {
 
 		S.started = true;
 
+		context = new AudioContext();
+
 		var ambient_sfx = ['water1', 'wind2'];
 		for (i in 0...ambient_sfx.length) {
-			var ch = new Channel(PrecacheSound('ambience/' + ambient_sfx[i] + '.wav'));
-			S.ambient_channels[i] = ch;
-			if (!LoadSound(ch.sfx))
-				continue;
-			if (ch.sfx.cache.loopstart == null) {
-				Console.Print('Sound ambience/' + ch.sfx.name + '.wav not looped\n');
-				continue;
-			}
-			ch.audio = cast ch.sfx.cache.data.cloneNode();
+			var ch = new Channel(PrecacheSound('ambience/' + ambient_sfx[i] + '.wav', false));
+			ambient_channels.push(ch);
+
+			LoadSound(ch.sfx, function(success) {
+				if (!success)
+					return;
+
+				if (ch.sfx.cache.loopstart == null) {
+					Console.Print('Sound ambience/' + ch.sfx.name + '.wav not looped\n');
+					return;
+				}
+
+				var nodes = {
+					source: context.createBufferSource(),
+					gain0: context.createGain(),
+				};
+				ch.nodes = nodes;
+				nodes.source.buffer = ch.sfx.cache.data;
+				nodes.source.loop = true;
+				nodes.source.loopStart = ch.sfx.cache.loopstart;
+				nodes.source.loopEnd = nodes.source.buffer.length;
+				nodes.source.connect(nodes.gain0);
+				nodes.gain0.connect(context.destination);
+			});
 		}
 
 		Console.sfx_talk = S.PrecacheSound('misc/talk.wav');
 	}
 
-	static function PrecacheSound(name:String):Sfx {
+	static function PrecacheSound(name:String, load = true):Sfx {
 		if (S.nosound.value != 0)
 			return null;
 		var sfx = null;
@@ -111,8 +138,8 @@ class S {
 			sfx = new Sfx(name);
 			S.known_sfx.push(sfx);
 		}
-		if (S.precache.value != 0)
-			S.LoadSound(sfx);
+		if (load && S.precache.value != 0)
+			S.LoadSound(sfx, function(_) {});
 		return sfx;
 	}
 
@@ -127,9 +154,9 @@ class S {
 					continue;
 				if ((channel.entnum == entnum) && ((channel.entchannel == entchannel) || (entchannel == -1))) {
 					channel.sfx = null;
-					if (channel.audio != null) {
-						channel.audio.pause();
-						channel.audio = null;
+					if (channel.nodes != null) {
+						S.NoteOff(channel.nodes.source);
+						channel.nodes = null;
 					}
 					break;
 				}
@@ -199,20 +226,64 @@ class S {
 		if ((target_chan.leftvol == 0.0) && (target_chan.rightvol == 0.0))
 			return;
 
-		if (!S.LoadSound(sfx)) {
-			target_chan.sfx = null;
-			return;
-		}
+		LoadSound(sfx, function(success) {
+			if (!success) {
+				target_chan.sfx = null;
+				return;
+			}
 
-		target_chan.sfx = sfx;
-		target_chan.pos = 0.0;
-		target_chan.end = Host.realtime + sfx.cache.length;
-		target_chan.audio = cast sfx.cache.data.cloneNode();
-		var volume = (target_chan.leftvol + target_chan.rightvol) * 0.5;
-		if (volume > 1.0)
-			volume = 1.0;
-		target_chan.audio.volume = volume * S.volume.value;
-		target_chan.audio.play();
+			target_chan.sfx = sfx;
+			target_chan.pos = 0.0;
+			target_chan.end = Host.realtime + sfx.cache.length;
+
+			var nodes = {
+				source: context.createBufferSource(),
+				merger1: context.createChannelMerger(2),
+				splitter: context.createChannelSplitter(2),
+				gain0: context.createGain(),
+				gain1: context.createGain(),
+				merger2: context.createChannelMerger(2)
+			};
+			target_chan.nodes = nodes;
+			nodes.source.buffer = sfx.cache.data;
+			if (sfx.cache.loopstart != null) {
+				nodes.source.loop = true;
+				nodes.source.loopStart = sfx.cache.loopstart;
+				nodes.source.loopEnd = nodes.source.buffer.length;
+			}
+			nodes.source.connect(nodes.merger1);
+			nodes.source.connect(nodes.merger1, 0, 1);
+			nodes.merger1.connect(nodes.splitter);
+			nodes.splitter.connect(nodes.gain0, 0);
+			nodes.splitter.connect(nodes.gain1, 1);
+			var volume = target_chan.leftvol;
+			if (volume > 1.0)
+				volume = 1.0;
+			nodes.gain0.gain.value = volume * S.volume.value;
+			nodes.gain0.connect(nodes.merger2, 0, 0);
+			volume = target_chan.rightvol;
+			if (volume > 1.0)
+				volume = 1.0;
+			nodes.gain1.gain.value = volume * S.volume.value;
+			nodes.gain1.connect(nodes.merger2, 0, 1);
+			nodes.merger2.connect(context.destination);
+			for (check in channels) {
+				if (check == target_chan)
+					continue;
+				if (check.sfx != sfx || check.pos != 0.0)
+					continue;
+				var skip = Math.random() * 0.1;
+				if (skip >= sfx.cache.length) {
+					NoteOn(nodes.source);
+					break;
+				}
+				target_chan.pos += skip;
+				target_chan.end -= skip;
+				nodes.source.start(0.0, skip, nodes.source.buffer.length - skip);
+				break;
+			}
+			NoteOn(nodes.source);
+		});
 	}
 
 	static function StopSound(entnum:Int, entchannel:Int):Void {
@@ -224,13 +295,21 @@ class S {
 			if (ch.entnum == entnum && ch.entchannel == entchannel) {
 				ch.end = 0.0;
 				ch.sfx = null;
-				if (ch.audio != null) {
-					ch.audio.pause();
-					ch.audio = null;
+				if (ch.nodes != null) {
+					NoteOff(ch.nodes.source);
+					ch.nodes = null;
 				}
 				return;
 			}
 		}
+	}
+
+	static function NoteOff(node:AudioBufferSourceNode):Void {
+		try node.stop() catch (_:Dynamic) {}
+	}
+
+	static function NoteOn(node:AudioBufferSourceNode):Void {
+		try node.start() catch (_:Dynamic) {}
 	}
 
 	static function StopAllSounds():Void {
@@ -239,40 +318,64 @@ class S {
 
 		for (ch in S.ambient_channels) {
 			ch.master_vol = 0.0;
-			if (ch.audio != null)
-				ch.audio.pause();
+			if (ch.nodes != null)
+				NoteOff(ch.nodes.source);
 		}
 
 		for (ch in S.channels) {
 			if (ch == null)
 				continue;
-			if (ch.audio != null)
-				ch.audio.pause();
+			if (ch.nodes != null)
+				NoteOff(ch.nodes.source);
 		}
 		S.channels = [];
 
 		for (ch in S.static_channels)
-			ch.audio.pause();
+			NoteOff(ch.nodes.source);
 		S.static_channels = [];
 	}
 
 	static function StaticSound(sfx:Sfx, origin:Vec, vol:Float, attenuation:Float):Void {
 		if (S.nosound.value != 0 || sfx == null)
 			return;
-		if (!S.LoadSound(sfx))
-			return;
-		if (sfx.cache.loopstart == null) {
-			Console.Print('Sound ' + sfx.name + ' not looped\n');
-			return;
-		}
-		var ss = new Channel(sfx);
-		ss.origin = origin.copy();
-		ss.master_vol = vol;
-		ss.dist_mult = attenuation * 0.000015625;
-		ss.end = Host.realtime + sfx.cache.length;
-		S.static_channels.push(ss);
-		ss.audio = cast sfx.cache.data.cloneNode();
-		ss.audio.pause();
+
+		LoadSound(sfx, function(success) {
+			if (!success)
+				return;
+
+			if (sfx.cache.loopstart == null) {
+				Console.Print('Sound ' + sfx.name + ' not looped\n');
+				return;
+			}
+			var ss = new Channel(sfx);
+			ss.origin = origin.copy();
+			ss.master_vol = vol;
+			ss.dist_mult = attenuation * 0.000015625;
+			ss.end = Host.realtime + sfx.cache.length;
+			S.static_channels.push(ss);
+
+			var nodes = {
+				source: context.createBufferSource(),
+				merger1: context.createChannelMerger(2),
+				splitter: context.createChannelSplitter(2),
+				gain0: context.createGain(),
+				gain1: context.createGain(),
+				merger2: context.createChannelMerger(2)
+			};
+			ss.nodes = nodes;
+			nodes.source.buffer = sfx.cache.data;
+			nodes.source.loop = true;
+			nodes.source.loopStart = sfx.cache.loopstart;
+			nodes.source.loopEnd = nodes.source.buffer.length;
+			nodes.source.connect(nodes.merger1);
+			nodes.source.connect(nodes.merger1, 0, 1);
+			nodes.merger1.connect(nodes.splitter);
+			nodes.splitter.connect(nodes.gain0, 0);
+			nodes.splitter.connect(nodes.gain1, 1);
+			nodes.gain0.connect(nodes.merger2, 0, 0);
+			nodes.gain1.connect(nodes.merger2, 0, 1);
+			nodes.merger2.connect(S.context.destination);
+		});
 	}
 
 	static function SoundList():Void {
@@ -306,17 +409,15 @@ class S {
 		if ((l == null) || (S.ambient_level.value == 0)) {
 			for (ch in S.ambient_channels) {
 				ch.master_vol = 0.0;
-				if (ch.audio != null) {
-					if (!ch.audio.paused)
-						ch.audio.pause();
-				}
+				if (ch.nodes != null)
+					NoteOff(ch.nodes.source);
 			}
 			return;
 		}
 
 		for (i in 0...S.ambient_channels.length) {
 			var ch = S.ambient_channels[i];
-			if (ch.audio == null)
+			if (ch.nodes == null)
 				continue;
 			var vol = S.ambient_level.value * l.ambient_level[i];
 			if (vol < 8.0)
@@ -334,28 +435,13 @@ class S {
 			}
 
 			if (ch.master_vol == 0.0) {
-				if (!ch.audio.paused)
-					ch.audio.pause();
+				NoteOff(ch.nodes.source);
 				continue;
 			}
 			if (ch.master_vol > 1.0)
 				ch.master_vol = 1.0;
-			ch.audio.volume = ch.master_vol * S.volume.value;
-			var sc = ch.sfx.cache;
-			if (ch.audio.paused) {
-				ch.audio.play();
-				ch.end = Host.realtime + sc.length;
-				continue;
-			}
-			if (Host.realtime >= ch.end) {
-				try {
-					ch.audio.currentTime = sc.loopstart;
-				} catch (e:Dynamic) {
-					ch.end = Host.realtime;
-					continue;
-				}
-				ch.end = Host.realtime + sc.length - sc.loopstart;
-			}
+			ch.nodes.gain0.gain.value = ch.master_vol * S.volume.value;
+			NoteOn(ch.nodes.source);
 		}
 	}
 
@@ -368,24 +454,20 @@ class S {
 			if (Host.realtime >= ch.end) {
 				var sc = ch.sfx.cache;
 				if (sc.loopstart != null) {
-					try {
-						ch.audio.currentTime = sc.loopstart;
-					} catch (e:Dynamic) {
-						ch.end = Host.realtime;
-						continue;
-					}
 					ch.end = Host.realtime + sc.length - sc.loopstart;
 				} else {
 					ch.sfx = null;
-					ch.audio = null;
+					ch.nodes = null;
 					continue;
 				}
 			}
 			S.Spatialize(ch);
-			var volume = (ch.leftvol + ch.rightvol) * 0.5;
-			if (volume > 1.0)
-				volume = 1.0;
-			ch.audio.volume = volume * S.volume.value;
+			if (ch.leftvol > 1.0)
+				ch.leftvol = 1.0;
+			if (ch.rightvol > 1.0)
+				ch.rightvol = 1.0;
+			ch.nodes.gain0.gain.value = ch.leftvol * S.volume.value;
+			ch.nodes.gain1.gain.value = ch.rightvol * S.volume.value;
 		}
 	}
 
@@ -410,32 +492,17 @@ class S {
 		}
 
 		for (ch in S.static_channels) {
-			var volume = (ch.leftvol + ch.rightvol) * 0.5;
-			if (volume > 1.0)
-				volume = 1.0;
-			if (volume == 0.0) {
-				if (!ch.audio.paused)
-					ch.audio.pause();
+			if (ch.leftvol == 0.0 && ch.rightvol == 0.0) {
+				NoteOff(ch.nodes.source);
 				continue;
 			}
-			ch.audio.volume = volume * S.volume.value;
-			var sc = ch.sfx.cache;
-			if (ch.audio.paused) {
-				ch.audio.play();
-				ch.end = Host.realtime + sc.length;
-				continue;
-			}
-			if (Host.realtime >= ch.end) {
-				try
-				{
-					ch.audio.currentTime = sc.loopstart;
-				}
-				catch (e:Dynamic) {
-					ch.end = Host.realtime;
-					continue;
-				}
-				ch.end = Host.realtime + sc.length - sc.loopstart;
-			}
+			if (ch.leftvol > 1.0)
+				ch.leftvol = 1.0;
+			if (ch.rightvol > 1.0)
+				ch.rightvol = 1.0;
+			ch.nodes.gain0.gain.value = ch.leftvol * S.volume.value;
+			ch.nodes.gain1.gain.value = ch.rightvol * S.volume.value;
+			NoteOn(ch.nodes.source);
 		}
 	}
 
@@ -488,24 +555,24 @@ class S {
 		}
 	}
 
-	static function LoadSound(s:Sfx):Bool {
+	static function LoadSound(s:Sfx, cb:Bool->Void):Void {
 		if (S.nosound.value != 0)
-			return false;
+			return cb(false);
 		if (s.cache != null)
-			return true;
+			return cb(true);
 
 		var sc = new SfxCache();
 
 		var data = COM.LoadFile('sound/' + s.name);
 		if (data == null) {
 			Console.Print('Couldn\'t load sound/' + s.name + '\n');
-			return false;
+			return cb(false);
 		}
 
 		var view = new DataView(data);
 		if ((view.getUint32(0, true) != 0x46464952) || (view.getUint32(8, true) != 0x45564157)) {
 			Console.Print('Missing RIFF/WAVE chunks\n');
-			return false;
+			return cb(false);
 		}
 		var p = 12, fmt = null, dataofs = null, datalen = null, cue = null, loopstart = null, samples = null;
 		while (p < data.byteLength) {
@@ -513,7 +580,7 @@ class S {
 			case 0x20746d66: // fmt
 				if (view.getInt16(p + 8, true) != 1) {
 					Console.Print('Microsoft PCM format only\n');
-					return false;
+					return cb(false);
 				}
 				fmt = {
 					channels: view.getUint16(p + 10, true),
@@ -542,11 +609,11 @@ class S {
 
 		if (fmt == null) {
 			Console.Print('Missing fmt chunk\n');
-			return false;
+			return cb(false);
 		}
 		if (dataofs == null) {
 			Console.Print('Missing data chunk\n');
-			return false;
+			return cb(false);
 		}
 		if (loopstart != null)
 			sc.loopstart = loopstart * fmt.blockAlign / fmt.samplesPerSec;
@@ -574,8 +641,10 @@ class S {
 		view.setUint32(36, 0x61746164, true); // data
 		view.setUint32(40, datalen, true);
 		(new Uint8Array(out, 44, datalen)).set(new Uint8Array(data, dataofs, datalen));
-		sc.data = new Audio('data:audio/wav;base64,' + Q.btoa(new Uint8Array(out)));
-		s.cache = sc;
-		return true;
+		context.decodeAudioData(out, function(data) {
+			sc.data = data;
+			s.cache = sc;
+			return cb(true);
+		});
 	}
 }

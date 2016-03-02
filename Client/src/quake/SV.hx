@@ -320,7 +320,7 @@ class SV {
         } else {
             PR.ExecuteProgram(PR.globals.SetNewParms);
             for (i in 0...16)
-                client.spawn_parms[i] = PR._globals_float[GlobalVarOfs.parms + i];
+                client.spawn_parms[i] = PR.globals.floats[GlobalVarOfs.parms + i];
         }
         SendServerinfo(client);
     }
@@ -711,7 +711,7 @@ class SV {
             PR.globals.self = Host.client.edict.num;
             PR.ExecuteProgram(PR.globals.SetChangeParms);
             for (j in 0...16)
-                Host.client.spawn_parms[j] = PR._globals_float[GlobalVarOfs.parms + j];
+                Host.client.spawn_parms[j] = PR.globals.floats[GlobalVarOfs.parms + j];
         }
     }
 

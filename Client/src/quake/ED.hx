@@ -166,7 +166,7 @@ class ED {
 				Console.Print('\'$keyname\' is not a global\n');
 				continue;
 			}
-			if (!ParseEpair(PR._globals, key, COM.token))
+			if (!ParseEpair(PR.globals.buffer, key, COM.token))
 				Host.Error('ED.ParseGlobals: parse error');
 		}
 	}

@@ -21,7 +21,7 @@ class PF {
     static function VarString(first:Int) {
         var out = '';
         for (i in first...argc)
-            out += PR.GetString(PR._globals_int[OFS_PARM0 + i * 3]);
+            out += PR.GetString(PR.globals.ints[OFS_PARM0 + i * 3]);
         return out;
     }
 
@@ -54,10 +54,10 @@ class PF {
     }
 
     static function setorigin():Void {
-        var e = SV.server.edicts[PR._globals_int[OFS_PARM0]];
-        e.v.origin = PR._globals_float[OFS_PARM1];
-        e.v.origin1 = PR._globals_float[OFS_PARM1 + 1];
-        e.v.origin2 = PR._globals_float[OFS_PARM1 + 2];
+        var e = SV.server.edicts[PR.globals.ints[OFS_PARM0]];
+        e.v.origin = PR.globals.floats[OFS_PARM1];
+        e.v.origin1 = PR.globals.floats[OFS_PARM1 + 1];
+        e.v.origin2 = PR.globals.floats[OFS_PARM1 + 2];
         SV.LinkEdict(e, false);
     }
 
@@ -74,15 +74,15 @@ class PF {
 
     static function setsize():Void {
         SetMinMaxSize(
-            SV.server.edicts[PR._globals_int[OFS_PARM0]],
+            SV.server.edicts[PR.globals.ints[OFS_PARM0]],
             PR.globals.GetVector(OFS_PARM1),
             PR.globals.GetVector(OFS_PARM2)
         );
     }
 
     static function setmodel():Void {
-        var e = SV.server.edicts[PR._globals_int[OFS_PARM0]];
-        var m = PR.GetString(PR._globals_int[OFS_PARM1]);
+        var e = SV.server.edicts[PR.globals.ints[OFS_PARM0]];
+        var m = PR.GetString(PR.globals.ints[OFS_PARM1]);
         var i = 0;
         while (i < SV.server.model_precache.length) {
             if (SV.server.model_precache[i] == m)
@@ -92,7 +92,7 @@ class PF {
         if (i == SV.server.model_precache.length)
             PR.RunError('no precache: ' + m + '\n');
 
-        e.v.model = PR._globals_int[OFS_PARM1];
+        e.v.model = PR.globals.ints[OFS_PARM1];
         e.v.modelindex = i;
         var mod = SV.server.models[i];
         if (mod != null)
@@ -106,7 +106,7 @@ class PF {
     }
 
     static function sprint():Void {
-        var entnum = PR._globals_int[OFS_PARM0];
+        var entnum = PR.globals.ints[OFS_PARM0];
         if (entnum <= 0 || entnum > SV.svs.maxclients) {
             Console.Print('tried to sprint to a non-client\n');
             return;
@@ -117,7 +117,7 @@ class PF {
     }
 
     static function centerprint():Void {
-        var entnum = PR._globals_int[OFS_PARM0];
+        var entnum = PR.globals.ints[OFS_PARM0];
         if (entnum <= 0 || entnum > SV.svs.maxclients) {
             Console.Print('tried to sprint to a non-client\n');
             return;
@@ -134,30 +134,30 @@ class PF {
     }
 
     static function vlen():Void {
-        PR.globals.SetReturnFloat(Math.sqrt(PR._globals_float[OFS_PARM0] * PR._globals_float[OFS_PARM0] + PR._globals_float[OFS_PARM0 + 1] * PR._globals_float[OFS_PARM0 + 1] + PR._globals_float[OFS_PARM0 + 2] * PR._globals_float[OFS_PARM0 + 2]));
+        PR.globals.SetReturnFloat(Math.sqrt(PR.globals.floats[OFS_PARM0] * PR.globals.floats[OFS_PARM0] + PR.globals.floats[OFS_PARM0 + 1] * PR.globals.floats[OFS_PARM0 + 1] + PR.globals.floats[OFS_PARM0 + 2] * PR.globals.floats[OFS_PARM0 + 2]));
     }
 
     static function vectoyaw() {
-        var value1 = PR._globals_float[4], value2 = PR._globals_float[5];
+        var value1 = PR.globals.floats[4], value2 = PR.globals.floats[5];
         if ((value1 == 0.0) && (value2 == 0.0)) {
-            PR._globals_float[OFS_RETURN] = 0.0;
+            PR.globals.floats[OFS_RETURN] = 0.0;
             return;
         }
         var yaw = Std.int(Math.atan2(value2, value1) * 180.0 / Math.PI);
         if (yaw < 0)
             yaw += 360;
-        PR._globals_float[OFS_RETURN] = yaw;
+        PR.globals.floats[OFS_RETURN] = yaw;
     }
 
     static function vectoangles() {
-        PR._globals_float[OFS_RETURN + 2] = 0.0;
-        var value1 = [PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]];
+        PR.globals.floats[OFS_RETURN + 2] = 0.0;
+        var value1 = [PR.globals.floats[4], PR.globals.floats[5], PR.globals.floats[6]];
         if ((value1[0] == 0.0) && (value1[1] == 0.0)) {
             if (value1[2] > 0.0)
-                PR._globals_float[OFS_RETURN] = 90.0;
+                PR.globals.floats[OFS_RETURN] = 90.0;
             else
-                PR._globals_float[OFS_RETURN] = 270.0;
-            PR._globals_float[OFS_RETURN + 1] = 0.0;
+                PR.globals.floats[OFS_RETURN] = 270.0;
+            PR.globals.floats[OFS_RETURN + 1] = 0.0;
             return;
         }
 
@@ -167,8 +167,8 @@ class PF {
         var pitch = Std.int(Math.atan2(value1[2], Math.sqrt(value1[0] * value1[0] + value1[1] * value1[1])) * 180.0 / Math.PI);
         if (pitch < 0)
             pitch += 360;
-        PR._globals_float[OFS_RETURN] = pitch;
-        PR._globals_float[OFS_RETURN + 1] = yaw;
+        PR.globals.floats[OFS_RETURN] = pitch;
+        PR.globals.floats[OFS_RETURN + 1] = yaw;
     }
 
     static function random() {
@@ -185,7 +185,7 @@ class PF {
     }
 
     static function ambientsound() {
-        var samp = PR.GetString(PR._globals_int[7]);
+        var samp = PR.GetString(PR.globals.ints[7]);
         var i = 0;
         while (i < SV.server.sound_precache.length) {
             if (SV.server.sound_precache[i] == samp)
@@ -198,20 +198,20 @@ class PF {
         }
         var signon = SV.server.signon;
         signon.WriteByte(SVC.spawnstaticsound);
-        signon.WriteCoord(PR._globals_float[4]);
-        signon.WriteCoord(PR._globals_float[5]);
-        signon.WriteCoord(PR._globals_float[6]);
+        signon.WriteCoord(PR.globals.floats[4]);
+        signon.WriteCoord(PR.globals.floats[5]);
+        signon.WriteCoord(PR.globals.floats[6]);
         signon.WriteByte(i);
-        signon.WriteByte(Std.int(PR._globals_float[10] * 255));
-        signon.WriteByte(Std.int(PR._globals_float[13] * 64));
+        signon.WriteByte(Std.int(PR.globals.floats[10] * 255));
+        signon.WriteByte(Std.int(PR.globals.floats[13] * 64));
     }
 
     static function sound() {
-        SV.StartSound(SV.server.edicts[PR._globals_int[4]],
-            Std.int(PR._globals_float[7]),
-            PR.GetString(PR._globals_int[10]),
-            Std.int(PR._globals_float[13] * 255),
-            PR._globals_float[16]);
+        SV.StartSound(SV.server.edicts[PR.globals.ints[4]],
+            Std.int(PR.globals.floats[7]),
+            PR.GetString(PR.globals.ints[10]),
+            Std.int(PR.globals.floats[13] * 255),
+            PR.globals.floats[16]);
     }
 
     static function breakstatement() {
@@ -219,9 +219,9 @@ class PF {
     }
 
     static function traceline() {
-        var trace = SV.Move(Vec.of(PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]),
-            Vec.origin, Vec.origin, Vec.of(PR._globals_float[7], PR._globals_float[8], PR._globals_float[9]),
-            Std.int(PR._globals_float[10]), SV.server.edicts[PR._globals_int[13]]);
+        var trace = SV.Move(Vec.of(PR.globals.floats[4], PR.globals.floats[5], PR.globals.floats[6]),
+            Vec.origin, Vec.origin, Vec.of(PR.globals.floats[7], PR.globals.floats[8], PR.globals.floats[9]),
+            Std.int(PR.globals.floats[10]), SV.server.edicts[PR.globals.ints[13]]);
         PR.globals.trace_allsolid = (trace.allsolid) ? 1.0 : 0.0;
         PR.globals.trace_startsolid = (trace.startsolid) ? 1.0 : 0.0;
         PR.globals.trace_fraction = trace.fraction;
@@ -280,7 +280,7 @@ class PF {
         }
         var ent = SV.server.edicts[SV.server.lastcheck];
         if ((ent.free) || (ent.v.health <= 0.0)) {
-            PR._globals_int[OFS_RETURN] = 0;
+            PR.globals.ints[OFS_RETURN] = 0;
             return;
         }
         var self = SV.server.edicts[PR.globals.self];
@@ -290,38 +290,38 @@ class PF {
                 self.v.origin2 + self.v.view_ofs2
             ), SV.server.worldmodel).num - 1;
         if ((l < 0) || ((checkpvs[l >> 3] & (1 << (l & 7))) == 0)) {
-            PR._globals_int[OFS_RETURN] = 0;
+            PR.globals.ints[OFS_RETURN] = 0;
             return;
         }
-        PR._globals_int[OFS_RETURN] = ent.num;
+        PR.globals.ints[OFS_RETURN] = ent.num;
     }
 
     static function stuffcmd() {
-        var entnum = PR._globals_int[4];
+        var entnum = PR.globals.ints[4];
         if ((entnum <= 0) || (entnum > SV.svs.maxclients))
             PR.RunError('Parm 0 not a client');
         var client = SV.svs.clients[entnum - 1];
         client.message.WriteByte(SVC.stufftext);
-        client.message.WriteString(PR.GetString(PR._globals_int[7]));
+        client.message.WriteString(PR.GetString(PR.globals.ints[7]));
     }
 
     static function localcmd() {
-        Cmd.text += PR.GetString(PR._globals_int[4]);
+        Cmd.text += PR.GetString(PR.globals.ints[4]);
     }
 
     static function cvar() {
-        var v = Cvar.FindVar(PR.GetString(PR._globals_int[4]));
-        PR._globals_float[OFS_RETURN] = v != null ? v.value : 0.0;
+        var v = Cvar.FindVar(PR.GetString(PR.globals.ints[4]));
+        PR.globals.floats[OFS_RETURN] = v != null ? v.value : 0.0;
     }
 
     static function cvar_set() {
-        Cvar.Set(PR.GetString(PR._globals_int[4]), PR.GetString(PR._globals_int[7]));
+        Cvar.Set(PR.GetString(PR.globals.ints[4]), PR.GetString(PR.globals.ints[7]));
     }
 
     static function findradius() {
         var chain = 0;
-        var org = [PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]], eorg = [];
-        var rad = PR._globals_float[7];
+        var org = [PR.globals.floats[4], PR.globals.floats[5], PR.globals.floats[6]], eorg = [];
+        var rad = PR.globals.floats[7];
         for (i in 1...SV.server.num_edicts) {
             var ent = SV.server.edicts[i];
             if (ent.free)
@@ -336,7 +336,7 @@ class PF {
             ent.v.chain = chain;
             chain = i;
         }
-        PR._globals_int[OFS_RETURN] = chain;
+        PR.globals.ints[OFS_RETURN] = chain;
     }
 
     static function dprint() {
@@ -344,23 +344,23 @@ class PF {
     }
 
     static function ftos() {
-        var v = PR._globals_float[4];
+        var v = PR.globals.floats[4];
         if (v == Math.floor(v))
             PR.TempString(Std.string(v));
         else
             PR.TempString(v.toFixed(1));
-        PR._globals_int[OFS_RETURN] = PR.string_temp;
+        PR.globals.ints[OFS_RETURN] = PR.string_temp;
     }
 
     static function fabs() {
-        PR.globals.SetReturnFloat(Math.abs(PR._globals_float[4]));
+        PR.globals.SetReturnFloat(Math.abs(PR.globals.floats[4]));
     }
 
     static function vtos() {
-        PR.TempString(PR._globals_float[4].toFixed(1)
-            + ' ' + PR._globals_float[5].toFixed(1)
-            + ' ' + PR._globals_float[6].toFixed(1));
-        PR._globals_int[OFS_RETURN] = PR.string_temp;
+        PR.TempString(PR.globals.floats[4].toFixed(1)
+            + ' ' + PR.globals.floats[5].toFixed(1)
+            + ' ' + PR.globals.floats[6].toFixed(1));
+        PR.globals.ints[OFS_RETURN] = PR.string_temp;
     }
 
     static function Spawn() {
@@ -368,33 +368,33 @@ class PF {
     }
 
     static function Remove() {
-        ED.Free(SV.server.edicts[PR._globals_int[4]]);
+        ED.Free(SV.server.edicts[PR.globals.ints[4]]);
     }
 
     static function Find() {
-        var e = PR._globals_int[4];
-        var f = PR._globals_int[7];
-        var s = PR.GetString(PR._globals_int[10]);
+        var e = PR.globals.ints[4];
+        var f = PR.globals.ints[7];
+        var s = PR.GetString(PR.globals.ints[10]);
         for (e in (e + 1)...SV.server.num_edicts) {
             var ed = SV.server.edicts[e];
             if (ed.free)
                 continue;
             if (PR.GetString(ed._v_int[f]) == s) {
-                PR._globals_int[OFS_RETURN] = ed.num;
+                PR.globals.ints[OFS_RETURN] = ed.num;
                 return;
             }
         }
-        PR._globals_int[OFS_RETURN] = 0;
+        PR.globals.ints[OFS_RETURN] = 0;
     }
 
     static function MoveToGoal() {
         var ent = SV.server.edicts[PR.globals.self];
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
-            PR._globals_float[OFS_RETURN] = 0.0;
+            PR.globals.floats[OFS_RETURN] = 0.0;
             return;
         }
         var goal = SV.server.edicts[ent.v.goalentity];
-        var dist = PR._globals_float[4];
+        var dist = PR.globals.floats[4];
         if ((ent.v.enemy != 0) && (SV.CloseEnough(ent, goal, dist)))
             return;
         if ((Math.random() >= 0.75) || !SV.StepDirection(ent, ent.v.ideal_yaw, dist))
@@ -402,12 +402,12 @@ class PF {
     }
 
     static function precache_file() {
-        PR._globals_int[OFS_RETURN] = PR._globals_int[4];
+        PR.globals.ints[OFS_RETURN] = PR.globals.ints[4];
     }
 
     static function precache_sound() {
-        var s = PR.GetString(PR._globals_int[4]);
-        PR._globals_int[OFS_RETURN] = PR._globals_int[4];
+        var s = PR.GetString(PR.globals.ints[4]);
+        PR.globals.ints[OFS_RETURN] = PR.globals.ints[4];
         PR.CheckEmptyString(s);
         var i = 0;
         while (i < SV.server.sound_precache.length) {
@@ -421,8 +421,8 @@ class PF {
     static function precache_model() {
         if (!SV.server.loading)
             PR.RunError('Precache_*: Precache can only be done in spawn functions');
-        var s = PR.GetString(PR._globals_int[4]);
-        PR._globals_int[OFS_RETURN] = PR._globals_int[4];
+        var s = PR.GetString(PR.globals.ints[4]);
+        PR.globals.ints[OFS_RETURN] = PR.globals.ints[4];
         PR.CheckEmptyString(s);
         var i = 0;
         while (i < SV.server.model_precache.length) {
@@ -447,20 +447,20 @@ class PF {
     }
 
     static function eprint() {
-        ED.Print(SV.server.edicts[Std.int(PR._globals_float[4])]);
+        ED.Print(SV.server.edicts[Std.int(PR.globals.floats[4])]);
     }
 
     static function walkmove() {
         var ent = SV.server.edicts[PR.globals.self];
         if ((ent.flags & (EntFlag.onground + EntFlag.fly + EntFlag.swim)) == 0) {
-            PR._globals_float[OFS_RETURN] = 0.0;
+            PR.globals.floats[OFS_RETURN] = 0.0;
             return;
         }
-        var yaw = PR._globals_float[4] * Math.PI / 180.0;
-        var dist = PR._globals_float[7];
+        var yaw = PR.globals.floats[4] * Math.PI / 180.0;
+        var dist = PR.globals.floats[7];
         var oldf = PR.xfunction;
         var moved = SV.movestep(ent, Vec.of(Math.cos(yaw) * dist, Math.sin(yaw) * dist, 0), true);
-        PR._globals_float[OFS_RETURN] = if (moved) 1 else 0;
+        PR.globals.floats[OFS_RETURN] = if (moved) 1 else 0;
         PR.xfunction = oldf;
         PR.globals.self = ent.num;
     }
@@ -471,19 +471,19 @@ class PF {
             ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs),
             Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 - 256.0), 0, ent);
         if ((trace.fraction == 1.0) || (trace.allsolid)) {
-            PR._globals_float[OFS_RETURN] = 0.0;
+            PR.globals.floats[OFS_RETURN] = 0.0;
             return;
         }
         ent.SetVector(EdictVarOfs.origin, trace.endpos);
         SV.LinkEdict(ent, false);
         ent.flags = ent.flags | EntFlag.onground;
         ent.v.groundentity = trace.ent.num;
-        PR._globals_float[OFS_RETURN] = 1.0;
+        PR.globals.floats[OFS_RETURN] = 1.0;
     }
 
     static function lightstyle() {
-        var style = Std.int(PR._globals_float[4]);
-        var val = PR.GetString(PR._globals_int[7]);
+        var style = Std.int(PR.globals.floats[4]);
+        var val = PR.GetString(PR.globals.ints[7]);
         SV.server.lightstyles[style] = val;
         if (SV.server.loading)
             return;
@@ -498,39 +498,39 @@ class PF {
     }
 
     static function rint() {
-        var f = PR._globals_float[4];
-        PR._globals_float[OFS_RETURN] = Std.int(f >= 0.0 ? f + 0.5 : f - 0.5);
+        var f = PR.globals.floats[4];
+        PR.globals.floats[OFS_RETURN] = Std.int(f >= 0.0 ? f + 0.5 : f - 0.5);
     }
 
     static function floor() {
-        PR._globals_float[OFS_RETURN] = Math.floor(PR._globals_float[4]);
+        PR.globals.floats[OFS_RETURN] = Math.floor(PR.globals.floats[4]);
     }
 
     static function ceil() {
-        PR._globals_float[OFS_RETURN] = Math.ceil(PR._globals_float[4]);
+        PR.globals.floats[OFS_RETURN] = Math.ceil(PR.globals.floats[4]);
     }
 
     static function checkbottom() {
-        var res = SV.CheckBottom(SV.server.edicts[PR._globals_int[4]]);
-        PR._globals_float[OFS_RETURN] = if (res) 1 else 0;
+        var res = SV.CheckBottom(SV.server.edicts[PR.globals.ints[4]]);
+        PR.globals.floats[OFS_RETURN] = if (res) 1 else 0;
     }
 
     static function pointcontents() {
-        PR._globals_float[OFS_RETURN] = SV.PointContents(Vec.of(PR._globals_float[4], PR._globals_float[5], PR._globals_float[6]));
+        PR.globals.floats[OFS_RETURN] = SV.PointContents(Vec.of(PR.globals.floats[4], PR.globals.floats[5], PR.globals.floats[6]));
     }
 
     static function nextent() {
-        for (i in (PR._globals_int[OFS_PARM0] + 1)...SV.server.num_edicts) {
+        for (i in (PR.globals.ints[OFS_PARM0] + 1)...SV.server.num_edicts) {
             if (!SV.server.edicts[i].free) {
-                PR._globals_int[OFS_RETURN] = i;
+                PR.globals.ints[OFS_RETURN] = i;
                 return;
             }
         }
-        PR._globals_int[OFS_RETURN] = 0;
+        PR.globals.ints[OFS_RETURN] = 0;
     }
 
     static function aim() {
-        var ent = SV.server.edicts[PR._globals_int[OFS_PARM0]];
+        var ent = SV.server.edicts[PR.globals.ints[OFS_PARM0]];
         var start = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + 20.0);
         var dir = Vec.of(PR.globals.v_forward, PR.globals.v_forward1, PR.globals.v_forward2);
         var end = Vec.of(start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]);
@@ -609,7 +609,7 @@ class PF {
     }
 
     static function WriteDest() {
-        switch (Std.int(PR._globals_float[4])) {
+        switch (Std.int(PR.globals.floats[4])) {
             case 0: // broadcast
                 return SV.server.datagram;
             case 1: // one
@@ -627,17 +627,17 @@ class PF {
         }
     }
 
-    static function WriteByte() WriteDest().WriteByte(Std.int(PR._globals_float[7]));
-    static function WriteChar() WriteDest().WriteChar(Std.int(PR._globals_float[7]));
-    static function WriteShort() WriteDest().WriteShort(Std.int(PR._globals_float[7]));
-    static function WriteLong() WriteDest().WriteLong(Std.int(PR._globals_float[7]));
-    static function WriteAngle() WriteDest().WriteAngle(PR._globals_float[7]);
-    static function WriteCoord() WriteDest().WriteCoord(PR._globals_float[7]);
-    static function WriteString() WriteDest().WriteString(PR.GetString(PR._globals_int[7]));
-    static function WriteEntity() WriteDest().WriteShort(PR._globals_int[7]);
+    static function WriteByte() WriteDest().WriteByte(Std.int(PR.globals.floats[7]));
+    static function WriteChar() WriteDest().WriteChar(Std.int(PR.globals.floats[7]));
+    static function WriteShort() WriteDest().WriteShort(Std.int(PR.globals.floats[7]));
+    static function WriteLong() WriteDest().WriteLong(Std.int(PR.globals.floats[7]));
+    static function WriteAngle() WriteDest().WriteAngle(PR.globals.floats[7]);
+    static function WriteCoord() WriteDest().WriteCoord(PR.globals.floats[7]);
+    static function WriteString() WriteDest().WriteString(PR.GetString(PR.globals.ints[7]));
+    static function WriteEntity() WriteDest().WriteShort(PR.globals.ints[7]);
 
     static function makestatic() {
-        var ent = SV.server.edicts[PR._globals_int[4]];
+        var ent = SV.server.edicts[PR.globals.ints[4]];
         var message = SV.server.signon;
         message.WriteByte(SVC.spawnstatic);
         message.WriteByte(SV.ModelIndex(PR.GetString(ent.v.model)));
@@ -654,19 +654,19 @@ class PF {
     }
 
     static function setspawnparms() {
-        var i = PR._globals_int[4];
+        var i = PR.globals.ints[4];
         if ((i <= 0) || (i > SV.svs.maxclients))
             PR.RunError('Entity is not a client');
         var spawn_parms = SV.svs.clients[i - 1].spawn_parms;
         for (i in 0...16)
-            PR._globals_float[GlobalVarOfs.parms + i] = spawn_parms[i];
+            PR.globals.floats[GlobalVarOfs.parms + i] = spawn_parms[i];
     }
 
     static function changelevel() {
         if (SV.svs.changelevel_issued)
             return;
         SV.svs.changelevel_issued = true;
-        Cmd.text += 'changelevel ' + PR.GetString(PR._globals_int[4]) + '\n';
+        Cmd.text += 'changelevel ' + PR.GetString(PR.globals.ints[4]) + '\n';
     }
 
     static function Fixme() {

@@ -17,10 +17,10 @@ class GlobalVarsMacro {
                     switch (field.meta.get()) {
                         case [{name: "f"}]:
                             fieldType = macro : Float;
-                            viewField = "_globals_float";
+                            viewField = "floats";
                         case [{name: "i"}]:
                             fieldType = macro : Int;
-                            viewField = "_globals_int";
+                            viewField = "ints";
                         default:
                             throw new Error("Invalid field meta", field.pos);
                     }
@@ -39,7 +39,7 @@ class GlobalVarsMacro {
                         kind: FFun({
                             args: [],
                             ret: fieldType,
-                            expr: macro return PR.$viewField[quake.GlobalVarOfs.$fieldName]
+                            expr: macro return this.$viewField[quake.GlobalVarOfs.$fieldName]
                         })
                     });
 
@@ -50,7 +50,7 @@ class GlobalVarsMacro {
                         kind: FFun({
                             args: [{name: "value", type: fieldType}],
                             ret: fieldType,
-                            expr: macro return PR.$viewField[quake.GlobalVarOfs.$fieldName] = value
+                            expr: macro return this.$viewField[quake.GlobalVarOfs.$fieldName] = value
                         })
                     });
                 }

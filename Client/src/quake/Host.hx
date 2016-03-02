@@ -646,7 +646,7 @@ class Host {
             var type:EType = type & 0x7fff;
             if ((type != ev_string) && (type != ev_float) && (type != ev_entity))
                 continue;
-            f.push('"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR._globals, def.ofs) + '"\n');
+            f.push('"' + PR.GetString(def.name) + '" "' + PR.UglyValueString(cast type, PR.globals.buffer, def.ofs) + '"\n');
         }
         f.push('}\n');
         for (i in 0...SV.server.num_edicts) {
@@ -741,7 +741,7 @@ class Host {
                 Console.Print('\'' + keyname + '\' is not a global\n');
                 continue;
             }
-            if (!ED.ParseEpair(PR._globals, key, token[3]))
+            if (!ED.ParseEpair(PR.globals.buffer, key, token[3]))
                 Host.Error('Host.Loadgame_f: parse error');
         }
 
@@ -970,7 +970,7 @@ class Host {
             ent.v.team = (client.colors & 15) + 1;
             ent.v.netname = PR.netnames + (client.num << 5);
             for (i in 0...16)
-                PR._globals_float[GlobalVarOfs.parms + i] = client.spawn_parms[i];
+                PR.globals.floats[GlobalVarOfs.parms + i] = client.spawn_parms[i];
             PR.globals.time = SV.server.time;
             PR.globals.self = ent.num;
             PR.ExecuteProgram(PR.globals.ClientConnect);

@@ -179,28 +179,28 @@ abstract Eval(Int) to Int from Int {
 	}
 
 	public var float(get,set):Float;
-	inline function get_float() return PR._globals_float[this];
-	inline function set_float(v) return PR._globals_float[this] = v;
+	inline function get_float() return PR.globals.floats[this];
+	inline function set_float(v) return PR.globals.floats[this] = v;
 
 	public var float1(get,set):Float;
-	inline function get_float1() return PR._globals_float[this + 1];
-	inline function set_float1(v) return PR._globals_float[this + 1] = v;
+	inline function get_float1() return PR.globals.floats[this + 1];
+	inline function set_float1(v) return PR.globals.floats[this + 1] = v;
 
 	public var float2(get,set):Float;
-	inline function get_float2() return PR._globals_float[this + 2];
-	inline function set_float2(v) return PR._globals_float[this + 2] = v;
+	inline function get_float2() return PR.globals.floats[this + 2];
+	inline function set_float2(v) return PR.globals.floats[this + 2] = v;
 
 	public var int(get,set):Int;
-	inline function get_int() return PR._globals_int[this];
-	inline function set_int(v) return PR._globals_int[this] = v;
+	inline function get_int() return PR.globals.ints[this];
+	inline function set_int(v) return PR.globals.ints[this] = v;
 
 	public var int1(get,set):Int;
-	inline function get_int1() return PR._globals_int[this + 1];
-	inline function set_int1(v) return PR._globals_int[this + 1] = v;
+	inline function get_int1() return PR.globals.ints[this + 1];
+	inline function set_int1(v) return PR.globals.ints[this + 1] = v;
 
 	public var int2(get,set):Int;
-	inline function get_int2() return PR._globals_int[this + 2];
-	inline function set_int2(v) return PR._globals_int[this + 2] = v;
+	inline function get_int2() return PR.globals.ints[this + 2];
+	inline function set_int2(v) return PR.globals.ints[this + 2] = v;
 }
 
 
@@ -218,9 +218,6 @@ class PR {
 	static var globaldefs:Array<PRDef>;
 	static var fielddefs:Array<PRDef>;
 	static var globals:GlobalVars;
-	static var _globals:ArrayBuffer;
-	static var _globals_float:Float32Array;
-	static var _globals_int:Int32Array;
 	static var crc:Int;
 	static var trace:Bool;
 	static var entityfields:Int;
@@ -309,7 +306,7 @@ class PR {
 		var def = ED.GlobalAtOfs(ofs);
 		var line;
 		if (def != null)
-			line = ofs + '(' + PR.GetString(def.name) + ')' + PR.ValueString(def.type, PR._globals, ofs);
+			line = ofs + '(' + PR.GetString(def.name) + ')' + PR.ValueString(def.type, PR.globals.buffer, ofs);
 		else
 			line = ofs + '(???)';
 		while (line.length <= 20)
@@ -396,11 +393,9 @@ class PR {
 
 		ofs = view.getUint32(48, true);
 		num = view.getUint32(52, true);
-		PR._globals = new ArrayBuffer(num << 2);
-		PR._globals_float = new Float32Array(PR._globals);
-		PR._globals_int = new Int32Array(PR._globals);
+		PR.globals = new GlobalVars(new ArrayBuffer(num << 2));
 		for (i in 0...num)
-			PR._globals_int[i] = view.getInt32(ofs + (i << 2), true);
+			PR.globals.ints[i] = view.getInt32(ofs + (i << 2), true);
 
 		PR.entityfields = view.getUint32(56, true);
 		PR.edict_size = 96 + (PR.entityfields << 2);
@@ -545,12 +540,12 @@ class PR {
 		if ((PR.localstack_used + c) > PR.localstack_size)
 			PR.RunError('PR.EnterFunction: locals stack overflow\n');
 		for (i in 0...c)
-			PR.localstack[PR.localstack_used + i] = PR._globals_int[f.parm_start + i];
+			PR.localstack[PR.localstack_used + i] = PR.globals.ints[f.parm_start + i];
 		PR.localstack_used += c;
 		var o = f.parm_start;
 		for (i in 0...f.numparms) {
 			for (j in 0...f.parm_size[i])
-				PR._globals_int[o++] = PR._globals_int[4 + i * 3 + j];
+				PR.globals.ints[o++] = PR.globals.ints[4 + i * 3 + j];
 		}
 		PR.xfunction = f;
 		return f.first_statement - 1;
@@ -565,7 +560,7 @@ class PR {
 			PR.RunError('PR.LeaveFunction: locals stack underflow\n');
 		c--;
 		while (c >= 0) {
-			PR._globals_int[PR.xfunction.parm_start + c] = PR.localstack[PR.localstack_used + c];
+			PR.globals.ints[PR.xfunction.parm_start + c] = PR.localstack[PR.localstack_used + c];
 			c--;
 		}
 		PR.xfunction = PR.stack[--PR.depth].func;
@@ -715,9 +710,9 @@ class PR {
 					}
 					s = PR.EnterFunction(newf);
 				case PROp.done | PROp.ret:
-					PR._globals_int[OFS_RETURN] = st.a.int;
-					PR._globals_int[OFS_RETURN + 1] = st.a.int1;
-					PR._globals_int[OFS_RETURN + 2] = st.a.int2;
+					PR.globals.ints[OFS_RETURN] = st.a.int;
+					PR.globals.ints[OFS_RETURN + 1] = st.a.int1;
+					PR.globals.ints[OFS_RETURN + 2] = st.a.int2;
 					s = PR.LeaveFunction();
 					if (PR.depth == exitdepth)
 						return;

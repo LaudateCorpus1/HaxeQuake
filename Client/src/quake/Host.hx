@@ -969,8 +969,7 @@ class Host {
             ent.v.colormap = ent.num;
             ent.v.team = (client.colors & 15) + 1;
             ent.v.netname = PR.netnames + (client.num << 5);
-            for (i in 0...16)
-                PR.globals.floats[GlobalVarOfs.parms + i] = client.spawn_parms[i];
+            PR.globals.SetParms(client.spawn_parms);
             PR.globals.time = SV.server.time;
             PR.globals.self = ent.num;
             PR.ExecuteProgram(PR.globals.ClientConnect);

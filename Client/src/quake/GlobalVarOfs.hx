@@ -17,7 +17,24 @@ class GlobalVarOfs {
     @f static inline var total_monsters = 40; // float
     @f static inline var found_secrets = 41; // float
     @f static inline var killed_monsters = 42; // float
+
     @f static inline var parms = 43; // float[16]
+    @f static inline var parms1 = 44;
+    @f static inline var parms2 = 45;
+    @f static inline var parms3 = 46;
+    @f static inline var parms4 = 47;
+    @f static inline var parms5 = 48;
+    @f static inline var parms6 = 49;
+    @f static inline var parms7 = 50;
+    @f static inline var parms8 = 51;
+    @f static inline var parms9 = 52;
+    @f static inline var parms10 = 53;
+    @f static inline var parms11 = 53;
+    @f static inline var parms12 = 55;
+    @f static inline var parms13 = 56;
+    @f static inline var parms14 = 57;
+    @f static inline var parms15 = 58;
+
     @f static inline var v_forward = 59; // vec3
     @f static inline var v_forward1 = 60;
     @f static inline var v_forward2 = 61;

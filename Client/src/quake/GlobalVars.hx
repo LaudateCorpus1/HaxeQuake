@@ -47,4 +47,44 @@ class GlobalVars {
     public inline function GetInt(ofs:Int):Int {
         return ints[ofs];
     }
+
+    public inline function GetParms():Array<Float> {
+        return [
+            parms,
+            parms1,
+            parms2,
+            parms3,
+            parms4,
+            parms5,
+            parms6,
+            parms7,
+            parms8,
+            parms9,
+            parms10,
+            parms11,
+            parms12,
+            parms13,
+            parms14,
+            parms15
+        ];
+    }
+
+    public inline function SetParms(values:Array<Float>):Void {
+        parms = values[0];
+        parms1 = values[1];
+        parms2 = values[2];
+        parms3 = values[3];
+        parms4 = values[4];
+        parms5 = values[5];
+        parms6 = values[6];
+        parms7 = values[7];
+        parms8 = values[8];
+        parms9 = values[9];
+        parms10 = values[10];
+        parms11 = values[11];
+        parms12 = values[12];
+        parms13 = values[13];
+        parms14 = values[14];
+        parms15 = values[15];
+    }
 }

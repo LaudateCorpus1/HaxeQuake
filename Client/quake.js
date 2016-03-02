@@ -6067,11 +6067,24 @@ quake_Host.Spawn_f = function() {
 		ent._v_float[77] = ent.num;
 		ent._v_float[78] = (client.colors & 15) + 1;
 		ent._v_int[74] = quake_PR.netnames + (client.num << 5);
-		var _g2 = 0;
-		while(_g2 < 16) {
-			var i = _g2++;
-			quake_PR.globals.floats[43 + i] = client.spawn_parms[i];
-		}
+		var _this = quake_PR.globals;
+		var values = client.spawn_parms;
+		_this.floats[43] = values[0];
+		_this.floats[44] = values[1];
+		_this.floats[45] = values[2];
+		_this.floats[46] = values[3];
+		_this.floats[47] = values[4];
+		_this.floats[48] = values[5];
+		_this.floats[49] = values[6];
+		_this.floats[50] = values[7];
+		_this.floats[51] = values[8];
+		_this.floats[52] = values[9];
+		_this.floats[53] = values[10];
+		_this.floats[53] = values[11];
+		_this.floats[55] = values[12];
+		_this.floats[56] = values[13];
+		_this.floats[57] = values[14];
+		_this.floats[58] = values[15];
 		quake_PR.globals.floats[31] = quake_SV.server.time;
 		quake_PR.globals.ints[28] = ent.num;
 		quake_PR.ExecuteProgram(quake_PR.globals.ints[87]);
@@ -6085,26 +6098,26 @@ quake_Host.Spawn_f = function() {
 	message.WriteByte(7);
 	message.WriteFloat(quake_SV.server.time);
 	var _g11 = 0;
-	var _g3 = quake_SV.svs.maxclients;
-	while(_g11 < _g3) {
-		var i1 = _g11++;
-		client = quake_SV.svs.clients[i1];
+	var _g2 = quake_SV.svs.maxclients;
+	while(_g11 < _g2) {
+		var i = _g11++;
+		client = quake_SV.svs.clients[i];
 		message.WriteByte(13);
-		message.WriteByte(i1);
+		message.WriteByte(i);
 		message.WriteString(quake_PR.GetString(quake_PR.netnames + (client.num << 5)));
 		message.WriteByte(14);
-		message.WriteByte(i1);
+		message.WriteByte(i);
 		message.WriteShort(client.old_frags);
 		message.WriteByte(17);
-		message.WriteByte(i1);
+		message.WriteByte(i);
 		message.WriteByte(client.colors);
 	}
-	var _g4 = 0;
-	while(_g4 < 64) {
-		var i2 = _g4++;
+	var _g3 = 0;
+	while(_g3 < 64) {
+		var i1 = _g3++;
 		message.WriteByte(12);
-		message.WriteByte(i2);
-		message.WriteString(quake_SV.server.lightstyles[i2]);
+		message.WriteByte(i1);
+		message.WriteString(quake_SV.server.lightstyles[i1]);
 	}
 	message.WriteByte(3);
 	message.WriteByte(11);
@@ -12062,11 +12075,8 @@ quake_SV.ConnectClient = function(clientnum) {
 		}
 	} else {
 		quake_PR.ExecuteProgram(quake_PR.globals.ints[90]);
-		var _g2 = 0;
-		while(_g2 < 16) {
-			var i2 = _g2++;
-			client.spawn_parms[i2] = quake_PR.globals.floats[43 + i2];
-		}
+		var _this = quake_PR.globals;
+		client.spawn_parms = [_this.floats[43],_this.floats[44],_this.floats[45],_this.floats[46],_this.floats[47],_this.floats[48],_this.floats[49],_this.floats[50],_this.floats[51],_this.floats[52],_this.floats[53],_this.floats[53],_this.floats[55],_this.floats[56],_this.floats[57],_this.floats[58]];
 	}
 	quake_SV.SendServerinfo(client);
 };
@@ -12539,11 +12549,8 @@ quake_SV.SaveSpawnparms = function() {
 		}
 		quake_PR.globals.ints[28] = quake_Host.client.edict.num;
 		quake_PR.ExecuteProgram(quake_PR.globals.ints[91]);
-		var _g2 = 0;
-		while(_g2 < 16) {
-			var j = _g2++;
-			quake_Host.client.spawn_parms[j] = quake_PR.globals.floats[43 + j];
-		}
+		var _this = quake_PR.globals;
+		quake_Host.client.spawn_parms = [_this.floats[43],_this.floats[44],_this.floats[45],_this.floats[46],_this.floats[47],_this.floats[48],_this.floats[49],_this.floats[50],_this.floats[51],_this.floats[52],_this.floats[53],_this.floats[53],_this.floats[55],_this.floats[56],_this.floats[57],_this.floats[58]];
 	}
 };
 quake_SV.SpawnServer = function(map) {
@@ -17302,12 +17309,24 @@ quake_PF.setspawnparms = function() {
 	if(i <= 0 || i > quake_SV.svs.maxclients) {
 		quake_PR.RunError("Entity is not a client");
 	}
-	var spawn_parms = quake_SV.svs.clients[i - 1].spawn_parms;
-	var _g = 0;
-	while(_g < 16) {
-		var i1 = _g++;
-		quake_PR.globals.floats[43 + i1] = spawn_parms[i1];
-	}
+	var _this = quake_PR.globals;
+	var values = quake_SV.svs.clients[i - 1].spawn_parms;
+	_this.floats[43] = values[0];
+	_this.floats[44] = values[1];
+	_this.floats[45] = values[2];
+	_this.floats[46] = values[3];
+	_this.floats[47] = values[4];
+	_this.floats[48] = values[5];
+	_this.floats[49] = values[6];
+	_this.floats[50] = values[7];
+	_this.floats[51] = values[8];
+	_this.floats[52] = values[9];
+	_this.floats[53] = values[10];
+	_this.floats[53] = values[11];
+	_this.floats[55] = values[12];
+	_this.floats[56] = values[13];
+	_this.floats[57] = values[14];
+	_this.floats[58] = values[15];
 };
 quake_PF.changelevel = function() {
 	if(quake_SV.svs.changelevel_issued) {

@@ -657,9 +657,7 @@ class PF {
         var i = PR.globals.ints[4];
         if ((i <= 0) || (i > SV.svs.maxclients))
             PR.RunError('Entity is not a client');
-        var spawn_parms = SV.svs.clients[i - 1].spawn_parms;
-        for (i in 0...16)
-            PR.globals.floats[GlobalVarOfs.parms + i] = spawn_parms[i];
+        PR.globals.SetParms(SV.svs.clients[i - 1].spawn_parms);
     }
 
     static function changelevel() {

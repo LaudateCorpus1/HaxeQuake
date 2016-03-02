@@ -7,7 +7,7 @@ import haxe.macro.Type;
 class GlobalVarsMacro {
     static function build():Array<Field> {
         var fields = Context.getBuildFields();
-        switch (Context.getType("GlobalVarOfs")) {
+        switch (Context.getType("quake.GlobalVars.GlobalVarOfs")) {
             case TInst(_.get() => cl, _):
                 for (field in cl.statics.get()) {
                     var fieldName = field.name;

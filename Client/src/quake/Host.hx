@@ -662,15 +662,15 @@ class Host {
                     continue;
                 var type = def.type & 0x7fff;
                 var v = def.ofs;
-                if (ed._v_int[v] == 0) {
+                if (ed.v.ints[v] == 0) {
                     if (type == 3) {
-                        if ((ed._v_int[v + 1] == 0) && (ed._v_int[v + 2] == 0))
+                        if ((ed.v.ints[v + 1] == 0) && (ed.v.ints[v + 2] == 0))
                             continue;
                     }
                     else
                         continue;
                 }
-                f.push('"' + name + '" "' + PR.UglyValueString(type, ed._v, def.ofs) + '"\n');
+                f.push('"' + name + '" "' + PR.UglyValueString(type, ed.v.buffer, def.ofs) + '"\n');
             }
             f.push('}\n');
         }
@@ -756,7 +756,7 @@ class Host {
                 Sys.Error('Host.Loadgame_f: found ' + COM.token + ' when expecting {');
             var ent = SV.server.edicts[entnum++];
             for (j in 0...PR.entityfields)
-                ent._v_int[j] = 0;
+                ent.v.ints[j] = 0;
             ent.free = false;
             data = ED.ParseEdict(data, ent);
             if (!ent.free)
@@ -965,7 +965,7 @@ class Host {
             SV.server.paused = false;
         else {
             for (i in 0...PR.entityfields)
-                ent._v_int[i] = 0;
+                ent.v.ints[i] = 0;
             ent.v.colormap = ent.num;
             ent.v.team = (client.colors & 15) + 1;
             ent.v.netname = PR.netnames + (client.num << 5);

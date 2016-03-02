@@ -3792,16 +3792,16 @@ quake_ED.Alloc = function() {
 quake_ED.Free = function(ed) {
 	quake_SV.UnlinkEdict(ed);
 	ed.free = true;
-	ed._v_int[29] = 0;
-	ed._v_float[59] = 0.0;
-	ed._v_float[0] = 0.0;
-	ed._v_float[77] = 0.0;
-	ed._v_float[31] = 0.0;
-	ed._v_float[30] = 0.0;
-	ed._v_float.set(quake__$Vec_Vec_$Impl_$.origin,10);
-	ed._v_float.set(quake__$Vec_Vec_$Impl_$.origin,19);
-	ed._v_float[46] = -1.0;
-	ed._v_float[9] = 0.0;
+	ed.v.ints[29] = 0;
+	ed.v.floats[59] = 0.0;
+	ed.v.floats[0] = 0.0;
+	ed.v.floats[77] = 0.0;
+	ed.v.floats[31] = 0.0;
+	ed.v.floats[30] = 0.0;
+	ed.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,10);
+	ed.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,19);
+	ed.v.floats[46] = -1.0;
+	ed.v.floats[9] = 0.0;
 	ed.freetime = quake_SV.server.time;
 };
 quake_ED.GlobalAtOfs = function(ofs) {
@@ -3878,9 +3878,9 @@ quake_ED.Print = function(ed) {
 			continue;
 		}
 		var v = d.ofs;
-		if(ed._v_int[v] == 0) {
+		if(ed.v.ints[v] == 0) {
 			if((d.type & 32767) == 3) {
-				if(ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0) {
+				if(ed.v.ints[v + 1] == 0 && ed.v.ints[v + 2] == 0) {
 					continue;
 				}
 			} else {
@@ -3888,7 +3888,7 @@ quake_ED.Print = function(ed) {
 			}
 		}
 		while(name.length <= 14) name += " ";
-		quake_Console.Print(name + quake_PR.ValueString(d.type,ed._v,v) + "\n");
+		quake_Console.Print(name + quake_PR.ValueString(d.type,ed.v.buffer,v) + "\n");
 	}
 };
 quake_ED.PrintEdicts = function() {
@@ -3925,13 +3925,13 @@ quake_ED.Count = function() {
 			continue;
 		}
 		++active;
-		if(ent._v_float[9] != 0.0) {
+		if(ent.v.floats[9] != 0.0) {
 			++solid;
 		}
-		if(ent._v_int[29] != 0) {
+		if(ent.v.ints[29] != 0) {
 			++models;
 		}
-		if(ent._v_float[8] == 4) {
+		if(ent.v.floats[8] == 4) {
 			++step;
 		}
 	}
@@ -4000,7 +4000,7 @@ quake_ED.ParseEdict = function(data,ent) {
 	if(ent != quake_SV.server.edicts[0]) {
 		var _g1 = 0;
 		var _g = quake_PR.entityfields;
-		while(_g1 < _g) ent._v_int[_g1++] = 0;
+		while(_g1 < _g) ent.v.ints[_g1++] = 0;
 	}
 	var init = false;
 	while(true) {
@@ -4048,7 +4048,7 @@ quake_ED.ParseEdict = function(data,ent) {
 		if(anglehack) {
 			quake_COM.token = "0 " + quake_COM.token + " 0";
 		}
-		if(!quake_ED.ParseEpair(ent._v,key,quake_COM.token)) {
+		if(!quake_ED.ParseEpair(ent.v.buffer,key,quake_COM.token)) {
 			quake_Host.Error("ED.ParseEdict: parse error");
 		}
 	}
@@ -4075,7 +4075,7 @@ quake_ED.LoadFromFile = function(data) {
 			ent = quake_ED.Alloc();
 		}
 		data = quake_ED.ParseEdict(data,ent);
-		var spawnflags = ent._v_float[89] | 0;
+		var spawnflags = ent.v.floats[89] | 0;
 		if(quake_Host.deathmatch.value != 0) {
 			if((spawnflags & 2048) != 0) {
 				quake_ED.Free(ent);
@@ -4087,13 +4087,13 @@ quake_ED.LoadFromFile = function(data) {
 			++inhibit;
 			continue;
 		}
-		if(ent._v_int[28] == 0) {
+		if(ent.v.ints[28] == 0) {
 			quake_Console.Print("No classname for:\n");
 			quake_ED.Print(ent);
 			quake_ED.Free(ent);
 			continue;
 		}
-		var func = quake_ED.FindFunction(quake_PR.GetString(ent._v_int[28]));
+		var func = quake_ED.FindFunction(quake_PR.GetString(ent.v.ints[28]));
 		if(func == null) {
 			quake_Console.Print("No spawn function for:\n");
 			quake_ED.Print(ent);
@@ -4113,16 +4113,14 @@ var quake_Edict = function(num) {
 	this.leafnums = [];
 	this.baseline = new quake_EntityState();
 	this.freetime = 0.0;
-	this._v = new ArrayBuffer(quake_PR.entityfields << 2);
-	this._v_float = new Float32Array(this._v);
-	this._v_int = new Int32Array(this._v);
+	this.v = new quake_EdictVars(new ArrayBuffer(quake_PR.entityfields << 2));
 };
 quake_Edict.__name__ = true;
 quake_Edict.prototype = {
 	Clear: function() {
 		var _g1 = 0;
 		var _g = quake_PR.entityfields;
-		while(_g1 < _g) this._v_int[_g1++] = 0;
+		while(_g1 < _g) this.v.ints[_g1++] = 0;
 		this.free = false;
 	}
 	,__class__: quake_Edict
@@ -4135,6 +4133,15 @@ quake_EdictLink.prototype = {
 };
 var quake_EdictVarOfs = function() { };
 quake_EdictVarOfs.__name__ = true;
+var quake_EdictVars = function(buf) {
+	this.buffer = buf;
+	this.floats = new Float32Array(buf);
+	this.ints = new Int32Array(buf);
+};
+quake_EdictVars.__name__ = true;
+quake_EdictVars.prototype = {
+	__class__: quake_EdictVars
+};
 var quake_Entity = function(n) {
 	if(n == null) {
 		n = -1;
@@ -5458,7 +5465,7 @@ quake_Host.Status_f = function() {
 		if(!client.active) {
 			continue;
 		}
-		var frags = client.edict._v_float[49].toFixed(0);
+		var frags = client.edict.v.floats[49].toFixed(0);
 		if(frags.length == 1) {
 			frags = "  " + frags;
 		} else if(frags.length == 2) {
@@ -5506,8 +5513,8 @@ quake_Host.God_f = function() {
 	if(quake_PR.globals.floats[35] != 0) {
 		return;
 	}
-	quake_SV.player._v_float[76] = (quake_SV.player._v_float[76] | 0) ^ 64;
-	if(((quake_SV.player._v_float[76] | 0) & 64) == 0) {
+	quake_SV.player.v.floats[76] = (quake_SV.player.v.floats[76] | 0) ^ 64;
+	if(((quake_SV.player.v.floats[76] | 0) & 64) == 0) {
 		quake_Host.ClientPrint("godmode OFF\n");
 	} else {
 		quake_Host.ClientPrint("godmode ON\n");
@@ -5521,8 +5528,8 @@ quake_Host.Notarget_f = function() {
 	if(quake_PR.globals.floats[35] != 0) {
 		return;
 	}
-	quake_SV.player._v_float[76] = (quake_SV.player._v_float[76] | 0) ^ 128;
-	if(((quake_SV.player._v_float[76] | 0) & 128) == 0) {
+	quake_SV.player.v.floats[76] = (quake_SV.player.v.floats[76] | 0) ^ 128;
+	if(((quake_SV.player.v.floats[76] | 0) & 128) == 0) {
 		quake_Host.ClientPrint("notarget OFF\n");
 	} else {
 		quake_Host.ClientPrint("notarget ON\n");
@@ -5536,14 +5543,14 @@ quake_Host.Noclip_f = function() {
 	if(quake_PR.globals.floats[35] != 0) {
 		return;
 	}
-	if(quake_SV.player._v_float[8] != 8) {
+	if(quake_SV.player.v.floats[8] != 8) {
 		quake_Host.noclip_anglehack = true;
-		quake_SV.player._v_float[8] = 8;
+		quake_SV.player.v.floats[8] = 8;
 		quake_Host.ClientPrint("noclip ON\n");
 		return;
 	}
 	quake_Host.noclip_anglehack = false;
-	quake_SV.player._v_float[8] = 3;
+	quake_SV.player.v.floats[8] = 3;
 	quake_Host.ClientPrint("noclip OFF\n");
 };
 quake_Host.Fly_f = function() {
@@ -5554,12 +5561,12 @@ quake_Host.Fly_f = function() {
 	if(quake_PR.globals.floats[35] != 0) {
 		return;
 	}
-	if(quake_SV.player._v_float[8] != 5) {
-		quake_SV.player._v_float[8] = 5;
+	if(quake_SV.player.v.floats[8] != 5) {
+		quake_SV.player.v.floats[8] = 5;
 		quake_Host.ClientPrint("flymode ON\n");
 		return;
 	}
-	quake_SV.player._v_float[8] = 3;
+	quake_SV.player.v.floats[8] = 3;
 	quake_Host.ClientPrint("flymode OFF\n");
 };
 quake_Host.Ping_f = function() {
@@ -5693,7 +5700,7 @@ quake_Host.Savegame_f = function() {
 	}
 	var client = quake_SV.svs.clients[0];
 	if(client.active) {
-		if(client.edict._v_float[48] <= 0.0) {
+		if(client.edict.v.floats[48] <= 0.0) {
 			quake_Console.Print("Can't savegame with a dead player\n");
 			return;
 		}
@@ -5750,16 +5757,16 @@ quake_Host.Savegame_f = function() {
 			}
 			var type2 = def1.type & 32767;
 			var v = def1.ofs;
-			if(ed._v_int[v] == 0) {
+			if(ed.v.ints[v] == 0) {
 				if(type2 == 3) {
-					if(ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0) {
+					if(ed.v.ints[v + 1] == 0 && ed.v.ints[v + 2] == 0) {
 						continue;
 					}
 				} else {
 					continue;
 				}
 			}
-			f.push("\"" + name + "\" \"" + quake_PR.UglyValueString(type2,ed._v,def1.ofs) + "\"\n");
+			f.push("\"" + name + "\" \"" + quake_PR.UglyValueString(type2,ed.v.buffer,def1.ofs) + "\"\n");
 		}
 		f.push("}\n");
 	}
@@ -5850,7 +5857,7 @@ quake_Host.Loadgame_f = function() {
 		var ent = quake_SV.server.edicts[entnum++];
 		var _g11 = 0;
 		var _g2 = quake_PR.entityfields;
-		while(_g11 < _g2) ent._v_int[_g11++] = 0;
+		while(_g11 < _g2) ent.v.ints[_g11++] = 0;
 		ent.free = false;
 		data = quake_ED.ParseEdict(data,ent);
 		if(!ent.free) {
@@ -5922,7 +5929,7 @@ quake_Host.Say = function(teamonly) {
 		if(!client.active || !client.spawned) {
 			continue;
 		}
-		if(quake_Host.teamplay.value != 0 && teamonly && client.edict._v_float[78] != save.edict._v_float[78]) {
+		if(quake_Host.teamplay.value != 0 && teamonly && client.edict.v.floats[78] != save.edict.v.floats[78]) {
 			continue;
 		}
 		quake_Host.client = client;
@@ -5999,7 +6006,7 @@ quake_Host.Color_f = function() {
 		return;
 	}
 	quake_Host.client.colors = playercolor;
-	quake_Host.client.edict._v_float[78] = bottom + 1;
+	quake_Host.client.edict.v.floats[78] = bottom + 1;
 	var msg = quake_SV.server.reliable_datagram;
 	msg.WriteByte(17);
 	msg.WriteByte(quake_Host.client.num);
@@ -6010,7 +6017,7 @@ quake_Host.Kill_f = function() {
 		quake_Cmd.ForwardToServer();
 		return;
 	}
-	if(quake_SV.player._v_float[48] <= 0.0) {
+	if(quake_SV.player.v.floats[48] <= 0.0) {
 		quake_Host.ClientPrint("Can't suicide -- already dead!\n");
 		return;
 	}
@@ -6063,10 +6070,10 @@ quake_Host.Spawn_f = function() {
 	} else {
 		var _g1 = 0;
 		var _g = quake_PR.entityfields;
-		while(_g1 < _g) ent._v_int[_g1++] = 0;
-		ent._v_float[77] = ent.num;
-		ent._v_float[78] = (client.colors & 15) + 1;
-		ent._v_int[74] = quake_PR.netnames + (client.num << 5);
+		while(_g1 < _g) ent.v.ints[_g1++] = 0;
+		ent.v.floats[77] = ent.num;
+		ent.v.floats[78] = (client.colors & 15) + 1;
+		ent.v.ints[74] = quake_PR.netnames + (client.num << 5);
 		var _this = quake_PR.globals;
 		var values = client.spawn_parms;
 		_this.floats[43] = values[0];
@@ -6132,8 +6139,8 @@ quake_Host.Spawn_f = function() {
 	message.WriteByte(14);
 	message.WriteLong(quake_PR.globals.floats[42] | 0);
 	message.WriteByte(10);
-	message.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
-	message.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
+	message.WriteByte((ent.v.floats[19] * 256 / 360 | 0) & 255);
+	message.WriteByte((ent.v.floats[20] * 256 / 360 | 0) & 255);
 	message.WriteByte((0. | 0) & 255);
 	quake_SV.WriteClientdataToMessage(ent,message);
 	message.WriteByte(25);
@@ -6244,46 +6251,46 @@ quake_Host.Give_f = function() {
 	if(t >= 48 && t <= 57) {
 		if(!quake_COM.hipnotic) {
 			if(t >= 50) {
-				ent._v_float[58] = ent._v_float[58] | 0 | quake_Def.it.shotgun << t - 50;
+				ent.v.floats[58] = ent.v.floats[58] | 0 | quake_Def.it.shotgun << t - 50;
 			}
 			return;
 		}
 		if(t == 54) {
 			if(HxOverrides.cca(quake_Cmd.argv[1],1) == 97) {
-				ent._v_float[58] = ent._v_float[58] | 0 | quake_Def.hit.proximity_gun;
+				ent.v.floats[58] = ent.v.floats[58] | 0 | quake_Def.hit.proximity_gun;
 			} else {
-				ent._v_float[58] = ent._v_float[58] | 0 | quake_Def.it.grenade_launcher;
+				ent.v.floats[58] = ent.v.floats[58] | 0 | quake_Def.it.grenade_launcher;
 			}
 			return;
 		}
 		if(t == 57) {
-			ent._v_float[58] = ent._v_float[58] | 0 | quake_Def.hit.laser_cannon;
+			ent.v.floats[58] = ent.v.floats[58] | 0 | quake_Def.hit.laser_cannon;
 		} else if(t == 48) {
-			ent._v_float[58] = ent._v_float[58] | 0 | quake_Def.hit.mjolnir;
+			ent.v.floats[58] = ent.v.floats[58] | 0 | quake_Def.hit.mjolnir;
 		} else if(t >= 50) {
-			ent._v_float[58] = ent._v_float[58] | 0 | quake_Def.it.shotgun << t - 50;
+			ent.v.floats[58] = ent.v.floats[58] | 0 | quake_Def.it.shotgun << t - 50;
 		}
 		return;
 	}
 	var v = quake_Q.atoi(quake_Cmd.argv[2]);
 	if(t == 104) {
-		ent._v_float[48] = v;
+		ent.v.floats[48] = v;
 		return;
 	}
 	if(!quake_COM.rogue) {
 		if(t != null) {
 			switch(t) {
 			case 115:
-				ent._v_float[54] = v;
+				ent.v.floats[54] = v;
 				break;
 			case 110:
-				ent._v_float[55] = v;
+				ent.v.floats[55] = v;
 				break;
 			case 114:
-				ent._v_float[56] = v;
+				ent.v.floats[56] = v;
 				break;
 			case 99:
-				ent._v_float[57] = v;
+				ent.v.floats[57] = v;
 				break;
 			}
 		}
@@ -6293,55 +6300,55 @@ quake_Host.Give_f = function() {
 		switch(t) {
 		case 115:
 			if(quake_EdictVarOfs.ammo_shells1 != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_shells1] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_shells1] = v;
 			}
-			ent._v_float[54] = v;
+			ent.v.floats[54] = v;
 			break;
 		case 110:
 			if(quake_EdictVarOfs.ammo_nails1 != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_nails1] = v;
-				if(ent._v_float[50] <= quake_Def.it.lightning) {
-					ent._v_float[55] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_nails1] = v;
+				if(ent.v.floats[50] <= quake_Def.it.lightning) {
+					ent.v.floats[55] = v;
 				}
 			}
 			break;
 		case 108:
 			if(quake_EdictVarOfs.ammo_lava_nails != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_lava_nails] = v;
-				if(ent._v_float[50] > quake_Def.it.lightning) {
-					ent._v_float[55] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_lava_nails] = v;
+				if(ent.v.floats[50] > quake_Def.it.lightning) {
+					ent.v.floats[55] = v;
 				}
 			}
 			break;
 		case 114:
 			if(quake_EdictVarOfs.ammo_rockets1 != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_rockets1] = v;
-				if(ent._v_float[50] <= quake_Def.it.lightning) {
-					ent._v_float[56] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_rockets1] = v;
+				if(ent.v.floats[50] <= quake_Def.it.lightning) {
+					ent.v.floats[56] = v;
 				}
 			}
 			break;
 		case 109:
 			if(quake_EdictVarOfs.ammo_multi_rockets != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_multi_rockets] = v;
-				if(ent._v_float[50] > quake_Def.it.lightning) {
-					ent._v_float[56] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_multi_rockets] = v;
+				if(ent.v.floats[50] > quake_Def.it.lightning) {
+					ent.v.floats[56] = v;
 				}
 			}
 			break;
 		case 99:
 			if(quake_EdictVarOfs.ammo_cells1 != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_cells1] = v;
-				if(ent._v_float[50] <= quake_Def.it.lightning) {
-					ent._v_float[57] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_cells1] = v;
+				if(ent.v.floats[50] <= quake_Def.it.lightning) {
+					ent.v.floats[57] = v;
 				}
 			}
 			break;
 		case 112:
 			if(quake_EdictVarOfs.ammo_plasma != null) {
-				ent._v_float[quake_EdictVarOfs.ammo_plasma] = v;
-				if(ent._v_float[50] > quake_Def.it.lightning) {
-					ent._v_float[57] = v;
+				ent.v.floats[quake_EdictVarOfs.ammo_plasma] = v;
+				if(ent.v.floats[50] > quake_Def.it.lightning) {
+					ent.v.floats[57] = v;
 				}
 			}
 			break;
@@ -6354,7 +6361,7 @@ quake_Host.FindViewthing = function() {
 		var _g = quake_SV.server.num_edicts;
 		while(_g1 < _g) {
 			var e = quake_SV.server.edicts[_g1++];
-			if(quake_PR.GetString(e._v_int[28]) == "viewthing") {
+			if(quake_PR.GetString(e.v.ints[28]) == "viewthing") {
 				return e;
 			}
 		}
@@ -6375,32 +6382,32 @@ quake_Host.Viewmodel_f = function() {
 		quake_Console.Print("Can't load " + quake_Cmd.argv[1] + "\n");
 		return;
 	}
-	ent._v_float[30] = 0.0;
-	quake_CL.state.model_precache[ent._v_float[0] | 0] = m;
+	ent.v.floats[30] = 0.0;
+	quake_CL.state.model_precache[ent.v.floats[0] | 0] = m;
 };
 quake_Host.Viewframe_f = function() {
 	var ent = quake_Host.FindViewthing();
 	if(ent == null) {
 		return;
 	}
-	var m = quake_CL.state.model_precache[ent._v_float[0] | 0];
+	var m = quake_CL.state.model_precache[ent.v.floats[0] | 0];
 	var f = quake_Q.atoi(quake_Cmd.argv[1]);
 	if(f >= m.frames.length) {
 		f = m.frames.length - 1;
 	}
-	ent._v_float[30] = f;
+	ent.v.floats[30] = f;
 };
 quake_Host.Viewnext_f = function() {
 	var ent = quake_Host.FindViewthing();
 	if(ent == null) {
 		return;
 	}
-	var m = quake_CL.state.model_precache[ent._v_float[0] | 0];
-	var f = (ent._v_float[30] | 0) + 1;
+	var m = quake_CL.state.model_precache[ent.v.floats[0] | 0];
+	var f = (ent.v.floats[30] | 0) + 1;
 	if(f >= m.frames.length) {
 		f = m.frames.length - 1;
 	}
-	ent._v_float[30] = f;
+	ent.v.floats[30] = f;
 	quake_Console.Print("frame " + f + ": " + m.frames[f].name + "\n");
 };
 quake_Host.Viewprev_f = function() {
@@ -6408,12 +6415,12 @@ quake_Host.Viewprev_f = function() {
 	if(ent == null) {
 		return;
 	}
-	var m = quake_CL.state.model_precache[ent._v_float[0] | 0];
-	var f = (ent._v_float[30] | 0) - 1;
+	var m = quake_CL.state.model_precache[ent.v.floats[0] | 0];
+	var f = (ent.v.floats[30] | 0) - 1;
 	if(f < 0) {
 		f = 0;
 	}
-	ent._v_float[30] = f;
+	ent.v.floats[30] = f;
 	quake_Console.Print("frame " + f + ": " + m.frames[f].name + "\n");
 };
 quake_Host.Startdemos_f = function() {
@@ -10283,14 +10290,14 @@ quake_PR.ExecuteProgram = function(fnum) {
 			break;
 		case 37:case 40:case 41:case 39:case 42:
 			var ptr = quake_PR.globals.ints[st.b];
-			quake_SV.server.edicts[Math.floor(ptr / quake_PR.edict_size)]._v_int[ptr % quake_PR.edict_size - 96 >> 2] = quake_PR.globals.ints[st.a];
+			quake_SV.server.edicts[Math.floor(ptr / quake_PR.edict_size)].v.ints[ptr % quake_PR.edict_size - 96 >> 2] = quake_PR.globals.ints[st.a];
 			break;
 		case 38:
 			var ed = quake_SV.server.edicts[Math.floor(quake_PR.globals.ints[st.b] / quake_PR.edict_size)];
 			var ptr1 = quake_PR.globals.ints[st.b] % quake_PR.edict_size - 96 >> 2;
-			ed._v_int[ptr1] = quake_PR.globals.ints[st.a];
-			ed._v_int[ptr1 + 1] = quake_PR.globals.ints[st.a + 1];
-			ed._v_int[ptr1 + 2] = quake_PR.globals.ints[st.a + 2];
+			ed.v.ints[ptr1] = quake_PR.globals.ints[st.a];
+			ed.v.ints[ptr1 + 1] = quake_PR.globals.ints[st.a + 1];
+			ed.v.ints[ptr1 + 2] = quake_PR.globals.ints[st.a + 2];
 			break;
 		case 30:
 			var ed1 = quake_PR.globals.ints[st.a];
@@ -10300,14 +10307,14 @@ quake_PR.ExecuteProgram = function(fnum) {
 			quake_PR.globals.ints[st.c] = ed1 * quake_PR.edict_size + 96 + (quake_PR.globals.ints[st.b] << 2);
 			break;
 		case 24:case 28:case 27:case 26:case 29:
-			quake_PR.globals.ints[st.c] = quake_SV.server.edicts[quake_PR.globals.ints[st.a]]._v_int[quake_PR.globals.ints[st.b]];
+			quake_PR.globals.ints[st.c] = quake_SV.server.edicts[quake_PR.globals.ints[st.a]].v.ints[quake_PR.globals.ints[st.b]];
 			break;
 		case 25:
 			var ed2 = quake_SV.server.edicts[quake_PR.globals.ints[st.a]];
 			var ptr2 = quake_PR.globals.ints[st.b];
-			quake_PR.globals.ints[st.c] = ed2._v_int[ptr2];
-			quake_PR.globals.ints[st.c + 1] = ed2._v_int[ptr2 + 1];
-			quake_PR.globals.ints[st.c + 2] = ed2._v_int[ptr2 + 2];
+			quake_PR.globals.ints[st.c] = ed2.v.ints[ptr2];
+			quake_PR.globals.ints[st.c + 1] = ed2.v.ints[ptr2 + 1];
+			quake_PR.globals.ints[st.c + 2] = ed2.v.ints[ptr2 + 2];
 			break;
 		case 50:
 			if(quake_PR.globals.ints[st.a] == 0) {
@@ -10350,9 +10357,9 @@ quake_PR.ExecuteProgram = function(fnum) {
 			break;
 		case 60:
 			var ed3 = quake_SV.server.edicts[quake_PR.globals.ints[28]];
-			ed3._v_float[46] = quake_PR.globals.floats[31] + 0.1;
-			ed3._v_float[30] = quake_PR.globals.floats[st.a];
-			ed3._v_int[44] = quake_PR.globals.ints[st.b];
+			ed3.v.floats[46] = quake_PR.globals.floats[31] + 0.1;
+			ed3.v.floats[30] = quake_PR.globals.floats[st.a];
+			ed3.v.ints[44] = quake_PR.globals.ints[st.b];
 			break;
 		default:
 			quake_PR.RunError("Bad opcode " + st.op);
@@ -12005,9 +12012,9 @@ quake_SV.StartSound = function(entity,channel,sample,volume,attenuation) {
 	}
 	datagram.WriteShort((entity.num << 3) + channel);
 	datagram.WriteByte(i);
-	datagram.WriteShort((entity._v_float[10] + 0.5 * (entity._v_float[33] + entity._v_float[36])) * 8 | 0);
-	datagram.WriteShort((entity._v_float[11] + 0.5 * (entity._v_float[34] + entity._v_float[37])) * 8 | 0);
-	datagram.WriteShort((entity._v_float[12] + 0.5 * (entity._v_float[35] + entity._v_float[38])) * 8 | 0);
+	datagram.WriteShort((entity.v.floats[10] + 0.5 * (entity.v.floats[33] + entity.v.floats[36])) * 8 | 0);
+	datagram.WriteShort((entity.v.floats[11] + 0.5 * (entity.v.floats[34] + entity.v.floats[37])) * 8 | 0);
+	datagram.WriteShort((entity.v.floats[12] + 0.5 * (entity.v.floats[35] + entity.v.floats[38])) * 8 | 0);
 };
 quake_SV.SendServerinfo = function(client) {
 	var message = client.message;
@@ -12017,7 +12024,7 @@ quake_SV.SendServerinfo = function(client) {
 	message.WriteLong(15);
 	message.WriteByte(quake_SV.svs.maxclients);
 	message.WriteByte(quake_Host.coop.value == 0 && quake_Host.deathmatch.value != 0?1:0);
-	message.WriteString(quake_PR.GetString(quake_SV.server.edicts[0]._v_int[99]));
+	message.WriteString(quake_PR.GetString(quake_SV.server.edicts[0].v.ints[99]));
 	var _g1 = 1;
 	var _g = quake_SV.server.model_precache.length;
 	while(_g1 < _g) message.WriteString(quake_SV.server.model_precache[_g1++]);
@@ -12027,8 +12034,8 @@ quake_SV.SendServerinfo = function(client) {
 	while(_g11 < _g2) message.WriteString(quake_SV.server.sound_precache[_g11++]);
 	message.WriteByte(0);
 	message.WriteByte(32);
-	message.WriteByte(quake_SV.server.edicts[0]._v_float[100] | 0);
-	message.WriteByte(quake_SV.server.edicts[0]._v_float[100] | 0);
+	message.WriteByte(quake_SV.server.edicts[0].v.floats[100] | 0);
+	message.WriteByte(quake_SV.server.edicts[0].v.floats[100] | 0);
 	message.WriteByte(5);
 	message.WriteShort(client.edict.num);
 	message.WriteByte(25);
@@ -12058,7 +12065,7 @@ quake_SV.ConnectClient = function(clientnum) {
 	client.wishdir = new Float32Array(3);
 	client.message.cursize = 0;
 	client.edict = quake_SV.server.edicts[clientnum + 1];
-	client.edict._v_int[74] = quake_PR.netnames + (clientnum << 5);
+	client.edict.v.ints[74] = quake_PR.netnames + (clientnum << 5);
 	quake_SV.SetClientName(client,"unconnected");
 	client.colors = 0;
 	client.ping_times = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
@@ -12135,13 +12142,10 @@ quake_SV.FatPVS = function(org) {
 	quake_SV.AddToFatPVS(org,quake_SV.server.worldmodel.nodes[0]);
 };
 quake_SV.WriteEntitiesToClient = function(clent,msg) {
-	var x = clent._v_float[10] + clent._v_float[62];
-	var y = clent._v_float[11] + clent._v_float[63];
-	var z = clent._v_float[12] + clent._v_float[64];
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = clent.v.floats[10] + clent.v.floats[62];
+	v[1] = clent.v.floats[11] + clent.v.floats[63];
+	v[2] = clent.v.floats[12] + clent.v.floats[64];
 	quake_SV.FatPVS(v);
 	var pvs = quake_SV.fatpvs;
 	var _g1 = 1;
@@ -12150,7 +12154,7 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		var e = _g1++;
 		var ent = quake_SV.server.edicts[e];
 		if(ent != clent) {
-			if(ent._v_float[0] == 0.0 || quake_PR.strings[ent._v_int[29]] == 0) {
+			if(ent.v.floats[0] == 0.0 || quake_PR.strings[ent.v.ints[29]] == 0) {
 				continue;
 			}
 			var i = 0;
@@ -12172,36 +12176,36 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 		var _g2 = 0;
 		while(_g2 < 3) {
 			var i1 = _g2++;
-			var miss = ent._v_float[10 + i1] - ent.baseline.origin[i1];
+			var miss = ent.v.floats[10 + i1] - ent.baseline.origin[i1];
 			if(miss < -0.1 || miss > 0.1) {
 				bits += 2 << i1;
 			}
 		}
-		if(ent._v_float[19] != ent.baseline.angles[0]) {
+		if(ent.v.floats[19] != ent.baseline.angles[0]) {
 			bits += 256;
 		}
-		if(ent._v_float[20] != ent.baseline.angles[1]) {
+		if(ent.v.floats[20] != ent.baseline.angles[1]) {
 			bits += 16;
 		}
-		if(ent._v_float[21] != ent.baseline.angles[2]) {
+		if(ent.v.floats[21] != ent.baseline.angles[2]) {
 			bits += 512;
 		}
-		if(ent._v_float[8] == 4) {
+		if(ent.v.floats[8] == 4) {
 			bits += 32;
 		}
-		if(ent.baseline.colormap != ent._v_float[77]) {
+		if(ent.baseline.colormap != ent.v.floats[77]) {
 			bits += 2048;
 		}
-		if(ent.baseline.skin != ent._v_float[31]) {
+		if(ent.baseline.skin != ent.v.floats[31]) {
 			bits += 4096;
 		}
-		if(ent.baseline.frame != ent._v_float[30]) {
+		if(ent.baseline.frame != ent.v.floats[30]) {
 			bits += 64;
 		}
-		if(ent.baseline.effects != ent._v_float[32]) {
+		if(ent.baseline.effects != ent.v.floats[32]) {
 			bits += 8192;
 		}
-		if(ent.baseline.modelindex != ent._v_float[0]) {
+		if(ent.baseline.modelindex != ent.v.floats[0]) {
 			bits += 1024;
 		}
 		if(e >= 256) {
@@ -12220,143 +12224,143 @@ quake_SV.WriteEntitiesToClient = function(clent,msg) {
 			msg.WriteByte(e);
 		}
 		if((bits & 1024) != 0) {
-			msg.WriteByte(ent._v_float[0] | 0);
+			msg.WriteByte(ent.v.floats[0] | 0);
 		}
 		if((bits & 64) != 0) {
-			msg.WriteByte(ent._v_float[30] | 0);
+			msg.WriteByte(ent.v.floats[30] | 0);
 		}
 		if((bits & 2048) != 0) {
-			msg.WriteByte(ent._v_float[77] | 0);
+			msg.WriteByte(ent.v.floats[77] | 0);
 		}
 		if((bits & 4096) != 0) {
-			msg.WriteByte(ent._v_float[31] | 0);
+			msg.WriteByte(ent.v.floats[31] | 0);
 		}
 		if((bits & 8192) != 0) {
-			msg.WriteByte(ent._v_float[32] | 0);
+			msg.WriteByte(ent.v.floats[32] | 0);
 		}
 		if((bits & 2) != 0) {
-			msg.WriteShort(ent._v_float[10] * 8 | 0);
+			msg.WriteShort(ent.v.floats[10] * 8 | 0);
 		}
 		if((bits & 256) != 0) {
-			msg.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
+			msg.WriteByte((ent.v.floats[19] * 256 / 360 | 0) & 255);
 		}
 		if((bits & 4) != 0) {
-			msg.WriteShort(ent._v_float[11] * 8 | 0);
+			msg.WriteShort(ent.v.floats[11] * 8 | 0);
 		}
 		if((bits & 16) != 0) {
-			msg.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
+			msg.WriteByte((ent.v.floats[20] * 256 / 360 | 0) & 255);
 		}
 		if((bits & 8) != 0) {
-			msg.WriteShort(ent._v_float[12] * 8 | 0);
+			msg.WriteShort(ent.v.floats[12] * 8 | 0);
 		}
 		if((bits & 512) != 0) {
-			msg.WriteByte((ent._v_float[21] * 256 / 360 | 0) & 255);
+			msg.WriteByte((ent.v.floats[21] * 256 / 360 | 0) & 255);
 		}
 	}
 };
 quake_SV.WriteClientdataToMessage = function(ent,msg) {
-	if(ent._v_float[92] != 0.0 || ent._v_float[93] != 0.0) {
-		var other = quake_SV.server.edicts[ent._v_int[94]];
+	if(ent.v.floats[92] != 0.0 || ent.v.floats[93] != 0.0) {
+		var other = quake_SV.server.edicts[ent.v.ints[94]];
 		msg.WriteByte(19);
-		msg.WriteByte(ent._v_float[93] | 0);
-		msg.WriteByte(ent._v_float[92] | 0);
-		msg.WriteShort((other._v_float[10] + 0.5 * (other._v_float[33] + other._v_float[36])) * 8 | 0);
-		msg.WriteShort((other._v_float[11] + 0.5 * (other._v_float[34] + other._v_float[37])) * 8 | 0);
-		msg.WriteShort((other._v_float[12] + 0.5 * (other._v_float[35] + other._v_float[38])) * 8 | 0);
-		ent._v_float[92] = 0.0;
-		ent._v_float[93] = 0.0;
+		msg.WriteByte(ent.v.floats[93] | 0);
+		msg.WriteByte(ent.v.floats[92] | 0);
+		msg.WriteShort((other.v.floats[10] + 0.5 * (other.v.floats[33] + other.v.floats[36])) * 8 | 0);
+		msg.WriteShort((other.v.floats[11] + 0.5 * (other.v.floats[34] + other.v.floats[37])) * 8 | 0);
+		msg.WriteShort((other.v.floats[12] + 0.5 * (other.v.floats[35] + other.v.floats[38])) * 8 | 0);
+		ent.v.floats[92] = 0.0;
+		ent.v.floats[93] = 0.0;
 	}
 	quake_SV.SetIdealPitch();
-	if(ent._v_float[69] != 0.0) {
+	if(ent.v.floats[69] != 0.0) {
 		msg.WriteByte(10);
-		msg.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
-		msg.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
-		msg.WriteByte((ent._v_float[21] * 256 / 360 | 0) & 255);
-		ent._v_float[69] = 0.0;
+		msg.WriteByte((ent.v.floats[19] * 256 / 360 | 0) & 255);
+		msg.WriteByte((ent.v.floats[20] * 256 / 360 | 0) & 255);
+		msg.WriteByte((ent.v.floats[21] * 256 / 360 | 0) & 255);
+		ent.v.floats[69] = 0.0;
 	}
 	var bits = 512 + 16384;
-	if(ent._v_float[64] != 22) {
+	if(ent.v.floats[64] != 22) {
 		bits = bits + 1;
 	}
-	if(ent._v_float[73] != 0.0) {
+	if(ent.v.floats[73] != 0.0) {
 		bits = bits + 2;
 	}
 	var val = quake_EdictVarOfs.items2;
-	var items = val != null?ent._v_float[val] != 0.0?(ent._v_float[58] | 0 | 0) + ((ent._v_float[val] | 0) << 23):(ent._v_float[58] | 0 | 0) + ((quake_PR.globals.floats[38] | 0) << 28):(ent._v_float[58] | 0 | 0) + ((quake_PR.globals.floats[38] | 0) << 28);
-	if(((ent._v_float[76] | 0) & 512) != 0) {
+	var items = val != null?ent.v.floats[val] != 0.0?(ent.v.floats[58] | 0 | 0) + ((ent.v.floats[val] | 0) << 23):(ent.v.floats[58] | 0 | 0) + ((quake_PR.globals.floats[38] | 0) << 28):(ent.v.floats[58] | 0 | 0) + ((quake_PR.globals.floats[38] | 0) << 28);
+	if(((ent.v.floats[76] | 0) & 512) != 0) {
 		bits = bits + 1024;
 	}
-	if(ent._v_float[83] >= 2.0) {
+	if(ent.v.floats[83] >= 2.0) {
 		bits = bits + 2048;
 	}
-	if(ent._v_float[25] != 0.0) {
+	if(ent.v.floats[25] != 0.0) {
 		bits = bits + 4;
 	}
-	if(ent._v_float[16] != 0.0) {
+	if(ent.v.floats[16] != 0.0) {
 		bits = bits + 32;
 	}
-	if(ent._v_float[26] != 0.0) {
+	if(ent.v.floats[26] != 0.0) {
 		bits = bits + 8;
 	}
-	if(ent._v_float[17] != 0.0) {
+	if(ent.v.floats[17] != 0.0) {
 		bits = bits + 64;
 	}
-	if(ent._v_float[27] != 0.0) {
+	if(ent.v.floats[27] != 0.0) {
 		bits = bits + 16;
 	}
-	if(ent._v_float[18] != 0.0) {
+	if(ent.v.floats[18] != 0.0) {
 		bits = bits + 128;
 	}
-	if(ent._v_float[52] != 0.0) {
+	if(ent.v.floats[52] != 0.0) {
 		bits = bits + 4096;
 	}
-	if(ent._v_float[82] != 0.0) {
+	if(ent.v.floats[82] != 0.0) {
 		bits = bits + 8192;
 	}
 	msg.WriteByte(15);
 	msg.WriteShort(bits);
 	if((bits & 1) != 0) {
-		msg.WriteChar(ent._v_float[64] | 0);
+		msg.WriteChar(ent.v.floats[64] | 0);
 	}
 	if((bits & 2) != 0) {
-		msg.WriteChar(ent._v_float[73] | 0);
+		msg.WriteChar(ent.v.floats[73] | 0);
 	}
 	if((bits & 4) != 0) {
-		msg.WriteChar(ent._v_float[25] | 0);
+		msg.WriteChar(ent.v.floats[25] | 0);
 	}
 	if((bits & 32) != 0) {
-		msg.WriteChar(ent._v_float[16] * 0.0625 | 0);
+		msg.WriteChar(ent.v.floats[16] * 0.0625 | 0);
 	}
 	if((bits & 8) != 0) {
-		msg.WriteChar(ent._v_float[26] | 0);
+		msg.WriteChar(ent.v.floats[26] | 0);
 	}
 	if((bits & 64) != 0) {
-		msg.WriteChar(ent._v_float[17] * 0.0625 | 0);
+		msg.WriteChar(ent.v.floats[17] * 0.0625 | 0);
 	}
 	if((bits & 16) != 0) {
-		msg.WriteChar(ent._v_float[27] | 0);
+		msg.WriteChar(ent.v.floats[27] | 0);
 	}
 	if((bits & 128) != 0) {
-		msg.WriteChar(ent._v_float[18] * 0.0625 | 0);
+		msg.WriteChar(ent.v.floats[18] * 0.0625 | 0);
 	}
 	msg.WriteLong(items);
 	if((bits & 4096) != 0) {
-		msg.WriteByte(ent._v_float[52] | 0);
+		msg.WriteByte(ent.v.floats[52] | 0);
 	}
 	if((bits & 8192) != 0) {
-		msg.WriteByte(ent._v_float[82] | 0);
+		msg.WriteByte(ent.v.floats[82] | 0);
 	}
-	msg.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent._v_int[51])));
-	msg.WriteShort(ent._v_float[48] | 0);
-	msg.WriteByte(ent._v_float[53] | 0);
-	msg.WriteByte(ent._v_float[54] | 0);
-	msg.WriteByte(ent._v_float[55] | 0);
-	msg.WriteByte(ent._v_float[56] | 0);
-	msg.WriteByte(ent._v_float[57] | 0);
+	msg.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent.v.ints[51])));
+	msg.WriteShort(ent.v.floats[48] | 0);
+	msg.WriteByte(ent.v.floats[53] | 0);
+	msg.WriteByte(ent.v.floats[54] | 0);
+	msg.WriteByte(ent.v.floats[55] | 0);
+	msg.WriteByte(ent.v.floats[56] | 0);
+	msg.WriteByte(ent.v.floats[57] | 0);
 	if(quake_COM.standard_quake) {
-		msg.WriteByte(ent._v_float[50] | 0);
+		msg.WriteByte(ent.v.floats[50] | 0);
 	} else {
-		var weapon = ent._v_float[50] | 0;
+		var weapon = ent.v.floats[50] | 0;
 		var _g = 0;
 		while(_g < 32) {
 			var i = _g++;
@@ -12390,8 +12394,8 @@ quake_SV.UpdateToReliableMessages = function() {
 	while(_g1 < _g) {
 		var i = _g1++;
 		quake_Host.client = quake_SV.svs.clients[i];
-		var frags = quake_Host.client.edict._v_float[49] | 0;
-		quake_Host.client.edict._v_float[49] = frags;
+		var frags = quake_Host.client.edict.v.floats[49] | 0;
+		quake_Host.client.edict.v.floats[49] = frags;
 		if(quake_Host.client.old_frags == frags) {
 			continue;
 		}
@@ -12465,7 +12469,7 @@ quake_SV.SendClientMessages = function() {
 	var _g2 = quake_SV.server.num_edicts;
 	while(_g11 < _g2) {
 		var i = _g11++;
-		quake_SV.server.edicts[i]._v_float[32] = (quake_SV.server.edicts[i]._v_float[32] | 0) & ~2;
+		quake_SV.server.edicts[i].v.floats[32] = (quake_SV.server.edicts[i].v.floats[32] | 0) & ~2;
 	}
 };
 quake_SV.ModelIndex = function(name) {
@@ -12497,32 +12501,26 @@ quake_SV.CreateBaseline = function() {
 		if(svent.free) {
 			continue;
 		}
-		if(i > quake_SV.svs.maxclients && svent._v_float[0] == 0) {
+		if(i > quake_SV.svs.maxclients && svent.v.floats[0] == 0) {
 			continue;
 		}
 		var baseline = svent.baseline;
 		var this1 = baseline.origin;
-		var x = svent._v_float[10];
-		var y = svent._v_float[11];
-		var z = svent._v_float[12];
-		this1[0] = x;
-		this1[1] = y;
-		this1[2] = z;
+		this1[0] = svent.v.floats[10];
+		this1[1] = svent.v.floats[11];
+		this1[2] = svent.v.floats[12];
 		var this2 = baseline.angles;
-		var x1 = svent._v_float[19];
-		var y1 = svent._v_float[20];
-		var z1 = svent._v_float[21];
-		this2[0] = x1;
-		this2[1] = y1;
-		this2[2] = z1;
-		baseline.frame = svent._v_float[30] | 0;
-		baseline.skin = svent._v_float[31] | 0;
+		this2[0] = svent.v.floats[19];
+		this2[1] = svent.v.floats[20];
+		this2[2] = svent.v.floats[21];
+		baseline.frame = svent.v.floats[30] | 0;
+		baseline.skin = svent.v.floats[31] | 0;
 		if(i > 0 && i <= quake_SV.svs.maxclients) {
 			baseline.colormap = i;
 			baseline.modelindex = player;
 		} else {
 			baseline.colormap = 0;
-			baseline.modelindex = quake_SV.ModelIndex(quake_PR.GetString(svent._v_int[29]));
+			baseline.modelindex = quake_SV.ModelIndex(quake_PR.GetString(svent.v.ints[29]));
 		}
 		signon.WriteByte(22);
 		signon.WriteShort(i);
@@ -12623,10 +12621,10 @@ quake_SV.SpawnServer = function(map) {
 		quake_SV.server.lightstyles.push("");
 	}
 	var ent = quake_SV.server.edicts[0];
-	ent._v_int[29] = quake_PR.NewString(quake_SV.server.modelname,64);
-	ent._v_float[0] = 1.0;
-	ent._v_float[9] = 4;
-	ent._v_float[8] = 7;
+	ent.v.ints[29] = quake_PR.NewString(quake_SV.server.modelname,64);
+	ent.v.floats[0] = 1.0;
+	ent.v.floats[9] = 4;
+	ent.v.floats[8] = 7;
 	if(quake_Host.coop.value != 0) {
 		quake_PR.globals.floats[36] = quake_Host.coop.value;
 	} else {
@@ -12649,7 +12647,7 @@ quake_SV.SpawnServer = function(map) {
 		if(!quake_Host.client.active) {
 			continue;
 		}
-		quake_Host.client.edict._v_int[74] = quake_PR.netnames + (i2 << 5);
+		quake_Host.client.edict.v.ints[74] = quake_PR.netnames + (i2 << 5);
 		quake_SV.SendServerinfo(quake_Host.client);
 	}
 	quake_Console.DPrint("Server spawned.\n");
@@ -12664,11 +12662,11 @@ quake_SV.SetClientName = function(client,name) {
 	quake_PR.strings[ofs + i] = 0;
 };
 quake_SV.CheckBottom = function(ent) {
-	var mins_0 = ent._v_float[10] + ent._v_float[33];
-	var mins_1 = ent._v_float[11] + ent._v_float[34];
-	var mins_2 = ent._v_float[12] + ent._v_float[35];
-	var maxs_0 = ent._v_float[10] + ent._v_float[36];
-	var maxs_1 = ent._v_float[11] + ent._v_float[37];
+	var mins_0 = ent.v.floats[10] + ent.v.floats[33];
+	var mins_1 = ent.v.floats[11] + ent.v.floats[34];
+	var mins_2 = ent.v.floats[12] + ent.v.floats[35];
+	var maxs_0 = ent.v.floats[10] + ent.v.floats[36];
+	var maxs_1 = ent.v.floats[11] + ent.v.floats[37];
 	var tmp = mins_2 - 1.0;
 	while(true) {
 		var v = new Float32Array(3);
@@ -12736,35 +12734,35 @@ quake_SV.CheckBottom = function(ent) {
 	return true;
 };
 quake_SV.movestep = function(ent,move,relink) {
-	var oldorg = new Float32Array(ent._v_float.buffer.slice(40,52));
+	var oldorg = new Float32Array(ent.v.buffer.slice(40,52));
 	var neworg = new Float32Array(3);
-	var mins = new Float32Array(ent._v_float.buffer.slice(132,144));
-	var maxs = new Float32Array(ent._v_float.buffer.slice(144,156));
-	if(((ent._v_float[76] | 0) & 2 + 1) != 0) {
-		var enemy = ent._v_int[75];
+	var mins = new Float32Array(ent.v.buffer.slice(132,144));
+	var maxs = new Float32Array(ent.v.buffer.slice(144,156));
+	if(((ent.v.floats[76] | 0) & 2 + 1) != 0) {
+		var enemy = ent.v.ints[75];
 		var _g = 0;
 		var tmp = enemy != 0;
 		while(_g < 2) {
 			var i = _g++;
-			neworg[0] = ent._v_float[10] + move[0];
-			neworg[1] = ent._v_float[11] + move[1];
-			neworg[2] = ent._v_float[12];
+			neworg[0] = ent.v.floats[10] + move[0];
+			neworg[1] = ent.v.floats[11] + move[1];
+			neworg[2] = ent.v.floats[12];
 			if(i == 0 && tmp) {
-				var dz = ent._v_float[12] - quake_SV.server.edicts[enemy]._v_float[12];
+				var dz = ent.v.floats[12] - quake_SV.server.edicts[enemy].v.floats[12];
 				if(dz > 40.0) {
 					neworg[2] = neworg[2] - 8.0;
 				} else if(dz < 30.0) {
 					neworg[2] = neworg[2] + 8.0;
 				}
 			}
-			var trace = quake_SV.Move(new Float32Array(ent._v_float.buffer.slice(40,52)),mins,maxs,neworg,0,ent);
+			var trace = quake_SV.Move(new Float32Array(ent.v.buffer.slice(40,52)),mins,maxs,neworg,0,ent);
 			if(trace.fraction == 1.0) {
-				if(((ent._v_float[76] | 0) & 2) != 0 && quake_SV.PointContents(trace.endpos) == -1) {
+				if(((ent.v.floats[76] | 0) & 2) != 0 && quake_SV.PointContents(trace.endpos) == -1) {
 					return false;
 				}
-				ent._v_float[10] = trace.endpos[0];
-				ent._v_float[11] = trace.endpos[1];
-				ent._v_float[12] = trace.endpos[2];
+				ent.v.floats[10] = trace.endpos[0];
+				ent.v.floats[11] = trace.endpos[1];
+				ent.v.floats[12] = trace.endpos[2];
 				if(relink) {
 					quake_SV.LinkEdict(ent,true);
 				}
@@ -12776,9 +12774,9 @@ quake_SV.movestep = function(ent,move,relink) {
 		}
 		return false;
 	}
-	neworg[0] = ent._v_float[10] + move[0];
-	neworg[1] = ent._v_float[11] + move[1];
-	neworg[2] = ent._v_float[12] + 18.0;
+	neworg[0] = ent.v.floats[10] + move[0];
+	neworg[1] = ent.v.floats[11] + move[1];
+	neworg[2] = ent.v.floats[12] + 18.0;
 	var v = new Float32Array(3);
 	v[0] = neworg[0];
 	v[1] = neworg[1];
@@ -12795,46 +12793,46 @@ quake_SV.movestep = function(ent,move,relink) {
 		}
 	}
 	if(trace1.fraction == 1.0) {
-		if(((ent._v_float[76] | 0) & 1024) == 0) {
+		if(((ent.v.floats[76] | 0) & 1024) == 0) {
 			return false;
 		}
-		var _g1 = ent;
-		_g1._v_float[10] = _g1._v_float[10] + move[0];
-		var _g2 = ent;
-		_g2._v_float[11] = _g2._v_float[11] + move[1];
+		var _g1 = ent.v;
+		_g1.floats[10] = _g1.floats[10] + move[0];
+		var _g2 = ent.v;
+		_g2.floats[11] = _g2.floats[11] + move[1];
 		if(relink) {
 			quake_SV.LinkEdict(ent,true);
 		}
-		ent._v_float[76] = (ent._v_float[76] | 0) & ~512;
+		ent.v.floats[76] = (ent.v.floats[76] | 0) & ~512;
 		return true;
 	}
-	ent._v_float[10] = trace1.endpos[0];
-	ent._v_float[11] = trace1.endpos[1];
-	ent._v_float[12] = trace1.endpos[2];
+	ent.v.floats[10] = trace1.endpos[0];
+	ent.v.floats[11] = trace1.endpos[1];
+	ent.v.floats[12] = trace1.endpos[2];
 	if(!quake_SV.CheckBottom(ent)) {
-		if(((ent._v_float[76] | 0) & 1024) != 0) {
+		if(((ent.v.floats[76] | 0) & 1024) != 0) {
 			if(relink) {
 				quake_SV.LinkEdict(ent,true);
 			}
 			return true;
 		}
-		ent._v_float[10] = oldorg[0];
-		ent._v_float[11] = oldorg[1];
-		ent._v_float[12] = oldorg[2];
+		ent.v.floats[10] = oldorg[0];
+		ent.v.floats[11] = oldorg[1];
+		ent.v.floats[12] = oldorg[2];
 		return false;
 	}
-	ent._v_float[76] = (ent._v_float[76] | 0) & ~1024;
-	ent._v_int[47] = trace1.ent.num;
+	ent.v.floats[76] = (ent.v.floats[76] | 0) & ~1024;
+	ent.v.ints[47] = trace1.ent.num;
 	if(relink) {
 		quake_SV.LinkEdict(ent,true);
 	}
 	return true;
 };
 quake_SV.StepDirection = function(ent,yaw,dist) {
-	ent._v_float[85] = yaw;
+	ent.v.floats[85] = yaw;
 	quake_PF.changeyaw();
 	yaw *= Math.PI / 180.0;
-	var oldorigin = new Float32Array(ent._v_float.buffer.slice(40,52));
+	var oldorigin = new Float32Array(ent.v.buffer.slice(40,52));
 	var x = Math.cos(yaw) * dist;
 	var y = Math.sin(yaw) * dist;
 	var v = new Float32Array(3);
@@ -12842,9 +12840,9 @@ quake_SV.StepDirection = function(ent,yaw,dist) {
 	v[1] = y;
 	v[2] = 0;
 	if(quake_SV.movestep(ent,v,false)) {
-		var delta = ent._v_float[20] - ent._v_float[85];
+		var delta = ent.v.floats[20] - ent.v.floats[85];
 		if(delta > 45.0 && delta < 315.0) {
-			ent._v_float.set(oldorigin,10);
+			ent.v.floats.set(oldorigin,10);
 		}
 		quake_SV.LinkEdict(ent,true);
 		return true;
@@ -12853,10 +12851,10 @@ quake_SV.StepDirection = function(ent,yaw,dist) {
 	return false;
 };
 quake_SV.NewChaseDir = function(actor,enemy,dist) {
-	var olddir = quake__$Vec_Vec_$Impl_$.Anglemod((actor._v_float[85] / 45.0 | 0) * 45.0);
+	var olddir = quake__$Vec_Vec_$Impl_$.Anglemod((actor.v.floats[85] / 45.0 | 0) * 45.0);
 	var turnaround = quake__$Vec_Vec_$Impl_$.Anglemod(olddir - 180.0);
-	var deltax = enemy._v_float[10] - actor._v_float[10];
-	var deltay = enemy._v_float[11] - actor._v_float[11];
+	var deltax = enemy.v.floats[10] - actor.v.floats[10];
+	var deltay = enemy.v.floats[11] - actor.v.floats[11];
 	var dx;
 	var dy;
 	if(deltax > 10.0) {
@@ -12924,19 +12922,19 @@ quake_SV.NewChaseDir = function(actor,enemy,dist) {
 	if(turnaround != -1 && quake_SV.StepDirection(actor,turnaround,dist)) {
 		return;
 	}
-	actor._v_float[85] = olddir;
+	actor.v.floats[85] = olddir;
 	if(!quake_SV.CheckBottom(actor)) {
-		actor._v_float[76] = actor._v_float[76] | 0 | 1024;
+		actor.v.floats[76] = actor.v.floats[76] | 0 | 1024;
 	}
 };
 quake_SV.CloseEnough = function(ent,goal,dist) {
 	var _g = 0;
 	while(_g < 3) {
 		var i = _g++;
-		if(goal._v_float[1 + i] > ent._v_float[4 + i] + dist) {
+		if(goal.v.floats[1 + i] > ent.v.floats[4 + i] + dist) {
 			return false;
 		}
-		if(goal._v_float[4 + i] < ent._v_float[1 + i] - dist) {
+		if(goal.v.floats[4 + i] < ent.v.floats[1 + i] - dist) {
 			return false;
 		}
 	}
@@ -12946,51 +12944,51 @@ quake_SV.CheckVelocity = function(ent) {
 	var _g = 0;
 	while(_g < 3) {
 		var i = _g++;
-		var velocity = ent._v_float[16 + i];
+		var velocity = ent.v.floats[16 + i];
 		if(isNaN(velocity)) {
-			quake_Console.Print("Got a NaN velocity on " + quake_PR.GetString(ent._v_int[28]) + "\n");
+			quake_Console.Print("Got a NaN velocity on " + quake_PR.GetString(ent.v.ints[28]) + "\n");
 			velocity = 0.0;
 		}
-		if(isNaN(ent._v_float[10 + i])) {
-			quake_Console.Print("Got a NaN origin on " + quake_PR.GetString(ent._v_int[28]) + "\n");
-			ent._v_float[10 + i] = 0.0;
+		if(isNaN(ent.v.floats[10 + i])) {
+			quake_Console.Print("Got a NaN origin on " + quake_PR.GetString(ent.v.ints[28]) + "\n");
+			ent.v.floats[10 + i] = 0.0;
 		}
 		if(velocity > quake_SV.maxvelocity.value) {
 			velocity = quake_SV.maxvelocity.value;
 		} else if(velocity < -quake_SV.maxvelocity.value) {
 			velocity = -quake_SV.maxvelocity.value;
 		}
-		ent._v_float[16 + i] = velocity;
+		ent.v.floats[16 + i] = velocity;
 	}
 };
 quake_SV.RunThink = function(ent) {
-	var thinktime = ent._v_float[46];
+	var thinktime = ent.v.floats[46];
 	if(thinktime <= 0.0 || thinktime > quake_SV.server.time + quake_Host.frametime) {
 		return true;
 	}
 	if(thinktime < quake_SV.server.time) {
 		thinktime = quake_SV.server.time;
 	}
-	ent._v_float[46] = 0.0;
+	ent.v.floats[46] = 0.0;
 	quake_PR.globals.floats[31] = thinktime;
 	quake_PR.globals.ints[28] = ent.num;
 	quake_PR.globals.ints[29] = 0;
-	quake_PR.ExecuteProgram(ent._v_int[44]);
+	quake_PR.ExecuteProgram(ent.v.ints[44]);
 	return !ent.free;
 };
 quake_SV.Impact = function(e1,e2) {
 	var old_self = quake_PR.globals.ints[28];
 	var old_other = quake_PR.globals.ints[29];
 	quake_PR.globals.floats[31] = quake_SV.server.time;
-	if(e1._v_int[42] != 0 && e1._v_float[9] != 0) {
+	if(e1.v.ints[42] != 0 && e1.v.floats[9] != 0) {
 		quake_PR.globals.ints[28] = e1.num;
 		quake_PR.globals.ints[29] = e2.num;
-		quake_PR.ExecuteProgram(e1._v_int[42]);
+		quake_PR.ExecuteProgram(e1.v.ints[42]);
 	}
-	if(e2._v_int[42] != 0 && e2._v_float[9] != 0) {
+	if(e2.v.ints[42] != 0 && e2.v.floats[9] != 0) {
 		quake_PR.globals.ints[28] = e2.num;
 		quake_PR.globals.ints[29] = e1.num;
-		quake_PR.ExecuteProgram(e2._v_int[42]);
+		quake_PR.ExecuteProgram(e2.v.ints[42]);
 	}
 	quake_PR.globals.ints[28] = old_self;
 	quake_PR.globals.ints[29] = old_other;
@@ -13011,8 +13009,8 @@ quake_SV.ClipVelocity = function(vec,normal,out,overbounce) {
 	}
 };
 quake_SV.FlyMove = function(ent,time) {
-	var primal_velocity = new Float32Array(ent._v_float.buffer.slice(64,76));
-	var original_velocity = new Float32Array(ent._v_float.buffer.slice(64,76));
+	var primal_velocity = new Float32Array(ent.v.buffer.slice(64,76));
+	var original_velocity = new Float32Array(ent.v.buffer.slice(64,76));
 	var new_velocity = new Float32Array(3);
 	var end = new Float32Array(3);
 	var time_left = time;
@@ -13022,20 +13020,20 @@ quake_SV.FlyMove = function(ent,time) {
 	var _g = 0;
 	while(_g < 4) {
 		++_g;
-		if(ent._v_float[16] == 0.0 && ent._v_float[17] == 0.0 && ent._v_float[18] == 0.0) {
+		if(ent.v.floats[16] == 0.0 && ent.v.floats[17] == 0.0 && ent.v.floats[18] == 0.0) {
 			break;
 		}
-		end[0] = ent._v_float[10] + time_left * ent._v_float[16];
-		end[1] = ent._v_float[11] + time_left * ent._v_float[17];
-		end[2] = ent._v_float[12] + time_left * ent._v_float[18];
-		var trace = quake_SV.Move(new Float32Array(ent._v_float.buffer.slice(40,52)),new Float32Array(ent._v_float.buffer.slice(132,144)),new Float32Array(ent._v_float.buffer.slice(144,156)),end,0,ent);
+		end[0] = ent.v.floats[10] + time_left * ent.v.floats[16];
+		end[1] = ent.v.floats[11] + time_left * ent.v.floats[17];
+		end[2] = ent.v.floats[12] + time_left * ent.v.floats[18];
+		var trace = quake_SV.Move(new Float32Array(ent.v.buffer.slice(40,52)),new Float32Array(ent.v.buffer.slice(132,144)),new Float32Array(ent.v.buffer.slice(144,156)),end,0,ent);
 		if(trace.allsolid) {
-			ent._v_float.set(quake__$Vec_Vec_$Impl_$.origin,16);
+			ent.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,16);
 			return 3;
 		}
 		if(trace.fraction > 0.0) {
-			ent._v_float.set(trace.endpos,10);
-			original_velocity = new Float32Array(ent._v_float.buffer.slice(64,76));
+			ent.v.floats.set(trace.endpos,10);
+			original_velocity = new Float32Array(ent.v.buffer.slice(64,76));
 			numplanes = 0;
 			if(trace.fraction == 1.0) {
 				break;
@@ -13046,9 +13044,9 @@ quake_SV.FlyMove = function(ent,time) {
 		}
 		if(trace.plane.normal[2] > 0.7) {
 			blocked |= 1;
-			if(trace.ent._v_float[9] == 4) {
-				ent._v_float[76] = ent._v_float[76] | 0 | 512;
-				ent._v_int[47] = trace.ent.num;
+			if(trace.ent.v.floats[9] == 4) {
+				ent.v.floats[76] = ent.v.floats[76] | 0 | 512;
+				ent.v.ints[47] = trace.ent.num;
 			}
 		} else if(trace.plane.normal[2] == 0.0) {
 			blocked |= 2;
@@ -13060,7 +13058,7 @@ quake_SV.FlyMove = function(ent,time) {
 		}
 		time_left -= time_left * trace.fraction;
 		if(numplanes >= 5) {
-			ent._v_float.set(quake__$Vec_Vec_$Impl_$.origin,16);
+			ent.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,16);
 			return 3;
 		}
 		var tmp = numplanes++;
@@ -13088,20 +13086,20 @@ quake_SV.FlyMove = function(ent,time) {
 			++i;
 		}
 		if(i != numplanes) {
-			ent._v_float.set(new_velocity,16);
+			ent.v.floats.set(new_velocity,16);
 		} else {
 			if(numplanes != 2) {
-				ent._v_float.set(quake__$Vec_Vec_$Impl_$.origin,16);
+				ent.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,16);
 				return 7;
 			}
 			var dir = quake__$Vec_Vec_$Impl_$.CrossProduct(planes[0],planes[1]);
-			var d = dir[0] * ent._v_float[16] + dir[1] * ent._v_float[17] + dir[2] * ent._v_float[18];
-			ent._v_float[16] = dir[0] * d;
-			ent._v_float[17] = dir[1] * d;
-			ent._v_float[18] = dir[2] * d;
+			var d = dir[0] * ent.v.floats[16] + dir[1] * ent.v.floats[17] + dir[2] * ent.v.floats[18];
+			ent.v.floats[16] = dir[0] * d;
+			ent.v.floats[17] = dir[1] * d;
+			ent.v.floats[18] = dir[2] * d;
 		}
-		if(ent._v_float[16] * primal_velocity[0] + ent._v_float[17] * primal_velocity[1] + ent._v_float[18] * primal_velocity[2] <= 0.0) {
-			ent._v_float.set(quake__$Vec_Vec_$Impl_$.origin,16);
+		if(ent.v.floats[16] * primal_velocity[0] + ent.v.floats[17] * primal_velocity[1] + ent.v.floats[18] * primal_velocity[2] <= 0.0) {
+			ent.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,16);
 			return blocked;
 		}
 	}
@@ -13109,28 +13107,25 @@ quake_SV.FlyMove = function(ent,time) {
 };
 quake_SV.AddGravity = function(ent) {
 	var val = quake_EdictVarOfs.gravity;
-	var _g = ent;
-	_g._v_float[18] = _g._v_float[18] - (val != null?ent._v_float[val] != 0.0?ent._v_float[val]:1.0:1.0) * quake_SV.gravity.value * quake_Host.frametime;
+	var _g = ent.v;
+	_g.floats[18] = _g.floats[18] - (val != null?ent.v.floats[val] != 0.0?ent.v.floats[val]:1.0:1.0) * quake_SV.gravity.value * quake_Host.frametime;
 };
 quake_SV.PushEntity = function(ent,push) {
-	var x = ent._v_float[10] + push[0];
-	var y = ent._v_float[11] + push[1];
-	var z = ent._v_float[12] + push[2];
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = ent.v.floats[10] + push[0];
+	v[1] = ent.v.floats[11] + push[1];
+	v[2] = ent.v.floats[12] + push[2];
 	var nomonsters;
-	var solid = ent._v_float[9];
-	if(ent._v_float[8] == 9) {
+	var solid = ent.v.floats[9];
+	if(ent.v.floats[8] == 9) {
 		nomonsters = 2;
 	} else if(solid == 1 || solid == 0) {
 		nomonsters = 1;
 	} else {
 		nomonsters = 0;
 	}
-	var trace = quake_SV.Move(new Float32Array(ent._v_float.buffer.slice(40,52)),new Float32Array(ent._v_float.buffer.slice(132,144)),new Float32Array(ent._v_float.buffer.slice(144,156)),v,nomonsters,ent);
-	ent._v_float.set(trace.endpos,10);
+	var trace = quake_SV.Move(new Float32Array(ent.v.buffer.slice(40,52)),new Float32Array(ent.v.buffer.slice(132,144)),new Float32Array(ent.v.buffer.slice(144,156)),v,nomonsters,ent);
+	ent.v.floats.set(trace.endpos,10);
 	quake_SV.LinkEdict(ent,true);
 	if(trace.ent != null) {
 		quake_SV.Impact(ent,trace.ent);
@@ -13138,33 +13133,30 @@ quake_SV.PushEntity = function(ent,push) {
 	return trace;
 };
 quake_SV.PushMove = function(pusher,movetime) {
-	if(pusher._v_float[16] == 0.0 && pusher._v_float[17] == 0.0 && pusher._v_float[18] == 0.0) {
-		var _g = pusher;
-		_g._v_float[7] = _g._v_float[7] + movetime;
+	if(pusher.v.floats[16] == 0.0 && pusher.v.floats[17] == 0.0 && pusher.v.floats[18] == 0.0) {
+		var _g = pusher.v;
+		_g.floats[7] = _g.floats[7] + movetime;
 		return;
 	}
-	var x = pusher._v_float[16] * movetime;
-	var y = pusher._v_float[17] * movetime;
-	var z = pusher._v_float[18] * movetime;
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-	var mins_0 = pusher._v_float[1] + v[0];
-	var mins_1 = pusher._v_float[2] + v[1];
-	var mins_2 = pusher._v_float[3] + v[2];
-	var maxs_0 = pusher._v_float[4] + v[0];
-	var maxs_1 = pusher._v_float[5] + v[1];
-	var maxs_2 = pusher._v_float[6] + v[2];
-	var pushorig = new Float32Array(pusher._v_float.buffer.slice(40,52));
-	var _g1 = pusher;
-	_g1._v_float[10] = _g1._v_float[10] + v[0];
-	var _g2 = pusher;
-	_g2._v_float[11] = _g2._v_float[11] + v[1];
-	var _g3 = pusher;
-	_g3._v_float[12] = _g3._v_float[12] + v[2];
-	var _g4 = pusher;
-	_g4._v_float[7] = _g4._v_float[7] + movetime;
+	v[0] = pusher.v.floats[16] * movetime;
+	v[1] = pusher.v.floats[17] * movetime;
+	v[2] = pusher.v.floats[18] * movetime;
+	var mins_0 = pusher.v.floats[1] + v[0];
+	var mins_1 = pusher.v.floats[2] + v[1];
+	var mins_2 = pusher.v.floats[3] + v[2];
+	var maxs_0 = pusher.v.floats[4] + v[0];
+	var maxs_1 = pusher.v.floats[5] + v[1];
+	var maxs_2 = pusher.v.floats[6] + v[2];
+	var pushorig = new Float32Array(pusher.v.buffer.slice(40,52));
+	var _g1 = pusher.v;
+	_g1.floats[10] = _g1.floats[10] + v[0];
+	var _g2 = pusher.v;
+	_g2.floats[11] = _g2.floats[11] + v[1];
+	var _g3 = pusher.v;
+	_g3.floats[12] = _g3.floats[12] + v[2];
+	var _g4 = pusher.v;
+	_g4.floats[7] = _g4.floats[7] + movetime;
 	quake_SV.LinkEdict(pusher,false);
 	var moved = [];
 	var _g11 = 1;
@@ -13174,12 +13166,12 @@ quake_SV.PushMove = function(pusher,movetime) {
 		if(check.free) {
 			continue;
 		}
-		var movetype = check._v_float[8];
+		var movetype = check.v.floats[8];
 		if(movetype == 7 || movetype == 0 || movetype == 8) {
 			continue;
 		}
-		if(((check._v_float[76] | 0) & 512) == 0 || check._v_int[47] != pusher.num) {
-			if(check._v_float[1] >= maxs_0 || check._v_float[2] >= maxs_1 || check._v_float[3] >= maxs_2 || check._v_float[4] <= mins_0 || check._v_float[5] <= mins_1 || check._v_float[6] <= mins_2) {
+		if(((check.v.floats[76] | 0) & 512) == 0 || check.v.ints[47] != pusher.num) {
+			if(check.v.floats[1] >= maxs_0 || check.v.floats[2] >= maxs_1 || check.v.floats[3] >= maxs_2 || check.v.floats[4] <= mins_0 || check.v.floats[5] <= mins_1 || check.v.floats[6] <= mins_2) {
 				continue;
 			}
 			if(!quake_SV.TestEntityPosition(check)) {
@@ -13187,48 +13179,48 @@ quake_SV.PushMove = function(pusher,movetime) {
 			}
 		}
 		if(movetype != 3) {
-			check._v_float[76] = (check._v_float[76] | 0) & ~512;
+			check.v.floats[76] = (check.v.floats[76] | 0) & ~512;
 		}
-		var entorig = new Float32Array(check._v_float.buffer.slice(40,52));
+		var entorig = new Float32Array(check.v.buffer.slice(40,52));
 		moved.push([entorig[0],entorig[1],entorig[2],check]);
-		pusher._v_float[9] = 0;
+		pusher.v.floats[9] = 0;
 		quake_SV.PushEntity(check,v);
-		pusher._v_float[9] = 4;
+		pusher.v.floats[9] = 4;
 		if(quake_SV.TestEntityPosition(check)) {
-			if(check._v_float[33] == check._v_float[36]) {
+			if(check.v.floats[33] == check.v.floats[36]) {
 				continue;
 			}
-			if(check._v_float[9] == 0 || check._v_float[9] == 1) {
-				check._v_float[36] = 0.0;
-				check._v_float[33] = 0.0;
-				check._v_float[37] = 0.0;
-				check._v_float[34] = 0.0;
-				check._v_float[38] = check._v_float[35];
+			if(check.v.floats[9] == 0 || check.v.floats[9] == 1) {
+				check.v.floats[36] = 0.0;
+				check.v.floats[33] = 0.0;
+				check.v.floats[37] = 0.0;
+				check.v.floats[34] = 0.0;
+				check.v.floats[38] = check.v.floats[35];
 				continue;
 			}
-			check._v_float[10] = entorig[0];
-			check._v_float[11] = entorig[1];
-			check._v_float[12] = entorig[2];
+			check.v.floats[10] = entorig[0];
+			check.v.floats[11] = entorig[1];
+			check.v.floats[12] = entorig[2];
 			quake_SV.LinkEdict(check,true);
-			pusher._v_float[10] = pushorig[0];
-			pusher._v_float[11] = pushorig[1];
-			pusher._v_float[12] = pushorig[2];
+			pusher.v.floats[10] = pushorig[0];
+			pusher.v.floats[11] = pushorig[1];
+			pusher.v.floats[12] = pushorig[2];
 			quake_SV.LinkEdict(pusher,false);
-			var _g21 = pusher;
-			_g21._v_float[7] = _g21._v_float[7] - movetime;
-			if(pusher._v_int[45] != 0) {
+			var _g21 = pusher.v;
+			_g21.floats[7] = _g21.floats[7] - movetime;
+			if(pusher.v.ints[45] != 0) {
 				quake_PR.globals.ints[28] = pusher.num;
 				quake_PR.globals.ints[29] = check.num;
-				quake_PR.ExecuteProgram(pusher._v_int[45]);
+				quake_PR.ExecuteProgram(pusher.v.ints[45]);
 			}
 			var _g22 = 0;
 			while(_g22 < moved.length) {
 				var moved_edict = moved[_g22];
 				++_g22;
 				var ed = moved_edict[3];
-				ed._v_float[10] = moved_edict[0];
-				ed._v_float[11] = moved_edict[1];
-				ed._v_float[12] = moved_edict[2];
+				ed.v.floats[10] = moved_edict[0];
+				ed.v.floats[11] = moved_edict[1];
+				ed.v.floats[12] = moved_edict[2];
 				quake_SV.LinkEdict(ed,false);
 			}
 			return;
@@ -13236,8 +13228,8 @@ quake_SV.PushMove = function(pusher,movetime) {
 	}
 };
 quake_SV.Physics_Pusher = function(ent) {
-	var oldltime = ent._v_float[7];
-	var thinktime = ent._v_float[46];
+	var oldltime = ent.v.floats[7];
+	var thinktime = ent.v.floats[46];
 	var movetime;
 	if(thinktime < oldltime + quake_Host.frametime) {
 		movetime = thinktime - oldltime;
@@ -13250,26 +13242,26 @@ quake_SV.Physics_Pusher = function(ent) {
 	if(movetime != 0.0) {
 		quake_SV.PushMove(ent,movetime);
 	}
-	if(thinktime <= oldltime || thinktime > ent._v_float[7]) {
+	if(thinktime <= oldltime || thinktime > ent.v.floats[7]) {
 		return;
 	}
-	ent._v_float[46] = 0.0;
+	ent.v.floats[46] = 0.0;
 	quake_PR.globals.floats[31] = quake_SV.server.time;
 	quake_PR.globals.ints[28] = ent.num;
 	quake_PR.globals.ints[29] = 0;
-	quake_PR.ExecuteProgram(ent._v_int[44]);
+	quake_PR.ExecuteProgram(ent.v.ints[44]);
 };
 quake_SV.CheckStuck = function(ent) {
 	if(!quake_SV.TestEntityPosition(ent)) {
-		ent._v_float[13] = ent._v_float[10];
-		ent._v_float[14] = ent._v_float[11];
-		ent._v_float[15] = ent._v_float[12];
+		ent.v.floats[13] = ent.v.floats[10];
+		ent.v.floats[14] = ent.v.floats[11];
+		ent.v.floats[15] = ent.v.floats[12];
 		return;
 	}
-	var org = new Float32Array(ent._v_float.buffer.slice(40,52));
-	ent._v_float[10] = ent._v_float[13];
-	ent._v_float[11] = ent._v_float[14];
-	ent._v_float[12] = ent._v_float[15];
+	var org = new Float32Array(ent.v.buffer.slice(40,52));
+	ent.v.floats[10] = ent.v.floats[13];
+	ent.v.floats[11] = ent.v.floats[14];
+	ent.v.floats[12] = ent.v.floats[15];
 	if(!quake_SV.TestEntityPosition(ent)) {
 		quake_Console.DPrint("Unstuck.\n");
 		quake_SV.LinkEdict(ent,true);
@@ -13284,9 +13276,9 @@ quake_SV.CheckStuck = function(ent) {
 			var _g2 = -1;
 			while(_g2 < 2) {
 				var j = _g2++;
-				ent._v_float[10] = org[0] + i;
-				ent._v_float[11] = org[1] + j;
-				ent._v_float[12] = org[2] + z;
+				ent.v.floats[10] = org[0] + i;
+				ent.v.floats[11] = org[1] + j;
+				ent.v.floats[12] = org[2] + z;
 				if(!quake_SV.TestEntityPosition(ent)) {
 					quake_Console.DPrint("Unstuck.\n");
 					quake_SV.LinkEdict(ent,true);
@@ -13295,52 +13287,49 @@ quake_SV.CheckStuck = function(ent) {
 			}
 		}
 	}
-	ent._v_float.set(org,10);
+	ent.v.floats.set(org,10);
 	quake_Console.DPrint("player is stuck.\n");
 };
 quake_SV.CheckWater = function(ent) {
-	var x = ent._v_float[10];
-	var y = ent._v_float[11];
-	var z = ent._v_float[12] + ent._v_float[35] + 1.0;
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-	ent._v_float[83] = 0.0;
-	ent._v_float[84] = -1;
+	v[0] = ent.v.floats[10];
+	v[1] = ent.v.floats[11];
+	v[2] = ent.v.floats[12] + ent.v.floats[35] + 1.0;
+	ent.v.floats[83] = 0.0;
+	ent.v.floats[84] = -1;
 	var cont = quake_SV.PointContents(v);
 	if(cont > -3) {
 		return false;
 	}
-	ent._v_float[84] = cont;
-	ent._v_float[83] = 1.0;
-	v[2] = ent._v_float[12] + (ent._v_float[35] + ent._v_float[38]) * 0.5;
+	ent.v.floats[84] = cont;
+	ent.v.floats[83] = 1.0;
+	v[2] = ent.v.floats[12] + (ent.v.floats[35] + ent.v.floats[38]) * 0.5;
 	cont = quake_SV.PointContents(v);
 	if(cont <= -3) {
-		ent._v_float[83] = 2.0;
-		v[2] = ent._v_float[12] + ent._v_float[64];
+		ent.v.floats[83] = 2.0;
+		v[2] = ent.v.floats[12] + ent.v.floats[64];
 		cont = quake_SV.PointContents(v);
 		if(cont <= -3) {
-			ent._v_float[83] = 3.0;
+			ent.v.floats[83] = 3.0;
 		}
 	}
-	return ent._v_float[83] > 1.0;
+	return ent.v.floats[83] > 1.0;
 };
 quake_SV.WallFriction = function(ent,tr) {
 	var forward = new Float32Array(3);
-	quake__$Vec_Vec_$Impl_$.AngleVectors(new Float32Array(ent._v_float.buffer.slice(280,292)),forward);
+	quake__$Vec_Vec_$Impl_$.AngleVectors(new Float32Array(ent.v.buffer.slice(280,292)),forward);
 	var normal = tr.plane.normal;
 	var d = normal[0] * forward[0] + normal[1] * forward[1] + normal[2] * forward[2] + 0.5;
 	if(d >= 0.0) {
 		return;
 	}
 	d += 1.0;
-	var i = normal[0] * ent._v_float[16] + normal[1] * ent._v_float[17] + normal[2] * ent._v_float[18];
-	ent._v_float[16] = (ent._v_float[16] - normal[0] * i) * d;
-	ent._v_float[17] = (ent._v_float[17] - normal[1] * i) * d;
+	var i = normal[0] * ent.v.floats[16] + normal[1] * ent.v.floats[17] + normal[2] * ent.v.floats[18];
+	ent.v.floats[16] = (ent.v.floats[16] - normal[0] * i) * d;
+	ent.v.floats[17] = (ent.v.floats[17] - normal[1] * i) * d;
 };
 quake_SV.TryUnstick = function(ent,oldvel) {
-	var oldorg = new Float32Array(ent._v_float.buffer.slice(40,52));
+	var oldorg = new Float32Array(ent.v.buffer.slice(40,52));
 	var v = new Float32Array(3);
 	v[0] = 2.0;
 	v[1] = 0.0;
@@ -13378,53 +13367,53 @@ quake_SV.TryUnstick = function(ent,oldvel) {
 			break;
 		}
 		quake_SV.PushEntity(ent,v);
-		ent._v_float[16] = oldvel[0];
-		ent._v_float[17] = oldvel[1];
-		ent._v_float[18] = 0.0;
+		ent.v.floats[16] = oldvel[0];
+		ent.v.floats[17] = oldvel[1];
+		ent.v.floats[18] = 0.0;
 		var clip = quake_SV.FlyMove(ent,0.1);
-		if(Math.abs(oldorg[1] - ent._v_float[11]) > 4.0 || Math.abs(oldorg[0] - ent._v_float[10]) > 4.0) {
+		if(Math.abs(oldorg[1] - ent.v.floats[11]) > 4.0 || Math.abs(oldorg[0] - ent.v.floats[10]) > 4.0) {
 			return clip;
 		}
-		ent._v_float.set(oldorg,10);
+		ent.v.floats.set(oldorg,10);
 	}
-	ent._v_float.set(quake__$Vec_Vec_$Impl_$.origin,16);
+	ent.v.floats.set(quake__$Vec_Vec_$Impl_$.origin,16);
 	return 7;
 };
 quake_SV.WalkMove = function(ent) {
-	var oldonground = (ent._v_float[76] | 0) & 512;
-	ent._v_float[76] = (ent._v_float[76] | 0) ^ oldonground;
-	var oldorg = new Float32Array(ent._v_float.buffer.slice(40,52));
-	var oldvel = new Float32Array(ent._v_float.buffer.slice(64,76));
+	var oldonground = (ent.v.floats[76] | 0) & 512;
+	ent.v.floats[76] = (ent.v.floats[76] | 0) ^ oldonground;
+	var oldorg = new Float32Array(ent.v.buffer.slice(40,52));
+	var oldvel = new Float32Array(ent.v.buffer.slice(64,76));
 	var clip = quake_SV.FlyMove(ent,quake_Host.frametime);
 	if((clip & 2) == 0) {
 		return;
 	}
-	if(oldonground == 0 && ent._v_float[83] == 0.0) {
+	if(oldonground == 0 && ent.v.floats[83] == 0.0) {
 		return;
 	}
-	if(ent._v_float[8] != 3) {
+	if(ent.v.floats[8] != 3) {
 		return;
 	}
 	if(quake_SV.nostep.value != 0) {
 		return;
 	}
-	if(((quake_SV.player._v_float[76] | 0) & 2048) != 0) {
+	if(((quake_SV.player.v.floats[76] | 0) & 2048) != 0) {
 		return;
 	}
-	var nosteporg = new Float32Array(ent._v_float.buffer.slice(40,52));
-	var nostepvel = new Float32Array(ent._v_float.buffer.slice(64,76));
-	ent._v_float.set(oldorg,10);
+	var nosteporg = new Float32Array(ent.v.buffer.slice(40,52));
+	var nostepvel = new Float32Array(ent.v.buffer.slice(64,76));
+	ent.v.floats.set(oldorg,10);
 	var v = new Float32Array(3);
 	v[0] = 0.0;
 	v[1] = 0.0;
 	v[2] = 18.0;
 	quake_SV.PushEntity(ent,v);
-	ent._v_float[16] = oldvel[0];
-	ent._v_float[17] = oldvel[1];
-	ent._v_float[18] = 0.0;
+	ent.v.floats[16] = oldvel[0];
+	ent.v.floats[17] = oldvel[1];
+	ent.v.floats[18] = 0.0;
 	clip = quake_SV.FlyMove(ent,quake_Host.frametime);
 	if(clip != 0) {
-		if(Math.abs(oldorg[1] - ent._v_float[11]) < 0.03125 && Math.abs(oldorg[0] - ent._v_float[10]) < 0.03125) {
+		if(Math.abs(oldorg[1] - ent.v.floats[11]) < 0.03125 && Math.abs(oldorg[0] - ent.v.floats[10]) < 0.03125) {
 			clip = quake_SV.TryUnstick(ent,oldvel);
 		}
 		if((clip & 2) != 0) {
@@ -13438,14 +13427,14 @@ quake_SV.WalkMove = function(ent) {
 	v1[2] = z;
 	var downtrace = quake_SV.PushEntity(ent,v1);
 	if(downtrace.plane.normal[2] > 0.7) {
-		if(ent._v_float[9] == 4) {
-			ent._v_float[76] = ent._v_float[76] | 0 | 512;
-			ent._v_int[47] = downtrace.ent.num;
+		if(ent.v.floats[9] == 4) {
+			ent.v.floats[76] = ent.v.floats[76] | 0 | 512;
+			ent.v.ints[47] = downtrace.ent.num;
 		}
 		return;
 	}
-	ent._v_float.set(nosteporg,10);
-	ent._v_float.set(nostepvel,16);
+	ent.v.floats.set(nosteporg,10);
+	ent.v.floats.set(nostepvel,16);
 };
 quake_SV.Physics_Client = function(ent) {
 	if(!quake_SV.svs.clients[ent.num - 1].active) {
@@ -13455,7 +13444,7 @@ quake_SV.Physics_Client = function(ent) {
 	quake_PR.globals.ints[28] = ent.num;
 	quake_PR.ExecuteProgram(quake_PR.globals.ints[84]);
 	quake_SV.CheckVelocity(ent);
-	var movetype = ent._v_float[8] | 0;
+	var movetype = ent.v.floats[8] | 0;
 	if(movetype == 6 || movetype == 10) {
 		quake_SV.Physics_Toss(ent);
 	} else {
@@ -13466,7 +13455,7 @@ quake_SV.Physics_Client = function(ent) {
 		case 0:
 			break;
 		case 3:
-			if(!quake_SV.CheckWater(ent) && ((ent._v_float[76] | 0) & 2048) == 0) {
+			if(!quake_SV.CheckWater(ent) && ((ent.v.floats[76] | 0) & 2048) == 0) {
 				quake_SV.AddGravity(ent);
 			}
 			quake_SV.CheckStuck(ent);
@@ -13476,12 +13465,12 @@ quake_SV.Physics_Client = function(ent) {
 			quake_SV.FlyMove(ent,quake_Host.frametime);
 			break;
 		case 8:
-			var _g = ent;
-			_g._v_float[10] = _g._v_float[10] + quake_Host.frametime * ent._v_float[16];
-			var _g1 = ent;
-			_g1._v_float[11] = _g1._v_float[11] + quake_Host.frametime * ent._v_float[17];
-			var _g2 = ent;
-			_g2._v_float[12] = _g2._v_float[12] + quake_Host.frametime * ent._v_float[18];
+			var _g = ent.v;
+			_g.floats[10] = _g.floats[10] + quake_Host.frametime * ent.v.floats[16];
+			var _g1 = ent.v;
+			_g1.floats[11] = _g1.floats[11] + quake_Host.frametime * ent.v.floats[17];
+			var _g2 = ent.v;
+			_g2.floats[12] = _g2.floats[12] + quake_Host.frametime * ent.v.floats[18];
 			break;
 		default:
 			quake_Sys.Error("SV.Physics_Client: bad movetype " + movetype);
@@ -13496,62 +13485,62 @@ quake_SV.Physics_Noclip = function(ent) {
 	if(!quake_SV.RunThink(ent)) {
 		return;
 	}
-	var _g = ent;
-	_g._v_float[19] = _g._v_float[19] + quake_Host.frametime * ent._v_float[22];
-	var _g1 = ent;
-	_g1._v_float[20] = _g1._v_float[20] + quake_Host.frametime * ent._v_float[23];
-	var _g2 = ent;
-	_g2._v_float[21] = _g2._v_float[21] + quake_Host.frametime * ent._v_float[24];
-	var _g3 = ent;
-	_g3._v_float[10] = _g3._v_float[10] + quake_Host.frametime * ent._v_float[16];
-	var _g4 = ent;
-	_g4._v_float[11] = _g4._v_float[11] + quake_Host.frametime * ent._v_float[17];
-	var _g5 = ent;
-	_g5._v_float[12] = _g5._v_float[12] + quake_Host.frametime * ent._v_float[18];
+	var _g = ent.v;
+	_g.floats[19] = _g.floats[19] + quake_Host.frametime * ent.v.floats[22];
+	var _g1 = ent.v;
+	_g1.floats[20] = _g1.floats[20] + quake_Host.frametime * ent.v.floats[23];
+	var _g2 = ent.v;
+	_g2.floats[21] = _g2.floats[21] + quake_Host.frametime * ent.v.floats[24];
+	var _g3 = ent.v;
+	_g3.floats[10] = _g3.floats[10] + quake_Host.frametime * ent.v.floats[16];
+	var _g4 = ent.v;
+	_g4.floats[11] = _g4.floats[11] + quake_Host.frametime * ent.v.floats[17];
+	var _g5 = ent.v;
+	_g5.floats[12] = _g5.floats[12] + quake_Host.frametime * ent.v.floats[18];
 	quake_SV.LinkEdict(ent,false);
 };
 quake_SV.CheckWaterTransition = function(ent) {
-	var cont = quake_SV.PointContents(new Float32Array(ent._v_float.buffer.slice(40,52)));
-	if(ent._v_float[84] == 0.0) {
-		ent._v_float[84] = cont;
-		ent._v_float[83] = 1.0;
+	var cont = quake_SV.PointContents(new Float32Array(ent.v.buffer.slice(40,52)));
+	if(ent.v.floats[84] == 0.0) {
+		ent.v.floats[84] = cont;
+		ent.v.floats[83] = 1.0;
 		return;
 	}
 	if(cont <= -3) {
-		if(ent._v_float[84] == -1) {
+		if(ent.v.floats[84] == -1) {
 			quake_SV.StartSound(ent,0,"misc/h2ohit1.wav",255,1.0);
 		}
-		ent._v_float[84] = cont;
-		ent._v_float[83] = 1.0;
+		ent.v.floats[84] = cont;
+		ent.v.floats[83] = 1.0;
 		return;
 	}
-	if(ent._v_float[84] != -1) {
+	if(ent.v.floats[84] != -1) {
 		quake_SV.StartSound(ent,0,"misc/h2ohit1.wav",255,1.0);
 	}
-	ent._v_float[84] = -1;
-	ent._v_float[83] = cont;
+	ent.v.floats[84] = -1;
+	ent.v.floats[83] = cont;
 };
 quake_SV.Physics_Toss = function(ent) {
 	if(!quake_SV.RunThink(ent)) {
 		return;
 	}
-	if(((ent._v_float[76] | 0) & 512) != 0) {
+	if(((ent.v.floats[76] | 0) & 512) != 0) {
 		return;
 	}
 	quake_SV.CheckVelocity(ent);
-	var movetype = ent._v_float[8];
+	var movetype = ent.v.floats[8];
 	if(movetype != 5 && movetype != 9) {
 		quake_SV.AddGravity(ent);
 	}
-	var _g = ent;
-	_g._v_float[19] = _g._v_float[19] + quake_Host.frametime * ent._v_float[22];
-	var _g1 = ent;
-	_g1._v_float[20] = _g1._v_float[20] + quake_Host.frametime * ent._v_float[23];
-	var _g2 = ent;
-	_g2._v_float[21] = _g2._v_float[21] + quake_Host.frametime * ent._v_float[24];
-	var x = ent._v_float[16] * quake_Host.frametime;
-	var y = ent._v_float[17] * quake_Host.frametime;
-	var z = ent._v_float[18] * quake_Host.frametime;
+	var _g = ent.v;
+	_g.floats[19] = _g.floats[19] + quake_Host.frametime * ent.v.floats[22];
+	var _g1 = ent.v;
+	_g1.floats[20] = _g1.floats[20] + quake_Host.frametime * ent.v.floats[23];
+	var _g2 = ent.v;
+	_g2.floats[21] = _g2.floats[21] + quake_Host.frametime * ent.v.floats[24];
+	var x = ent.v.floats[16] * quake_Host.frametime;
+	var y = ent.v.floats[17] * quake_Host.frametime;
+	var z = ent.v.floats[18] * quake_Host.frametime;
 	var v = new Float32Array(3);
 	v[0] = x;
 	v[1] = y;
@@ -13561,30 +13550,30 @@ quake_SV.Physics_Toss = function(ent) {
 		return;
 	}
 	var velocity = new Float32Array(3);
-	quake_SV.ClipVelocity(new Float32Array(ent._v_float.buffer.slice(64,76)),trace.plane.normal,velocity,movetype == 10?1.5:1.0);
-	ent._v_float.set(velocity,16);
+	quake_SV.ClipVelocity(new Float32Array(ent.v.buffer.slice(64,76)),trace.plane.normal,velocity,movetype == 10?1.5:1.0);
+	ent.v.floats.set(velocity,16);
 	if(trace.plane.normal[2] > 0.7) {
-		if(ent._v_float[18] < 60.0 || movetype != 10) {
-			ent._v_float[76] = ent._v_float[76] | 0 | 512;
-			ent._v_int[47] = trace.ent.num;
-			ent._v_float[18] = 0.0;
-			ent._v_float[17] = 0.0;
-			ent._v_float[16] = 0.0;
-			ent._v_float[24] = 0.0;
-			ent._v_float[23] = 0.0;
-			ent._v_float[22] = 0.0;
+		if(ent.v.floats[18] < 60.0 || movetype != 10) {
+			ent.v.floats[76] = ent.v.floats[76] | 0 | 512;
+			ent.v.ints[47] = trace.ent.num;
+			ent.v.floats[18] = 0.0;
+			ent.v.floats[17] = 0.0;
+			ent.v.floats[16] = 0.0;
+			ent.v.floats[24] = 0.0;
+			ent.v.floats[23] = 0.0;
+			ent.v.floats[22] = 0.0;
 		}
 	}
 	quake_SV.CheckWaterTransition(ent);
 };
 quake_SV.Physics_Step = function(ent) {
-	if(((ent._v_float[76] | 0) & 512 + 1 + 2) == 0) {
-		var hitsound = ent._v_float[18] < quake_SV.gravity.value * -0.1;
+	if(((ent.v.floats[76] | 0) & 512 + 1 + 2) == 0) {
+		var hitsound = ent.v.floats[18] < quake_SV.gravity.value * -0.1;
 		quake_SV.AddGravity(ent);
 		quake_SV.CheckVelocity(ent);
 		quake_SV.FlyMove(ent,quake_Host.frametime);
 		quake_SV.LinkEdict(ent,true);
-		if(hitsound && ((ent._v_float[76] | 0) & 512) != 0) {
+		if(hitsound && ((ent.v.floats[76] | 0) & 512) != 0) {
 			quake_SV.StartSound(ent,0,"demon/dland2.wav",255,1.0);
 		}
 	}
@@ -13611,7 +13600,7 @@ quake_SV.Physics = function() {
 			quake_SV.Physics_Client(ent);
 			continue;
 		}
-		switch(ent._v_float[8]) {
+		switch(ent.v.floats[8]) {
 		case 7:
 			quake_SV.Physics_Pusher(ent);
 			break;
@@ -13628,7 +13617,7 @@ quake_SV.Physics = function() {
 			quake_SV.Physics_Toss(ent);
 			break;
 		default:
-			quake_Sys.Error("SV.Physics: bad movetype " + (ent._v_float[8] | 0));
+			quake_Sys.Error("SV.Physics: bad movetype " + (ent.v.floats[8] | 0));
 		}
 	}
 	if(quake_PR.globals.floats[33] != 0.0) {
@@ -13639,39 +13628,38 @@ quake_SV.Physics = function() {
 };
 quake_SV.SetIdealPitch = function() {
 	var ent = quake_SV.player;
-	if(((ent._v_float[76] | 0) & 512) == 0) {
+	if(((ent.v.floats[76] | 0) & 512) == 0) {
 		return;
 	}
-	var angleval = ent._v_float[20] * (Math.PI / 180.0);
+	var angleval = ent.v.floats[20] * (Math.PI / 180.0);
 	var sinval = Math.sin(angleval);
 	var cosval = Math.cos(angleval);
-	var z = ent._v_float[12] + ent._v_float[64];
 	var v = new Float32Array(3);
 	v[0] = 0.0;
 	v[1] = 0.0;
-	v[2] = z;
+	v[2] = ent.v.floats[12] + ent.v.floats[64];
 	var v1 = new Float32Array(3);
 	v1[0] = 0.0;
 	v1[1] = 0.0;
 	v1[2] = v[2] - 160.0;
-	var z1 = [];
+	var z = [];
 	var _g = 0;
 	while(_g < 6) {
 		var i = _g++;
-		v[0] = v1[0] = ent._v_float[10] + cosval * (i + 3) * 12.0;
-		v[1] = v1[1] = ent._v_float[11] + sinval * (i + 3) * 12.0;
+		v[0] = v1[0] = ent.v.floats[10] + cosval * (i + 3) * 12.0;
+		v[1] = v1[1] = ent.v.floats[11] + sinval * (i + 3) * 12.0;
 		var tr = quake_SV.Move(v,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,v1,1,ent);
 		if(tr.allsolid || tr.fraction == 1.0) {
 			return;
 		}
-		z1[i] = v[2] - tr.fraction * 160.0;
+		z[i] = v[2] - tr.fraction * 160.0;
 	}
 	var dir = 0.0;
 	var steps = 0;
 	var _g1 = 1;
 	while(_g1 < 6) {
 		var i1 = _g1++;
-		var step = z1[i1] - z1[i1 - 1];
+		var step = z[i1] - z[i1 - 1];
 		if(step > -0.1 && step < 0.1) {
 			continue;
 		}
@@ -13682,28 +13670,25 @@ quake_SV.SetIdealPitch = function() {
 		dir = step;
 	}
 	if(dir == 0.0) {
-		ent._v_float[73] = 0.0;
+		ent.v.floats[73] = 0.0;
 		return;
 	}
 	if(steps >= 2) {
-		ent._v_float[73] = -dir * quake_SV.idealpitchscale.value;
+		ent.v.floats[73] = -dir * quake_SV.idealpitchscale.value;
 	}
 };
 quake_SV.UserFriction = function() {
 	var ent = quake_SV.player;
-	var vel0 = ent._v_float[16];
-	var vel1 = ent._v_float[17];
+	var vel0 = ent.v.floats[16];
+	var vel1 = ent.v.floats[17];
 	var speed = Math.sqrt(vel0 * vel0 + vel1 * vel1);
 	if(speed == 0.0) {
 		return;
 	}
-	var x = ent._v_float[10] + vel0 / speed * 16.0;
-	var y = ent._v_float[11] + vel1 / speed * 16.0;
-	var z = ent._v_float[12] + ent._v_float[35];
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = ent.v.floats[10] + vel0 / speed * 16.0;
+	v[1] = ent.v.floats[11] + vel1 / speed * 16.0;
+	v[2] = ent.v.floats[12] + ent.v.floats[35];
 	var friction = quake_SV.friction.value;
 	var v1 = new Float32Array(3);
 	v1[0] = v[0];
@@ -13717,12 +13702,12 @@ quake_SV.UserFriction = function() {
 		newspeed = 0.0;
 	}
 	newspeed /= speed;
-	var _g = ent;
-	_g._v_float[16] = _g._v_float[16] * newspeed;
-	var _g1 = ent;
-	_g1._v_float[17] = _g1._v_float[17] * newspeed;
-	var _g2 = ent;
-	_g2._v_float[18] = _g2._v_float[18] * newspeed;
+	var _g = ent.v;
+	_g.floats[16] = _g.floats[16] * newspeed;
+	var _g1 = ent.v;
+	_g1.floats[17] = _g1.floats[17] * newspeed;
+	var _g2 = ent.v;
+	_g2.floats[18] = _g2.floats[18] * newspeed;
 };
 quake_SV.Accelerate = function(wishvel,air) {
 	var ent = quake_SV.player;
@@ -13731,7 +13716,7 @@ quake_SV.Accelerate = function(wishvel,air) {
 	if(air && wishspeed > 30.0) {
 		wishspeed = 30.0;
 	}
-	var addspeed = wishspeed - (ent._v_float[16] * wishdir[0] + ent._v_float[17] * wishdir[1] + ent._v_float[18] * wishdir[2]);
+	var addspeed = wishspeed - (ent.v.floats[16] * wishdir[0] + ent.v.floats[17] * wishdir[1] + ent.v.floats[18] * wishdir[2]);
 	if(addspeed <= 0.0) {
 		return;
 	}
@@ -13739,19 +13724,19 @@ quake_SV.Accelerate = function(wishvel,air) {
 	if(accelspeed > addspeed) {
 		accelspeed = addspeed;
 	}
-	var _g = ent;
-	_g._v_float[16] = _g._v_float[16] + accelspeed * wishdir[0];
-	var _g1 = ent;
-	_g1._v_float[17] = _g1._v_float[17] + accelspeed * wishdir[1];
-	var _g2 = ent;
-	_g2._v_float[18] = _g2._v_float[18] + accelspeed * wishdir[2];
+	var _g = ent.v;
+	_g.floats[16] = _g.floats[16] + accelspeed * wishdir[0];
+	var _g1 = ent.v;
+	_g1.floats[17] = _g1.floats[17] + accelspeed * wishdir[1];
+	var _g2 = ent.v;
+	_g2.floats[18] = _g2.floats[18] + accelspeed * wishdir[2];
 };
 quake_SV.WaterMove = function() {
 	var ent = quake_SV.player;
 	var cmd = quake_Host.client.cmd;
 	var forward = new Float32Array(3);
 	var right = new Float32Array(3);
-	quake__$Vec_Vec_$Impl_$.AngleVectors(new Float32Array(ent._v_float.buffer.slice(280,292)),forward,right);
+	quake__$Vec_Vec_$Impl_$.AngleVectors(new Float32Array(ent.v.buffer.slice(280,292)),forward,right);
 	var wishvel_0 = forward[0] * cmd.forwardmove + right[0] * cmd.sidemove;
 	var wishvel_1 = forward[1] * cmd.forwardmove + right[1] * cmd.sidemove;
 	var wishvel_2 = forward[2] * cmd.forwardmove + right[2] * cmd.sidemove;
@@ -13769,7 +13754,7 @@ quake_SV.WaterMove = function() {
 		wishspeed = quake_SV.maxspeed.value;
 	}
 	wishspeed *= 0.7;
-	var speed = Math.sqrt(ent._v_float[16] * ent._v_float[16] + ent._v_float[17] * ent._v_float[17] + ent._v_float[18] * ent._v_float[18]);
+	var speed = Math.sqrt(ent.v.floats[16] * ent.v.floats[16] + ent.v.floats[17] * ent.v.floats[17] + ent.v.floats[18] * ent.v.floats[18]);
 	var newspeed;
 	if(speed != 0.0) {
 		newspeed = speed - quake_Host.frametime * speed * quake_SV.friction.value;
@@ -13777,12 +13762,12 @@ quake_SV.WaterMove = function() {
 			newspeed = 0.0;
 		}
 		var scale1 = newspeed / speed;
-		var _g = ent;
-		_g._v_float[16] = _g._v_float[16] * scale1;
-		var _g1 = ent;
-		_g1._v_float[17] = _g1._v_float[17] * scale1;
-		var _g2 = ent;
-		_g2._v_float[18] = _g2._v_float[18] * scale1;
+		var _g = ent.v;
+		_g.floats[16] = _g.floats[16] * scale1;
+		var _g1 = ent.v;
+		_g1.floats[17] = _g1.floats[17] * scale1;
+		var _g2 = ent.v;
+		_g2.floats[18] = _g2.floats[18] * scale1;
 	} else {
 		newspeed = 0.0;
 	}
@@ -13797,34 +13782,34 @@ quake_SV.WaterMove = function() {
 	if(accelspeed > addspeed) {
 		accelspeed = addspeed;
 	}
-	var _g3 = ent;
-	_g3._v_float[16] = _g3._v_float[16] + accelspeed * (wishvel_0 / wishspeed);
-	var _g4 = ent;
-	_g4._v_float[17] = _g4._v_float[17] + accelspeed * (wishvel_1 / wishspeed);
-	var _g5 = ent;
-	_g5._v_float[18] = _g5._v_float[18] + accelspeed * (wishvel_2 / wishspeed);
+	var _g3 = ent.v;
+	_g3.floats[16] = _g3.floats[16] + accelspeed * (wishvel_0 / wishspeed);
+	var _g4 = ent.v;
+	_g4.floats[17] = _g4.floats[17] + accelspeed * (wishvel_1 / wishspeed);
+	var _g5 = ent.v;
+	_g5.floats[18] = _g5.floats[18] + accelspeed * (wishvel_2 / wishspeed);
 };
 quake_SV.WaterJump = function() {
 	var ent = quake_SV.player;
-	if(quake_SV.server.time > ent._v_float[80] || ent._v_float[83] == 0.0) {
-		ent._v_float[76] = (ent._v_float[76] | 0) & ~2048;
-		ent._v_float[80] = 0.0;
+	if(quake_SV.server.time > ent.v.floats[80] || ent.v.floats[83] == 0.0) {
+		ent.v.floats[76] = (ent.v.floats[76] | 0) & ~2048;
+		ent.v.floats[80] = 0.0;
 	}
-	ent._v_float[16] = ent._v_float[96];
-	ent._v_float[17] = ent._v_float[97];
+	ent.v.floats[16] = ent.v.floats[96];
+	ent.v.floats[17] = ent.v.floats[97];
 };
 quake_SV.AirMove = function() {
 	var ent = quake_SV.player;
 	var cmd = quake_Host.client.cmd;
 	var forward = new Float32Array(3);
 	var right = new Float32Array(3);
-	quake__$Vec_Vec_$Impl_$.AngleVectors(new Float32Array(ent._v_float.buffer.slice(76,88)),forward,right);
+	quake__$Vec_Vec_$Impl_$.AngleVectors(new Float32Array(ent.v.buffer.slice(76,88)),forward,right);
 	var fmove = cmd.forwardmove;
 	var smove = cmd.sidemove;
-	if(quake_SV.server.time < ent._v_float[80] && fmove < 0.0) {
+	if(quake_SV.server.time < ent.v.floats[80] && fmove < 0.0) {
 		fmove = 0.0;
 	}
-	var z = (ent._v_float[8] | 0) != 3?cmd.upmove:0.0;
+	var z = (ent.v.floats[8] | 0) != 3?cmd.upmove:0.0;
 	var v = new Float32Array(3);
 	v[0] = forward[0] * fmove + right[0] * smove;
 	v[1] = forward[1] * fmove + right[1] * smove;
@@ -13835,9 +13820,9 @@ quake_SV.AirMove = function() {
 		v[1] = wishdir[1] * quake_SV.maxspeed.value;
 		v[2] = wishdir[2] * quake_SV.maxspeed.value;
 	}
-	if(ent._v_float[8] == 8) {
-		ent._v_float.set(v,16);
-	} else if(((ent._v_float[76] | 0) & 512) != 0) {
+	if(ent.v.floats[8] == 8) {
+		ent.v.floats.set(v,16);
+	} else if(((ent.v.floats[76] | 0) & 512) != 0) {
 		quake_SV.UserFriction();
 		quake_SV.Accelerate(v,false);
 	} else {
@@ -13846,28 +13831,28 @@ quake_SV.AirMove = function() {
 };
 quake_SV.ClientThink = function() {
 	var ent = quake_SV.player;
-	if(ent._v_float[8] == 0) {
+	if(ent.v.floats[8] == 0) {
 		return;
 	}
-	var punchangle = new Float32Array(ent._v_float.buffer.slice(100,112));
+	var punchangle = new Float32Array(ent.v.buffer.slice(100,112));
 	var len = quake__$Vec_Vec_$Impl_$.Normalize(punchangle) - 10.0 * quake_Host.frametime;
 	if(len < 0.0) {
 		len = 0.0;
 	}
-	ent._v_float[25] = punchangle[0] * len;
-	ent._v_float[26] = punchangle[1] * len;
-	ent._v_float[27] = punchangle[2] * len;
-	if(ent._v_float[48] <= 0.0) {
+	ent.v.floats[25] = punchangle[0] * len;
+	ent.v.floats[26] = punchangle[1] * len;
+	ent.v.floats[27] = punchangle[2] * len;
+	if(ent.v.floats[48] <= 0.0) {
 		return;
 	}
-	ent._v_float[21] = quake_V.CalcRoll(new Float32Array(ent._v_float.buffer.slice(76,88)),new Float32Array(ent._v_float.buffer.slice(64,76))) * 4.0;
-	if(ent._v_float[69] == 0.0) {
-		ent._v_float[19] = (ent._v_float[70] + ent._v_float[25]) / -3.0;
-		ent._v_float[20] = ent._v_float[71] + ent._v_float[26];
+	ent.v.floats[21] = quake_V.CalcRoll(new Float32Array(ent.v.buffer.slice(76,88)),new Float32Array(ent.v.buffer.slice(64,76))) * 4.0;
+	if(ent.v.floats[69] == 0.0) {
+		ent.v.floats[19] = (ent.v.floats[70] + ent.v.floats[25]) / -3.0;
+		ent.v.floats[20] = ent.v.floats[71] + ent.v.floats[26];
 	}
-	if(((ent._v_float[76] | 0) & 2048) != 0) {
+	if(((ent.v.floats[76] | 0) & 2048) != 0) {
 		quake_SV.WaterJump();
-	} else if(ent._v_float[83] >= 2.0 && ent._v_float[8] != 8) {
+	} else if(ent.v.floats[83] >= 2.0 && ent.v.floats[8] != 8) {
 		quake_SV.WaterMove();
 	} else {
 		quake_SV.AirMove();
@@ -13876,18 +13861,18 @@ quake_SV.ClientThink = function() {
 quake_SV.ReadClientMove = function() {
 	var client = quake_Host.client;
 	client.ping_times[client.num_pings++ & 15] = quake_SV.server.time - quake_MSG.ReadFloat();
-	client.edict._v_float[70] = quake_MSG.ReadChar() * 1.40625;
-	client.edict._v_float[71] = quake_MSG.ReadChar() * 1.40625;
-	client.edict._v_float[72] = quake_MSG.ReadChar() * 1.40625;
+	client.edict.v.floats[70] = quake_MSG.ReadChar() * 1.40625;
+	client.edict.v.floats[71] = quake_MSG.ReadChar() * 1.40625;
+	client.edict.v.floats[72] = quake_MSG.ReadChar() * 1.40625;
 	client.cmd.forwardmove = quake_MSG.ReadShort();
 	client.cmd.sidemove = quake_MSG.ReadShort();
 	client.cmd.upmove = quake_MSG.ReadShort();
 	var i = quake_MSG.ReadByte();
-	client.edict._v_float[65] = i & 1;
-	client.edict._v_float[67] = (i & 2) >> 1;
+	client.edict.v.floats[65] = i & 1;
+	client.edict.v.floats[67] = (i & 2) >> 1;
 	i = quake_MSG.ReadByte();
 	if(i != 0) {
-		client.edict._v_float[68] = i;
+		client.edict.v.floats[68] = i;
 	}
 };
 quake_SV.ReadClientMessage = function() {
@@ -14005,22 +13990,22 @@ quake_SV.InitBoxHull = function() {
 	}
 };
 quake_SV.HullForEntity = function(ent,mins,maxs,offset) {
-	if(ent._v_float[9] != 4) {
-		quake_SV.box_planes[0].dist = ent._v_float[36] - mins[0];
-		quake_SV.box_planes[1].dist = ent._v_float[33] - maxs[0];
-		quake_SV.box_planes[2].dist = ent._v_float[37] - mins[1];
-		quake_SV.box_planes[3].dist = ent._v_float[34] - maxs[1];
-		quake_SV.box_planes[4].dist = ent._v_float[38] - mins[2];
-		quake_SV.box_planes[5].dist = ent._v_float[35] - maxs[2];
-		offset[0] = ent._v_float[10];
-		offset[1] = ent._v_float[11];
-		offset[2] = ent._v_float[12];
+	if(ent.v.floats[9] != 4) {
+		quake_SV.box_planes[0].dist = ent.v.floats[36] - mins[0];
+		quake_SV.box_planes[1].dist = ent.v.floats[33] - maxs[0];
+		quake_SV.box_planes[2].dist = ent.v.floats[37] - mins[1];
+		quake_SV.box_planes[3].dist = ent.v.floats[34] - maxs[1];
+		quake_SV.box_planes[4].dist = ent.v.floats[38] - mins[2];
+		quake_SV.box_planes[5].dist = ent.v.floats[35] - maxs[2];
+		offset[0] = ent.v.floats[10];
+		offset[1] = ent.v.floats[11];
+		offset[2] = ent.v.floats[12];
 		return quake_SV.box_hull;
 	}
-	if(ent._v_float[8] != 7) {
+	if(ent.v.floats[8] != 7) {
 		quake_Sys.Error("SOLID_BSP without MOVETYPE_PUSH");
 	}
-	var model = quake_SV.server.models[ent._v_float[0] | 0];
+	var model = quake_SV.server.models[ent.v.floats[0] | 0];
 	if(model == null) {
 		quake_Sys.Error("MOVETYPE_PUSH with a non bsp model");
 	}
@@ -14029,9 +14014,9 @@ quake_SV.HullForEntity = function(ent,mins,maxs,offset) {
 	}
 	var size = maxs[0] - mins[0];
 	var hull = size < 3.0?model.hulls[0]:size <= 32.0?model.hulls[1]:model.hulls[2];
-	offset[0] = hull.clip_mins[0] - mins[0] + ent._v_float[10];
-	offset[1] = hull.clip_mins[1] - mins[1] + ent._v_float[11];
-	offset[2] = hull.clip_mins[2] - mins[2] + ent._v_float[12];
+	offset[0] = hull.clip_mins[0] - mins[0] + ent.v.floats[10];
+	offset[1] = hull.clip_mins[1] - mins[1] + ent.v.floats[11];
+	offset[2] = hull.clip_mins[2] - mins[2] + ent.v.floats[12];
 	return hull;
 };
 quake_SV.CreateAreaNode = function(depth,mins,maxs) {
@@ -14071,10 +14056,10 @@ quake_SV.TouchLinks = function(ent,node) {
 		if(touch == ent) {
 			continue;
 		}
-		if(touch._v_int[42] == 0 || touch._v_float[9] != 1) {
+		if(touch.v.ints[42] == 0 || touch.v.floats[9] != 1) {
 			continue;
 		}
-		if(ent._v_float[1] > touch._v_float[4] || ent._v_float[2] > touch._v_float[5] || ent._v_float[3] > touch._v_float[6] || ent._v_float[4] < touch._v_float[1] || ent._v_float[5] < touch._v_float[2] || ent._v_float[6] < touch._v_float[3]) {
+		if(ent.v.floats[1] > touch.v.floats[4] || ent.v.floats[2] > touch.v.floats[5] || ent.v.floats[3] > touch.v.floats[6] || ent.v.floats[4] < touch.v.floats[1] || ent.v.floats[5] < touch.v.floats[2] || ent.v.floats[6] < touch.v.floats[3]) {
 			continue;
 		}
 		var old_self = quake_PR.globals.ints[28];
@@ -14082,17 +14067,17 @@ quake_SV.TouchLinks = function(ent,node) {
 		quake_PR.globals.ints[28] = touch.num;
 		quake_PR.globals.ints[29] = ent.num;
 		quake_PR.globals.floats[31] = quake_SV.server.time;
-		quake_PR.ExecuteProgram(touch._v_int[42]);
+		quake_PR.ExecuteProgram(touch.v.ints[42]);
 		quake_PR.globals.ints[28] = old_self;
 		quake_PR.globals.ints[29] = old_other;
 	}
 	if(node.axis == -1) {
 		return;
 	}
-	if(ent._v_float[4 + node.axis] > node.dist) {
+	if(ent.v.floats[4 + node.axis] > node.dist) {
 		quake_SV.TouchLinks(ent,node.children[0]);
 	}
-	if(ent._v_float[1 + node.axis] < node.dist) {
+	if(ent.v.floats[1 + node.axis] < node.dist) {
 		quake_SV.TouchLinks(ent,node.children[1]);
 	}
 };
@@ -14107,20 +14092,14 @@ quake_SV.FindTouchedLeafs = function(ent,node) {
 		ent.leafnums.push(node.num - 1);
 		return;
 	}
-	var x = ent._v_float[1];
-	var y = ent._v_float[2];
-	var z = ent._v_float[3];
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
-	var x1 = ent._v_float[4];
-	var y1 = ent._v_float[5];
-	var z1 = ent._v_float[6];
+	v[0] = ent.v.floats[1];
+	v[1] = ent.v.floats[2];
+	v[2] = ent.v.floats[3];
 	var v1 = new Float32Array(3);
-	v1[0] = x1;
-	v1[1] = y1;
-	v1[2] = z1;
+	v1[0] = ent.v.floats[4];
+	v1[1] = ent.v.floats[5];
+	v1[2] = ent.v.floats[6];
 	var sides = quake__$Vec_Vec_$Impl_$.BoxOnPlaneSide(v,v1,node.plane);
 	if((sides & 1) != 0) {
 		quake_SV.FindTouchedLeafs(ent,node.child0);
@@ -14134,43 +14113,43 @@ quake_SV.LinkEdict = function(ent,touch_triggers) {
 		return;
 	}
 	quake_SV.UnlinkEdict(ent);
-	ent._v_float[1] = ent._v_float[10] + ent._v_float[33] - 1.0;
-	ent._v_float[2] = ent._v_float[11] + ent._v_float[34] - 1.0;
-	ent._v_float[3] = ent._v_float[12] + ent._v_float[35];
-	ent._v_float[4] = ent._v_float[10] + ent._v_float[36] + 1.0;
-	ent._v_float[5] = ent._v_float[11] + ent._v_float[37] + 1.0;
-	ent._v_float[6] = ent._v_float[12] + ent._v_float[38];
-	if(((ent._v_float[76] | 0) & 256) != 0) {
-		var _g = ent;
-		_g._v_float[1] = _g._v_float[1] - 14.0;
-		var _g1 = ent;
-		_g1._v_float[2] = _g1._v_float[2] - 14.0;
-		var _g2 = ent;
-		_g2._v_float[4] = _g2._v_float[4] + 14.0;
-		var _g3 = ent;
-		_g3._v_float[5] = _g3._v_float[5] + 14.0;
+	ent.v.floats[1] = ent.v.floats[10] + ent.v.floats[33] - 1.0;
+	ent.v.floats[2] = ent.v.floats[11] + ent.v.floats[34] - 1.0;
+	ent.v.floats[3] = ent.v.floats[12] + ent.v.floats[35];
+	ent.v.floats[4] = ent.v.floats[10] + ent.v.floats[36] + 1.0;
+	ent.v.floats[5] = ent.v.floats[11] + ent.v.floats[37] + 1.0;
+	ent.v.floats[6] = ent.v.floats[12] + ent.v.floats[38];
+	if(((ent.v.floats[76] | 0) & 256) != 0) {
+		var _g = ent.v;
+		_g.floats[1] = _g.floats[1] - 14.0;
+		var _g1 = ent.v;
+		_g1.floats[2] = _g1.floats[2] - 14.0;
+		var _g2 = ent.v;
+		_g2.floats[4] = _g2.floats[4] + 14.0;
+		var _g3 = ent.v;
+		_g3.floats[5] = _g3.floats[5] + 14.0;
 	} else {
-		var _g4 = ent;
-		_g4._v_float[3] = _g4._v_float[3] - 1.0;
-		var _g5 = ent;
-		_g5._v_float[6] = _g5._v_float[6] + 1.0;
+		var _g4 = ent.v;
+		_g4.floats[3] = _g4.floats[3] - 1.0;
+		var _g5 = ent.v;
+		_g5.floats[6] = _g5.floats[6] + 1.0;
 	}
 	ent.leafnums = [];
-	if(ent._v_float[0] != 0) {
+	if(ent.v.floats[0] != 0) {
 		quake_SV.FindTouchedLeafs(ent,quake_SV.server.worldmodel.nodes[0]);
 	}
-	if(ent._v_float[9] == 0) {
+	if(ent.v.floats[9] == 0) {
 		return;
 	}
 	var node = quake_SV.areanodes[0];
-	while(!(node.axis == -1)) if(ent._v_float[1 + node.axis] > node.dist) {
+	while(!(node.axis == -1)) if(ent.v.floats[1 + node.axis] > node.dist) {
 		node = node.children[0];
-	} else if(ent._v_float[4 + node.axis] < node.dist) {
+	} else if(ent.v.floats[4 + node.axis] < node.dist) {
 		node = node.children[1];
 	} else {
 		break;
 	}
-	var before = ent._v_float[9] == 1?node.trigger_edicts:node.solid_edicts;
+	var before = ent.v.floats[9] == 1?node.trigger_edicts:node.solid_edicts;
 	ent.area.next = before;
 	ent.area.prev = before.prev;
 	ent.area.prev.next = ent.area;
@@ -14203,8 +14182,8 @@ quake_SV.PointContents = function(p) {
 	return cont;
 };
 quake_SV.TestEntityPosition = function(ent) {
-	var origin = new Float32Array(ent._v_float.buffer.slice(40,52));
-	return quake_SV.Move(origin,new Float32Array(ent._v_float.buffer.slice(132,144)),new Float32Array(ent._v_float.buffer.slice(144,156)),origin,0,ent).startsolid;
+	var origin = new Float32Array(ent.v.buffer.slice(40,52));
+	return quake_SV.Move(origin,new Float32Array(ent.v.buffer.slice(132,144)),new Float32Array(ent.v.buffer.slice(144,156)),origin,0,ent).startsolid;
 };
 quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 	if(num < 0) {
@@ -14320,7 +14299,7 @@ quake_SV.ClipToLinks = function(node,clip) {
 	while(l != node.solid_edicts) {
 		var touch = l.ent;
 		l = l.next;
-		var solid = touch._v_float[9];
+		var solid = touch.v.floats[9];
 		if(solid == 0 || touch == clip.passedict) {
 			continue;
 		}
@@ -14330,11 +14309,11 @@ quake_SV.ClipToLinks = function(node,clip) {
 		if(clip.type == 1 && solid != 4) {
 			continue;
 		}
-		if(clip.boxmins[0] > touch._v_float[4] || clip.boxmins[1] > touch._v_float[5] || clip.boxmins[2] > touch._v_float[6] || clip.boxmaxs[0] < touch._v_float[1] || clip.boxmaxs[1] < touch._v_float[2] || clip.boxmaxs[2] < touch._v_float[3]) {
+		if(clip.boxmins[0] > touch.v.floats[4] || clip.boxmins[1] > touch.v.floats[5] || clip.boxmins[2] > touch.v.floats[6] || clip.boxmaxs[0] < touch.v.floats[1] || clip.boxmaxs[1] < touch.v.floats[2] || clip.boxmaxs[2] < touch.v.floats[3]) {
 			continue;
 		}
 		if(clip.passedict != null) {
-			if(clip.passedict._v_float[39] != 0.0 && touch._v_float[39] == 0.0) {
+			if(clip.passedict.v.floats[39] != 0.0 && touch.v.floats[39] == 0.0) {
 				continue;
 			}
 		}
@@ -14342,14 +14321,14 @@ quake_SV.ClipToLinks = function(node,clip) {
 			return;
 		}
 		if(clip.passedict != null) {
-			if(quake_SV.server.edicts[touch._v_int[95]] == clip.passedict) {
+			if(quake_SV.server.edicts[touch.v.ints[95]] == clip.passedict) {
 				continue;
 			}
-			if(quake_SV.server.edicts[clip.passedict._v_int[95]] == touch) {
+			if(quake_SV.server.edicts[clip.passedict.v.ints[95]] == touch) {
 				continue;
 			}
 		}
-		var trace = ((touch._v_float[76] | 0) & 32) != 0?quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins2,clip.maxs2,clip.end):quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins,clip.maxs,clip.end);
+		var trace = ((touch.v.floats[76] | 0) & 32) != 0?quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins2,clip.maxs2,clip.end):quake_SV.ClipMoveToEntity(touch,clip.start,clip.mins,clip.maxs,clip.end);
 		if(trace.allsolid || trace.startsolid || trace.fraction < clip.trace.fraction) {
 			trace.ent = touch;
 			clip.trace = trace;
@@ -16626,20 +16605,20 @@ quake_PF.makevectors = function() {
 };
 quake_PF.setorigin = function() {
 	var e = quake_SV.server.edicts[quake_PR.globals.ints[4]];
-	e._v_float[10] = quake_PR.globals.floats[7];
-	e._v_float[11] = quake_PR.globals.floats[8];
-	e._v_float[12] = quake_PR.globals.floats[9];
+	e.v.floats[10] = quake_PR.globals.floats[7];
+	e.v.floats[11] = quake_PR.globals.floats[8];
+	e.v.floats[12] = quake_PR.globals.floats[9];
 	quake_SV.LinkEdict(e,false);
 };
 quake_PF.SetMinMaxSize = function(e,min,max) {
 	if(min[0] > max[0] || min[1] > max[1] || min[2] > max[2]) {
 		quake_PR.RunError("backwards mins/maxs");
 	}
-	e._v_float.set(min,33);
-	e._v_float.set(max,36);
-	e._v_float[39] = max[0] - min[0];
-	e._v_float[40] = max[1] - min[1];
-	e._v_float[41] = max[2] - min[2];
+	e.v.floats.set(min,33);
+	e.v.floats.set(max,36);
+	e.v.floats[39] = max[0] - min[0];
+	e.v.floats[40] = max[1] - min[1];
+	e.v.floats[41] = max[2] - min[2];
 	quake_SV.LinkEdict(e,false);
 };
 quake_PF.setsize = function() {
@@ -16669,8 +16648,8 @@ quake_PF.setmodel = function() {
 	if(i == quake_SV.server.model_precache.length) {
 		quake_PR.RunError("no precache: " + m + "\n");
 	}
-	e._v_int[29] = quake_PR.globals.ints[7];
-	e._v_float[0] = i;
+	e.v.ints[29] = quake_PR.globals.ints[7];
+	e.v.floats[0] = i;
 	var mod = quake_SV.server.models[i];
 	if(mod != null) {
 		quake_PF.SetMinMaxSize(e,mod.mins,mod.maxs);
@@ -16846,19 +16825,16 @@ quake_PF.newcheckclient = function(check) {
 			++i;
 			continue;
 		}
-		if(ent._v_float[48] <= 0.0 || ((ent._v_float[76] | 0) & 128) != 0) {
+		if(ent.v.floats[48] <= 0.0 || ((ent.v.floats[76] | 0) & 128) != 0) {
 			++i;
 			continue;
 		}
 		break;
 	}
-	var x = ent._v_float[10] + ent._v_float[62];
-	var y = ent._v_float[11] + ent._v_float[63];
-	var z = ent._v_float[12] + ent._v_float[64];
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = ent.v.floats[10] + ent.v.floats[62];
+	v[1] = ent.v.floats[11] + ent.v.floats[63];
+	v[2] = ent.v.floats[12] + ent.v.floats[64];
 	quake_PF.checkpvs = quake_Mod_$Brush.LeafPVS(quake_Mod_$Brush.PointInLeaf(v,quake_SV.server.worldmodel),quake_SV.server.worldmodel);
 	return i;
 };
@@ -16868,18 +16844,15 @@ quake_PF.checkclient = function() {
 		quake_SV.server.lastchecktime = quake_SV.server.time;
 	}
 	var ent = quake_SV.server.edicts[quake_SV.server.lastcheck];
-	if(ent.free || ent._v_float[48] <= 0.0) {
+	if(ent.free || ent.v.floats[48] <= 0.0) {
 		quake_PR.globals.ints[1] = 0;
 		return;
 	}
 	var self = quake_SV.server.edicts[quake_PR.globals.ints[28]];
-	var x = self._v_float[10] + self._v_float[62];
-	var y = self._v_float[11] + self._v_float[63];
-	var z = self._v_float[12] + self._v_float[64];
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = self.v.floats[10] + self.v.floats[62];
+	v[1] = self.v.floats[11] + self.v.floats[63];
+	v[2] = self.v.floats[12] + self.v.floats[64];
 	var l = quake_Mod_$Brush.PointInLeaf(v,quake_SV.server.worldmodel).num - 1;
 	if(l < 0 || (quake_PF.checkpvs[l >> 3] & 1 << (l & 7)) == 0) {
 		quake_PR.globals.ints[1] = 0;
@@ -16929,16 +16902,16 @@ quake_PF.findradius = function() {
 		if(ent.free) {
 			continue;
 		}
-		if(ent._v_float[9] == 0) {
+		if(ent.v.floats[9] == 0) {
 			continue;
 		}
-		eorg[0] = org_0 - (ent._v_float[10] + (ent._v_float[33] + ent._v_float[36]) * 0.5);
-		eorg[1] = org_1 - (ent._v_float[11] + (ent._v_float[34] + ent._v_float[37]) * 0.5);
-		eorg[2] = org_2 - (ent._v_float[12] + (ent._v_float[35] + ent._v_float[38]) * 0.5);
+		eorg[0] = org_0 - (ent.v.floats[10] + (ent.v.floats[33] + ent.v.floats[36]) * 0.5);
+		eorg[1] = org_1 - (ent.v.floats[11] + (ent.v.floats[34] + ent.v.floats[37]) * 0.5);
+		eorg[2] = org_2 - (ent.v.floats[12] + (ent.v.floats[35] + ent.v.floats[38]) * 0.5);
 		if(Math.sqrt(eorg[0] * eorg[0] + eorg[1] * eorg[1] + eorg[2] * eorg[2]) > rad) {
 			continue;
 		}
-		ent._v_int[60] = chain;
+		ent.v.ints[60] = chain;
 		chain = i;
 	}
 	quake_PR.globals.ints[1] = chain;
@@ -16979,7 +16952,7 @@ quake_PF.Find = function() {
 		if(ed.free) {
 			continue;
 		}
-		if(quake_PR.GetString(ed._v_int[f]) == s) {
+		if(quake_PR.GetString(ed.v.ints[f]) == s) {
 			quake_PR.globals.ints[1] = ed.num;
 			return;
 		}
@@ -16988,16 +16961,16 @@ quake_PF.Find = function() {
 };
 quake_PF.MoveToGoal = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals.ints[28]];
-	if(((ent._v_float[76] | 0) & 512 + 1 + 2) == 0) {
+	if(((ent.v.floats[76] | 0) & 512 + 1 + 2) == 0) {
 		quake_PR.globals.floats[1] = 0.0;
 		return;
 	}
-	var goal = quake_SV.server.edicts[ent._v_int[88]];
+	var goal = quake_SV.server.edicts[ent.v.ints[88]];
 	var dist = quake_PR.globals.floats[4];
-	if(ent._v_int[75] != 0 && quake_SV.CloseEnough(ent,goal,dist)) {
+	if(ent.v.ints[75] != 0 && quake_SV.CloseEnough(ent,goal,dist)) {
 		return;
 	}
-	if(Math.random() >= 0.75 || !quake_SV.StepDirection(ent,ent._v_float[85],dist)) {
+	if(Math.random() >= 0.75 || !quake_SV.StepDirection(ent,ent.v.floats[85],dist)) {
 		quake_SV.NewChaseDir(ent,goal,dist);
 	}
 };
@@ -17048,7 +17021,7 @@ quake_PF.eprint = function() {
 };
 quake_PF.walkmove = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals.ints[28]];
-	if(((ent._v_float[76] | 0) & 512 + 1 + 2) == 0) {
+	if(((ent.v.floats[76] | 0) & 512 + 1 + 2) == 0) {
 		quake_PR.globals.floats[1] = 0.0;
 		return;
 	}
@@ -17067,25 +17040,22 @@ quake_PF.walkmove = function() {
 };
 quake_PF.droptofloor = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals.ints[28]];
-	var tmp = new Float32Array(ent._v_float.buffer.slice(40,52));
-	var tmp1 = new Float32Array(ent._v_float.buffer.slice(132,144));
-	var tmp2 = new Float32Array(ent._v_float.buffer.slice(144,156));
-	var x = ent._v_float[10];
-	var y = ent._v_float[11];
-	var z = ent._v_float[12] - 256.0;
+	var tmp = new Float32Array(ent.v.buffer.slice(40,52));
+	var tmp1 = new Float32Array(ent.v.buffer.slice(132,144));
+	var tmp2 = new Float32Array(ent.v.buffer.slice(144,156));
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = ent.v.floats[10];
+	v[1] = ent.v.floats[11];
+	v[2] = ent.v.floats[12] - 256.0;
 	var trace = quake_SV.Move(tmp,tmp1,tmp2,v,0,ent);
 	if(trace.fraction == 1.0 || trace.allsolid) {
 		quake_PR.globals.floats[1] = 0.0;
 		return;
 	}
-	ent._v_float.set(trace.endpos,10);
+	ent.v.floats.set(trace.endpos,10);
 	quake_SV.LinkEdict(ent,false);
-	ent._v_float[76] = ent._v_float[76] | 0 | 512;
-	ent._v_int[47] = trace.ent.num;
+	ent.v.floats[76] = ent.v.floats[76] | 0 | 512;
+	ent.v.ints[47] = trace.ent.num;
 	quake_PR.globals.floats[1] = 1.0;
 };
 quake_PF.lightstyle = function() {
@@ -17141,13 +17111,10 @@ quake_PF.nextent = function() {
 };
 quake_PF.aim = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals.ints[4]];
-	var x = ent._v_float[10];
-	var y = ent._v_float[11];
-	var z = ent._v_float[12] + 20.0;
 	var v = new Float32Array(3);
-	v[0] = x;
-	v[1] = y;
-	v[2] = z;
+	v[0] = ent.v.floats[10];
+	v[1] = ent.v.floats[11];
+	v[2] = ent.v.floats[12] + 20.0;
 	var v1 = new Float32Array(3);
 	v1[0] = quake_PR.globals.floats[59];
 	v1[1] = quake_PR.globals.floats[60];
@@ -17158,7 +17125,7 @@ quake_PF.aim = function() {
 	v2[2] = v[2] + 2048.0 * v1[2];
 	var tr = quake_SV.Move(v,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,v2,0,ent);
 	if(tr.ent != null) {
-		if(tr.ent._v_float[59] == 2 && (quake_Host.teamplay.value == 0 || ent._v_float[78] <= 0 || ent._v_float[78] != tr.ent._v_float[78])) {
+		if(tr.ent.v.floats[59] == 2 && (quake_Host.teamplay.value == 0 || ent.v.floats[78] <= 0 || ent.v.floats[78] != tr.ent.v.floats[78])) {
 			var _this = quake_PR.globals;
 			_this.floats[1] = v1[0];
 			_this.floats[2] = v1[1];
@@ -17174,18 +17141,18 @@ quake_PF.aim = function() {
 	var _g = quake_SV.server.num_edicts;
 	while(_g1 < _g) {
 		var check = quake_SV.server.edicts[_g1++];
-		if(check._v_float[59] != 2) {
+		if(check.v.floats[59] != 2) {
 			continue;
 		}
 		if(check == ent) {
 			continue;
 		}
-		if(quake_Host.teamplay.value != 0 && ent._v_float[78] > 0 && ent._v_float[78] == check._v_float[78]) {
+		if(quake_Host.teamplay.value != 0 && ent.v.floats[78] > 0 && ent.v.floats[78] == check.v.floats[78]) {
 			continue;
 		}
-		end[0] = check._v_float[10] + 0.5 * (check._v_float[33] + check._v_float[36]);
-		end[1] = check._v_float[11] + 0.5 * (check._v_float[34] + check._v_float[37]);
-		end[2] = check._v_float[12] + 0.5 * (check._v_float[35] + check._v_float[38]);
+		end[0] = check.v.floats[10] + 0.5 * (check.v.floats[33] + check.v.floats[36]);
+		end[1] = check.v.floats[11] + 0.5 * (check.v.floats[34] + check.v.floats[37]);
+		end[2] = check.v.floats[12] + 0.5 * (check.v.floats[35] + check.v.floats[38]);
 		v1[0] = end[0] - v[0];
 		v1[1] = end[1] - v[1];
 		v1[2] = end[2] - v[2];
@@ -17201,9 +17168,9 @@ quake_PF.aim = function() {
 		}
 	}
 	if(bestent != null) {
-		v1[0] = bestent._v_float[10] - ent._v_float[10];
-		v1[1] = bestent._v_float[11] - ent._v_float[11];
-		v1[2] = bestent._v_float[12] - ent._v_float[12];
+		v1[0] = bestent.v.floats[10] - ent.v.floats[10];
+		v1[1] = bestent.v.floats[11] - ent.v.floats[11];
+		v1[2] = bestent.v.floats[12] - ent.v.floats[12];
 		var dist1 = v1[0] * bestdir[0] + v1[1] * bestdir[1] + v1[2] * bestdir[2];
 		end[0] = bestdir[0] * dist1;
 		end[1] = bestdir[1] * dist1;
@@ -17222,8 +17189,8 @@ quake_PF.aim = function() {
 };
 quake_PF.changeyaw = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals.ints[28]];
-	var current = quake__$Vec_Vec_$Impl_$.Anglemod(ent._v_float[20]);
-	var ideal = ent._v_float[85];
+	var current = quake__$Vec_Vec_$Impl_$.Anglemod(ent.v.floats[20]);
+	var ideal = ent.v.floats[85];
 	if(current == ideal) {
 		return;
 	}
@@ -17235,7 +17202,7 @@ quake_PF.changeyaw = function() {
 	} else if(move <= -180.0) {
 		move += 360.0;
 	}
-	var speed = ent._v_float[86];
+	var speed = ent.v.floats[86];
 	if(move > 0.0) {
 		if(move > speed) {
 			move = speed;
@@ -17243,7 +17210,7 @@ quake_PF.changeyaw = function() {
 	} else if(move < -speed) {
 		move = -speed;
 	}
-	ent._v_float[20] = quake__$Vec_Vec_$Impl_$.Anglemod(current + move);
+	ent.v.floats[20] = quake__$Vec_Vec_$Impl_$.Anglemod(current + move);
 };
 quake_PF.WriteDest = function() {
 	switch(quake_PR.globals.floats[4] | 0) {
@@ -17292,16 +17259,16 @@ quake_PF.makestatic = function() {
 	var ent = quake_SV.server.edicts[quake_PR.globals.ints[4]];
 	var message = quake_SV.server.signon;
 	message.WriteByte(20);
-	message.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent._v_int[29])));
-	message.WriteByte(ent._v_float[30] | 0);
-	message.WriteByte(ent._v_float[77] | 0);
-	message.WriteByte(ent._v_float[31] | 0);
-	message.WriteShort(ent._v_float[10] * 8 | 0);
-	message.WriteByte((ent._v_float[19] * 256 / 360 | 0) & 255);
-	message.WriteShort(ent._v_float[11] * 8 | 0);
-	message.WriteByte((ent._v_float[20] * 256 / 360 | 0) & 255);
-	message.WriteShort(ent._v_float[12] * 8 | 0);
-	message.WriteByte((ent._v_float[21] * 256 / 360 | 0) & 255);
+	message.WriteByte(quake_SV.ModelIndex(quake_PR.GetString(ent.v.ints[29])));
+	message.WriteByte(ent.v.floats[30] | 0);
+	message.WriteByte(ent.v.floats[77] | 0);
+	message.WriteByte(ent.v.floats[31] | 0);
+	message.WriteShort(ent.v.floats[10] * 8 | 0);
+	message.WriteByte((ent.v.floats[19] * 256 / 360 | 0) & 255);
+	message.WriteShort(ent.v.floats[11] * 8 | 0);
+	message.WriteByte((ent.v.floats[20] * 256 / 360 | 0) & 255);
+	message.WriteShort(ent.v.floats[12] * 8 | 0);
+	message.WriteByte((ent.v.floats[21] * 256 / 360 | 0) & 255);
 	quake_ED.Free(ent);
 };
 quake_PF.setspawnparms = function() {

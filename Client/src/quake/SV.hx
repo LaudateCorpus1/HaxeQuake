@@ -401,7 +401,7 @@ class SV {
 
             var bits = 0;
             for (i in 0...3) {
-                var miss = ent._v_float[EdictVarOfs.origin + i] - ent.baseline.origin[i];
+                var miss = ent.v.floats[EdictVarOfs.origin + i] - ent.baseline.origin[i];
                 if (miss < -0.1 || miss > 0.1)
                     bits += U.origin1 << i;
             }
@@ -492,8 +492,8 @@ class SV {
         var val = EdictVarOfs.items2;
         var items;
         if (val != null) {
-            if (ent._v_float[val] != 0.0)
-                items = Std.int(ent.items) + (Std.int(ent._v_float[val]) << 23);
+            if (ent.v.floats[val] != 0.0)
+                items = Std.int(ent.items) + (Std.int(ent.v.floats[val]) << 23);
             else
                 items = Std.int(ent.items) + (Std.int(PR.globals.serverflags) << 28);
         } else {
@@ -1026,9 +1026,9 @@ class SV {
 
     static function CloseEnough(ent:Edict, goal:Edict, dist:Float):Bool {
         for (i in 0...3) {
-            if (goal._v_float[EdictVarOfs.absmin + i] > (ent._v_float[EdictVarOfs.absmax + i] + dist))
+            if (goal.v.floats[EdictVarOfs.absmin + i] > (ent.v.floats[EdictVarOfs.absmax + i] + dist))
                 return false;
-            if (goal._v_float[EdictVarOfs.absmax + i] < (ent._v_float[EdictVarOfs.absmin + i] - dist))
+            if (goal.v.floats[EdictVarOfs.absmax + i] < (ent.v.floats[EdictVarOfs.absmin + i] - dist))
                 return false;
         }
         return true;
@@ -1052,20 +1052,20 @@ class SV {
 
     static function CheckVelocity(ent:Edict):Void {
         for (i in 0...3) {
-            var velocity = ent._v_float[EdictVarOfs.velocity + i];
+            var velocity = ent.v.floats[EdictVarOfs.velocity + i];
             if (Math.isNaN(velocity)) {
                 Console.Print('Got a NaN velocity on ' + PR.GetString(ent.v.classname) + '\n');
                 velocity = 0.0;
             }
-            if (Math.isNaN(ent._v_float[EdictVarOfs.origin + i])) {
+            if (Math.isNaN(ent.v.floats[EdictVarOfs.origin + i])) {
                 Console.Print('Got a NaN origin on ' + PR.GetString(ent.v.classname) + '\n');
-                ent._v_float[EdictVarOfs.origin + i] = 0.0;
+                ent.v.floats[EdictVarOfs.origin + i] = 0.0;
             }
             if (velocity > maxvelocity.value)
                 velocity = maxvelocity.value;
             else if (velocity < -maxvelocity.value)
                 velocity = -maxvelocity.value;
-            ent._v_float[EdictVarOfs.velocity + i] = velocity;
+            ent.v.floats[EdictVarOfs.velocity + i] = velocity;
         }
     }
 
@@ -1206,7 +1206,7 @@ class SV {
         var val = EdictVarOfs.gravity;
         var ent_gravity;
         if (val != null)
-            ent_gravity = (ent._v_float[val] != 0.0) ? ent._v_float[val] : 1.0;
+            ent_gravity = (ent.v.floats[val] != 0.0) ? ent.v.floats[val] : 1.0;
         else
             ent_gravity = 1.0;
         ent.v.velocity2 -= ent_gravity * gravity.value * Host.frametime;
@@ -2077,9 +2077,9 @@ class SV {
         }
         if (node.axis == -1)
             return;
-        if (ent._v_float[EdictVarOfs.absmax + node.axis] > node.dist)
+        if (ent.v.floats[EdictVarOfs.absmax + node.axis] > node.dist)
             TouchLinks(ent, node.children[0]);
-        if (ent._v_float[EdictVarOfs.absmin + node.axis] < node.dist)
+        if (ent.v.floats[EdictVarOfs.absmin + node.axis] < node.dist)
             TouchLinks(ent, node.children[1]);
     }
 
@@ -2137,9 +2137,9 @@ class SV {
         while (true) {
             if (node.axis == -1)
                 break;
-            if (ent._v_float[EdictVarOfs.absmin + node.axis] > node.dist)
+            if (ent.v.floats[EdictVarOfs.absmin + node.axis] > node.dist)
                 node = node.children[0];
-            else if (ent._v_float[EdictVarOfs.absmax + node.axis] < node.dist)
+            else if (ent.v.floats[EdictVarOfs.absmax + node.axis] < node.dist)
                 node = node.children[1];
             else
                 break;

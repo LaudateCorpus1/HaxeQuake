@@ -94,9 +94,9 @@ class ED {
 			if (name.charCodeAt(name.length - 2) == "_".code)
 				continue;
 			var v = d.ofs;
-			if (ed._v_int[v] == 0) {
+			if (ed.v.ints[v] == 0) {
 				if ((d.type & 0x7fff) == 3) {
-					if (ed._v_int[v + 1] == 0 && ed._v_int[v + 2] == 0)
+					if (ed.v.ints[v + 1] == 0 && ed.v.ints[v + 2] == 0)
 						continue;
 				} else {
 					continue;
@@ -104,7 +104,7 @@ class ED {
 			}
 			while (name.length <= 14)
 				name += ' ';
-			Console.Print(name + PR.ValueString(d.type, ed._v, v) + '\n');
+			Console.Print(name + PR.ValueString(d.type, ed.v.buffer, v) + '\n');
 		}
 	}
 
@@ -229,7 +229,7 @@ class ED {
 	static function ParseEdict(data:String, ent:Edict):String {
 		if (ent != SV.server.edicts[0]) {
 			for (i in 0...PR.entityfields)
-				ent._v_int[i] = 0;
+				ent.v.ints[i] = 0;
 		}
 		var init = false;
 		while (true) {
@@ -269,7 +269,7 @@ class ED {
 			}
 			if (anglehack)
 				COM.token = '0 ' + COM.token + ' 0';
-			if (!ParseEpair(ent._v, key, COM.token))
+			if (!ParseEpair(ent.v.buffer, key, COM.token))
 				Host.Error('ED.ParseEdict: parse error');
 		}
 		if (!init)

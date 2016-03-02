@@ -18,10 +18,10 @@ class EdictVarsMacro {
                     switch (field.meta.get()) {
                         case [{name: "f"}]:
                             fieldType = macro : Float;
-                            viewField = "_v_float";
+                            viewField = "floats";
                         case [{name: "i"}]:
                             fieldType = macro : Int;
-                            viewField = "_v_int";
+                            viewField = "ints";
                         default:
                             throw new Error("Invalid field meta", field.pos);
                     }

@@ -15,12 +15,7 @@ class Edict {
     var leafnums:Array<Int>;
     var baseline:EntityState;
     var freetime:Float;
-    var _v:ArrayBuffer;
-    var _v_int:Int32Array;
-    var _v_float:Float32Array;
-
-    public var v(get,never):EdictVars;
-    inline function get_v() return new EdictVars(this);
+    public var v(default,null):EdictVars;
 
     var flags(get,set):EntFlag;
     inline function get_flags():EntFlag return cast Std.int(v.flags);
@@ -38,22 +33,20 @@ class Edict {
         this.leafnums = [];
         this.baseline = new EntityState();
         this.freetime = 0.0;
-        this._v = new ArrayBuffer(PR.entityfields << 2);
-        this._v_float = new Float32Array(_v);
-        this._v_int = new Int32Array(_v);
+        this.v = new EdictVars(new ArrayBuffer(PR.entityfields << 2));
     }
 
     inline function GetVector(o:Int):Vec {
-        return cast new Float32Array(_v_float.buffer.slice(o * 4, (o * 4 + 3 * 4)));
+        return cast new Float32Array(v.buffer.slice(o * 4, (o * 4 + 3 * 4)));
     }
 
-    inline function SetVector(ofs:Int, v:Vec):Void {
-        _v_float.set(v, ofs);
+    inline function SetVector(ofs:Int, vec:Vec):Void {
+        v.floats.set(vec, ofs);
     }
 
     function Clear():Void {
         for (i in 0...PR.entityfields)
-            _v_int[i] = 0;
+            v.ints[i] = 0;
         free = false;
     }
 }

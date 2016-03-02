@@ -672,26 +672,26 @@ class PR {
 					st.b.int2 = st.a.int2;
 				case PROp.storep_f | PROp.storep_ent | PROp.storep_fld | PROp.storep_s | PROp.storep_fnc:
 					var ptr = st.b.int;
-					SV.server.edicts[Math.floor(ptr / PR.edict_size)]._v_int[((ptr % PR.edict_size) - 96) >> 2] = st.a.int;
+					SV.server.edicts[Math.floor(ptr / PR.edict_size)].v.ints[((ptr % PR.edict_size) - 96) >> 2] = st.a.int;
 				case PROp.storep_v:
 					var ed = SV.server.edicts[Math.floor(st.b.int / PR.edict_size)];
 					var ptr = ((st.b.int % PR.edict_size) - 96) >> 2;
-					ed._v_int[ptr] = st.a.int;
-					ed._v_int[ptr + 1] = st.a.int1;
-					ed._v_int[ptr + 2] = st.a.int2;
+					ed.v.ints[ptr] = st.a.int;
+					ed.v.ints[ptr + 1] = st.a.int1;
+					ed.v.ints[ptr + 2] = st.a.int2;
 				case PROp.address:
 					var ed = st.a.int;
 					if (ed == 0 && !SV.server.loading)
 						PR.RunError('assignment to world entity');
 					st.c.int = ed * PR.edict_size + 96 + (st.b.int << 2);
 				case PROp.load_f | PROp.load_fld | PROp.load_ent | PROp.load_s | PROp.load_fnc:
-					st.c.int = SV.server.edicts[st.a.int]._v_int[st.b.int];
+					st.c.int = SV.server.edicts[st.a.int].v.ints[st.b.int];
 				case PROp.load_v:
 					var ed = SV.server.edicts[st.a.int];
 					var ptr = st.b.int;
-					st.c.int = ed._v_int[ptr];
-					st.c.int1 = ed._v_int[ptr + 1];
-					st.c.int2 = ed._v_int[ptr + 2];
+					st.c.int = ed.v.ints[ptr];
+					st.c.int1 = ed.v.ints[ptr + 1];
+					st.c.int2 = ed.v.ints[ptr + 2];
 				case PROp.jz:
 					if (st.a.int == 0)
 						s += st.b - 1;

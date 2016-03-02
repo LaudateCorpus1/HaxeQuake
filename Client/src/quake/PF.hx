@@ -379,7 +379,7 @@ class PF {
             var ed = SV.server.edicts[e];
             if (ed.free)
                 continue;
-            if (PR.GetString(ed._v_int[f]) == s) {
+            if (PR.GetString(ed.v.ints[f]) == s) {
                 PR.globals.ints[OFS_RETURN] = ed.num;
                 return;
             }

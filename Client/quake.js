@@ -915,8 +915,7 @@ var quake__$CL_ClientState = function() {
 	this.driftmove = 0.0;
 	this.pitchvel = 0.0;
 	this.idealpitch = 0.0;
-	var this1 = new Float32Array(3);
-	this.punchangle = this1;
+	this.punchangle = new Float32Array(3);
 	this.cshifts = [[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0],[0.0,0.0,0.0,0.0]];
 	this.faceanimtime = 0.0;
 	this.item_gettime = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0];
@@ -924,18 +923,12 @@ var quake__$CL_ClientState = function() {
 	this.stats = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
 	this.movemessages = 0;
 	this.cmd = new quake_ClientCmd();
-	var this1 = new Float32Array(3);
-	this.velocity = this1;
-	var this1 = new Float32Array(3);
-	this.mvelocity1 = this1;
-	var this1 = new Float32Array(3);
-	this.mvelocity0 = this1;
-	var this1 = new Float32Array(3);
-	this.mviewangles1 = this1;
-	var this1 = new Float32Array(3);
-	this.mviewangles0 = this1;
-	var this1 = new Float32Array(3);
-	this.viewangles = this1;
+	this.velocity = new Float32Array(3);
+	this.mvelocity1 = new Float32Array(3);
+	this.mvelocity0 = new Float32Array(3);
+	this.mviewangles1 = new Float32Array(3);
+	this.mviewangles0 = new Float32Array(3);
+	this.viewangles = new Float32Array(3);
 	this.time = 0.0;
 	this.mtime1 = 0.0;
 	this.mtime0 = 0.0;
@@ -4152,18 +4145,12 @@ var quake_Entity = function(n) {
 	this.skinnum = 0;
 	this.syncbase = 0.0;
 	this.frame = 0;
-	var this1 = new Float32Array(3);
-	this.msg_origins1 = this1;
-	var this1 = new Float32Array(3);
-	this.msg_origins0 = this1;
-	var this1 = new Float32Array(3);
-	this.origin = this1;
-	var this1 = new Float32Array(3);
-	this.msg_angles1 = this1;
-	var this1 = new Float32Array(3);
-	this.msg_angles0 = this1;
-	var this1 = new Float32Array(3);
-	this.angles = this1;
+	this.msg_origins1 = new Float32Array(3);
+	this.msg_origins0 = new Float32Array(3);
+	this.origin = new Float32Array(3);
+	this.msg_angles1 = new Float32Array(3);
+	this.msg_angles0 = new Float32Array(3);
+	this.angles = new Float32Array(3);
 	this.leafs = [];
 	this.num = n;
 };
@@ -4177,10 +4164,8 @@ var quake_EntityState = function() {
 	this.colormap = 0;
 	this.frame = 0;
 	this.modelindex = 0;
-	var this1 = new Float32Array(3);
-	this.angles = this1;
-	var this1 = new Float32Array(3);
-	this.origin = this1;
+	this.angles = new Float32Array(3);
+	this.origin = new Float32Array(3);
 };
 quake_EntityState.__name__ = true;
 quake_EntityState.prototype = {
@@ -14423,8 +14408,7 @@ quake__$SV_MoveClip.prototype = {
 	__class__: quake__$SV_MoveClip
 };
 var quake_Trace = function() {
-	var this1 = new Float32Array(3);
-	this.endpos = this1;
+	this.endpos = new Float32Array(3);
 	this.fraction = 0.0;
 	this.plane = new quake_Plane();
 	this.inwater = false;
@@ -14439,8 +14423,7 @@ quake_Trace.prototype = {
 var quake_Plane = function() {
 	this.signbits = 0;
 	this.dist = 0;
-	var this1 = new Float32Array(3);
-	this.normal = this1;
+	this.normal = new Float32Array(3);
 	this.type = 0;
 };
 quake_Plane.__name__ = true;
@@ -14448,10 +14431,8 @@ quake_Plane.prototype = {
 	__class__: quake_Plane
 };
 var quake__$Render_RefDef = function() {
-	var this1 = new Float32Array(3);
-	this.viewangles = this1;
-	var this1 = new Float32Array(3);
-	this.vieworg = this1;
+	this.viewangles = new Float32Array(3);
+	this.vieworg = new Float32Array(3);
 	this.vrect = new quake__$Render_Rect();
 };
 quake__$Render_RefDef.__name__ = true;
@@ -17372,10 +17353,8 @@ quake__$Render_Rect.prototype = {
 };
 var quake__$Render_Particle = function() {
 	this.color = 0;
-	var this1 = new Float32Array(3);
-	this.vel = this1;
-	var this1 = new Float32Array(3);
-	this.org = this1;
+	this.vel = new Float32Array(3);
+	this.org = new Float32Array(3);
 	this.die = -1;
 	this.ramp = 0;
 	this.type = 0;
@@ -18368,14 +18347,7 @@ if(ArrayBuffer.prototype.slice == null) {
 var DataView = $global.DataView || js_html_compat_DataView;
 var Float32Array = $global.Float32Array || js_html_compat_Float32Array._new;
 var Uint8Array = $global.Uint8Array || js_html_compat_Uint8Array._new;
-haxe_io_FPHelper.i64tmp = (function($this) {
-	var $r;
-	var x = new haxe__$Int64__$_$_$Int64(0,0);
-	var this1;
-	this1 = x;
-	$r = this1;
-	return $r;
-}(this));
+haxe_io_FPHelper.i64tmp = new haxe__$Int64__$_$_$Int64(0,0);
 js_Boot.__toStr = {}.toString;
 js_html_compat_Float32Array.BYTES_PER_ELEMENT = 4;
 js_html_compat_Uint8Array.BYTES_PER_ELEMENT = 1;
@@ -18468,42 +18440,12 @@ quake_S.started = false;
 quake_S.channels = [];
 quake_S.static_channels = [];
 quake_S.ambient_channels = [];
-quake_S.listener_origin = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
-quake_S.listener_forward = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
-quake_S.listener_right = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
-quake_S.listener_up = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
+quake_S.listener_origin = new Float32Array(3);
+quake_S.listener_forward = new Float32Array(3);
+quake_S.listener_right = new Float32Array(3);
+quake_S.listener_up = new Float32Array(3);
 quake_S.known_sfx = [];
-quake__$Vec_Vec_$Impl_$.origin = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
+quake__$Vec_Vec_$Impl_$.origin = new Float32Array(3);
 quake_SCR.con_current = 0;
 quake_SCR.centertime_off = 0.0;
 quake_SCR.recalc_refdef = false;
@@ -18520,27 +18462,9 @@ quake_Render.dlightframecount = 0;
 quake_Render.lightstylevalue = new Uint8Array(64);
 quake_Render.visframecount = 0;
 quake_Render.frustum = [new quake_Plane(),new quake_Plane(),new quake_Plane(),new quake_Plane()];
-quake_Render.vup = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
-quake_Render.vpn = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
-quake_Render.vright = (function($this) {
-	var $r;
-	var this1;
-	this1 = new Float32Array(3);
-	$r = this1;
-	return $r;
-}(this));
+quake_Render.vup = new Float32Array(3);
+quake_Render.vpn = new Float32Array(3);
+quake_Render.vright = new Float32Array(3);
 quake_Render.refdef = new quake__$Render_RefDef();
 quake_Render.avertexnormals = new Float32Array([-0.525731,0.000000,0.850651,-0.442863,0.238856,0.864188,-0.295242,0.000000,0.955423,-0.309017,0.500000,0.809017,-0.162460,0.262866,0.951056,0.000000,0.000000,1.000000,0.000000,0.850651,0.525731,-0.147621,0.716567,0.681718,0.147621,0.716567,0.681718,0.000000,0.525731,0.850651,0.309017,0.500000,0.809017,0.525731,0.000000,0.850651,0.295242,0.000000,0.955423,0.442863,0.238856,0.864188,0.162460,0.262866,0.951056,-0.681718,0.147621,0.716567,-0.809017,0.309017,0.500000,-0.587785,0.425325,0.688191,-0.850651,0.525731,0.000000,-0.864188,0.442863,0.238856,-0.716567,0.681718,0.147621,-0.688191,0.587785,0.425325,-0.500000,0.809017,0.309017,-0.238856,0.864188,0.442863,-0.425325,0.688191,0.587785,-0.716567,0.681718,-0.147621,-0.500000,0.809017,-0.309017,-0.525731,0.850651,0.000000,0.000000,0.850651,-0.525731,-0.238856,0.864188,-0.442863,0.000000,0.955423,-0.295242,-0.262866,0.951056,-0.162460,0.000000,1.000000,0.000000,0.000000,0.955423,0.295242,-0.262866,0.951056,0.162460,0.238856,0.864188,0.442863,0.262866,0.951056,0.162460,0.500000,0.809017,0.309017,0.238856,0.864188,-0.442863,0.262866,0.951056,-0.162460,0.500000,0.809017,-0.309017,0.850651,0.525731,0.000000,0.716567,0.681718,0.147621,0.716567,0.681718,-0.147621,0.525731,0.850651,0.000000,0.425325,0.688191,0.587785,0.864188,0.442863,0.238856,0.688191,0.587785,0.425325,0.809017,0.309017,0.500000,0.681718,0.147621,0.716567,0.587785,0.425325,0.688191,0.955423,0.295242,0.000000,1.000000,0.000000,0.000000,0.951056,0.162460,0.262866,0.850651,-0.525731,0.000000,0.955423,-0.295242,0.000000,0.864188,-0.442863,0.238856,0.951056,-0.162460,0.262866,0.809017,-0.309017,0.500000,0.681718,-0.147621,0.716567,0.850651,0.000000,0.525731,0.864188,0.442863,-0.238856,0.809017,0.309017,-0.500000,0.951056,0.162460,-0.262866,0.525731,0.000000,-0.850651,0.681718,0.147621,-0.716567,0.681718,-0.147621,-0.716567,0.850651,0.000000,-0.525731,0.809017,-0.309017,-0.500000,0.864188,-0.442863,-0.238856,0.951056,-0.162460,-0.262866,0.147621,0.716567,-0.681718,0.309017,0.500000,-0.809017,0.425325,0.688191,-0.587785,0.442863,0.238856,-0.864188,0.587785,0.425325,-0.688191,0.688191,0.587785,-0.425325,-0.147621,0.716567,-0.681718,-0.309017,0.500000,-0.809017,0.000000,0.525731,-0.850651,-0.525731,0.000000,-0.850651,-0.442863,0.238856,-0.864188,-0.295242,0.000000,-0.955423,-0.162460,0.262866,-0.951056,0.000000,0.000000,-1.000000,0.295242,0.000000,-0.955423,0.162460,0.262866,-0.951056,-0.442863,-0.238856,-0.864188,-0.309017,-0.500000,-0.809017,-0.162460,-0.262866,-0.951056,0.000000,-0.850651,-0.525731,-0.147621,-0.716567,-0.681718,0.147621,-0.716567,-0.681718,0.000000,-0.525731,-0.850651,0.309017,-0.500000,-0.809017,0.442863,-0.238856,-0.864188,0.162460,-0.262866,-0.951056,0.238856,-0.864188,-0.442863,0.500000,-0.809017,-0.309017,0.425325,-0.688191,-0.587785,0.716567,-0.681718,-0.147621,0.688191,-0.587785,-0.425325,0.587785,-0.425325,-0.688191,0.000000,-0.955423,-0.295242,0.000000,-1.000000,0.000000,0.262866,-0.951056,-0.162460,0.000000,-0.850651,0.525731,0.000000,-0.955423,0.295242,0.238856,-0.864188,0.442863,0.262866,-0.951056,0.162460,0.500000,-0.809017,0.309017,0.716567,-0.681718,0.147621,0.525731,-0.850651,0.000000,-0.238856,-0.864188,-0.442863,-0.500000,-0.809017,-0.309017,-0.262866,-0.951056,-0.162460,-0.850651,-0.525731,0.000000,-0.716567,-0.681718,-0.147621,-0.716567,-0.681718,0.147621,-0.525731,-0.850651,0.000000,-0.500000,-0.809017,0.309017,-0.238856,-0.864188,0.442863,-0.262866,-0.951056,0.162460,-0.864188,-0.442863,0.238856,-0.809017,-0.309017,0.500000,-0.688191,-0.587785,0.425325,-0.681718,-0.147621,0.716567,-0.442863,-0.238856,0.864188,-0.587785,-0.425325,0.688191,-0.309017,-0.500000,0.809017,-0.147621,-0.716567,0.681718,-0.425325,-0.688191,0.587785,-0.162460,-0.262866,0.951056,0.442863,-0.238856,0.864188,0.162460,-0.262866,0.951056,0.309017,-0.500000,0.809017,0.147621,-0.716567,0.681718,0.000000,-0.525731,0.850651,0.425325,-0.688191,0.587785,0.587785,-0.425325,0.688191,0.688191,-0.587785,0.425325,-0.955423,0.295242,0.000000,-0.951056,0.162460,0.262866,-1.000000,0.000000,0.000000,-0.850651,0.000000,0.525731,-0.955423,-0.295242,0.000000,-0.951056,-0.162460,0.262866,-0.864188,0.442863,-0.238856,-0.951056,0.162460,-0.262866,-0.809017,0.309017,-0.500000,-0.864188,-0.442863,-0.238856,-0.951056,-0.162460,-0.262866,-0.809017,-0.309017,-0.500000,-0.681718,0.147621,-0.716567,-0.681718,-0.147621,-0.716567,-0.850651,0.000000,-0.525731,-0.688191,0.587785,-0.425325,-0.587785,0.425325,-0.688191,-0.425325,0.688191,-0.587785,-0.425325,-0.688191,-0.587785,-0.587785,-0.425325,-0.688191,-0.688191,-0.587785,-0.425325]);
 quake_Render.perspective = [0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,-1.0001220777635353,-1.0,0.0,0.0,-8.0004883110541414,0.0];

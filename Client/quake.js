@@ -10435,30 +10435,28 @@ quake_Q.atof = function(str) {
 		return 0.0;
 	}
 	var ptr;
-	var val;
 	var sign;
-	var c;
-	var c2;
 	if(HxOverrides.cca(str,0) == 45) {
-		sign = -1.0;
+		sign = -1;
 		ptr = 1;
 	} else {
-		sign = 1.0;
+		sign = 1;
 		ptr = 0;
 	}
-	c = HxOverrides.cca(str,ptr);
-	c2 = HxOverrides.cca(str,ptr + 1);
+	var c = HxOverrides.cca(str,ptr);
+	var c2 = HxOverrides.cca(str,ptr + 1);
+	var val;
 	if(c == 48 && (c2 == 120 || c2 == 88)) {
 		ptr += 2;
 		val = 0.0;
 		while(true) {
 			c = HxOverrides.cca(str,ptr++);
 			if(c >= 48 && c <= 57) {
-				val = val * 16.0 + c - 48;
+				val = val * 16 + c - 48;
 			} else if(c >= 97 && c <= 102) {
-				val = val * 16.0 + c - 87;
+				val = val * 16 + c - 87;
 			} else if(c >= 65 && c <= 70) {
-				val = val * 16.0 + c - 55;
+				val = val * 16 + c - 55;
 			} else {
 				return val * sign;
 			}
@@ -10466,13 +10464,13 @@ quake_Q.atof = function(str) {
 	}
 	if(c == 39) {
 		if(isNaN(c2)) {
-			return 0.0;
+			return 0;
 		}
 		return sign * c2;
 	}
 	val = parseFloat(str);
 	if(isNaN(val)) {
-		return 0.0;
+		return 0;
 	}
 	return val;
 };

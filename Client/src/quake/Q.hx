@@ -70,39 +70,40 @@ class Q {
     static function atof(str:String):Float {
         if (str == null)
             return 0.0;
-        var ptr, val, sign, c, c2;
-        if (str.charCodeAt(0) == 45) {
-            sign = -1.0;
+        var ptr, sign;
+        if (str.charCodeAt(0) == "-".code) {
+            sign = -1;
             ptr = 1;
         } else {
-            sign = 1.0;
+            sign = 1;
             ptr = 0;
         }
-        c = str.charCodeAt(ptr);
-        c2 = str.charCodeAt(ptr + 1);
-        if ((c == 48) && ((c2 == 120) || (c2 == 88))) {
+        var c = str.charCodeAt(ptr);
+        var c2 = str.charCodeAt(ptr + 1);
+        var val;
+        if (c == "0".code && (c2 == "x".code || c2 == "X".code)) {
             ptr += 2;
             val = 0.0;
             while (true) {
                 c = str.charCodeAt(ptr++);
-                if ((c >= 48) && (c <= 57))
-                    val = (val * 16.0) + c - 48;
-                else if ((c >= 97) && (c <= 102))
-                    val = (val * 16.0) + c - 87;
-                else if ((c >= 65) && (c <= 70))
-                    val = (val * 16.0) + c - 55;
+                if (c >= "0".code && c <= "9".code)
+                    val = (val * 16) + c - "0".code;
+                else if (c >= "a".code && c <= "f".code)
+                    val = (val * 16) + c - "W".code;
+                else if (c >= "A".code && c <= "F".code)
+                    val = (val * 16) + c - "7".code;
                 else
                     return val * sign;
             }
         }
-        if (c == 39) {
+        if (c == "'".code) {
             if (Math.isNaN(c2))
-                return 0.0;
+                return 0;
             return sign * c2;
         }
         val = Std.parseFloat(str);
         if (Math.isNaN(val))
-            return 0.0;
+            return 0;
         return val;
     }
 

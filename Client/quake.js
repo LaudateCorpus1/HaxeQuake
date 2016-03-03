@@ -3051,25 +3051,13 @@ quake_Cmd.Init = function() {
 	quake_Cmd.AddCommand("wait",quake_Cmd.Wait_f);
 };
 quake_Cmd.AddCommand = function(name,command) {
-	var tmp;
 	var _this = quake_Cvar.vars;
-	if(__map_reserved[name] != null) {
-		tmp = _this.existsReserved(name);
-	} else {
-		tmp = _this.h.hasOwnProperty(name);
-	}
-	if(tmp) {
+	if(__map_reserved[name] != null?_this.existsReserved(name):_this.h.hasOwnProperty(name)) {
 		quake_Console.Print("Cmd.AddCommand: " + name + " already defined as a var\n");
 		return;
 	}
-	var tmp1;
 	var _this1 = quake_Cmd.functions;
-	if(__map_reserved[name] != null) {
-		tmp1 = _this1.existsReserved(name);
-	} else {
-		tmp1 = _this1.h.hasOwnProperty(name);
-	}
-	if(tmp1) {
+	if(__map_reserved[name] != null?_this1.existsReserved(name):_this1.h.hasOwnProperty(name)) {
 		quake_Console.Print("Cmd.AddCommand: " + name + " already defined\n");
 	} else {
 		var _this2 = quake_Cmd.functions;
@@ -3130,26 +3118,14 @@ quake_Cmd.ExecuteString = function(text,client) {
 		return;
 	}
 	var name = quake_Cmd.argv[0].toLowerCase();
-	var tmp;
 	var _this = quake_Cmd.functions;
-	if(__map_reserved[name] != null) {
-		tmp = _this.getReserved(name);
-	} else {
-		tmp = _this.h[name];
-	}
-	var f = tmp;
+	var f = __map_reserved[name] != null?_this.getReserved(name):_this.h[name];
 	if(f != null) {
 		f();
 		return;
 	}
-	var tmp1;
 	var _this1 = quake_Cmd.alias;
-	if(__map_reserved[name] != null) {
-		tmp1 = _this1.getReserved(name);
-	} else {
-		tmp1 = _this1.h[name];
-	}
-	var a = tmp1;
+	var a = __map_reserved[name] != null?_this1.getReserved(name):_this1.h[name];
 	if(a != null) {
 		quake_Cmd.text = a + quake_Cmd.text;
 		return;
@@ -3235,14 +3211,8 @@ quake_Cmd.Alias_f = function() {
 		while(tmp.hasNext()) {
 			var name = tmp.next();
 			var tmp1 = name + " : ";
-			var tmp2;
 			var _this = quake_Cmd.alias;
-			if(__map_reserved[name] != null) {
-				tmp2 = _this.getReserved(name);
-			} else {
-				tmp2 = _this.h[name];
-			}
-			quake_Console.Print(tmp1 + tmp2 + "\n");
+			quake_Console.Print(tmp1 + (__map_reserved[name] != null?_this.getReserved(name):_this.h[name]) + "\n");
 		}
 	}
 	var name1 = quake_Cmd.argv[1];
@@ -3478,14 +3448,8 @@ quake_Cvar.CompleteVariable = function(partial) {
 	return null;
 };
 quake_Cvar.Set = function(name,value) {
-	var tmp;
 	var _this = quake_Cvar.vars;
-	if(__map_reserved[name] != null) {
-		tmp = _this.getReserved(name);
-	} else {
-		tmp = _this.h[name];
-	}
-	var v = tmp;
+	var v = __map_reserved[name] != null?_this.getReserved(name):_this.h[name];
 	if(v == null) {
 		quake_Console.Print("Cvar.Set: variable " + name + " not found\n");
 	} else {
@@ -3499,14 +3463,8 @@ quake_Cvar.RegisterVariable = function(name,value,archive,server) {
 	if(archive == null) {
 		archive = false;
 	}
-	var tmp;
 	var _this = quake_Cvar.vars;
-	if(__map_reserved[name] != null) {
-		tmp = _this.existsReserved(name);
-	} else {
-		tmp = _this.h.hasOwnProperty(name);
-	}
-	if(tmp) {
+	if(__map_reserved[name] != null?_this.existsReserved(name):_this.h.hasOwnProperty(name)) {
 		quake_Console.Print("Can't register variable " + name + ", already defined\n");
 		return null;
 	}
@@ -3520,15 +3478,9 @@ quake_Cvar.RegisterVariable = function(name,value,archive,server) {
 	return v;
 };
 quake_Cvar.Command = function() {
-	var tmp;
 	var _this = quake_Cvar.vars;
 	var key = quake_Cmd.argv[0];
-	if(__map_reserved[key] != null) {
-		tmp = _this.getReserved(key);
-	} else {
-		tmp = _this.h[key];
-	}
-	var v = tmp;
+	var v = __map_reserved[key] != null?_this.getReserved(key):_this.h[key];
 	if(v == null) {
 		return false;
 	}
@@ -4213,13 +4165,8 @@ quake_GL.TextureMode_f = function() {
 		var tmp = quake_GL.modes.keys();
 		while(tmp.hasNext()) {
 			var name = tmp.next();
-			var tmp1;
 			var _this = quake_GL.modes;
-			if(__map_reserved[name] != null) {
-				tmp1 = _this.getReserved(name);
-			} else {
-				tmp1 = _this.h[name];
-			}
+			var tmp1 = __map_reserved[name] != null?_this.getReserved(name):_this.h[name];
 			if(quake_GL.filter_min == tmp1.min) {
 				quake_Console.Print(name + "\n");
 				return;
@@ -4229,14 +4176,8 @@ quake_GL.TextureMode_f = function() {
 		return;
 	}
 	var name1 = quake_Cmd.argv[1].toUpperCase();
-	var tmp2;
 	var _this1 = quake_GL.modes;
-	if(__map_reserved[name1] != null) {
-		tmp2 = _this1.getReserved(name1);
-	} else {
-		tmp2 = _this1.h[name1];
-	}
-	var mode = tmp2;
+	var mode = __map_reserved[name1] != null?_this1.getReserved(name1):_this1.h[name1];
 	if(mode == null) {
 		quake_Console.Print("bad filter name\n");
 		return;
@@ -4514,14 +4455,8 @@ quake_GL.Init = function() {
 		_g.h["GL_LINEAR_MIPMAP_LINEAR"] = value5;
 	}
 	quake_GL.modes = _g;
-	var tmp;
 	var _this = quake_GL.modes;
-	if(__map_reserved.GL_LINEAR_MIPMAP_NEAREST != null) {
-		tmp = _this.getReserved("GL_LINEAR_MIPMAP_NEAREST");
-	} else {
-		tmp = _this.h["GL_LINEAR_MIPMAP_NEAREST"];
-	}
-	var defaultMode = tmp;
+	var defaultMode = __map_reserved.GL_LINEAR_MIPMAP_NEAREST != null?_this.getReserved("GL_LINEAR_MIPMAP_NEAREST"):_this.h["GL_LINEAR_MIPMAP_NEAREST"];
 	quake_GL.filter_min = defaultMode.min;
 	quake_GL.filter_max = defaultMode.max;
 	quake_GL.picmip = quake_Cvar.RegisterVariable("gl_picmip","0");
@@ -11569,8 +11504,9 @@ quake_Sys.onkeyup = function(e) {
 	e.preventDefault();
 };
 quake_Sys.onmousedown = function(e) {
+	var _g = e.which;
 	var key;
-	switch(e.which) {
+	switch(_g) {
 	case 1:
 		key = 200;
 		break;
@@ -11587,8 +11523,9 @@ quake_Sys.onmousedown = function(e) {
 	e.preventDefault();
 };
 quake_Sys.onmouseup = function(e) {
+	var _g = e.which;
 	var key;
-	switch(e.which) {
+	switch(_g) {
 	case 1:
 		key = 200;
 		break;
@@ -12716,11 +12653,11 @@ quake_SV.CheckBottom = function(ent) {
 	mid = bottom;
 	var _g = 0;
 	while(_g < 2) {
-		var x = _g++;
 		var _g1 = 0;
+		var tmp1 = _g++ != 0;
 		while(_g1 < 2) {
 			var y = _g1++;
-			v4[0] = v5[0] = x != 0?maxs_0:mins_0;
+			v4[0] = v5[0] = tmp1?maxs_0:mins_0;
 			v4[1] = v5[1] = y != 0?maxs_1:mins_1;
 			trace = quake_SV.Move(v4,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,v5,1,ent);
 			if(trace.fraction != 1.0 && trace.endpos[2] > bottom) {
@@ -12741,13 +12678,14 @@ quake_SV.movestep = function(ent,move,relink) {
 	if(((ent.v.floats[76] | 0) & 2 + 1) != 0) {
 		var enemy = ent.v.ints[75];
 		var _g = 0;
-		var tmp = enemy != 0;
+		var tmp = enemy == 0;
+		var tmp1 = enemy != 0;
 		while(_g < 2) {
 			var i = _g++;
 			neworg[0] = ent.v.floats[10] + move[0];
 			neworg[1] = ent.v.floats[11] + move[1];
 			neworg[2] = ent.v.floats[12];
-			if(i == 0 && tmp) {
+			if(i == 0 && tmp1) {
 				var dz = ent.v.floats[12] - quake_SV.server.edicts[enemy].v.floats[12];
 				if(dz > 40.0) {
 					neworg[2] = neworg[2] - 8.0;
@@ -12768,7 +12706,7 @@ quake_SV.movestep = function(ent,move,relink) {
 				}
 				return true;
 			}
-			if(enemy == 0) {
+			if(tmp) {
 				return false;
 			}
 		}
@@ -14250,6 +14188,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 		this1[2] = -plane.normal[2];
 		trace.plane.dist = -plane.dist;
 	}
+	var tmp = p2f - p1f;
 	while(quake_SV.HullPointContents(hull,hull.firstclipnode,v) == -2) {
 		frac -= 0.1;
 		if(frac < 0.0) {
@@ -14258,7 +14197,7 @@ quake_SV.RecursiveHullCheck = function(hull,num,p1f,p2f,p1,p2,trace) {
 			quake_Console.DPrint("backup past 0\n");
 			return false;
 		}
-		midf = p1f + (p2f - p1f) * frac;
+		midf = p1f + tmp * frac;
 		v[0] = p1[0] + frac * (p2[0] - p1[0]);
 		v[1] = p1[1] + frac * (p2[1] - p1[1]);
 		v[2] = p1[2] + frac * (p2[2] - p1[2]);
@@ -15397,14 +15336,18 @@ quake_Render.InitTextures = function() {
 	while(_g < 8) {
 		var i = _g++;
 		var _g1 = 0;
+		var tmp = i << 4;
+		var tmp1 = 136 + (i << 4);
+		var tmp2 = 8 + (i << 4);
+		var tmp3 = 128 + (i << 4);
 		while(_g1 < 8) {
 			var j = _g1++;
-			var tmp = (i << 4) + j;
-			data[136 + (i << 4) + j] = 255;
-			data[tmp] = 255;
-			var tmp1 = 8 + (i << 4) + j;
-			data[128 + (i << 4) + j] = 0;
-			data[tmp1] = 0;
+			var tmp4 = tmp + j;
+			data[tmp1 + j] = 255;
+			data[tmp4] = 255;
+			var tmp5 = tmp2 + j;
+			data[tmp3 + j] = 0;
+			data[tmp5] = 0;
 		}
 	}
 	var t = new quake_MTexture();
@@ -15715,13 +15658,14 @@ quake_Render.BlobExplosion = function(org) {
 quake_Render.RunParticleEffect = function(org,dir,color,count) {
 	var allocated = quake_Render.AllocParticles(count);
 	var _g = 0;
+	var tmp = color & 248;
 	while(_g < allocated.length) {
 		var idx = allocated[_g];
 		++_g;
 		var p = quake_Render.particles[idx];
 		p.type = 2;
 		p.die = quake_CL.state.time + 0.6 * Math.random();
-		p.color = (color & 248) + Math.floor(Math.random() * 8.0);
+		p.color = tmp + Math.floor(Math.random() * 8.0);
 		var this1 = p.org;
 		var x = org[0] + Math.random() * 16.0 - 8.0;
 		var y = org[1] + Math.random() * 16.0 - 8.0;
@@ -15825,6 +15769,8 @@ quake_Render.RocketTrail = function(start,end,type) {
 	}
 	var allocated = type == 4?quake_Render.AllocParticles(Math.floor(len / 6.0)):quake_Render.AllocParticles(Math.floor(len / 3.0));
 	var _g = 0;
+	var tmp = type == 3;
+	var tmp1 = type << 1;
 	while(_g < allocated.length) {
 		var idx = allocated[_g];
 		++_g;
@@ -15833,7 +15779,7 @@ quake_Render.RocketTrail = function(start,end,type) {
 		p.die = quake_CL.state.time + 2.0;
 		switch(type) {
 		case 0:case 1:
-			p.ramp = Math.floor(Math.random() * 4.0) + (type << 1);
+			p.ramp = Math.floor(Math.random() * 4.0) + tmp1;
 			p.color = quake_Render.ramp3[p.ramp | 0];
 			p.type = 3;
 			var this1 = p.org;
@@ -15858,7 +15804,7 @@ quake_Render.RocketTrail = function(start,end,type) {
 		case 3:case 5:
 			p.die = quake_CL.state.time + 0.5;
 			p.type = 0;
-			if(type == 3) {
+			if(tmp) {
 				p.color = 52 + ((quake_Render.tracercount++ & 4) << 1);
 			} else {
 				p.color = 230 + ((quake_Render.tracercount++ & 4) << 1);
@@ -15996,6 +15942,7 @@ quake_Render.AddDynamicLights = function(surf) {
 			var td1 = Math.floor(td);
 			var _g4 = 0;
 			var tmp = t * smax;
+			var tmp1 = td1 >> 1;
 			while(_g4 < smax) {
 				var s = _g4++;
 				var sd = local0 - (s << 4);
@@ -16004,7 +15951,7 @@ quake_Render.AddDynamicLights = function(surf) {
 				}
 				var sd1 = Math.floor(sd);
 				if(sd1 > td1) {
-					dist = sd1 + (td1 >> 1);
+					dist = sd1 + tmp1;
 				} else {
 					dist = td1 + (sd1 >> 1);
 				}
@@ -16538,9 +16485,11 @@ quake_Render.InitSky = function(src) {
 	while(_g < 128) {
 		var i = _g++;
 		var _g1 = 0;
+		var tmp = i << 7;
+		var tmp1 = i << 8;
 		while(_g1 < 128) {
 			var j = _g1++;
-			trans32[(i << 7) + j] = quake_COM.LittleLong(quake_VID.d_8to24table[src[(i << 8) + j + 128]] + -16777216);
+			trans32[tmp + j] = quake_COM.LittleLong(quake_VID.d_8to24table[src[tmp1 + j + 128]] + -16777216);
 		}
 	}
 	quake_GL.Bind(0,quake_Render.solidskytexture);
@@ -16550,13 +16499,15 @@ quake_Render.InitSky = function(src) {
 	while(_g2 < 128) {
 		var i1 = _g2++;
 		var _g11 = 0;
+		var tmp2 = i1 << 8;
+		var tmp3 = i1 << 7;
 		while(_g11 < 128) {
 			var j1 = _g11++;
-			var p = (i1 << 8) + j1;
+			var p = tmp2 + j1;
 			if(src[p] != 0) {
-				trans32[(i1 << 7) + j1] = quake_COM.LittleLong(quake_VID.d_8to24table[src[p]] + -16777216);
+				trans32[tmp3 + j1] = quake_COM.LittleLong(quake_VID.d_8to24table[src[p]] + -16777216);
 			} else {
-				trans32[(i1 << 7) + j1] = 0;
+				trans32[tmp3 + j1] = 0;
 			}
 		}
 	}
@@ -16874,14 +16825,8 @@ quake_PF.localcmd = function() {
 };
 quake_PF.cvar = function() {
 	var name = quake_PR.GetString(quake_PR.globals.ints[4]);
-	var tmp;
 	var _this = quake_Cvar.vars;
-	if(__map_reserved[name] != null) {
-		tmp = _this.getReserved(name);
-	} else {
-		tmp = _this.h[name];
-	}
-	var v = tmp;
+	var v = __map_reserved[name] != null?_this.getReserved(name):_this.h[name];
 	quake_PR.globals.floats[1] = v != null?v.value:0.0;
 };
 quake_PF.cvar_set = function() {
@@ -18304,14 +18249,8 @@ quake_W.LoadWadFile = function(filename) {
 	}
 };
 quake_W.GetLumpName = function(name) {
-	var tmp;
 	var _this = quake_W.lumps;
-	if(__map_reserved[name] != null) {
-		tmp = _this.getReserved(name);
-	} else {
-		tmp = _this.h[name];
-	}
-	var lump = tmp;
+	var lump = __map_reserved[name] != null?_this.getReserved(name):_this.h[name];
 	if(lump == null) {
 		quake_Sys.Error("W.GetLumpName: " + name + " not found");
 	}

@@ -5066,6 +5066,11 @@ var quake_GlobalVars = function(buf) {
 	this.buffer = buf;
 	this.floats = new Float32Array(buf);
 	this.ints = new Int32Array(buf);
+	this.v_forward = new Float32Array(this.buffer,236,3);
+	this.v_up = new Float32Array(this.buffer,248,3);
+	this.v_right = new Float32Array(this.buffer,260,3);
+	this.trace_endpos = new Float32Array(this.buffer,284,3);
+	this.trace_plane_normal = new Float32Array(this.buffer,296,3);
 };
 quake_GlobalVars.__name__ = true;
 quake_GlobalVars.prototype = {
@@ -16533,24 +16538,12 @@ quake_PF.objerror = function() {
 	quake_Host.Error("Program error");
 };
 quake_PF.makevectors = function() {
-	var forward = new Float32Array(3);
-	var right = new Float32Array(3);
-	var up = new Float32Array(3);
 	var _this = quake_PR.globals;
 	var v = new Float32Array(3);
 	v[0] = _this.floats[4];
 	v[1] = _this.floats[5];
 	v[2] = _this.floats[6];
-	quake__$Vec_Vec_$Impl_$.AngleVectors(v,forward,right,up);
-	quake_PR.globals.floats[59] = forward[0];
-	quake_PR.globals.floats[60] = forward[1];
-	quake_PR.globals.floats[61] = forward[2];
-	quake_PR.globals.floats[65] = right[0];
-	quake_PR.globals.floats[66] = right[1];
-	quake_PR.globals.floats[67] = right[2];
-	quake_PR.globals.floats[62] = up[0];
-	quake_PR.globals.floats[63] = up[1];
-	quake_PR.globals.floats[64] = up[2];
+	quake__$Vec_Vec_$Impl_$.AngleVectors(v,quake_PR.globals.v_forward,quake_PR.globals.v_right,quake_PR.globals.v_up);
 };
 quake_PF.setorigin = function() {
 	var e = quake_SV.server.edicts[quake_PR.globals.ints[4]];
@@ -16741,13 +16734,9 @@ quake_PF.traceline = function() {
 	quake_PR.globals.floats[70] = trace.fraction;
 	quake_PR.globals.floats[80] = trace.inwater?1.0:0.0;
 	quake_PR.globals.floats[79] = trace.inopen?1.0:0.0;
-	quake_PR.globals.floats[71] = trace.endpos[0];
-	quake_PR.globals.floats[72] = trace.endpos[1];
-	quake_PR.globals.floats[73] = trace.endpos[2];
+	quake_PR.globals.trace_endpos.set(trace.endpos);
 	var plane = trace.plane;
-	quake_PR.globals.floats[74] = plane.normal[0];
-	quake_PR.globals.floats[75] = plane.normal[1];
-	quake_PR.globals.floats[76] = plane.normal[2];
+	quake_PR.globals.trace_plane_normal.set(plane.normal);
 	quake_PR.globals.floats[77] = plane.dist;
 	quake_PR.globals.ints[78] = trace.ent != null?trace.ent.num:0;
 };
@@ -17058,25 +17047,22 @@ quake_PF.aim = function() {
 	v[0] = ent.v.floats[10];
 	v[1] = ent.v.floats[11];
 	v[2] = ent.v.floats[12] + 20.0;
+	var dir = new Float32Array(quake_PR.globals.v_forward);
 	var v1 = new Float32Array(3);
-	v1[0] = quake_PR.globals.floats[59];
-	v1[1] = quake_PR.globals.floats[60];
-	v1[2] = quake_PR.globals.floats[61];
-	var v2 = new Float32Array(3);
-	v2[0] = v[0] + 2048.0 * v1[0];
-	v2[1] = v[1] + 2048.0 * v1[1];
-	v2[2] = v[2] + 2048.0 * v1[2];
-	var tr = quake_SV.Move(v,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,v2,0,ent);
+	v1[0] = v[0] + 2048.0 * dir[0];
+	v1[1] = v[1] + 2048.0 * dir[1];
+	v1[2] = v[2] + 2048.0 * dir[2];
+	var tr = quake_SV.Move(v,quake__$Vec_Vec_$Impl_$.origin,quake__$Vec_Vec_$Impl_$.origin,v1,0,ent);
 	if(tr.ent != null) {
 		if(tr.ent.v.floats[59] == 2 && (quake_Host.teamplay.value == 0 || ent.v.floats[78] <= 0 || ent.v.floats[78] != tr.ent.v.floats[78])) {
 			var _this = quake_PR.globals;
-			_this.floats[1] = v1[0];
-			_this.floats[2] = v1[1];
-			_this.floats[3] = v1[2];
+			_this.floats[1] = dir[0];
+			_this.floats[2] = dir[1];
+			_this.floats[3] = dir[2];
 			return;
 		}
 	}
-	var bestdir = new Float32Array(v1);
+	var bestdir = new Float32Array(dir);
 	var bestdist = quake_SV.aim.value;
 	var bestent = null;
 	var end = new Float32Array(3);
@@ -17096,11 +17082,11 @@ quake_PF.aim = function() {
 		end[0] = check.v.floats[10] + 0.5 * (check.v.floats[33] + check.v.floats[36]);
 		end[1] = check.v.floats[11] + 0.5 * (check.v.floats[34] + check.v.floats[37]);
 		end[2] = check.v.floats[12] + 0.5 * (check.v.floats[35] + check.v.floats[38]);
-		v1[0] = end[0] - v[0];
-		v1[1] = end[1] - v[1];
-		v1[2] = end[2] - v[2];
-		quake__$Vec_Vec_$Impl_$.Normalize(v1);
-		var dist = v1[0] * bestdir[0] + v1[1] * bestdir[1] + v1[2] * bestdir[2];
+		dir[0] = end[0] - v[0];
+		dir[1] = end[1] - v[1];
+		dir[2] = end[2] - v[2];
+		quake__$Vec_Vec_$Impl_$.Normalize(dir);
+		var dist = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
 		if(dist < bestdist) {
 			continue;
 		}
@@ -17111,13 +17097,13 @@ quake_PF.aim = function() {
 		}
 	}
 	if(bestent != null) {
-		v1[0] = bestent.v.floats[10] - ent.v.floats[10];
-		v1[1] = bestent.v.floats[11] - ent.v.floats[11];
-		v1[2] = bestent.v.floats[12] - ent.v.floats[12];
-		var dist1 = v1[0] * bestdir[0] + v1[1] * bestdir[1] + v1[2] * bestdir[2];
+		dir[0] = bestent.v.floats[10] - ent.v.floats[10];
+		dir[1] = bestent.v.floats[11] - ent.v.floats[11];
+		dir[2] = bestent.v.floats[12] - ent.v.floats[12];
+		var dist1 = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
 		end[0] = bestdir[0] * dist1;
 		end[1] = bestdir[1] * dist1;
-		end[2] = v1[2];
+		end[2] = dir[2];
 		quake__$Vec_Vec_$Impl_$.Normalize(end);
 		var _this1 = quake_PR.globals;
 		_this1.floats[1] = end[0];

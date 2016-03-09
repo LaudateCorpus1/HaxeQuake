@@ -38,19 +38,7 @@ class PF {
     }
 
     static function makevectors():Void {
-        var forward = new Vec();
-        var right = new Vec();
-        var up = new Vec();
-        Vec.AngleVectors(PR.globals.GetVector(OFS_PARM0), forward, right, up);
-        PR.globals.v_forward = forward[0];
-        PR.globals.v_forward1 = forward[1];
-        PR.globals.v_forward2 = forward[2];
-        PR.globals.v_right = right[0];
-        PR.globals.v_right1 = right[1];
-        PR.globals.v_right2 = right[2];
-        PR.globals.v_up = up[0];
-        PR.globals.v_up1 = up[1];
-        PR.globals.v_up2 = up[2];
+        Vec.AngleVectors(PR.globals.GetVector(OFS_PARM0), PR.globals.v_forward, PR.globals.v_right, PR.globals.v_up);
     }
 
     static function setorigin():Void {
@@ -227,13 +215,9 @@ class PF {
         PR.globals.trace_fraction = trace.fraction;
         PR.globals.trace_inwater = (trace.inwater) ? 1.0 : 0.0;
         PR.globals.trace_inopen = (trace.inopen) ? 1.0 : 0.0;
-        PR.globals.trace_endpos = trace.endpos[0];
-        PR.globals.trace_endpos1 = trace.endpos[1];
-        PR.globals.trace_endpos2 = trace.endpos[2];
+        PR.globals.trace_endpos.setVector(trace.endpos);
         var plane = trace.plane;
-        PR.globals.trace_plane_normal = plane.normal[0];
-        PR.globals.trace_plane_normal1 = plane.normal[1];
-        PR.globals.trace_plane_normal2 = plane.normal[2];
+        PR.globals.trace_plane_normal.setVector(plane.normal);
         PR.globals.trace_plane_dist = plane.dist;
         PR.globals.trace_ent = (trace.ent != null) ? trace.ent.num : 0;
     }
@@ -532,7 +516,7 @@ class PF {
     static function aim() {
         var ent = SV.server.edicts[PR.globals.ints[OFS_PARM0]];
         var start = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + 20.0);
-        var dir = Vec.of(PR.globals.v_forward, PR.globals.v_forward1, PR.globals.v_forward2);
+        var dir = PR.globals.v_forward.copy();
         var end = Vec.of(start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]);
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
         if (tr.ent != null) {

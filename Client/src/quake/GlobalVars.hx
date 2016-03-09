@@ -41,24 +41,14 @@ class GlobalVars {
     var parms14:Float; // 57
     var parms15:Float; // 58
 
-    var v_forward:Float; // 59 // vec3
-    var v_forward1:Float; // 60
-    var v_forward2:Float; // 61
-    var v_up:Float; // 62 // vec3
-    var v_up1:Float; // 63
-    var v_up2:Float; // 64
-    var v_right:Float; // 65 // vec3,
-    var v_right1:Float; // 66
-    var v_right2:Float; // 67
+    var v_forward:Vec; // 59 // vec3
+    var v_up:Vec; // 62 // vec3
+    var v_right:Vec; // 65 // vec3
     var trace_allsolid:Float; // 68 // float
     var trace_startsolid:Float; // 69 // float
     var trace_fraction:Float; // 70 // float
-    var trace_endpos:Float; // 71 // vec3
-    var trace_endpos1:Float; // 72
-    var trace_endpos2:Float; // 73
-    var trace_plane_normal:Float; // 74 // vec3
-    var trace_plane_normal1:Float; // 75
-    var trace_plane_normal2:Float; // 76
+    var trace_endpos:Vec; // 71 // vec3
+    var trace_plane_normal:Vec; // 74 // vec3
     var trace_plane_dist:Float; // 77 // float
     var trace_ent:Int; // 78 // edict
     var trace_inopen:Float; // 79 // float
@@ -83,7 +73,10 @@ class GlobalVars {
         buffer = buf;
         floats = new Float32Array(buf);
         ints = new Int32Array(buf);
+        init();
     }
+
+    inline function init():Void;
 
     public inline function SetReturnVector(v:Vec):Void {
         floats[OFS_RETURN] = v[0];

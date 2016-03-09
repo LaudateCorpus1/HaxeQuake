@@ -179,8 +179,8 @@ class PF {
         SV.StartParticle(
             PR.globals.GetVector(OFS_PARM0),
             PR.globals.GetVector(OFS_PARM1),
-            PR.globals.GetIntFromFloat(OFS_PARM2),
-            PR.globals.GetIntFromFloat(OFS_PARM3)
+            Std.int(PR.globals.GetFloat(OFS_PARM2)),
+            Std.int(PR.globals.GetFloat(OFS_PARM3))
         );
     }
 

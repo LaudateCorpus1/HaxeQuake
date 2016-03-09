@@ -107,10 +107,6 @@ class GlobalVars {
         return floats[ofs];
     }
 
-    public inline function GetIntFromFloat(ofs:Int):Int {
-        return Std.int(floats[ofs]);
-    }
-
     public inline function GetInt(ofs:Int):Int {
         return ints[ofs];
     }

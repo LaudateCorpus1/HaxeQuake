@@ -2,61 +2,46 @@ package quake;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
-import haxe.macro.Type;
 
 class GlobalVarsMacro {
     static function build():Array<Field> {
         var fields = Context.getBuildFields();
-        switch (Context.getType("quake.GlobalVars.GlobalVarOfs")) {
-            case TInst(_.get() => cl, _):
-                for (field in cl.statics.get()) {
-                    var fieldName = field.name;
-                    var fieldType;
-                    var viewField;
-
-                    switch (field.meta.get()) {
-                        case [{name: "f"}]:
-                            fieldType = macro : Float;
-                            viewField = "floats";
-                        case [{name: "i"}]:
-                            fieldType = macro : Int;
-                            viewField = "ints";
-                        default:
-                            throw new Error("Invalid field meta", field.pos);
+        var offset = 28;
+        var addedFields = [];
+        for (field in fields) {
+            switch (field.kind) {
+                case FVar(ct, null):
+                    var viewField = switch (ct) {
+                        case TPath({name: "Float"}): "floats";
+                        case TPath({name: "Int"}): "ints";
+                        default: continue;
                     }
-
-                    fields.push({
-                        name: fieldName,
+                    field.kind = FProp("get", "set", ct);
+                    field.access = [APublic];
+                    addedFields.push({
                         pos: field.pos,
-                        access: [APublic],
-                        kind: FProp("get", "set", fieldType)
-                    });
-
-                    fields.push({
-                        name: "get_" + fieldName,
-                        pos: field.pos,
-                        access: [AInline],
+                        name: "get_" + field.name,
+                        access: [APrivate, AInline],
                         kind: FFun({
+                            ret: ct,
                             args: [],
-                            ret: fieldType,
-                            expr: macro return this.$viewField[quake.GlobalVarOfs.$fieldName]
+                            expr: macro return this.$viewField[$v{offset}]
                         })
                     });
-
-                    fields.push({
-                        name: "set_" + fieldName,
+                    addedFields.push({
                         pos: field.pos,
-                        access: [AInline],
+                        name: "set_" + field.name,
+                        access: [APrivate, AInline],
                         kind: FFun({
-                            args: [{name: "value", type: fieldType}],
-                            ret: fieldType,
-                            expr: macro return this.$viewField[quake.GlobalVarOfs.$fieldName] = value
+                            ret: ct,
+                            args: [{name: "value", type: ct}],
+                            expr: macro return this.$viewField[$v{offset}] = value
                         })
                     });
-                }
-            default:
-                throw false;
+                    offset++;
+                default:
+            }
         }
-        return fields;
+        return fields.concat(addedFields);
     }
 }

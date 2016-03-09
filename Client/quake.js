@@ -6022,7 +6022,7 @@ quake_Host.Spawn_f = function() {
 		_this.floats[51] = values[8];
 		_this.floats[52] = values[9];
 		_this.floats[53] = values[10];
-		_this.floats[53] = values[11];
+		_this.floats[54] = values[11];
 		_this.floats[55] = values[12];
 		_this.floats[56] = values[13];
 		_this.floats[57] = values[14];
@@ -12018,7 +12018,7 @@ quake_SV.ConnectClient = function(clientnum) {
 	} else {
 		quake_PR.ExecuteProgram(quake_PR.globals.ints[90]);
 		var _this = quake_PR.globals;
-		client.spawn_parms = [_this.floats[43],_this.floats[44],_this.floats[45],_this.floats[46],_this.floats[47],_this.floats[48],_this.floats[49],_this.floats[50],_this.floats[51],_this.floats[52],_this.floats[53],_this.floats[53],_this.floats[55],_this.floats[56],_this.floats[57],_this.floats[58]];
+		client.spawn_parms = [_this.floats[43],_this.floats[44],_this.floats[45],_this.floats[46],_this.floats[47],_this.floats[48],_this.floats[49],_this.floats[50],_this.floats[51],_this.floats[52],_this.floats[53],_this.floats[54],_this.floats[55],_this.floats[56],_this.floats[57],_this.floats[58]];
 	}
 	quake_SV.SendServerinfo(client);
 };
@@ -12483,7 +12483,7 @@ quake_SV.SaveSpawnparms = function() {
 		quake_PR.globals.ints[28] = quake_Host.client.edict.num;
 		quake_PR.ExecuteProgram(quake_PR.globals.ints[91]);
 		var _this = quake_PR.globals;
-		quake_Host.client.spawn_parms = [_this.floats[43],_this.floats[44],_this.floats[45],_this.floats[46],_this.floats[47],_this.floats[48],_this.floats[49],_this.floats[50],_this.floats[51],_this.floats[52],_this.floats[53],_this.floats[53],_this.floats[55],_this.floats[56],_this.floats[57],_this.floats[58]];
+		quake_Host.client.spawn_parms = [_this.floats[43],_this.floats[44],_this.floats[45],_this.floats[46],_this.floats[47],_this.floats[48],_this.floats[49],_this.floats[50],_this.floats[51],_this.floats[52],_this.floats[53],_this.floats[54],_this.floats[55],_this.floats[56],_this.floats[57],_this.floats[58]];
 	}
 };
 quake_SV.SpawnServer = function(map) {
@@ -17232,7 +17232,7 @@ quake_PF.setspawnparms = function() {
 	_this.floats[51] = values[8];
 	_this.floats[52] = values[9];
 	_this.floats[53] = values[10];
-	_this.floats[53] = values[11];
+	_this.floats[54] = values[11];
 	_this.floats[55] = values[12];
 	_this.floats[56] = values[13];
 	_this.floats[57] = values[14];

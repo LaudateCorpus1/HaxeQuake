@@ -36,14 +36,6 @@ class Edict {
         this.v = new EdictVars(new ArrayBuffer(PR.entityfields << 2));
     }
 
-    inline function GetVector(o:Int):Vec {
-        return cast new Float32Array(v.buffer.slice(o * 4, (o * 4 + 3 * 4)));
-    }
-
-    inline function SetVector(ofs:Int, vec:Vec):Void {
-        v.floats.set(vec, ofs);
-    }
-
     function Clear():Void {
         for (i in 0...PR.entityfields)
             v.ints[i] = 0;

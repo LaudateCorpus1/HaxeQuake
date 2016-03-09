@@ -43,20 +43,20 @@ class PF {
 
     static function setorigin():Void {
         var e = SV.server.edicts[PR.globals.ints[OFS_PARM0]];
-        e.v.origin = PR.globals.floats[OFS_PARM1];
-        e.v.origin1 = PR.globals.floats[OFS_PARM1 + 1];
-        e.v.origin2 = PR.globals.floats[OFS_PARM1 + 2];
+        e.v.origin.setValues(
+            PR.globals.floats[OFS_PARM1],
+            PR.globals.floats[OFS_PARM1 + 1],
+            PR.globals.floats[OFS_PARM1 + 2]
+        );
         SV.LinkEdict(e, false);
     }
 
     static function SetMinMaxSize(e:Edict, min:Vec, max:Vec):Void {
         if ((min[0] > max[0]) || (min[1] > max[1]) || (min[2] > max[2]))
             PR.RunError('backwards mins/maxs');
-        e.SetVector(EdictVarOfs.mins, min);
-        e.SetVector(EdictVarOfs.maxs, max);
-        e.v.size = max[0] - min[0];
-        e.v.size1 = max[1] - min[1];
-        e.v.size2 = max[2] - min[2];
+        e.v.mins.setVector(min);
+        e.v.maxs.setVector(max);
+        e.v.size.setValues(max[0] - min[0], max[1] - min[1], max[2] - min[2]);
         SV.LinkEdict(e, false);
     }
 
@@ -247,11 +247,7 @@ class PF {
             }
             break;
         }
-        checkpvs = Mod_Brush.LeafPVS(Mod_Brush.PointInLeaf(Vec.of(
-                ent.v.origin + ent.v.view_ofs,
-                ent.v.origin1 + ent.v.view_ofs1,
-                ent.v.origin2 + ent.v.view_ofs2
-            ), SV.server.worldmodel), SV.server.worldmodel);
+        checkpvs = Mod_Brush.LeafPVS(Mod_Brush.PointInLeaf(Vec.Add(ent.v.origin, ent.v.view_ofs), SV.server.worldmodel), SV.server.worldmodel);
         return i;
     }
 
@@ -268,11 +264,7 @@ class PF {
             return;
         }
         var self = SV.server.edicts[PR.globals.self];
-        var l = Mod_Brush.PointInLeaf(Vec.of(
-                self.v.origin + self.v.view_ofs,
-                self.v.origin1 + self.v.view_ofs1,
-                self.v.origin2 + self.v.view_ofs2
-            ), SV.server.worldmodel).num - 1;
+        var l = Mod_Brush.PointInLeaf(Vec.Add(self.v.origin, self.v.view_ofs), SV.server.worldmodel).num - 1;
         if ((l < 0) || ((checkpvs[l >> 3] & (1 << (l & 7))) == 0)) {
             PR.globals.ints[OFS_RETURN] = 0;
             return;
@@ -312,9 +304,9 @@ class PF {
                 continue;
             if (ent.v.solid == SolidType.not)
                 continue;
-            eorg[0] = org[0] - (ent.v.origin + (ent.v.mins + ent.v.maxs) * 0.5);
-            eorg[1] = org[1] - (ent.v.origin1 + (ent.v.mins1 + ent.v.maxs1) * 0.5);
-            eorg[2] = org[2] - (ent.v.origin2 + (ent.v.mins2 + ent.v.maxs2) * 0.5);
+            eorg[0] = org[0] - (ent.v.origin[0] + (ent.v.mins[0] + ent.v.maxs[0]) * 0.5);
+            eorg[1] = org[1] - (ent.v.origin[1] + (ent.v.mins[1] + ent.v.maxs[1]) * 0.5);
+            eorg[2] = org[2] - (ent.v.origin[2] + (ent.v.mins[2] + ent.v.maxs[2]) * 0.5);
             if (Math.sqrt(eorg[0] * eorg[0] + eorg[1] * eorg[1] + eorg[2] * eorg[2]) > rad)
                 continue;
             ent.v.chain = chain;
@@ -451,14 +443,13 @@ class PF {
 
     static function droptofloor() {
         var ent = SV.server.edicts[PR.globals.self];
-        var trace = SV.Move(ent.GetVector(EdictVarOfs.origin),
-            ent.GetVector(EdictVarOfs.mins), ent.GetVector(EdictVarOfs.maxs),
-            Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 - 256.0), 0, ent);
+        var trace = SV.Move(ent.v.origin.copy(), ent.v.mins.copy(), ent.v.maxs.copy(),
+            Vec.of(ent.v.origin[0], ent.v.origin[1], ent.v.origin[2] - 256.0), 0, ent);
         if ((trace.fraction == 1.0) || (trace.allsolid)) {
             PR.globals.floats[OFS_RETURN] = 0.0;
             return;
         }
-        ent.SetVector(EdictVarOfs.origin, trace.endpos);
+        ent.v.origin.setVector(trace.endpos);
         SV.LinkEdict(ent, false);
         ent.flags = ent.flags | EntFlag.onground;
         ent.v.groundentity = trace.ent.num;
@@ -515,7 +506,7 @@ class PF {
 
     static function aim() {
         var ent = SV.server.edicts[PR.globals.ints[OFS_PARM0]];
-        var start = Vec.of(ent.v.origin, ent.v.origin1, ent.v.origin2 + 20.0);
+        var start = Vec.of(ent.v.origin[0], ent.v.origin[1], ent.v.origin[2] + 20.0);
         var dir = PR.globals.v_forward.copy();
         var end = Vec.of(start[0] + 2048.0 * dir[0], start[1] + 2048.0 * dir[1], start[2] + 2048.0 * dir[2]);
         var tr = SV.Move(start, Vec.origin, Vec.origin, end, 0, ent);
@@ -538,9 +529,9 @@ class PF {
                 continue;
             if ((Host.teamplay.value != 0) && (ent.v.team > 0) && (ent.v.team == check.v.team))
                 continue;
-            end[0] = check.v.origin + 0.5 * (check.v.mins + check.v.maxs);
-            end[1] = check.v.origin1 + 0.5 * (check.v.mins1 + check.v.maxs1);
-            end[2] = check.v.origin2 + 0.5 * (check.v.mins2 + check.v.maxs2);
+            end[0] = check.v.origin[0] + 0.5 * (check.v.mins[0] + check.v.maxs[0]);
+            end[1] = check.v.origin[1] + 0.5 * (check.v.mins[1] + check.v.maxs[1]);
+            end[2] = check.v.origin[2] + 0.5 * (check.v.mins[2] + check.v.maxs[2]);
             dir[0] = end[0] - start[0];
             dir[1] = end[1] - start[1];
             dir[2] = end[2] - start[2];
@@ -555,9 +546,9 @@ class PF {
             }
         }
         if (bestent != null) {
-            dir[0] = bestent.v.origin - ent.v.origin;
-            dir[1] = bestent.v.origin1 - ent.v.origin1;
-            dir[2] = bestent.v.origin2 - ent.v.origin2;
+            dir[0] = bestent.v.origin[0] - ent.v.origin[0];
+            dir[1] = bestent.v.origin[1] - ent.v.origin[1];
+            dir[2] = bestent.v.origin[2] - ent.v.origin[2];
             var dist = dir[0] * bestdir[0] + dir[1] * bestdir[1] + dir[2] * bestdir[2];
             end[0] = bestdir[0] * dist;
             end[1] = bestdir[1] * dist;
@@ -571,7 +562,7 @@ class PF {
 
     public static function changeyaw() {
         var ent = SV.server.edicts[PR.globals.self];
-        var current = Vec.Anglemod(ent.v.angles1);
+        var current = Vec.Anglemod(ent.v.angles[1]);
         var ideal = ent.v.ideal_yaw;
         if (current == ideal)
             return;
@@ -589,7 +580,7 @@ class PF {
         }
         else if (move < -speed)
             move = -speed;
-        ent.v.angles1 = Vec.Anglemod(current + move);
+        ent.v.angles[1] = Vec.Anglemod(current + move);
     }
 
     static function WriteDest() {
@@ -628,12 +619,12 @@ class PF {
         message.WriteByte(Std.int(ent.v.frame));
         message.WriteByte(Std.int(ent.v.colormap));
         message.WriteByte(Std.int(ent.v.skin));
-        message.WriteCoord(ent.v.origin);
-        message.WriteAngle(ent.v.angles);
-        message.WriteCoord(ent.v.origin1);
-        message.WriteAngle(ent.v.angles1);
-        message.WriteCoord(ent.v.origin2);
-        message.WriteAngle(ent.v.angles2);
+        message.WriteCoord(ent.v.origin[0]);
+        message.WriteAngle(ent.v.angles[0]);
+        message.WriteCoord(ent.v.origin[1]);
+        message.WriteAngle(ent.v.angles[1]);
+        message.WriteCoord(ent.v.origin[2]);
+        message.WriteAngle(ent.v.angles[2]);
         ED.Free(ent);
     }
 

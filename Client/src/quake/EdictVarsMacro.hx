@@ -8,56 +8,67 @@ using haxe.macro.Tools;
 class EdictVarsMacro {
     static function build():Array<Field> {
         var fields = Context.getBuildFields();
-        switch (Context.getType("EdictVarOfs")) {
-            case TInst(_.get() => cl, _):
-                for (field in cl.statics.get()) {
+        var offset = 0;
+        var addedFields = [];
+        var inits = [];
+        var initField = null;
+
+        for (field in fields) {
+            if (field.name == "init") {
+                initField = field;
+                continue;
+            }
+            switch (field.kind) {
+                case FVar(ct, null):
                     var fieldName = field.name;
-                    var fieldType;
-                    var viewField;
-
-                    switch (field.meta.get()) {
-                        case [{name: "f"}]:
-                            fieldType = macro : Float;
-                            viewField = "floats";
-                        case [{name: "i"}]:
-                            fieldType = macro : Int;
-                            viewField = "ints";
-                        default:
-                            throw new Error("Invalid field meta", field.pos);
+                    var viewField = switch (ct) {
+                        case TPath({name: "Float"}): "floats";
+                        case TPath({name: "Int"}): "ints";
+                        case TPath({name: "Vec"}):
+                            field.access = [APublic];
+                            field.kind = FProp("default", "null", macro : quake.Vec);
+                            inits.push(macro this.$fieldName = cast new js.html.Float32Array(buffer, $v{offset * 4}, 3));
+                            offset += 3;
+                            continue;
+                        default: continue;
+                    };
+                    field.kind = FProp("get", "set", ct);
+                    field.access = [APublic];
+                    var ofsExpr = macro $v{offset};
+                    if (Lambda.exists(field.meta, function(m) return m.name == ":dyn")) {
+                        var ofsName = field.name + "_ofs";
+                        ofsExpr = macro quake.EdictVars.$ofsName;
+                    } else {
+                        offset++;
                     }
-
-                    fields.push({
-                        name: fieldName,
+                    addedFields.push({
                         pos: field.pos,
-                        access: [APublic],
-                        kind: FProp("get", "set", fieldType),
-                    });
-
-                    fields.push({
-                        name: "get_" + fieldName,
-                        pos: field.pos,
-                        access: [AInline],
+                        name: "get_" + field.name,
+                        access: [APrivate, AInline],
                         kind: FFun({
+                            ret: ct,
                             args: [],
-                            ret: fieldType,
-                            expr: macro return this.$viewField[quake.EdictVarOfs.$fieldName]
-                        }),
-                    });
-
-                    fields.push({
-                        name: "set_" + fieldName,
-                        pos: field.pos,
-                        access: [AInline],
-                        kind: FFun({
-                            args: [{name: "value", type: fieldType}],
-                            ret: fieldType,
-                            expr: macro return this.$viewField[quake.EdictVarOfs.$fieldName] = value
+                            expr: macro return this.$viewField[$ofsExpr]
                         })
                     });
-                }
-            default:
-                throw false;
+                    addedFields.push({
+                        pos: field.pos,
+                        name: "set_" + field.name,
+                        access: [APrivate, AInline],
+                        kind: FFun({
+                            ret: ct,
+                            args: [{name: "value", type: ct}],
+                            expr: macro return this.$viewField[$ofsExpr] = value
+                        })
+                    });
+                default:
+            }
         }
-        return fields;
+        switch (initField.kind) {
+            case FFun(f):
+                f.expr = macro $b{inits};
+            default: throw false;
+        }
+        return fields.concat(addedFields);
     }
 }

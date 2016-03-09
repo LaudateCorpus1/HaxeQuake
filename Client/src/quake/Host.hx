@@ -1012,8 +1012,8 @@ class Host {
         message.WriteByte(ClientStat.monsters);
         message.WriteLong(Std.int(PR.globals.killed_monsters));
         message.WriteByte(SVC.setangle);
-        message.WriteAngle(ent.v.angles);
-        message.WriteAngle(ent.v.angles1);
+        message.WriteAngle(ent.v.angles[0]);
+        message.WriteAngle(ent.v.angles[1]);
         message.WriteAngle(0.0);
         SV.WriteClientdataToMessage(ent, message);
         message.WriteByte(SVC.signonnum);
@@ -1155,41 +1155,41 @@ class Host {
         }
         switch (t) {
             case "s".code:
-                if (EdictVarOfs.ammo_shells1 != null)
+                if (EdictVars.ammo_shells1_ofs != null)
                     ent.v.ammo_shells1 = v;
                 ent.v.ammo_shells = v;
             case "n".code:
-                if (EdictVarOfs.ammo_nails1 != null) {
+                if (EdictVars.ammo_nails1_ofs != null) {
                     ent.v.ammo_nails1 = v;
                     if (ent.v.weapon <= Def.it.lightning)
                         ent.v.ammo_nails = v;
                 }
             case "l".code:
-                if (EdictVarOfs.ammo_lava_nails != null) {
+                if (EdictVars.ammo_lava_nails_ofs != null) {
                     ent.v.ammo_lava_nails = v;
                     if (ent.v.weapon > Def.it.lightning)
                         ent.v.ammo_nails = v;
                 }
             case "r".code:
-                if (EdictVarOfs.ammo_rockets1 != null) {
+                if (EdictVars.ammo_rockets1_ofs != null) {
                     ent.v.ammo_rockets1 = v;
                     if (ent.v.weapon <= Def.it.lightning)
                         ent.v.ammo_rockets = v;
                 }
             case "m".code:
-                if (EdictVarOfs.ammo_multi_rockets != null) {
+                if (EdictVars.ammo_multi_rockets_ofs != null) {
                     ent.v.ammo_multi_rockets = v;
                     if (ent.v.weapon > Def.it.lightning)
                         ent.v.ammo_rockets = v;
                 }
             case "c".code:
-                if (EdictVarOfs.ammo_cells1 != null) {
+                if (EdictVars.ammo_cells1_ofs != null) {
                     ent.v.ammo_cells1 = v;
                     if (ent.v.weapon <= Def.it.lightning)
                         ent.v.ammo_cells = v;
                 }
             case "p".code:
-                if (EdictVarOfs.ammo_plasma != null) {
+                if (EdictVars.ammo_plasma_ofs != null) {
                     ent.v.ammo_plasma = v;
                     if (ent.v.weapon > Def.it.lightning)
                         ent.v.ammo_cells = v;

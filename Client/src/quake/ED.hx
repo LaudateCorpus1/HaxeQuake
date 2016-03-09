@@ -35,8 +35,8 @@ class ED {
 		ed.v.colormap = 0.0;
 		ed.v.skin = 0.0;
 		ed.v.frame = 0.0;
-		ed.SetVector(EdictVarOfs.origin, Vec.origin);
-		ed.SetVector(EdictVarOfs.angles, Vec.origin);
+		ed.v.origin.setVector(Vec.origin);
+		ed.v.angles.setVector(Vec.origin);
 		ed.v.nextthink = -1.0;
 		ed.v.solid = 0.0;
 		ed.freetime = SV.server.time;

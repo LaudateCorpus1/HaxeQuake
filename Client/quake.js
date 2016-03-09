@@ -2160,13 +2160,13 @@ quake_CL.ParseStatic = function() {
 	var v1 = ent.origin;
 	var v2 = ent.model.mins;
 	var v = new Float32Array(3);
-	v[0] = v1[0] + v1[2];
+	v[0] = v1[0] + v2[0];
 	v[1] = v1[1] + v2[1];
 	v[2] = v1[2] + v2[2];
 	var v11 = ent.origin;
 	var v21 = ent.model.maxs;
 	var v3 = new Float32Array(3);
-	v3[0] = v11[0] + v11[2];
+	v3[0] = v11[0] + v21[0];
 	v3[1] = v11[1] + v21[1];
 	v3[2] = v11[2] + v21[2];
 	quake_Render.SplitEntityOnNode(v,v3,quake_CL.state.worldmodel.nodes[0]);

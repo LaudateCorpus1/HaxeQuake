@@ -14041,7 +14041,7 @@ quake_SV.LinkEdict = function(ent,touch_triggers) {
 		return;
 	}
 	var node = quake_SV.areanodes[0];
-	while(!(node.axis == -1)) if(ent.v.absmin[node.axis] > node.dist) {
+	while(node.axis != -1) if(ent.v.absmin[node.axis] > node.dist) {
 		node = node.children[0];
 	} else if(ent.v.absmax[node.axis] < node.dist) {
 		node = node.children[1];
@@ -15831,7 +15831,6 @@ quake_Render.DrawParticles = function() {
 		} else {
 			quake_GL.gl.uniform1f(program.uScale,1 + scale * 0.004);
 		}
-		scale *= 1.27;
 		quake_GL.gl.drawArrays(5,0,4);
 	}
 	quake_GL.gl.disable(3042);
@@ -16191,7 +16190,7 @@ quake_Render.MarkLeaves = function() {
 			node = node.parent;
 		}
 	}
-	while(!(quake_Render.novis.value != 0)) {
+	while(quake_Render.novis.value == 0) {
 		var leaf;
 		if(quake_Render.viewleaf.contents <= -3) {
 			var v = new Float32Array(3);

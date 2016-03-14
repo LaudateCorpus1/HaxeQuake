@@ -1595,8 +1595,6 @@ class Render {
             else
                 gl.uniform1f(program.uScale, 1 + scale * 0.004);
 
-            scale *= 1.27; // for round particles
-
             gl.drawArrays(RenderingContext.TRIANGLE_STRIP, 0, 4);
         }
 

@@ -241,6 +241,7 @@ class Menu {
 					case 2:
 						Menu_Save_f();
 				}
+			default:
 		}
 	}
 
@@ -686,6 +687,7 @@ class Menu {
 			return;
 		case KeyCode.rightarrow:
 			AdjustSliders(1);
+		default:
 		}
 	}
 
@@ -833,7 +835,8 @@ class Menu {
 			entersound = true;
 			if (--help_page < 0)
 				help_page = num_help_pages - 1;
-		};
+		default:
+		}
 	}
 
 	// Quit menu

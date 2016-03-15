@@ -247,8 +247,6 @@ js_Boot.__string_rec = function(o,s) {
 		t = "object";
 	}
 	switch(t) {
-	case "function":
-		return "<function>";
 	case "object":
 		if(o instanceof Array) {
 			if(o.__enum__) {
@@ -313,6 +311,8 @@ js_Boot.__string_rec = function(o,s) {
 		s = s.substring(1);
 		str2 += "\n" + s + "}";
 		return str2;
+	case "function":
+		return "<function>";
 	case "string":
 		return o;
 	default:
@@ -344,6 +344,14 @@ js_Boot.__instanceof = function(o,cl) {
 		return false;
 	}
 	switch(cl) {
+	case Int:
+		return (o|0) === o;
+	case Float:
+		return typeof(o) == "number";
+	case Bool:
+		return typeof(o) == "boolean";
+	case String:
+		return typeof(o) == "string";
 	case Array:
 		if((o instanceof Array)) {
 			return o.__enum__ == null;
@@ -351,16 +359,8 @@ js_Boot.__instanceof = function(o,cl) {
 			return false;
 		}
 		break;
-	case Bool:
-		return typeof(o) == "boolean";
 	case Dynamic:
 		return true;
-	case Float:
-		return typeof(o) == "number";
-	case Int:
-		return (o|0) === o;
-	case String:
-		return typeof(o) == "string";
 	default:
 		if(o != null) {
 			if(typeof(cl) == "function") {
@@ -831,6 +831,28 @@ quake_CDAudio.CD_f = function() {
 		return;
 	}
 	switch(quake_Cmd.argv[1].toLowerCase()) {
+	case "on":
+		quake_CDAudio.enabled = true;
+		break;
+	case "off":
+		quake_CDAudio.Stop();
+		quake_CDAudio.enabled = false;
+		break;
+	case "play":
+		quake_CDAudio.Play(quake_Q.atoi(quake_Cmd.argv[2]),false);
+		break;
+	case "loop":
+		quake_CDAudio.Play(quake_Q.atoi(quake_Cmd.argv[2]),true);
+		break;
+	case "stop":
+		quake_CDAudio.Stop();
+		break;
+	case "pause":
+		quake_CDAudio.Pause();
+		break;
+	case "resume":
+		quake_CDAudio.Resume();
+		break;
 	case "info":
 		quake_Console.Print(quake_CDAudio.known.length + " tracks\n");
 		if(quake_CDAudio.cd != null) {
@@ -839,28 +861,6 @@ quake_CDAudio.CD_f = function() {
 			}
 		}
 		quake_Console.Print("Volume is " + quake_CDAudio.cdvolume + "\n");
-		break;
-	case "loop":
-		quake_CDAudio.Play(quake_Q.atoi(quake_Cmd.argv[2]),true);
-		break;
-	case "off":
-		quake_CDAudio.Stop();
-		quake_CDAudio.enabled = false;
-		break;
-	case "on":
-		quake_CDAudio.enabled = true;
-		break;
-	case "pause":
-		quake_CDAudio.Pause();
-		break;
-	case "play":
-		quake_CDAudio.Play(quake_Q.atoi(quake_Cmd.argv[2]),false);
-		break;
-	case "resume":
-		quake_CDAudio.Resume();
-		break;
-	case "stop":
-		quake_CDAudio.Stop();
 		break;
 	}
 };
@@ -2213,43 +2213,44 @@ quake_CL.ParseServerMessage = function() {
 		case 1:
 			continue;
 			break;
-		case 2:
-			quake_Host.EndGame("Server disconnected\n");
-			break;
-		case 3:
-			var i = quake_MSG.ReadByte();
-			if(i >= 32) {
-				quake_Sys.Error("svc_updatestat: " + i + " is invalid");
-			}
-			quake_CL.state.stats[i] = quake_MSG.ReadLong();
-			continue;
-			break;
-		case 4:
-			var i1 = quake_MSG.ReadLong();
-			if(i1 != 15) {
-				quake_Host.Error("CL.ParseServerMessage: Server is protocol " + i1 + " instead of " + 15 + "\n");
-			}
-			continue;
-			break;
-		case 5:
-			quake_CL.state.viewentity = quake_MSG.ReadShort();
-			continue;
-			break;
-		case 6:
-			quake_CL.ParseStartSoundPacket();
-			continue;
-			break;
 		case 7:
 			quake_CL.state.mtime1 = quake_CL.state.mtime0;
 			quake_CL.state.mtime0 = quake_MSG.ReadFloat();
 			continue;
 			break;
+		case 15:
+			quake_CL.ParseClientdata(quake_MSG.ReadShort());
+			continue;
+			break;
+		case 4:
+			var i = quake_MSG.ReadLong();
+			if(i != 15) {
+				quake_Host.Error("CL.ParseServerMessage: Server is protocol " + i + " instead of " + 15 + "\n");
+			}
+			continue;
+			break;
+		case 2:
+			quake_Host.EndGame("Server disconnected\n");
+			break;
 		case 8:
 			quake_Console.Print(quake_MSG.ReadString());
 			continue;
 			break;
+		case 26:
+			quake_SCR.CenterPrint(quake_MSG.ReadString());
+			continue;
+			break;
 		case 9:
 			quake_Cmd.text += quake_MSG.ReadString();
+			continue;
+			break;
+		case 19:
+			quake_V.ParseDamage();
+			continue;
+			break;
+		case 11:
+			quake_CL.ParseServerInfo();
+			quake_SCR.recalc_refdef = true;
 			continue;
 			break;
 		case 10:
@@ -2258,17 +2259,25 @@ quake_CL.ParseServerMessage = function() {
 			quake_CL.state.viewangles[2] = quake_MSG.ReadChar() * 1.40625;
 			continue;
 			break;
-		case 11:
-			quake_CL.ParseServerInfo();
-			quake_SCR.recalc_refdef = true;
+		case 5:
+			quake_CL.state.viewentity = quake_MSG.ReadShort();
 			continue;
 			break;
 		case 12:
-			var i2 = quake_MSG.ReadByte();
-			if(i2 >= 64) {
+			var i1 = quake_MSG.ReadByte();
+			if(i1 >= 64) {
 				quake_Sys.Error("svc_lightstyle > MAX_LIGHTSTYLES");
 			}
-			quake_CL.lightstyle[i2] = quake_MSG.ReadString();
+			quake_CL.lightstyle[i1] = quake_MSG.ReadString();
+			continue;
+			break;
+		case 6:
+			quake_CL.ParseStartSoundPacket();
+			continue;
+			break;
+		case 16:
+			var i2 = quake_MSG.ReadShort();
+			quake_S.StopSound(i2 >> 3,i2 & 7);
 			continue;
 			break;
 		case 13:
@@ -2287,37 +2296,24 @@ quake_CL.ParseServerMessage = function() {
 			quake_CL.state.scores[i4].frags = quake_MSG.ReadShort();
 			continue;
 			break;
-		case 15:
-			quake_CL.ParseClientdata(quake_MSG.ReadShort());
-			continue;
-			break;
-		case 16:
-			var i5 = quake_MSG.ReadShort();
-			quake_S.StopSound(i5 >> 3,i5 & 7);
-			continue;
-			break;
 		case 17:
-			var i6 = quake_MSG.ReadByte();
-			if(i6 >= quake_CL.state.maxclients) {
+			var i5 = quake_MSG.ReadByte();
+			if(i5 >= quake_CL.state.maxclients) {
 				quake_Host.Error("CL.ParseServerMessage: svc_updatecolors > MAX_SCOREBOARD");
 			}
-			quake_CL.state.scores[i6].colors = quake_MSG.ReadByte();
+			quake_CL.state.scores[i5].colors = quake_MSG.ReadByte();
 			continue;
 			break;
 		case 18:
 			quake_Render.ParseParticleEffect();
 			continue;
 			break;
-		case 19:
-			quake_V.ParseDamage();
+		case 22:
+			quake_CL.ParseBaseline(quake_CL.EntityNum(quake_MSG.ReadShort()));
 			continue;
 			break;
 		case 20:
 			quake_CL.ParseStatic();
-			continue;
-			break;
-		case 22:
-			quake_CL.ParseBaseline(quake_CL.EntityNum(quake_MSG.ReadShort()));
 			continue;
 			break;
 		case 23:
@@ -2334,16 +2330,12 @@ quake_CL.ParseServerMessage = function() {
 			continue;
 			break;
 		case 25:
-			var i7 = quake_MSG.ReadByte();
-			if(i7 <= quake_CL.cls.signon) {
-				quake_Host.Error("Received signon " + i7 + " when at " + quake_CL.cls.signon);
+			var i6 = quake_MSG.ReadByte();
+			if(i6 <= quake_CL.cls.signon) {
+				quake_Host.Error("Received signon " + i6 + " when at " + quake_CL.cls.signon);
 			}
-			quake_CL.cls.signon = i7;
+			quake_CL.cls.signon = i6;
 			quake_CL.SignonReply();
-			continue;
-			break;
-		case 26:
-			quake_SCR.CenterPrint(quake_MSG.ReadString());
 			continue;
 			break;
 		case 27:
@@ -2354,8 +2346,26 @@ quake_CL.ParseServerMessage = function() {
 			++quake_CL.state.stats[13];
 			continue;
 			break;
+		case 3:
+			var i7 = quake_MSG.ReadByte();
+			if(i7 >= 32) {
+				quake_Sys.Error("svc_updatestat: " + i7 + " is invalid");
+			}
+			quake_CL.state.stats[i7] = quake_MSG.ReadLong();
+			continue;
+			break;
 		case 29:
 			quake_CL.ParseStaticSound();
+			continue;
+			break;
+		case 32:
+			quake_CL.state.cdtrack = quake_MSG.ReadByte();
+			quake_MSG.ReadByte();
+			if((quake_CL.cls.demoplayback || quake_CL.cls.demorecording) && quake_CL.cls.forcetrack != -1) {
+				quake_CDAudio.Play(quake_CL.cls.forcetrack,true);
+			} else {
+				quake_CDAudio.Play(quake_CL.state.cdtrack,true);
+			}
 			continue;
 			break;
 		case 30:
@@ -2371,25 +2381,15 @@ quake_CL.ParseServerMessage = function() {
 			quake_SCR.CenterPrint(quake_MSG.ReadString());
 			continue;
 			break;
-		case 32:
-			quake_CL.state.cdtrack = quake_MSG.ReadByte();
-			quake_MSG.ReadByte();
-			if((quake_CL.cls.demoplayback || quake_CL.cls.demorecording) && quake_CL.cls.forcetrack != -1) {
-				quake_CDAudio.Play(quake_CL.cls.forcetrack,true);
-			} else {
-				quake_CDAudio.Play(quake_CL.state.cdtrack,true);
-			}
-			continue;
-			break;
-		case 33:
-			quake_Cmd.ExecuteString("help");
-			continue;
-			break;
 		case 34:
 			quake_CL.state.intermission = 3;
 			quake_CL.state.completed_time = quake_CL.state.time;
 			quake_SCR.recalc_refdef = true;
 			quake_SCR.CenterPrint(quake_MSG.ReadString());
+			continue;
+			break;
+		case 33:
+			quake_Cmd.ExecuteString("help");
 			continue;
 			break;
 		}
@@ -2479,6 +2479,14 @@ quake_CL.ParseTEnt = function() {
 	v[1] = y;
 	v[2] = z;
 	switch(type) {
+	case 7:
+		quake_Render.RunParticleEffect(v,quake__$Vec_Vec_$Impl_$.origin,20,20);
+		quake_S.StartSound(-1,0,quake_CL.sfx_wizhit,v,1.0,1.0);
+		break;
+	case 8:
+		quake_Render.RunParticleEffect(v,quake__$Vec_Vec_$Impl_$.origin,226,20);
+		quake_S.StartSound(-1,0,quake_CL.sfx_knighthit,v,1.0,1.0);
+		break;
 	case 0:
 		quake_Render.RunParticleEffect(v,quake__$Vec_Vec_$Impl_$.origin,0,10);
 		break;
@@ -2500,14 +2508,6 @@ quake_CL.ParseTEnt = function() {
 	case 4:
 		quake_Render.BlobExplosion(v);
 		quake_S.StartSound(-1,0,quake_CL.sfx_r_exp3,v,1.0,1.0);
-		break;
-	case 7:
-		quake_Render.RunParticleEffect(v,quake__$Vec_Vec_$Impl_$.origin,20,20);
-		quake_S.StartSound(-1,0,quake_CL.sfx_wizhit,v,1.0,1.0);
-		break;
-	case 8:
-		quake_Render.RunParticleEffect(v,quake__$Vec_Vec_$Impl_$.origin,226,20);
-		quake_S.StartSound(-1,0,quake_CL.sfx_knighthit,v,1.0,1.0);
 		break;
 	case 10:
 		quake_Render.LavaSplash(v);
@@ -2622,9 +2622,6 @@ quake_CL.RunParticles = function() {
 		p.org[1] = p.org[1] + p.vel[1] * frametime;
 		p.org[2] = p.org[2] + p.vel[2] * frametime;
 		switch(p.type) {
-		case 2:case 1:
-			p.vel[2] = p.vel[2] - grav;
-			break;
 		case 3:
 			p.ramp += frametime * 5.0;
 			if(p.ramp >= 6.0) {
@@ -2664,6 +2661,9 @@ quake_CL.RunParticles = function() {
 		case 7:
 			p.vel[0] = p.vel[0] + p.vel[0] * dvel;
 			p.vel[1] = p.vel[1] + p.vel[1] * dvel;
+			p.vel[2] = p.vel[2] - grav;
+			break;
+		case 1:case 2:
 			p.vel[2] = p.vel[2] - grav;
 			break;
 		default:
@@ -6230,77 +6230,81 @@ quake_Host.Give_f = function() {
 		return;
 	}
 	if(!quake_COM.rogue) {
-		switch(t) {
-		case 99:
-			ent.v.floats[57] = v;
-			break;
-		case 110:
-			ent.v.floats[55] = v;
-			break;
-		case 114:
-			ent.v.floats[56] = v;
-			break;
-		case 115:
-			ent.v.floats[54] = v;
-			break;
+		if(t != null) {
+			switch(t) {
+			case 115:
+				ent.v.floats[54] = v;
+				break;
+			case 110:
+				ent.v.floats[55] = v;
+				break;
+			case 114:
+				ent.v.floats[56] = v;
+				break;
+			case 99:
+				ent.v.floats[57] = v;
+				break;
+			}
 		}
 		return;
 	}
-	switch(t) {
-	case 99:
-		if(quake_EdictVars.ammo_cells1_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_cells1_ofs] = v;
-			if(ent.v.floats[50] <= quake_Def.it.lightning) {
-				ent.v.floats[57] = v;
+	if(t != null) {
+		switch(t) {
+		case 115:
+			if(quake_EdictVars.ammo_shells1_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_shells1_ofs] = v;
 			}
-		}
-		break;
-	case 108:
-		if(quake_EdictVars.ammo_lava_nails_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_lava_nails_ofs] = v;
-			if(ent.v.floats[50] > quake_Def.it.lightning) {
-				ent.v.floats[55] = v;
+			ent.v.floats[54] = v;
+			break;
+		case 110:
+			if(quake_EdictVars.ammo_nails1_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_nails1_ofs] = v;
+				if(ent.v.floats[50] <= quake_Def.it.lightning) {
+					ent.v.floats[55] = v;
+				}
 			}
-		}
-		break;
-	case 109:
-		if(quake_EdictVars.ammo_multi_rockets_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_multi_rockets_ofs] = v;
-			if(ent.v.floats[50] > quake_Def.it.lightning) {
-				ent.v.floats[56] = v;
+			break;
+		case 108:
+			if(quake_EdictVars.ammo_lava_nails_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_lava_nails_ofs] = v;
+				if(ent.v.floats[50] > quake_Def.it.lightning) {
+					ent.v.floats[55] = v;
+				}
 			}
-		}
-		break;
-	case 110:
-		if(quake_EdictVars.ammo_nails1_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_nails1_ofs] = v;
-			if(ent.v.floats[50] <= quake_Def.it.lightning) {
-				ent.v.floats[55] = v;
+			break;
+		case 114:
+			if(quake_EdictVars.ammo_rockets1_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_rockets1_ofs] = v;
+				if(ent.v.floats[50] <= quake_Def.it.lightning) {
+					ent.v.floats[56] = v;
+				}
 			}
-		}
-		break;
-	case 112:
-		if(quake_EdictVars.ammo_plasma_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_plasma_ofs] = v;
-			if(ent.v.floats[50] > quake_Def.it.lightning) {
-				ent.v.floats[57] = v;
+			break;
+		case 109:
+			if(quake_EdictVars.ammo_multi_rockets_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_multi_rockets_ofs] = v;
+				if(ent.v.floats[50] > quake_Def.it.lightning) {
+					ent.v.floats[56] = v;
+				}
 			}
-		}
-		break;
-	case 114:
-		if(quake_EdictVars.ammo_rockets1_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_rockets1_ofs] = v;
-			if(ent.v.floats[50] <= quake_Def.it.lightning) {
-				ent.v.floats[56] = v;
+			break;
+		case 99:
+			if(quake_EdictVars.ammo_cells1_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_cells1_ofs] = v;
+				if(ent.v.floats[50] <= quake_Def.it.lightning) {
+					ent.v.floats[57] = v;
+				}
 			}
+			break;
+		case 112:
+			if(quake_EdictVars.ammo_plasma_ofs != null) {
+				ent.v.floats[quake_EdictVars.ammo_plasma_ofs] = v;
+				if(ent.v.floats[50] > quake_Def.it.lightning) {
+					ent.v.floats[57] = v;
+				}
+			}
+			break;
 		}
-		break;
-	case 115:
-		if(quake_EdictVars.ammo_shells1_ofs != null) {
-			ent.v.floats[quake_EdictVars.ammo_shells1_ofs] = v;
-		}
-		ent.v.floats[54] = v;
-		break;
 	}
 };
 quake_Host.FindViewthing = function() {
@@ -7026,6 +7030,26 @@ quake_Menu.Main_Draw = function() {
 };
 quake_Menu.Main_Key = function(k) {
 	switch(k) {
+	case 27:
+		quake_Key.dest = 0;
+		quake_Menu.state = 0;
+		quake_CL.cls.demonum = quake_Menu.save_demonum;
+		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != 2) {
+			quake_CL.NextDemo();
+		}
+		break;
+	case 129:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.main_cursor >= 5) {
+			quake_Menu.main_cursor = 0;
+		}
+		break;
+	case 128:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.main_cursor < 0) {
+			quake_Menu.main_cursor = 4;
+		}
+		break;
 	case 13:
 		quake_Menu.entersound = true;
 		switch(quake_Menu.main_cursor) {
@@ -7046,26 +7070,6 @@ quake_Menu.Main_Key = function(k) {
 			break;
 		}
 		break;
-	case 27:
-		quake_Key.dest = 0;
-		quake_Menu.state = 0;
-		quake_CL.cls.demonum = quake_Menu.save_demonum;
-		if(quake_CL.cls.demonum != -1 && !quake_CL.cls.demoplayback && quake_CL.cls.state != 2) {
-			quake_CL.NextDemo();
-		}
-		break;
-	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_Menu.main_cursor < 0) {
-			quake_Menu.main_cursor = 4;
-		}
-		break;
-	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_Menu.main_cursor >= 5) {
-			quake_Menu.main_cursor = 0;
-		}
-		break;
 	default:
 	}
 };
@@ -7082,6 +7086,21 @@ quake_Menu.SinglePlayer_Draw = function() {
 };
 quake_Menu.SinglePlayer_Key = function(k) {
 	switch(k) {
+	case 27:
+		quake_Menu.Menu_Main_f();
+		break;
+	case 129:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.singleplayer_cursor >= 3) {
+			quake_Menu.singleplayer_cursor = 0;
+		}
+		break;
+	case 128:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.singleplayer_cursor < 0) {
+			quake_Menu.singleplayer_cursor = 2;
+		}
+		break;
 	case 13:
 		quake_Menu.entersound = true;
 		switch(quake_Menu.singleplayer_cursor) {
@@ -7101,21 +7120,6 @@ quake_Menu.SinglePlayer_Key = function(k) {
 		case 2:
 			quake_Menu.Menu_Save_f();
 			break;
-		}
-		break;
-	case 27:
-		quake_Menu.Menu_Main_f();
-		break;
-	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_Menu.singleplayer_cursor < 0) {
-			quake_Menu.singleplayer_cursor = 2;
-		}
-		break;
-	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_Menu.singleplayer_cursor >= 3) {
-			quake_Menu.singleplayer_cursor = 0;
 		}
 		break;
 	default:
@@ -7201,6 +7205,9 @@ quake_Menu.Save_Draw = function() {
 };
 quake_Menu.Load_Key = function(k) {
 	switch(k) {
+	case 27:
+		quake_Menu.Menu_SinglePlayer_f();
+		break;
 	case 13:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(!quake_Menu.loadable[quake_Menu.load_cursor]) {
@@ -7211,21 +7218,18 @@ quake_Menu.Load_Key = function(k) {
 		quake_SCR.BeginLoadingPlaque();
 		quake_Cmd.text += "load s" + quake_Menu.load_cursor + "\n";
 		break;
-	case 27:
-		quake_Menu.Menu_SinglePlayer_f();
-		break;
-	case 131:case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_Menu.load_cursor >= quake_Menu.max_savegames) {
-			quake_Menu.load_cursor = 0;
-		}
-		return;
 	case 128:case 130:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(--quake_Menu.load_cursor < 0) {
 			quake_Menu.load_cursor = quake_Menu.max_savegames - 1;
 		}
 		break;
+	case 129:case 131:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.load_cursor >= quake_Menu.max_savegames) {
+			quake_Menu.load_cursor = 0;
+		}
+		return;
 	case 148:
 		if(!quake_Menu.removable[quake_Menu.load_cursor]) {
 			return;
@@ -7241,24 +7245,24 @@ quake_Menu.Load_Key = function(k) {
 };
 quake_Menu.Save_Key = function(k) {
 	switch(k) {
+	case 27:
+		quake_Menu.Menu_SinglePlayer_f();
+		break;
 	case 13:
 		quake_Menu.state = 0;
 		quake_Key.dest = 0;
 		quake_Cmd.text += "save s" + quake_Menu.load_cursor + "\n";
 		break;
-	case 27:
-		quake_Menu.Menu_SinglePlayer_f();
-		break;
-	case 131:case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_Menu.load_cursor >= quake_Menu.max_savegames) {
-			quake_Menu.load_cursor = 0;
-		}
-		break;
 	case 128:case 130:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(--quake_Menu.load_cursor < 0) {
 			quake_Menu.load_cursor = quake_Menu.max_savegames - 1;
+		}
+		break;
+	case 129:case 131:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.load_cursor >= quake_Menu.max_savegames) {
+			quake_Menu.load_cursor = 0;
 		}
 		break;
 	case 148:
@@ -7312,6 +7316,49 @@ quake_Menu.MultiPlayer_Key = function(k) {
 		quake_Menu.Menu_Main_f();
 	}
 	switch(k) {
+	case 128:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.multiplayer_cursor < 0) {
+			quake_Menu.multiplayer_cursor = 4;
+		}
+		return;
+	case 129:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.multiplayer_cursor >= 5) {
+			quake_Menu.multiplayer_cursor = 0;
+		}
+		return;
+	case 130:
+		if(quake_Menu.multiplayer_cursor == 2) {
+			if(--quake_Menu.multiplayer_top < 0) {
+				quake_Menu.multiplayer_top = 13;
+			}
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		} else if(quake_Menu.multiplayer_cursor == 3) {
+			if(--quake_Menu.multiplayer_bottom < 0) {
+				quake_Menu.multiplayer_bottom = 13;
+			}
+			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		}
+		return;
+	case 131:
+		if(quake_Menu.multiplayer_cursor == 2) {
+			if(quake_Menu.multiplayer_top <= 12) {
+				++quake_Menu.multiplayer_top;
+			} else {
+				quake_Menu.multiplayer_top = 0;
+			}
+		} else if(quake_Menu.multiplayer_cursor == 3) {
+			if(quake_Menu.multiplayer_bottom <= 12) {
+				++quake_Menu.multiplayer_bottom;
+			} else {
+				quake_Menu.multiplayer_bottom = 0;
+			}
+		} else {
+			return;
+		}
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		return;
 	case 13:
 		switch(quake_Menu.multiplayer_cursor) {
 		case 0:
@@ -7368,49 +7415,6 @@ quake_Menu.MultiPlayer_Key = function(k) {
 				quake_Menu.multiplayer_myname = quake_Menu.multiplayer_myname.substring(0,quake_Menu.multiplayer_myname.length - 1);
 			}
 		}
-		return;
-	case 128:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_Menu.multiplayer_cursor < 0) {
-			quake_Menu.multiplayer_cursor = 4;
-		}
-		return;
-	case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_Menu.multiplayer_cursor >= 5) {
-			quake_Menu.multiplayer_cursor = 0;
-		}
-		return;
-	case 130:
-		if(quake_Menu.multiplayer_cursor == 2) {
-			if(--quake_Menu.multiplayer_top < 0) {
-				quake_Menu.multiplayer_top = 13;
-			}
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		} else if(quake_Menu.multiplayer_cursor == 3) {
-			if(--quake_Menu.multiplayer_bottom < 0) {
-				quake_Menu.multiplayer_bottom = 13;
-			}
-			quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		}
-		return;
-	case 131:
-		if(quake_Menu.multiplayer_cursor == 2) {
-			if(quake_Menu.multiplayer_top <= 12) {
-				++quake_Menu.multiplayer_top;
-			} else {
-				quake_Menu.multiplayer_top = 0;
-			}
-		} else if(quake_Menu.multiplayer_cursor == 3) {
-			if(quake_Menu.multiplayer_bottom <= 12) {
-				++quake_Menu.multiplayer_bottom;
-			} else {
-				quake_Menu.multiplayer_bottom = 0;
-			}
-		} else {
-			return;
-		}
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu3,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		return;
 	default:
 	}
@@ -7548,6 +7552,9 @@ quake_Menu.Options_Draw = function() {
 };
 quake_Menu.Options_Key = function(k) {
 	switch(k) {
+	case 27:
+		quake_Menu.Menu_Main_f();
+		return;
 	case 13:
 		quake_Menu.entersound = true;
 		switch(quake_Menu.options_cursor) {
@@ -7564,9 +7571,6 @@ quake_Menu.Options_Key = function(k) {
 		default:
 			quake_Menu.AdjustSliders(1);
 		}
-		return;
-	case 27:
-		quake_Menu.Menu_Main_f();
 		return;
 	case 128:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
@@ -7657,6 +7661,21 @@ quake_Menu.Keys_Key = function(k) {
 		return;
 	}
 	switch(k) {
+	case 27:
+		quake_Menu.Menu_Options_f();
+		break;
+	case 130:case 128:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(--quake_Menu.keys_cursor < 0) {
+			quake_Menu.keys_cursor = quake_Menu.bindnames.length - 1;
+		}
+		break;
+	case 129:case 131:
+		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
+		if(++quake_Menu.keys_cursor >= quake_Menu.bindnames.length) {
+			quake_Menu.keys_cursor = 0;
+		}
+		break;
 	case 13:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		if(quake_Menu.FindKeysForCommand(quake_Menu.bindnames[quake_Menu.keys_cursor][0])[1] != null) {
@@ -7664,24 +7683,9 @@ quake_Menu.Keys_Key = function(k) {
 		}
 		quake_Menu.bind_grab = true;
 		break;
-	case 27:
-		quake_Menu.Menu_Options_f();
-		break;
-	case 148:case 127:
+	case 127:case 148:
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
 		quake_Menu.UnbindCommand(quake_Menu.bindnames[quake_Menu.keys_cursor][0]);
-		break;
-	case 131:case 129:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(++quake_Menu.keys_cursor >= quake_Menu.bindnames.length) {
-			quake_Menu.keys_cursor = 0;
-		}
-		break;
-	case 128:case 130:
-		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu1,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
-		if(--quake_Menu.keys_cursor < 0) {
-			quake_Menu.keys_cursor = quake_Menu.bindnames.length - 1;
-		}
 		break;
 	default:
 	}
@@ -7702,6 +7706,12 @@ quake_Menu.Help_Key = function(k) {
 		return;
 	case 128:
 		break;
+	case 131:
+		quake_Menu.entersound = true;
+		if(++quake_Menu.help_page >= 6) {
+			quake_Menu.help_page = 0;
+		}
+		return;
 	case 129:
 		break;
 	case 130:
@@ -7710,12 +7720,6 @@ quake_Menu.Help_Key = function(k) {
 			quake_Menu.help_page = 5;
 		}
 		break;
-	case 131:
-		quake_Menu.entersound = true;
-		if(++quake_Menu.help_page >= 6) {
-			quake_Menu.help_page = 0;
-		}
-		return;
 	default:
 	}
 };
@@ -7835,8 +7839,6 @@ quake_Menu.DrawMenu = function() {
 		quake_Menu.recursiveDraw = false;
 	}
 	switch(quake_Menu.state) {
-	case 0:
-		break;
 	case 1:
 		quake_Menu.Main_Draw();
 		break;
@@ -7864,6 +7866,8 @@ quake_Menu.DrawMenu = function() {
 	case 9:
 		quake_Menu.Quit_Draw();
 		break;
+	case 0:
+		break;
 	}
 	if(quake_Menu.entersound) {
 		quake_S.StartSound(quake_CL.state.viewentity,-1,quake_Menu.sfx_menu2,quake__$Vec_Vec_$Impl_$.origin,1.0,1.0);
@@ -7872,8 +7876,6 @@ quake_Menu.DrawMenu = function() {
 };
 quake_Menu.Keydown = function(key) {
 	switch(quake_Menu.state) {
-	case 0:
-		break;
 	case 1:
 		quake_Menu.Main_Key(key);
 		break;
@@ -7900,6 +7902,8 @@ quake_Menu.Keydown = function(key) {
 		break;
 	case 9:
 		quake_Menu.Quit_Key(key);
+		break;
+	case 0:
 		break;
 	}
 };
@@ -9785,24 +9789,24 @@ quake_PR.ValueString = function(type,val,ofs) {
 	var val_int = new Int32Array(val);
 	var type1 = type & 32767;
 	switch(type1) {
-	case 0:
-		return "void";
 	case 1:
 		return quake_PR.GetString(val_int[ofs]);
-	case 2:
-		return val_float[ofs].toFixed(1);
-	case 3:
-		return "'" + val_float[ofs].toFixed(1) + " " + val_float[ofs + 1].toFixed(1) + " " + val_float[ofs + 2].toFixed(1) + "'";
 	case 4:
 		return "entity " + val_int[ofs];
+	case 6:
+		return quake_PR.GetString(quake_PR.functions[val_int[ofs]].name) + "()";
 	case 5:
 		var def = quake_ED.FieldAtOfs(val_int[ofs]);
 		if(def != null) {
 			return "." + quake_PR.GetString(def.name);
 		}
 		return ".";
-	case 6:
-		return quake_PR.GetString(quake_PR.functions[val_int[ofs]].name) + "()";
+	case 0:
+		return "void";
+	case 2:
+		return val_float[ofs].toFixed(1);
+	case 3:
+		return "'" + val_float[ofs].toFixed(1) + " " + val_float[ofs + 1].toFixed(1) + " " + val_float[ofs + 2].toFixed(1) + "'";
 	case 7:
 		return "pointer";
 	default:
@@ -9814,24 +9818,24 @@ quake_PR.UglyValueString = function(type,val,ofs) {
 	var val_int = new Int32Array(val);
 	var type1 = type & 32767;
 	switch(type1) {
-	case 0:
-		return "void";
 	case 1:
 		return quake_PR.GetString(val_int[ofs]);
-	case 2:
-		return val_float[ofs].toFixed(6);
-	case 3:
-		return val_float[ofs].toFixed(6) + " " + val_float[ofs + 1].toFixed(6) + " " + val_float[ofs + 2].toFixed(6);
 	case 4:
 		return Std.string(val_int[ofs]);
+	case 6:
+		return quake_PR.GetString(quake_PR.functions[val_int[ofs]].name);
 	case 5:
 		var def = quake_ED.FieldAtOfs(val_int[ofs]);
 		if(def != null) {
 			return quake_PR.GetString(def.name);
 		}
 		return "";
-	case 6:
-		return quake_PR.GetString(quake_PR.functions[val_int[ofs]].name);
+	case 0:
+		return "void";
+	case 2:
+		return val_float[ofs].toFixed(6);
+	case 3:
+		return val_float[ofs].toFixed(6) + " " + val_float[ofs + 1].toFixed(6) + " " + val_float[ofs + 2].toFixed(6);
 	default:
 		return "bad type " + type1;
 	}
@@ -10132,6 +10136,22 @@ quake_PR.ExecuteProgram = function(fnum) {
 			quake_PR.PrintStatement(st);
 		}
 		switch(st.op) {
+		case 6:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] + quake_PR.globals.floats[st.b];
+			break;
+		case 7:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] + quake_PR.globals.floats[st.b];
+			quake_PR.globals.floats[st.c + 1] = quake_PR.globals.floats[st.a + 1] + quake_PR.globals.floats[st.b + 1];
+			quake_PR.globals.floats[st.c + 2] = quake_PR.globals.floats[st.a + 2] + quake_PR.globals.floats[st.b + 2];
+			break;
+		case 8:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] - quake_PR.globals.floats[st.b];
+			break;
+		case 9:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] - quake_PR.globals.floats[st.b];
+			quake_PR.globals.floats[st.c + 1] = quake_PR.globals.floats[st.a + 1] - quake_PR.globals.floats[st.b + 1];
+			quake_PR.globals.floats[st.c + 2] = quake_PR.globals.floats[st.a + 2] - quake_PR.globals.floats[st.b + 2];
+			break;
 		case 1:
 			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] * quake_PR.globals.floats[st.b];
 			break;
@@ -10151,102 +10171,29 @@ quake_PR.ExecuteProgram = function(fnum) {
 		case 5:
 			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] / quake_PR.globals.floats[st.b];
 			break;
-		case 6:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] + quake_PR.globals.floats[st.b];
+		case 64:
+			quake_PR.globals.floats[st.c] = (quake_PR.globals.floats[st.a] | 0) & (quake_PR.globals.floats[st.b] | 0);
 			break;
-		case 7:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] + quake_PR.globals.floats[st.b];
-			quake_PR.globals.floats[st.c + 1] = quake_PR.globals.floats[st.a + 1] + quake_PR.globals.floats[st.b + 1];
-			quake_PR.globals.floats[st.c + 2] = quake_PR.globals.floats[st.a + 2] + quake_PR.globals.floats[st.b + 2];
-			break;
-		case 8:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] - quake_PR.globals.floats[st.b];
-			break;
-		case 9:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] - quake_PR.globals.floats[st.b];
-			quake_PR.globals.floats[st.c + 1] = quake_PR.globals.floats[st.a + 1] - quake_PR.globals.floats[st.b + 1];
-			quake_PR.globals.floats[st.c + 2] = quake_PR.globals.floats[st.a + 2] - quake_PR.globals.floats[st.b + 2];
-			break;
-		case 10:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] == quake_PR.globals.floats[st.b]?1.0:0.0;
-			break;
-		case 11:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] == quake_PR.globals.floats[st.b] && quake_PR.globals.floats[st.a + 1] == quake_PR.globals.floats[st.b + 1] && quake_PR.globals.floats[st.a + 2] == quake_PR.globals.floats[st.b + 2]?1.0:0.0;
-			break;
-		case 12:
-			quake_PR.globals.floats[st.c] = quake_PR.GetString(quake_PR.globals.ints[st.a]) == quake_PR.GetString(quake_PR.globals.ints[st.b])?1.0:0.0;
-			break;
-		case 14:case 13:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.ints[st.a] == quake_PR.globals.ints[st.b]?1.0:0.0;
-			break;
-		case 15:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != quake_PR.globals.floats[st.b]?1.0:0.0;
-			break;
-		case 16:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != quake_PR.globals.floats[st.b] || quake_PR.globals.floats[st.a + 1] != quake_PR.globals.floats[st.b + 1] || quake_PR.globals.floats[st.a + 2] != quake_PR.globals.floats[st.b + 2]?1.0:0.0;
-			break;
-		case 17:
-			quake_PR.globals.floats[st.c] = quake_PR.GetString(quake_PR.globals.ints[st.a]) != quake_PR.GetString(quake_PR.globals.ints[st.b])?1.0:0.0;
-			break;
-		case 19:case 18:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.ints[st.a] != quake_PR.globals.ints[st.b]?1.0:0.0;
-			break;
-		case 20:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] <= quake_PR.globals.floats[st.b]?1.0:0.0;
+		case 65:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] | 0 | (quake_PR.globals.floats[st.b] | 0);
 			break;
 		case 21:
 			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] >= quake_PR.globals.floats[st.b]?1.0:0.0;
 			break;
-		case 22:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] < quake_PR.globals.floats[st.b]?1.0:0.0;
+		case 20:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] <= quake_PR.globals.floats[st.b]?1.0:0.0;
 			break;
 		case 23:
 			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] > quake_PR.globals.floats[st.b]?1.0:0.0;
 			break;
-		case 25:
-			var ed = quake_SV.server.edicts[quake_PR.globals.ints[st.a]];
-			var ptr = quake_PR.globals.ints[st.b];
-			quake_PR.globals.ints[st.c] = ed.v.ints[ptr];
-			quake_PR.globals.ints[st.c + 1] = ed.v.ints[ptr + 1];
-			quake_PR.globals.ints[st.c + 2] = ed.v.ints[ptr + 2];
+		case 22:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] < quake_PR.globals.floats[st.b]?1.0:0.0;
 			break;
-		case 28:case 27:case 29:case 24:case 26:
-			quake_PR.globals.ints[st.c] = quake_SV.server.edicts[quake_PR.globals.ints[st.a]].v.ints[quake_PR.globals.ints[st.b]];
+		case 62:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != 0.0 && quake_PR.globals.floats[st.b] != 0.0?1.0:0.0;
 			break;
-		case 30:
-			var ed1 = quake_PR.globals.ints[st.a];
-			if(ed1 == 0 && !quake_SV.server.loading) {
-				quake_PR.RunError("assignment to world entity");
-			}
-			quake_PR.globals.ints[st.c] = ed1 * quake_PR.edict_size + 96 + (quake_PR.globals.ints[st.b] << 2);
-			break;
-		case 32:
-			quake_PR.globals.ints[st.b] = quake_PR.globals.ints[st.a];
-			quake_PR.globals.ints[st.b + 1] = quake_PR.globals.ints[st.a + 1];
-			quake_PR.globals.ints[st.b + 2] = quake_PR.globals.ints[st.a + 2];
-			break;
-		case 31:case 34:case 33:case 35:case 36:
-			quake_PR.globals.ints[st.b] = quake_PR.globals.ints[st.a];
-			break;
-		case 38:
-			var ed2 = quake_SV.server.edicts[Math.floor(quake_PR.globals.ints[st.b] / quake_PR.edict_size)];
-			var ptr1 = quake_PR.globals.ints[st.b] % quake_PR.edict_size - 96 >> 2;
-			ed2.v.ints[ptr1] = quake_PR.globals.ints[st.a];
-			ed2.v.ints[ptr1 + 1] = quake_PR.globals.ints[st.a + 1];
-			ed2.v.ints[ptr1 + 2] = quake_PR.globals.ints[st.a + 2];
-			break;
-		case 40:case 37:case 41:case 42:case 39:
-			var ptr2 = quake_PR.globals.ints[st.b];
-			quake_SV.server.edicts[Math.floor(ptr2 / quake_PR.edict_size)].v.ints[ptr2 % quake_PR.edict_size - 96 >> 2] = quake_PR.globals.ints[st.a];
-			break;
-		case 0:case 43:
-			quake_PR.globals.ints[1] = quake_PR.globals.ints[st.a];
-			quake_PR.globals.ints[2] = quake_PR.globals.ints[st.a + 1];
-			quake_PR.globals.ints[3] = quake_PR.globals.ints[st.a + 2];
-			s = quake_PR.LeaveFunction();
-			if(quake_PR.depth == exitdepth) {
-				return;
-			}
+		case 63:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != 0.0 || quake_PR.globals.floats[st.b] != 0.0?1.0:0.0;
 			break;
 		case 44:
 			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] == 0.0?1.0:0.0;
@@ -10261,20 +10208,83 @@ quake_PR.ExecuteProgram = function(fnum) {
 				quake_PR.globals.floats[st.c] = 1.0;
 			}
 			break;
-		case 47:case 48:
+		case 48:case 47:
 			quake_PR.globals.floats[st.c] = quake_PR.globals.ints[st.a] == 0?1.0:0.0;
 			break;
-		case 49:
-			if(quake_PR.globals.ints[st.a] != 0) {
-				s += st.b - 1;
+		case 10:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] == quake_PR.globals.floats[st.b]?1.0:0.0;
+			break;
+		case 11:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] == quake_PR.globals.floats[st.b] && quake_PR.globals.floats[st.a + 1] == quake_PR.globals.floats[st.b + 1] && quake_PR.globals.floats[st.a + 2] == quake_PR.globals.floats[st.b + 2]?1.0:0.0;
+			break;
+		case 12:
+			quake_PR.globals.floats[st.c] = quake_PR.GetString(quake_PR.globals.ints[st.a]) == quake_PR.GetString(quake_PR.globals.ints[st.b])?1.0:0.0;
+			break;
+		case 13:case 14:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.ints[st.a] == quake_PR.globals.ints[st.b]?1.0:0.0;
+			break;
+		case 15:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != quake_PR.globals.floats[st.b]?1.0:0.0;
+			break;
+		case 16:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != quake_PR.globals.floats[st.b] || quake_PR.globals.floats[st.a + 1] != quake_PR.globals.floats[st.b + 1] || quake_PR.globals.floats[st.a + 2] != quake_PR.globals.floats[st.b + 2]?1.0:0.0;
+			break;
+		case 17:
+			quake_PR.globals.floats[st.c] = quake_PR.GetString(quake_PR.globals.ints[st.a]) != quake_PR.GetString(quake_PR.globals.ints[st.b])?1.0:0.0;
+			break;
+		case 18:case 19:
+			quake_PR.globals.floats[st.c] = quake_PR.globals.ints[st.a] != quake_PR.globals.ints[st.b]?1.0:0.0;
+			break;
+		case 31:case 34:case 35:case 33:case 36:
+			quake_PR.globals.ints[st.b] = quake_PR.globals.ints[st.a];
+			break;
+		case 32:
+			quake_PR.globals.ints[st.b] = quake_PR.globals.ints[st.a];
+			quake_PR.globals.ints[st.b + 1] = quake_PR.globals.ints[st.a + 1];
+			quake_PR.globals.ints[st.b + 2] = quake_PR.globals.ints[st.a + 2];
+			break;
+		case 37:case 40:case 41:case 39:case 42:
+			var ptr = quake_PR.globals.ints[st.b];
+			quake_SV.server.edicts[Math.floor(ptr / quake_PR.edict_size)].v.ints[ptr % quake_PR.edict_size - 96 >> 2] = quake_PR.globals.ints[st.a];
+			break;
+		case 38:
+			var ed = quake_SV.server.edicts[Math.floor(quake_PR.globals.ints[st.b] / quake_PR.edict_size)];
+			var ptr1 = quake_PR.globals.ints[st.b] % quake_PR.edict_size - 96 >> 2;
+			ed.v.ints[ptr1] = quake_PR.globals.ints[st.a];
+			ed.v.ints[ptr1 + 1] = quake_PR.globals.ints[st.a + 1];
+			ed.v.ints[ptr1 + 2] = quake_PR.globals.ints[st.a + 2];
+			break;
+		case 30:
+			var ed1 = quake_PR.globals.ints[st.a];
+			if(ed1 == 0 && !quake_SV.server.loading) {
+				quake_PR.RunError("assignment to world entity");
 			}
+			quake_PR.globals.ints[st.c] = ed1 * quake_PR.edict_size + 96 + (quake_PR.globals.ints[st.b] << 2);
+			break;
+		case 24:case 28:case 27:case 26:case 29:
+			quake_PR.globals.ints[st.c] = quake_SV.server.edicts[quake_PR.globals.ints[st.a]].v.ints[quake_PR.globals.ints[st.b]];
+			break;
+		case 25:
+			var ed2 = quake_SV.server.edicts[quake_PR.globals.ints[st.a]];
+			var ptr2 = quake_PR.globals.ints[st.b];
+			quake_PR.globals.ints[st.c] = ed2.v.ints[ptr2];
+			quake_PR.globals.ints[st.c + 1] = ed2.v.ints[ptr2 + 1];
+			quake_PR.globals.ints[st.c + 2] = ed2.v.ints[ptr2 + 2];
 			break;
 		case 50:
 			if(quake_PR.globals.ints[st.a] == 0) {
 				s += st.b - 1;
 			}
 			break;
-		case 52:case 57:case 58:case 53:case 55:case 56:case 54:case 59:case 51:
+		case 49:
+			if(quake_PR.globals.ints[st.a] != 0) {
+				s += st.b - 1;
+			}
+			break;
+		case 61:
+			s += st.a - 1;
+			break;
+		case 51:case 52:case 53:case 54:case 55:case 56:case 57:case 58:case 59:
 			if(quake_PR.globals.ints[st.a] == 0) {
 				quake_PR.RunError("NULL function");
 			}
@@ -10291,26 +10301,20 @@ quake_PR.ExecuteProgram = function(fnum) {
 			}
 			s = quake_PR.EnterFunction(newf);
 			break;
+		case 0:case 43:
+			quake_PR.globals.ints[1] = quake_PR.globals.ints[st.a];
+			quake_PR.globals.ints[2] = quake_PR.globals.ints[st.a + 1];
+			quake_PR.globals.ints[3] = quake_PR.globals.ints[st.a + 2];
+			s = quake_PR.LeaveFunction();
+			if(quake_PR.depth == exitdepth) {
+				return;
+			}
+			break;
 		case 60:
 			var ed3 = quake_SV.server.edicts[quake_PR.globals.ints[28]];
 			ed3.v.floats[46] = quake_PR.globals.floats[31] + 0.1;
 			ed3.v.floats[30] = quake_PR.globals.floats[st.a];
 			ed3.v.ints[44] = quake_PR.globals.ints[st.b];
-			break;
-		case 61:
-			s += st.a - 1;
-			break;
-		case 62:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != 0.0 && quake_PR.globals.floats[st.b] != 0.0?1.0:0.0;
-			break;
-		case 63:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] != 0.0 || quake_PR.globals.floats[st.b] != 0.0?1.0:0.0;
-			break;
-		case 64:
-			quake_PR.globals.floats[st.c] = (quake_PR.globals.floats[st.a] | 0) & (quake_PR.globals.floats[st.b] | 0);
-			break;
-		case 65:
-			quake_PR.globals.floats[st.c] = quake_PR.globals.floats[st.a] | 0 | (quake_PR.globals.floats[st.b] | 0);
 			break;
 		default:
 			quake_PR.RunError("Bad opcode " + st.op);
@@ -11062,10 +11066,6 @@ quake_S.LoadSound = function(s,cb) {
 	var samples = null;
 	while(p < data.byteLength) {
 		switch(view.getUint32(p,true)) {
-		case 543520099:
-			cue = true;
-			loopstart = view.getUint32(p + 32,true);
-			break;
 		case 544501094:
 			if(view.getInt16(p + 8,true) != 1) {
 				quake_Console.Print("Microsoft PCM format only\n");
@@ -11074,6 +11074,14 @@ quake_S.LoadSound = function(s,cb) {
 			}
 			fmt = { channels : view.getUint16(p + 10,true), samplesPerSec : view.getUint32(p + 12,true), avgBytesPerSec : view.getUint32(p + 16,true), blockAlign : view.getUint16(p + 20,true), bitsPerSample : view.getUint16(p + 22,true)};
 			break;
+		case 1635017060:
+			dataofs = p + 8;
+			datalen = view.getUint32(p + 4,true);
+			break;
+		case 543520099:
+			cue = true;
+			loopstart = view.getUint32(p + 32,true);
+			break;
 		case 1414744396:
 			if(cue) {
 				cue = false;
@@ -11081,10 +11089,6 @@ quake_S.LoadSound = function(s,cb) {
 					samples = loopstart + view.getUint32(p + 24,true);
 				}
 			}
-			break;
-		case 1635017060:
-			dataofs = p + 8;
-			datalen = view.getUint32(p + 4,true);
 			break;
 		}
 		p += view.getUint32(p + 4,true) + 8;
@@ -11518,8 +11522,9 @@ quake_Sys.onkeyup = function(e) {
 	e.preventDefault();
 };
 quake_Sys.onmousedown = function(e) {
+	var _g = e.which;
 	var key;
-	switch(e.which) {
+	switch(_g) {
 	case 1:
 		key = 200;
 		break;
@@ -11536,8 +11541,9 @@ quake_Sys.onmousedown = function(e) {
 	e.preventDefault();
 };
 quake_Sys.onmouseup = function(e) {
+	var _g = e.which;
 	var key;
-	switch(e.which) {
+	switch(_g) {
 	case 1:
 		key = 200;
 		break;
@@ -13522,19 +13528,19 @@ quake_SV.Physics = function() {
 			continue;
 		}
 		switch(ent.v.floats[8]) {
-		case 0:
-			quake_SV.RunThink(ent);
-			break;
-		case 4:
-			quake_SV.Physics_Step(ent);
-			break;
 		case 7:
 			quake_SV.Physics_Pusher(ent);
+			break;
+		case 0:
+			quake_SV.RunThink(ent);
 			break;
 		case 8:
 			quake_SV.Physics_Noclip(ent);
 			break;
-		case 6:case 9:case 5:case 10:
+		case 4:
+			quake_SV.Physics_Step(ent);
+			break;
+		case 6:case 10:case 5:case 9:
 			quake_SV.Physics_Toss(ent);
 			break;
 		default:
@@ -14806,11 +14812,11 @@ quake_Render.DrawEntitiesOnList = function() {
 			continue;
 		}
 		switch(quake_Render.currententity.model.type) {
-		case 0:
-			quake_Render.DrawBrushModel(quake_Render.currententity);
-			break;
 		case 2:
 			quake_Render.DrawAliasModel(quake_Render.currententity);
+			break;
+		case 0:
+			quake_Render.DrawBrushModel(quake_Render.currententity);
 			break;
 		default:
 		}
@@ -14823,11 +14829,11 @@ quake_Render.DrawEntitiesOnList = function() {
 			continue;
 		}
 		switch(quake_Render.currententity.model.type) {
-		case 0:
-			quake_Render.DrawBrushModel(quake_Render.currententity);
-			break;
 		case 2:
 			quake_Render.DrawAliasModel(quake_Render.currententity);
+			break;
+		case 0:
+			quake_Render.DrawBrushModel(quake_Render.currententity);
 			break;
 		default:
 		}
@@ -15052,24 +15058,24 @@ quake_Render.MakeBrushModelDisplayLists = function(m) {
 			styles_1 = 0.0;
 			styles_0 = 0.0;
 			switch(surf.styles.length) {
-			case 1:
-				styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
-				break;
-			case 2:
-				styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
+			case 4:
+				styles_3 = surf.styles[3] * 0.015625 + 0.0078125;
 				break;
 			case 3:
 				styles_2 = surf.styles[2] * 0.015625 + 0.0078125;
 				break;
-			case 4:
-				styles_3 = surf.styles[3] * 0.015625 + 0.0078125;
+			case 2:
+				styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
+				break;
+			case 1:
+				styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 				break;
 			}
 			chain[2] += surf.verts.length;
-			var _g6 = 0;
-			var _g5 = surf.verts.length;
-			while(_g6 < _g5) {
-				var vert = surf.verts[_g6++];
+			var _g5 = 0;
+			var _g4 = surf.verts.length;
+			while(_g5 < _g4) {
+				var vert = surf.verts[_g5++];
 				cmds.push(vert[0]);
 				cmds.push(vert[1]);
 				cmds.push(vert[2]);
@@ -15091,8 +15097,8 @@ quake_Render.MakeBrushModelDisplayLists = function(m) {
 	m.waterchain = verts * 44;
 	verts = 0;
 	var _g11 = 0;
-	var _g4 = m.textures.length;
-	while(_g11 < _g4) {
+	var _g6 = m.textures.length;
+	while(_g11 < _g6) {
 		var i1 = _g11++;
 		if(!m.textures[i1].turbulent) {
 			continue;
@@ -15161,10 +15167,9 @@ quake_Render.MakeWorldModelDisplayLists = function(m) {
 				styles_1 = 0.0;
 				styles_0 = 0.0;
 				switch(surf.styles.length) {
-				case 1:
-					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
-					break;
-				case 2:
+				case 4:
+					styles_3 = surf.styles[3] * 0.015625 + 0.0078125;
+					styles_2 = surf.styles[2] * 0.015625 + 0.0078125;
 					styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
 					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
@@ -15173,19 +15178,20 @@ quake_Render.MakeWorldModelDisplayLists = function(m) {
 					styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
 					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
-				case 4:
-					styles_3 = surf.styles[3] * 0.015625 + 0.0078125;
-					styles_2 = surf.styles[2] * 0.015625 + 0.0078125;
+				case 2:
 					styles_1 = surf.styles[1] * 0.015625 + 0.0078125;
+					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
+					break;
+				case 1:
 					styles_0 = surf.styles[0] * 0.015625 + 0.0078125;
 					break;
 				}
 				chain[2] += surf.verts.length;
-				var _g7 = 0;
-				var _g8 = surf.verts;
-				while(_g7 < _g8.length) {
-					var vert = _g8[_g7];
-					++_g7;
+				var _g6 = 0;
+				var _g7 = surf.verts;
+				while(_g6 < _g7.length) {
+					var vert = _g7[_g6];
+					++_g6;
 					cmds.push(vert[0]);
 					cmds.push(vert[1]);
 					cmds.push(vert[2]);
@@ -15210,8 +15216,8 @@ quake_Render.MakeWorldModelDisplayLists = function(m) {
 	m.skychain = verts * 44;
 	verts = 0;
 	var _g11 = 0;
-	var _g6 = m.textures.length;
-	while(_g11 < _g6) {
+	var _g8 = m.textures.length;
+	while(_g11 < _g8) {
 		var i1 = _g11++;
 		if(!m.textures[i1].sky) {
 			continue;
@@ -15759,7 +15765,7 @@ quake_Render.RocketTrail = function(start,end,type) {
 			this2[1] = y1;
 			this2[2] = z1;
 			break;
-		case 5:case 3:
+		case 3:case 5:
 			p.die = quake_CL.state.time + 0.5;
 			p.type = 0;
 			if(tmp) {
@@ -17926,14 +17932,14 @@ quake_V.BonusFlash_f = function() {
 };
 quake_V.SetContentsColor = function(contents) {
 	switch(contents) {
+	case -1:case -2:
+		quake_CL.state.cshifts[0] = quake_V.cshift_empty;
+		break;
 	case -5:
 		quake_CL.state.cshifts[0] = quake_V.cshift_lava;
 		break;
 	case -4:
 		quake_CL.state.cshifts[0] = quake_V.cshift_slime;
-		break;
-	case -1:case -2:
-		quake_CL.state.cshifts[0] = quake_V.cshift_empty;
 		break;
 	default:
 		quake_CL.state.cshifts[0] = quake_V.cshift_water;
@@ -18081,14 +18087,14 @@ quake_V.CalcRefdef = function() {
 	view.origin[1] = ent.origin[1] + forward[1] * bob * 0.4;
 	view.origin[2] = ent.origin[2] + quake_CL.state.viewheight + forward[2] * bob * 0.4 + bob;
 	switch(quake_SCR.viewsize.value) {
-	case 80:
-		view.origin[2] = view.origin[2] + 0.5;
-		break;
 	case 110:case 90:
 		view.origin[2] = view.origin[2] + 1.0;
 		break;
 	case 100:
 		view.origin[2] = view.origin[2] + 2.0;
+		break;
+	case 80:
+		view.origin[2] = view.origin[2] + 0.5;
 		break;
 	}
 	view.model = quake_CL.state.model_precache[quake_CL.state.stats[2]];

@@ -365,7 +365,12 @@ js_Boot.__instanceof = function(o,cl) {
 	case Float:
 		return typeof(o) == "number";
 	case Int:
-		return (o|0) === o;
+		if(typeof(o) == "number") {
+			return (o|0) === o;
+		} else {
+			return false;
+		}
+		break;
 	case String:
 		return typeof(o) == "string";
 	default:

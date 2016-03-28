@@ -12704,14 +12704,14 @@ quake_SV.movestep = function(ent,move,relink) {
 	if(((ent.v.floats[76] | 0) & 2 + 1) != 0) {
 		var enemy = ent.v.ints[75];
 		var _g = 0;
-		var tmp = enemy == 0;
-		var tmp1 = enemy != 0;
+		var tmp = enemy != 0;
+		var tmp1 = enemy == 0;
 		while(_g < 2) {
 			var i = _g++;
 			neworg[0] = ent.v.origin[0] + move[0];
 			neworg[1] = ent.v.origin[1] + move[1];
 			neworg[2] = ent.v.origin[2];
-			if(i == 0 && tmp1) {
+			if(i == 0 && tmp) {
 				var dz = ent.v.origin[2] - quake_SV.server.edicts[enemy].v.origin[2];
 				if(dz > 40.0) {
 					neworg[2] = neworg[2] - 8.0;
@@ -12730,7 +12730,7 @@ quake_SV.movestep = function(ent,move,relink) {
 				}
 				return true;
 			}
-			if(tmp) {
+			if(tmp1) {
 				return false;
 			}
 		}
@@ -15739,8 +15739,8 @@ quake_Render.RocketTrail = function(start,end,type) {
 	}
 	var allocated = type == 4?quake_Render.AllocParticles(Math.floor(len / 6.0)):quake_Render.AllocParticles(Math.floor(len / 3.0));
 	var _g = 0;
-	var tmp = type == 3;
-	var tmp1 = type << 1;
+	var tmp = type << 1;
+	var tmp1 = type == 3;
 	while(_g < allocated.length) {
 		var idx = allocated[_g];
 		++_g;
@@ -15749,7 +15749,7 @@ quake_Render.RocketTrail = function(start,end,type) {
 		p.die = quake_CL.state.time + 2.0;
 		switch(type) {
 		case 0:case 1:
-			p.ramp = Math.floor(Math.random() * 4.0) + tmp1;
+			p.ramp = Math.floor(Math.random() * 4.0) + tmp;
 			p.color = quake_Render.ramp3[p.ramp | 0];
 			p.type = 3;
 			var this1 = p.org;
@@ -15774,7 +15774,7 @@ quake_Render.RocketTrail = function(start,end,type) {
 		case 3:case 5:
 			p.die = quake_CL.state.time + 0.5;
 			p.type = 0;
-			if(tmp) {
+			if(tmp1) {
 				p.color = 52 + ((quake_Render.tracercount++ & 4) << 1);
 			} else {
 				p.color = 230 + ((quake_Render.tracercount++ & 4) << 1);
@@ -15910,8 +15910,8 @@ quake_Render.AddDynamicLights = function(surf) {
 			}
 			var td1 = Math.floor(td);
 			var _g4 = 0;
-			var tmp = t * smax;
-			var tmp1 = td1 >> 1;
+			var tmp = td1 >> 1;
+			var tmp1 = t * smax;
 			while(_g4 < smax) {
 				var s = _g4++;
 				var sd = local0 - (s << 4);
@@ -15920,12 +15920,12 @@ quake_Render.AddDynamicLights = function(surf) {
 				}
 				var sd1 = Math.floor(sd);
 				if(sd1 > td1) {
-					dist = sd1 + tmp1;
+					dist = sd1 + tmp;
 				} else {
 					dist = td1 + (sd1 >> 1);
 				}
 				if(dist < minlight) {
-					blocklights[tmp + s] += Math.floor((rad - dist) * 256.0);
+					blocklights[tmp1 + s] += Math.floor((rad - dist) * 256.0);
 				}
 			}
 		}
@@ -17713,8 +17713,8 @@ quake_Sbar.DeathmatchOverlay = function() {
 	var _g1 = 0;
 	var _g = quake_Sbar.scoreboardlines;
 	var tmp = x + 32;
-	var tmp1 = x + 64;
-	var tmp2 = x - 8;
+	var tmp1 = x - 8;
+	var tmp2 = x + 64;
 	while(_g1 < _g) {
 		var i = _g1++;
 		var s = quake_CL.state.scores[quake_Sbar.fragsort[i]];
@@ -17726,9 +17726,9 @@ quake_Sbar.DeathmatchOverlay = function() {
 		var f = s.frags == null?"null":"" + s.frags;
 		quake_Draw.String(tmp - (f.length << 3),y,f);
 		if(quake_Sbar.fragsort[i] == quake_CL.state.viewentity - 1) {
-			quake_Draw.Character(tmp2,y,12);
+			quake_Draw.Character(tmp1,y,12);
 		}
-		quake_Draw.String(tmp1,y,s.name);
+		quake_Draw.String(tmp2,y,s.name);
 		y += 10;
 	}
 };

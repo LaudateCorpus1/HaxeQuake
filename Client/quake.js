@@ -13849,7 +13849,6 @@ quake_SV.ReadClientMessage = function() {
 			}
 		}
 	}
-	return false;
 };
 quake_SV.RunClients = function() {
 	var _g1 = 0;

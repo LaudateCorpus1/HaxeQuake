@@ -7,17 +7,6 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var EReg = function(r,opt) {
-	opt = opt.split("u").join("");
-	this.r = new RegExp(r,opt);
-};
-EReg.__name__ = true;
-EReg.prototype = {
-	replace: function(s,by) {
-		return s.replace(this.r,by);
-	}
-	,__class__: EReg
-};
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
 HxOverrides.cca = function(s,index) {
@@ -5615,7 +5604,7 @@ quake_Host.Connect_f = function() {
 	quake_CL.cls.signon = 0;
 };
 quake_Host.SavegameComment = function() {
-	var text = new EReg("\\s","gm").replace(quake_CL.state.levelname,"_");
+	var text = quake_CL.state.levelname.replace(new RegExp("\\s","gm".split("u").join("")),"_");
 	var _g = quake_CL.state.levelname.length;
 	while(_g < 22) {
 		++_g;

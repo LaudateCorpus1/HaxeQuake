@@ -3,7 +3,6 @@ package quake;
 import js.Browser.window;
 import js.Browser.document;
 import js.Error;
-import js.html.Event;
 import js.html.KeyboardEvent;
 import js.html.MouseEvent;
 import js.html.WheelEvent;

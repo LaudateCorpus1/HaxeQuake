@@ -1,9 +1,7 @@
 package quake;
 
-import js.html.ArrayBuffer;
 import js.html.Uint8Array;
 import quake.CL.ClientCmd;
-import quake.Mod.MModel;
 import quake.NET.INETSocket;
 import quake.PR.EType;
 import quake.Protocol.SVC;

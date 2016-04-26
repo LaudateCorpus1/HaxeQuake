@@ -1,11 +1,7 @@
 package quake;
 
-import js.html.ArrayBuffer;
 import js.html.DataView;
-import js.html.Float32Array;
-import js.html.Uint32Array;
 import js.html.Uint8Array;
-import js.html.webgl.RenderingContext;
 import js.html.webgl.Buffer;
 import js.html.webgl.Texture;
 import quake.GL.gl;

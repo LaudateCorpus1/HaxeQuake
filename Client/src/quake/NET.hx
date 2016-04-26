@@ -1,7 +1,5 @@
 package quake;
 
-import js.html.Uint8Array;
-
 @:publicFields
 class NETSocketBase {
     var disconnected:Bool;

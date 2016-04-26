@@ -1,8 +1,5 @@
 package quake;
 
-import js.html.ArrayBuffer;
-import js.html.Float32Array;
-import js.html.Int32Array;
 import js.html.Uint8Array;
 import quake.Entity.EntityEffect;
 import quake.CL.ClientCmd;

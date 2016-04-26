@@ -1,7 +1,6 @@
 package quake;
 
 import js.Browser.document;
-import js.html.CanvasElement;
 import js.html.MouseEvent;
 
 @:access(quake.IN)

@@ -1,18 +1,13 @@
 package quake;
 
-import haxe.extern.EitherType;
 import js.Browser.document;
 import js.html.ArrayBuffer;
 import js.html.Float32Array;
-import js.html.ScriptElement;
 import js.html.Uint32Array;
 import js.html.Uint8Array;
 import js.html.webgl.Buffer;
-import js.html.webgl.Program;
 import js.html.webgl.RenderingContext;
 import js.html.webgl.Texture;
-import js.html.webgl.UniformLocation;
-import quake.Vec.Matrix;
 
 @:publicFields
 private class GLModeSetting {

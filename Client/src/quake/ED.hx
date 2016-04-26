@@ -6,7 +6,6 @@ import js.html.Int32Array;
 import quake.PR.EType;
 import quake.PR.PRDef;
 import quake.SV.MoveType;
-import quake.SV.EntFlag;
 
 @:publicFields
 class ED {

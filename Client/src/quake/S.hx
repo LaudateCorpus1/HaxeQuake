@@ -244,7 +244,11 @@ class S {
 				gain1: context.createGain(),
 				merger2: context.createChannelMerger(2)
 			};
-			target_chan.nodes = nodes;
+			target_chan.nodes = {
+				source: nodes.source,
+				gain0: nodes.gain0,
+				gain1: nodes.gain1,
+			};
 			nodes.source.buffer = sfx.cache.data;
 			if (sfx.cache.loopstart != null) {
 				nodes.source.loop = true;
@@ -362,7 +366,11 @@ class S {
 				gain1: context.createGain(),
 				merger2: context.createChannelMerger(2)
 			};
-			ss.nodes = nodes;
+			ss.nodes = {
+				source: nodes.source,
+				gain0: nodes.gain0,
+				gain1: nodes.gain1,
+			};
 			nodes.source.buffer = sfx.cache.data;
 			nodes.source.loop = true;
 			nodes.source.loopStart = sfx.cache.loopstart;

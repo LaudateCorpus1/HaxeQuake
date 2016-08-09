@@ -213,7 +213,7 @@ class COM {
 			dest.push(String.fromCharCode(data[i]));
 		try {
 			localStorage.setItem('Quake.' + searchpaths[searchpaths.length - 1].filename + '/' + filename, dest.join(''));
-		} catch (e:Dynamic) {
+		} catch (e:Any) {
 			Sys.Print('COM.WriteFile: failed on ' + filename + '\n');
 			return false;
 		}
@@ -225,7 +225,7 @@ class COM {
 		filename = filename.toLowerCase();
 		try {
 			localStorage.setItem('Quake.' + searchpaths[searchpaths.length - 1].filename + '/' + filename, data);
-		} catch (e:Dynamic) {
+		} catch (e:Any) {
 			Sys.Print('COM.WriteTextFile: failed on ' + filename + '\n');
 			return false;
 		}

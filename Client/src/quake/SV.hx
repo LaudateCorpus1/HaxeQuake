@@ -1241,7 +1241,7 @@ class SV {
         pusher.v.origin[2] += move[2];
         pusher.v.ltime += movetime;
         LinkEdict(pusher, false);
-        var moved:Array<Array<Dynamic>> = [];
+        var moved:Array<Array<Any>> = [];
         for (e in 1...server.num_edicts) {
             var check = server.edicts[e];
             if (check.free)

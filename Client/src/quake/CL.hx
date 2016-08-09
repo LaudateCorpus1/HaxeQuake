@@ -622,7 +622,7 @@ class CL {
         {
             pw = Q.btoa(new Uint8Array(Q.strmem('quake:' + CL.rcon_password.string)));
         }
-        catch (e:Dynamic) {
+        catch (e:Any) {
             return;
         }
         var message = '', i;
@@ -632,7 +632,7 @@ class CL {
         {
             message = StringTools.urlEncode(message);
         }
-        catch (e:Dynamic) {
+        catch (e:Any) {
             return;
         }
         var xhr = new XMLHttpRequest();

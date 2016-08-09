@@ -309,11 +309,11 @@ class S {
 	}
 
 	static function NoteOff(node:AudioBufferSourceNode):Void {
-		try node.stop() catch (_:Dynamic) {}
+		try node.stop() catch (_:Any) {}
 	}
 
 	static function NoteOn(node:AudioBufferSourceNode):Void {
-		try node.start() catch (_:Dynamic) {}
+		try node.start() catch (_:Any) {}
 	}
 
 	static function StopAllSounds():Void {

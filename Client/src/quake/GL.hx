@@ -293,7 +293,7 @@ class GL {
             gl = VID.mainwindow.getContext('webgl');
             if (gl == null)
                 VID.mainwindow.getContext('experimental-webgl');
-        } catch (e:Dynamic) {}
+        } catch (e:Any) {}
         if (gl == null)
             Sys.Error('Unable to initialize WebGL. Your browser may not support it.');
 

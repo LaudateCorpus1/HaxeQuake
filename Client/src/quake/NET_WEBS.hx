@@ -113,7 +113,7 @@ class NET_WEBS {
 		if (host.substring(0, 5) != 'ws://')
 			return null;
 		host = 'ws://' + host.split('/')[2];
-		var sock = try new WEBSNETSocket(host) catch (e:Dynamic) return null;
+		var sock = try new WEBSNETSocket(host) catch (e:Any) return null;
 		NET.newsocket = sock;
 		NET.AddNewSocket(sock);
 		return cast 0;

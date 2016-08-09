@@ -8,7 +8,7 @@
 
 Client is fully ported to Haxe and perfectly playable, you can try playing shareware Quake version right from this repository: [here](http://nadako.github.io/HaxeQuake/Client/WebQuake.htm). It was tested and probably only works on Google Chrome.
 
-It requires Haxe 3.3 (still in development as of 27.02.2016) to compile.
+It requires Haxe 3.3 (still in development as of 10.08.2016) to compile.
 
 ## Roadmap
 

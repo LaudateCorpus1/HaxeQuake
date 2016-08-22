@@ -268,7 +268,6 @@ class Mod_Brush {
 
     static function LoadTextures(loadmodel:MModel, view:DataView):Void {
         var fileofs = view.getUint32(LumpOffsets.textures, true);
-        var filelen = view.getUint32(LumpOffsets.textures + 4, true);
         loadmodel.textures = [];
         var nummiptex = view.getUint32(fileofs, true);
         var dataofs = fileofs + 4;

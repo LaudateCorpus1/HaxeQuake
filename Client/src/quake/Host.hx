@@ -1033,12 +1033,15 @@ class Host {
                 Cmd.ForwardToServer();
                 return;
             }
+        } else if (PR.globals.deathmatch != 0.0) {
+            return;
         }
-        else if (PR.globals.deathmatch != 0.0)
+        if (Cmd.argv.length <= 1)
             return;
         var save = Host.client;
+        var s = Cmd.argv[1].toLowerCase();
         var i, byNumber = null;
-        if ((Cmd.argv.length >= 3) && (Cmd.argv[1] == '#')) {
+        if ((Cmd.argv.length >= 3) && (s == '#')) {
             i = Q.atoi(Cmd.argv[2]) - 1;
             if ((i < 0) || (i >= SV.svs.maxclients))
                 return;
@@ -1054,7 +1057,7 @@ class Host {
                     i++;
                     continue;
                 }
-                if (SV.GetClientName(Host.client).toLowerCase() == Cmd.argv[1].toLowerCase())
+                if (SV.GetClientName(Host.client).toLowerCase() == s)
                     break;
                 i++;
             }

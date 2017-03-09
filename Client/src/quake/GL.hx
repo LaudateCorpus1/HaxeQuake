@@ -53,7 +53,7 @@ class GL {
     static var picmip:Cvar;
     static var activetexture:Int;
     static var currenttextures = new Map<Int,Texture>();
-    static var currentprogram:GLProgram;
+    static var currentProgram:GLProgram;
     static var modes:Map<String,GLModeSetting>;
 
     public static function Bind(target:Int, texnum:Texture):Void {
@@ -253,21 +253,21 @@ class GL {
     }
 
     public static function UseProgram<T:GLProgram>(program:T):T {
-        if (currentprogram == program)
+        if (currentProgram == program)
             return program;
-        if (currentprogram != null)
-            currentprogram.unbind();
-        currentprogram = program;
+        if (currentProgram != null)
+            currentProgram.unbind();
+        currentProgram = program;
         program.use();
         program.bind();
         return program;
     }
 
     public static function UnbindProgram():Void {
-        if (currentprogram == null)
+        if (currentProgram == null)
             return;
-        currentprogram.unbind();
-        currentprogram = null;
+        currentProgram.unbind();
+        currentProgram = null;
     }
 
     public static function RotationMatrix(pitch:Float, yaw:Float, roll:Float):Array<Float> {

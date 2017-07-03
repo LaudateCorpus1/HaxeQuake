@@ -1146,10 +1146,7 @@ class CL {
         }
         CL.state.gametype = MSG.ReadByte();
         CL.state.levelname = MSG.ReadString();
-        var s = "\n\n";
-        for (c in [35, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 37])
-            s += String.fromCharCode(c);
-        s += "\n\n";
+        Console.Print('\n\n\x1d\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1f\n\n');
         Console.Print(String.fromCharCode(2) + CL.state.levelname + '\n');
 
         var str;

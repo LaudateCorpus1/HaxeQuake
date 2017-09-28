@@ -2,8 +2,9 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "hxml",
-			"file": "build.hxml",
+			"type": "shell",
+			"taskName": "Build",
+			"command": "node Kha/make -t html5",
 			"problemMatcher": "$haxe",
 			"group": {
 				"kind": "build",

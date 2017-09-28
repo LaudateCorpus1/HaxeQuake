@@ -27,7 +27,7 @@ class Sys {
 
     public static function Quit():Void {
         if (frame != null)
-            window.clearInterval(frame);
+            kha.Scheduler.removeFrameTask(frame);
 
         clearEvents();
 
@@ -47,7 +47,7 @@ class Sys {
 
     public static function Error(text:String):Void {
         if (frame != null)
-            window.clearInterval(frame);
+            kha.Scheduler.removeFrameTask(frame);
 
         clearEvents();
 
@@ -73,7 +73,7 @@ class Sys {
         return (untyped decodeURIComponent)(s);
 
     static function main():Void {
-        window.onload = function() {
+        kha.System.init({}, function () kha.Assets.loadEverything(function() {
             var cmdline = urlDecode(document.location.search);
             var location = document.location;
             var argv = [location.href.substring(0, location.href.length - location.search.length)];
@@ -165,8 +165,8 @@ class Sys {
             window.onunload = onunload;
             window.onwheel = onwheel;
 
-            frame = window.setInterval(Host.Frame, Std.int(1000.0 / 60.0));
-        }
+            frame = kha.Scheduler.addTimeTask(Host.Frame, 0, 1 / 60);
+        }));
     }
 
     static function onbeforeunload(_):String {

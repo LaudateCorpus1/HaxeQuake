@@ -1,0 +1,3 @@
+[submodule "Client/Kha"]
+	path = Client/Kha
+	url = https://github.com/Kode/Kha/
